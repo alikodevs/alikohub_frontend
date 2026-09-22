@@ -47,6 +47,7 @@ const Contact = () => {
         service_interest: topic || undefined,
         message,
         source_page: "technology-contact",
+        target_email: "academy-tech@alikohub.com",
       });
       toast({
         title: "Message Sent!",
@@ -223,35 +224,36 @@ const Contact = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Email</p>
                       <a
-                        href="mailto:hello@alikoacademy.tech"
+                        href="mailto:academy-tech@alikohub.com"
                         className="font-semibold text-foreground hover:text-secondary transition-colors"
                       >
-                        hello@alikoacademy.tech
+                        academy-tech@alikohub.com
                       </a>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
                       <Phone className="h-5 w-5 text-accent" />
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Phone</p>
-                      <a
-                        href="tel:+1234567890"
-                        className="font-semibold text-foreground hover:text-accent transition-colors"
-                      >
-                        +1 (234) 567-890
-                      </a>
+                      <div className="font-semibold text-foreground text-sm flex flex-wrap items-center gap-x-1.5">
+                        <a href="tel:+12063535373" className="hover:text-accent transition-colors">+1 (206) 353 5373</a>
+                        <span className="text-muted-foreground/40">|</span>
+                        <a href="tel:+251920907878" className="hover:text-accent transition-colors">+251 920 907 878</a>
+                        <span className="text-muted-foreground/40">|</span>
+                        <a href="tel:+251910813571" className="hover:text-accent transition-colors">+251 910 813 571</a>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                       <MapPin className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Location</p>
-                      <p className="font-semibold text-foreground">
-                        Remote-first, Global
+                      <p className="font-semibold text-foreground text-sm space-y-1">
+                        <span>19550 International Blvd Suite STE 301, SeaTac, WA 98188</span>
                       </p>
                     </div>
                   </div>

@@ -108,23 +108,35 @@ export function Footer() {
               </div>
               <div>
                 <h4 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-accent" />
                   Contact Us
                 </h4>
                 <div className="space-y-2 text-sm text-white/70">
-                  <p>{currentState.contact.address}</p>
-                  <p>
-                    {currentState.contact.city}, {currentState.contact.state}{" "}
-                    {currentState.contact.zip}
+                  <p className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                    <span>{currentState.contact.address}</span>
                   </p>
-                  <p className="flex items-center gap-2">
-                    <Phone className="h-3.5 w-3.5 text-accent" />
-                    <a
-                      href={`tel:${currentState.contact.phone}`}
-                      className="hover:text-accent transition-colors"
-                    >
-                      {currentState.contact.phone}
-                    </a>
+                  <p className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                    <span>
+                      {currentState.contact.additionalAddress ||
+                        "Addis Ababa, Bole Dembel, Tigi's Building, 12th Floor"}
+                    </span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <Phone className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
+                    <span className="flex flex-wrap gap-x-1.5">
+                      <a href={`tel:${currentState.contact.phone}`} className="hover:text-accent transition-colors">
+                        {currentState.contact.phone}
+                      </a>
+                      <span className="text-white/40">|</span>
+                      <a href="tel:+251920907878" className="hover:text-accent transition-colors">
+                        +251 920 907 878
+                      </a>
+                      <span className="text-white/40">|</span>
+                      <a href="tel:+251910813571" className="hover:text-accent transition-colors">
+                        +251 910 813 571
+                      </a>
+                    </span>
                   </p>
                   <p className="flex items-center gap-2">
                     <Mail className="h-3.5 w-3.5 text-accent" />

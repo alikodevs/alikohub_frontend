@@ -26,6 +26,7 @@ const Contact = () => {
         email: formData.email,
         message: formData.message,
         source_page: "stem-contact",
+        target_email: "academy-stem@alikohub.com",
       });
       toast.success("Message sent!", {
         description: "We'll get back to you soon.",
@@ -63,25 +64,44 @@ const Contact = () => {
               </h2>
               <div className="space-y-5 mb-10">
                 <div className="flex items-center gap-4 p-4 rounded-xl bg-primary/10 border border-primary/25">
-                  <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
                     <Mail className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Email</p>
-                    <span className="font-bold text-foreground">
-                      stem@alikogroup.com
-                    </span>
+                    <a
+                      href="mailto:academy-stem@alikohub.com"
+                      className="font-bold text-foreground hover:text-primary transition-colors"
+                    >
+                      academy-stem@alikohub.com
+                    </a>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-accent/10 border border-accent/25">
-                  <div className="h-12 w-12 rounded-lg bg-accent/20 flex items-center justify-center">
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-secondary/10 border border-secondary/25">
+                  <div className="h-12 w-12 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Phone className="h-6 w-6 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Phone</p>
+                    <div className="font-bold text-foreground text-sm flex flex-wrap items-center gap-x-1.5">
+                      <a href="tel:+12063535373" className="hover:text-secondary transition-colors">+1 (206) 353 5373</a>
+                      <span className="opacity-40">|</span>
+                      <a href="tel:+251920907878" className="hover:text-secondary transition-colors">+251 920 907 878</a>
+                      <span className="opacity-40">|</span>
+                      <a href="tel:+251910813571" className="hover:text-secondary transition-colors">+251 910 813 571</a>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-accent/10 border border-accent/25">
+                  <div className="h-12 w-12 rounded-lg bg-accent/20 flex items-center justify-center shrink-0 mt-0.5">
                     <MapPin className="h-6 w-6 text-accent" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Location</p>
-                    <span className="font-bold text-foreground">
-                      Middle East & International
-                    </span>
+                    <div className="font-bold text-foreground text-sm space-y-1">
+                      <p>19550 International Blvd Suite STE 301, SeaTac, WA 98188</p>
+                      <p>Addis Ababa, Bole Dembel, Tigi's Building, 12th Floor</p>
+                    </div>
                   </div>
                 </div>
               </div>

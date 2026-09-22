@@ -11,9 +11,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect,  useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import AuthLayout from "@/features/auth/components/AuthLayout";
 import PasswordInput from "@/features/auth/components/PasswordInput";
@@ -37,11 +36,6 @@ const passwordChecks = [
 
 const resetPasswordSchema = zod
   .object({
-    email: zod
-      .string()
-      .trim()
-      .min(1, "Email is required")
-      .email("Enter a valid email address"),
     newPassword: zod
       .string()
       .min(6, "Password must be at least 6 characters")
@@ -63,13 +57,11 @@ const ResetPasswordPage = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
-  // Pre-fill email from query params if provided (e.g. from reset link)
-  const emailFromParams = searchParams.get("email") || "";
+  const token = searchParams.get("token") ?? "";
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      email: emailFromParams,
       newPassword: "",
       confirmPassword: "",
     },
@@ -78,12 +70,17 @@ const ResetPasswordPage = () => {
   const passwordValue = form.watch("newPassword");
 
   const onSubmit = (values: ResetPasswordFormValues) => {
-    const { confirmPassword, ...apiValues } = values;
-    resetPassword(apiValues, {
-      onSuccess: () => {
-        setIsSuccess(true);
+    resetPassword(
+      {
+        token,
+        newPassword: values.newPassword,
       },
-    });
+      {
+        onSuccess: () => {
+          setIsSuccess(true);
+        },
+      },
+    );
   };
 
   // Redirect to login after success
@@ -100,9 +97,7 @@ const ResetPasswordPage = () => {
     <AuthLayout
       heading={isSuccess ? "Password reset!" : "Reset your password"}
       subheading={
-        isSuccess
-          ? undefined
-          : "Enter your email and create a new secure password."
+        isSuccess ? undefined : "Choose a new password for your account."
       }
     >
       {/* Icon badge — gradient ring echoes the logomark's blue-to-orange sweep */}
@@ -186,35 +181,6 @@ const ResetPasswordPage = () => {
                 noValidate
                 className="space-y-6"
               >
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className="space-y-2">
-                      <FormLabel className="text-sm font-medium text-foreground">
-                        Email Address
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="name@company.com"
-                          autoComplete="email"
-                          autoCapitalize="none"
-                          spellCheck={false}
-                          className="h-11 rounded-lg border-input bg-white transition-colors focus-visible:ring-2 sm:h-12"
-                          style={
-                            {
-                              "--tw-ring-color": `${BRAND_LINK}66`,
-                            } as React.CSSProperties
-                          }
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <FormField
                   control={form.control}
                   name="newPassword"

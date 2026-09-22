@@ -1,7 +1,0 @@
-# .env
-node_modules/
-package-lock.json
-dist/
-[TEST-01] Lack of Name Formatting Rules.txt
-API_GATEWAY_SERVICE_EXTRACTION.md
-Postman-Collection-Template.md

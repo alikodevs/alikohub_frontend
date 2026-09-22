@@ -1,22 +1,5 @@
-import { Award, Download, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Award } from "lucide-react";
 import StudentLayout from "@/features/student/components/StudentLayout";
-const certificates = [
-  {
-    title: "CPR/BLS Certification",
-    stream: "Health",
-    streamClass: "stream-health",
-    issuedDate: "January 15, 2026",
-    credentialId: "CERT-HEALTH-2026-001",
-  },
-  {
-    title: "Python Fundamentals",
-    stream: "Tech",
-    streamClass: "stream-tech",
-    issuedDate: "December 10, 2025",
-    credentialId: "CERT-TECH-2025-042",
-  },
-];
 
 const Certifications = () => {
   return (
@@ -29,55 +12,18 @@ const Certifications = () => {
           Your earned credentials and certificates.
         </p>
 
-        {certificates.length > 0 ? (
-          <div className="space-y-4">
-            {certificates.map((cert) => (
-              <div
-                key={cert.credentialId}
-                className="bg-card rounded-lg border p-6 hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center shrink-0">
-                      <Award className="w-6 h-6 text-amber-600" />
-                    </div>
-                    <div>
-                      <span
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full ${cert.streamClass}`}
-                      >
-                        {cert.stream}
-                      </span>
-                      <h3 className="font-heading font-semibold text-foreground mt-2">
-                        {cert.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Issued: {cert.issuedDate}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1 font-mono">
-                        ID: {cert.credentialId}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="gap-1">
-                      <Download className="w-4 h-4" /> Download PDF
-                    </Button>
-                    <Button variant="outline" size="sm" className="gap-1">
-                      <Share2 className="w-4 h-4" /> Share
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="flex flex-col items-center justify-center py-24 rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-5">
+            <Award className="w-8 h-8 text-amber-500" />
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <Award className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">
-              Complete a course to earn your first certificate.
-            </p>
-          </div>
-        )}
+          <h2 className="text-xl font-bold text-slate-800 mb-2">
+            Certificates Coming Soon
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+            We're working on digital certificates for completed courses. Once
+            you finish a course, your certificate will appear here.
+          </p>
+        </div>
       </div>
     </StudentLayout>
   );

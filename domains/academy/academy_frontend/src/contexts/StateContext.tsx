@@ -4,10 +4,9 @@ interface StateConfig {
   name: string;
   contact: {
     address: string;
-    city: string;
-    state: string;
-    zip: string;
+    additionalAddress?: string;
     phone: string;
+    additionalPhones?: string[];
     email: string;
     admissionsPhone: string;
     admissionsEmail: string;
@@ -27,14 +26,13 @@ interface StateConfig {
 const defaultState: StateConfig = {
   name: "Washington",
   contact: {
-    address: "123 Healthcare Way, Suite 100",
-    city: "Seattle",
-    state: "WA",
-    zip: "98101",
-    phone: "(206) 555-0123",
-    email: "health@alikoacademy.com",
-    admissionsPhone: "(206) 555-0124",
-    admissionsEmail: "admissions.health@alikoacademy.com",
+    address: "19550 International Blvd Suite STE 301, SeaTac, WA 98188",
+    additionalAddress: "Addis Ababa, Bole Dembel, Tigi's Building, 12th Floor",
+    phone: "+1 (206) 353 5373",
+    additionalPhones: ["+251 920 907 878", "+251 910 813 571"],
+    email: "academy-health@alikohub.com",
+    admissionsPhone: "+1 (206) 353 5373",
+    admissionsEmail: "academy-health@alikohub.com",
   },
   officeHours: {
     weekday: "Mon - Fri: 8:00 AM - 6:00 PM",

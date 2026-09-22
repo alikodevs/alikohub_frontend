@@ -59,11 +59,11 @@ export const useAccessLms = () => {
         toast.success("Accessing LMS!");
       }
 
-      navigate("/lms");
+      navigate("/dashboard");
     } catch (error: any) {
       console.error("Failed to access LMS:", error);
       const currentActive = user.academyUser?.activeRole?.toLowerCase();
-      navigate(currentActive === "instructor" ? "/instructor/lms" : "/lms");
+      navigate(currentActive === "instructor" ? "/instructor" : "/dashboard");
     } finally {
       isExecuting.current = false;
     }

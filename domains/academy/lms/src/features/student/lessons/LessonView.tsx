@@ -19,6 +19,8 @@ import {
   FileText,
   HelpCircle,
   CheckCircle2,
+  Check,
+  LockKeyhole,
   Circle,
   Lock,
   Menu,
@@ -27,6 +29,7 @@ import {
   ArrowLeft,
   PlaySquare,
   Maximize2,
+  Expand,
   BookOpen,
   ChevronDown,
   LogOut,
@@ -445,17 +448,17 @@ const LmsLearn = () => {
   // ── Loading ───────────────────────────────────────────────────────────────
   if (isLoading || isReportLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex h-screen">
-        <div className="w-72 h-full bg-white border-r border-slate-200 p-4 flex flex-col gap-3">
+      <div className="min-h-screen bg-[var(--lms-bg)] flex h-screen">
+        <div className="w-72 h-full bg-[var(--lms-surface)] border-r border-[var(--lms-border)] p-4 flex flex-col gap-3">
           <Skeleton className="h-8 w-36 mb-2" />
           {[1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} className="h-10 w-full rounded-lg" />
           ))}
         </div>
         <div className="flex-1 p-8 space-y-6">
-          <Skeleton className="h-[360px] w-full rounded-2xl" />
-          <Skeleton className="h-8 w-2/3 rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-[360px] w-full rounded-lg" />
+          <Skeleton className="h-8 w-2/3 rounded-lg" />
+          <Skeleton className="h-28 w-full rounded-lg" />
         </div>
       </div>
     );
@@ -463,14 +466,14 @@ const LmsLearn = () => {
 
   if (!course) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--lms-bg)] p-6">
+        <h2 className="text-2xl font-bold text-[var(--lms-ink)] mb-2">
           Course not found
         </h2>
-        <p className="text-slate-500 mb-6 text-center max-w-md">
+        <p className="text-[var(--lms-muted)] mb-6 text-center max-w-md">
           We couldn't find the course you're looking for.
         </p>
-        <Button onClick={() => navigate("/dashboard")} className="rounded-xl">
+        <Button onClick={() => navigate("/dashboard")} className="rounded-lg">
           Return to My Learning
         </Button>
       </div>
@@ -479,14 +482,14 @@ const LmsLearn = () => {
 
   if (!enrollmentsLoading && !isEnrolled) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="w-20 h-20 bg-amber-50 rounded-3xl flex items-center justify-center mb-6 border border-amber-100 shadow-sm">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--lms-bg)] p-6 text-center">
+        <div className="w-20 h-20 bg-amber-50 rounded-lg flex items-center justify-center mb-6 border border-amber-100 shadow-[var(--lms-shadow-sm)]">
           <Lock className="w-10 h-10 text-amber-500" />
         </div>
-        <h2 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">
+        <h2 className="text-3xl font-bold text-[var(--lms-ink)] mb-3 tracking-normal">
           Access Restricted
         </h2>
-        <p className="text-slate-500 mb-8 max-w-md leading-relaxed">
+        <p className="text-[var(--lms-muted)] mb-8 max-w-md leading-relaxed">
           {enrollment?.status === "PENDING"
             ? "Your enrollment is pending. Payment or approval may be required."
             : "You are not enrolled in this course. Enroll to get access."}
@@ -494,7 +497,7 @@ const LmsLearn = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <Button
             onClick={() => navigate(`/courses/${id}`)}
-            className="rounded-2xl h-12 px-8 bg-slate-900 hover:bg-slate-800 font-bold"
+            className="rounded-lg h-12 px-8 bg-[var(--lms-ink)] hover:bg-[var(--lms-navy)] font-bold"
           >
             {enrollment?.status === "PENDING"
               ? "View Enrollment Status"
@@ -503,7 +506,7 @@ const LmsLearn = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/dashboard")}
-            className="rounded-2xl h-12 px-8 font-bold"
+            className="rounded-lg h-12 px-8 font-bold"
           >
             Back to Dashboard
           </Button>
@@ -617,7 +620,7 @@ const LmsLearn = () => {
   const getFullUrl = (url?: string) => {
     if (!url) return "";
     if (url.startsWith("http")) return url;
-    const baseUrl = "https://api.consultancy.alikohub.com";
+    const baseUrl = import.meta.env.VITE_API_URL || "https://api.consultancy.alikohub.com";
     const cleanUrl = url.startsWith("/") ? url : `/${url}`;
     return `${baseUrl}${cleanUrl}`;
   };
@@ -646,251 +649,220 @@ const LmsLearn = () => {
       const isFinished = isLessonCompleted;
 
       return (
-        <div className="bg-background text-on-surface w-full flex flex-col flex-1 overflow-y-auto custom-scrollbar animate-in fade-in duration-500">
-          <main className="flex-1 max-w-[1280px] w-full mx-auto px-1 sm:px-4 md:px-8 py-4 sm:py-8 flex flex-col">
-            <div className="space-y-4 md:space-y-5 px-3 sm:px-6 md:px-10 pt-4 md:pt-8 pb-32">
-              {/* Quiz header */}
-              <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
-                    <HelpCircle size={22} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-                      Lesson Assesment
-                    </h2>
-                    {quizSubmitted ? (
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-base font-bold text-emerald-600">
-                          Score: {quizScore} / {exercisesList.length}
-                        </span>
-                        <Badge className="bg-emerald-100 text-emerald-700 border-none font-bold text-xs">
-                          {Math.round((quizScore / exercisesList.length) * 100)}
-                          %
-                        </Badge>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-slate-500 font-medium mt-1">
-                        {exercisesList.length} Questions · Answer all to submit.
-                      </p>
-                    )}
-                  </div>
+        <main className="lesson-content">
+          <div className="content-head">
+            <span className="material-badge">Lesson Assessment</span>
+          </div>
+          <p className="course-name">{course?.title}</p>
+          <h2>{activeItem?.title || "Assessment"}</h2>
+
+          <div className="space-y-6 pb-32 max-w-4xl">
+            {/* Quiz summary card */}
+            <div className="rounded-lg bg-white border border-[var(--lovable-border)] p-6 flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--lovable-active-soft)] text-[var(--lovable-primary)] border border-[var(--lovable-border)]">
+                  <HelpCircle size={24} />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-[var(--lovable-fg)] font-sora m-0">
+                    {activeItem?.title || "Lesson Assessment"}
+                  </h3>
+                  {quizSubmitted ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm font-semibold text-emerald-600 font-manrope">
+                        Score: {quizScore} / {exercisesList.length}
+                      </span>
+                      <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-xs px-2 py-0.5">
+                        {Math.round((quizScore / exercisesList.length) * 100)}%
+                      </Badge>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-[var(--lovable-muted-fg)] font-medium mt-1 m-0">
+                      {exercisesList.length} Questions · Answer all to submit.
+                    </p>
+                  )}
                 </div>
               </div>
+            </div>
 
-              {/* Questions */}
-              {exercisesList.map((exercise: any, index: number) => {
-                const options = parseOptions(exercise.options);
-                return (
-                  <div
-                    key={exercise.id}
-                    className="rounded-xl md:rounded-2xl bg-white border border-slate-200 shadow-sm p-4 md:p-6 animate-in fade-in slide-in-from-bottom-4 duration-400"
-                    style={{ animationDelay: `${index * 60}ms` }}
-                  >
-                    <div className="mb-4 md:mb-5">
-                      <span className="text-[10px] md:text-[11px] font-bold text-amber-700 uppercase tracking-wider bg-amber-50 border border-amber-100 px-2.5 md:px-3 py-1 rounded-full">
-                        Question {index + 1}
-                      </span>
-                    </div>
-                    <div className="mb-6 text-base font-semibold text-slate-900 leading-snug">
-                      {exercise.question}
-                    </div>
-                    <RadioGroup
-                      value={selectedAnswers[exercise.id] || ""}
-                      onValueChange={(v) =>
-                        !quizSubmitted && handleOptionSelect(exercise.id, v)
-                      }
-                      className="flex flex-col gap-3"
-                      disabled={quizSubmitted}
-                    >
-                      {options.map((option, idx) => {
-                        const isSelected =
-                          selectedAnswers[exercise.id] === option;
-                        const knownCorrectAnswer = exercise.correctAnswer;
-                        const isCorrect = knownCorrectAnswer
-                          ? knownCorrectAnswer === option
-                          : false;
-                        const isWrong =
-                          isSelected && knownCorrectAnswer && !isCorrect;
-
-                        let cls = "border-slate-200 bg-white";
-                        if (quizSubmitted) {
-                          if (isCorrect)
-                            cls = "border-emerald-400 bg-emerald-50";
-                          else if (isWrong) cls = "border-red-400 bg-red-50";
-                          else cls = "border-slate-100 opacity-60";
-                        } else if (isSelected) {
-                          cls = "border-primary bg-primary/5";
-                        }
-
-                        return (
-                          <Label
-                            key={idx}
-                            htmlFor={`q${exercise.id}-o${idx}`}
-                            className={cn(
-                              "flex items-center gap-4 rounded-xl border p-4 transition-all",
-                              !quizSubmitted
-                                ? "cursor-pointer hover:border-primary/50 hover:bg-primary/5"
-                                : "cursor-default",
-                              cls,
-                            )}
-                          >
-                            {!quizSubmitted ? (
-                              <RadioGroupItem
-                                value={option}
-                                id={`q${exercise.id}-o${idx}`}
-                              />
-                            ) : isCorrect ? (
-                              <CheckCircle2
-                                size={18}
-                                className="text-emerald-500 shrink-0"
-                              />
-                            ) : isWrong ? (
-                              <X size={18} className="text-red-500 shrink-0" />
-                            ) : (
-                              <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
-                            )}
-                            <span className="text-[15px] font-medium text-slate-800">
-                              {option}
-                            </span>
-                          </Label>
-                        );
-                      })}
-                    </RadioGroup>
-
-                    {quizSubmitted &&
-                      (exercise.mySubmission?.feedback ||
-                        exercise.mySubmission?.score !== undefined) && (
-                        <div className="mt-6 p-5 rounded-2xl bg-indigo-50/40 border border-indigo-100/50 animate-in fade-in slide-in-from-top-2 duration-500">
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">
-                              Instructor Review
-                            </p>
-                            {exercise.mySubmission?.status === "GRADED" && (
-                              <span className="text-xs font-bold text-indigo-600 bg-white px-2 py-0.5 rounded-md border border-indigo-100 shadow-sm">
-                                {exercise.mySubmission.score} /{" "}
-                                {exercise.points || 1} pts
-                              </span>
-                            )}
-                          </div>
-                          {exercise.mySubmission?.feedback ? (
-                            <p className="text-[14px] text-slate-700 font-medium leading-relaxed italic">
-                              "{exercise.mySubmission.feedback}"
-                            </p>
-                          ) : (
-                            <p className="text-[13px] text-slate-400 font-medium italic">
-                              No written feedback provided.
-                            </p>
-                          )}
-                        </div>
-                      )}
+            {/* Questions */}
+            {exercisesList.map((exercise: any, index: number) => {
+              const options = parseOptions(exercise.options);
+              return (
+                <div
+                  key={exercise.id}
+                  className="rounded-lg bg-white border border-[var(--lovable-border)] shadow-xs p-5 font-manrope"
+                >
+                  <div className="mb-2">
+                    <span className="text-[10px] font-semibold text-[var(--lovable-primary)] uppercase tracking-wider bg-[var(--lovable-active-soft)] px-2.5 py-0.5 rounded">
+                      Question {index + 1}
+                    </span>
                   </div>
-                );
-              })}
+                  <div className="mb-4 text-sm font-semibold text-[var(--lovable-fg)] leading-snug font-sora">
+                    {exercise.question}
+                  </div>
+                  <RadioGroup
+                    value={selectedAnswers[exercise.id] || ""}
+                    onValueChange={(v) =>
+                      !quizSubmitted && handleOptionSelect(exercise.id, v)
+                    }
+                    className="flex flex-col gap-2.5"
+                    disabled={quizSubmitted}
+                  >
+                    {options.map((option, idx) => {
+                      const isSelected =
+                        selectedAnswers[exercise.id] === option;
+                      const knownCorrectAnswer = exercise.correctAnswer;
+                      const isCorrect = knownCorrectAnswer
+                        ? knownCorrectAnswer === option
+                        : false;
+                      const isWrong =
+                        isSelected && knownCorrectAnswer && !isCorrect;
 
-              {!quizSubmitted && (
-                <div className="flex justify-center pt-4">
-                  <Button
-                    onClick={() => {
-                      const allAnswered = exercisesList.every(
-                        (ex: any) => selectedAnswers[ex.id],
-                      );
-                      if (!allAnswered) {
-                        toast.error("Please answer all questions.");
-                        return;
+                      let cls = "border-[var(--lovable-border)] bg-white hover:bg-[var(--lovable-muted)]";
+                      if (quizSubmitted) {
+                        if (isCorrect)
+                          cls = "border-emerald-500 bg-emerald-50 text-emerald-900";
+                        else if (isWrong) cls = "border-red-400 bg-red-50 text-red-900";
+                        else cls = "border-[var(--lovable-border)] bg-slate-50 opacity-60";
+                      } else if (isSelected) {
+                        cls = "border-[var(--lovable-primary)] bg-[var(--lovable-active-soft)] text-[var(--lovable-primary)] font-semibold";
                       }
-                      (async () => {
-                        try {
-                          const delay = (ms: number) =>
-                            new Promise((res) => setTimeout(res, ms));
-                          const submitResults: Record<
-                            string,
-                            { isCorrect: boolean; correctAnswer?: string }
-                          > = {};
-                          for (const idx in exercisesList) {
-                            const ex = exercisesList[idx];
-                            const result =
-                              await submitExerciseMutation.mutateAsync({
-                                exerciseId: ex.id,
-                                answer: selectedAnswers[ex.id],
-                              });
-                            submitResults[ex.id] = {
-                              isCorrect:
-                                result?.isCorrect ??
-                                selectedAnswers[ex.id] === ex.correctAnswer,
-                              correctAnswer:
-                                result?.correctAnswer || ex.correctAnswer,
-                            };
-                            if (Number(idx) < exercisesList.length - 1) {
-                              await delay(500);
-                            }
-                          }
-                          // Use server-graded score instead of unreliable client-side check
-                          const serverScore = Object.values(
-                            submitResults,
-                          ).filter((r) => r.isCorrect).length;
-                          setQuizScore(serverScore);
 
-                          // Quiz state is now managed in component state
-                          setQuizSubmitted(true);
+                      return (
+                        <Label
+                          key={idx}
+                          htmlFor={`q${exercise.id}-o${idx}`}
+                          className={cn(
+                            "flex items-center gap-3 rounded-md border p-3 transition-all duration-150 text-sm font-medium",
+                            !quizSubmitted ? "cursor-pointer" : "cursor-default",
+                            cls,
+                          )}
+                        >
+                          {!quizSubmitted ? (
+                            <RadioGroupItem
+                              value={option}
+                              id={`q${exercise.id}-o${idx}`}
+                              className={cn("transition-colors", isSelected ? "text-[var(--lovable-primary)] border-[var(--lovable-primary)]" : "")}
+                            />
+                          ) : isCorrect ? (
+                            <CheckCircle2
+                              size={18}
+                              className="text-emerald-600 shrink-0"
+                            />
+                          ) : isWrong ? (
+                            <X size={18} className="text-red-500 shrink-0" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
+                          )}
+                          <span>{option}</span>
+                        </Label>
+                      );
+                    })}
+                  </RadioGroup>
+                </div>
+              );
+            })}
 
-                          // Always mark lesson complete after quiz submission
-                          const showCelebration = () => {
-                            const isModuleEnd = isLastItemInModule();
-                            setCelebration({
-                              isOpen: true,
-                              title: isModuleEnd
-                                ? "Module Mastered!"
-                                : "Quiz submitted",
-                              message: isModuleEnd
-                                ? "Excellent progress, keep up the momentum!"
-                                : "Your answers have been recorded.",
-                              isLastItem:
-                                currentItemIndex === allItems.length - 1,
+            {!quizSubmitted && (
+              <div className="flex justify-center pt-2">
+                <Button
+                  onClick={() => {
+                    const allAnswered = exercisesList.every(
+                      (ex: any) => selectedAnswers[ex.id],
+                    );
+                    if (!allAnswered) {
+                      toast.error("Please answer all questions.");
+                      return;
+                    }
+                    (async () => {
+                      try {
+                        const delay = (ms: number) =>
+                          new Promise((res) => setTimeout(res, ms));
+                        const submitResults: Record<
+                          string,
+                          { isCorrect: boolean; correctAnswer?: string }
+                        > = {};
+                        for (const idx in exercisesList) {
+                          const ex = exercisesList[idx];
+                          const result =
+                            await submitExerciseMutation.mutateAsync({
+                              exerciseId: ex.id,
+                              answer: selectedAnswers[ex.id],
                             });
+                          submitResults[ex.id] = {
+                            isCorrect:
+                              result?.isCorrect ??
+                              selectedAnswers[ex.id] === ex.correctAnswer,
+                            correctAnswer:
+                              result?.correctAnswer || ex.correctAnswer,
                           };
+                          if (Number(idx) < exercisesList.length - 1) {
+                            await delay(500);
+                          }
+                        }
+                        const serverScore = Object.values(
+                          submitResults,
+                        ).filter((r) => r.isCorrect).length;
+                        setQuizScore(serverScore);
+                        setQuizSubmitted(true);
 
-                          if (!isLessonCompleted && activeLessonId) {
-                            const lessonKey = String(activeLessonId);
-                            if (!markedLessonsRef.current.has(lessonKey)) {
-                              markedLessonsRef.current.add(lessonKey);
-                              markCompleteMutation.mutate(
-                                {
-                                  courseId: course.id,
-                                  lessonId: activeLessonId,
+                        const showCelebration = () => {
+                          const isModuleEnd = isLastItemInModule();
+                          setCelebration({
+                            isOpen: true,
+                            title: isModuleEnd
+                              ? "Module Mastered!"
+                              : "Quiz submitted",
+                            message: isModuleEnd
+                              ? "Excellent progress, keep up the momentum!"
+                              : "Your answers have been recorded.",
+                            isLastItem:
+                              currentItemIndex === allItems.length - 1,
+                          });
+                        };
+
+                        if (!isLessonCompleted && activeLessonId) {
+                          const lessonKey = String(activeLessonId);
+                          if (!markedLessonsRef.current.has(lessonKey)) {
+                            markedLessonsRef.current.add(lessonKey);
+                            markCompleteMutation.mutate(
+                              {
+                                courseId: course.id,
+                                lessonId: activeLessonId,
+                              },
+                              {
+                                onSuccess: () => {
+                                  setCompletedLessons((prev) =>
+                                    new Set(prev).add(String(activeLessonId)),
+                                  );
+                                  showCelebration();
                                 },
-                                {
-                                  onSuccess: () => {
-                                    setCompletedLessons((prev) =>
-                                      new Set(prev).add(String(activeLessonId)),
-                                    );
-                                    showCelebration();
-                                  },
-                                },
-                              );
-                            } else {
-                              showCelebration();
-                            }
+                              },
+                            );
                           } else {
                             showCelebration();
                           }
-                        } catch (e) {
-                          toast.error(
-                            "Failed to submit some answers properly.",
-                          );
+                        } else {
+                          showCelebration();
                         }
-                      })();
-                    }}
-                    disabled={submitExerciseMutation.isPending}
-                    className="rounded-xl px-10 h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-md"
-                  >
-                    Submit Quiz
-                  </Button>
-                </div>
-              )}
-            </div>
-          </main>
-        </div>
+                      } catch (e) {
+                        toast.error(
+                          "Failed to submit some answers properly.",
+                        );
+                      }
+                    })();
+                  }}
+                  disabled={submitExerciseMutation.isPending}
+                  className="complete-button"
+                  style={{ width: "200px" }}
+                >
+                  Submit Quiz
+                </Button>
+              </div>
+            )}
+          </div>
+        </main>
       );
     }
 
@@ -899,164 +871,153 @@ const LmsLearn = () => {
       const isFinished = isLessonCompleted;
 
       return (
-        <div className="bg-background text-on-surface w-full overflow-y-auto custom-scrollbar overflow-x-hidden animate-in fade-in duration-500">
-          <main className="flex-1 max-w-[1280px] w-full mx-auto px-3 sm:px-4 md:px-8 py-4 sm:py-8">
-            {/* Lesson Header & Metadata */}
-            <section className="mb-8">
-              <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <span className="bg-secondary text-on-secondary px-3 py-1 rounded-full text-[13px] font-semibold">
-                  VIDEO LESSON
-                </span>
-                <span className="text-on-surface-variant text-[13px]">
-                  {course?.title || "Module"}
-                </span>
-                <span className="text-on-surface-variant text-[13px] ml-auto flex items-center gap-1">
-                  <Clock className="w-[18px] h-[18px]" />
-                  15 mins
-                </span>
-              </div>
-              <h1 className="text-[1.75rem] md:text-[2.25rem] font-bold leading-tight text-primary mb-6">
-                {activeItem?.title || activeLesson?.title}
-              </h1>
-              {(course as any)?.teacher && (
-                <div className="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl border border-outline-variant">
-                  <img
-                    className="w-14 h-14 rounded-full border-2 border-on-primary shadow-sm object-cover"
-                    alt="Instructor"
-                    src={
-                      (course as any).teacher.profilePicture ||
-                      "https://ui-avatars.com/api/?name=U&background=random"
-                    }
-                  />
-                  <div>
-                    <h4 className="font-bold text-primary">
-                      {(course as any).teacher.firstname}{" "}
-                      {(course as any).teacher.lastname}
-                    </h4>
-                    <p className="text-xs text-on-surface-variant">
-                      Course Instructor
-                    </p>
-                  </div>
-                </div>
-              )}
-            </section>
+        <main className="lesson-content">
+          <div className="content-head">
+            <span className="material-badge">Video lesson</span>
+          </div>
+          <p className="course-name">{course?.title}</p>
+          <h2>{activeItem?.title || activeLesson?.title}</h2>
 
-            {/* Video Player */}
-            <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg mb-8 group">
-              {isYouTube((activeItem as any)?.url) ? (
-                <iframe
-                  className="absolute inset-0 w-full h-full border-0 z-10"
-                  src={getYouTubeEmbedUrl((activeItem as any)?.url || "")}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+          <div className="relative w-full aspect-video bg-slate-950 rounded-lg overflow-hidden shadow-sm mb-8">
+            {isYouTube((activeItem as any)?.url) ? (
+              <iframe
+                className="absolute inset-0 w-full h-full border-0 z-10"
+                src={getYouTubeEmbedUrl((activeItem as any)?.url || "")}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={getFullUrl((activeItem as any)?.url) || undefined}
+                controls
+                controlsList="nodownload"
+                className="absolute inset-0 w-full h-full object-contain z-10 bg-slate-950"
+              />
+            )}
+          </div>
+
+          <div className="bg-white rounded-lg p-6 border border-[var(--lovable-border)] shadow-sm max-w-4xl">
+            <h3 className="text-sm font-semibold text-[var(--lovable-fg)] mb-2 font-sora m-0">
+              About this lesson
+            </h3>
+            <div className="text-sm text-[var(--lovable-muted-fg)] leading-relaxed font-medium font-manrope prose max-w-none">
+              {activeItem?.content ? (
+                <div
+                  dangerouslySetInnerHTML={{ __html: activeItem.content }}
                 />
               ) : (
-                <video
-                  src={getFullUrl((activeItem as any)?.url) || undefined}
-                  controls
-                  controlsList="nodownload"
-                  className="absolute inset-0 w-full h-full object-contain z-10 bg-black"
-                />
+                <p>
+                  In this part of the course, we'll explore{" "}
+                  <strong className="text-[var(--lovable-fg)] font-semibold">{activeItem?.title}</strong>. Pay close attention to the key concepts presented in this section.
+                </p>
               )}
             </div>
-
-            {/* Overview Section */}
-            <div className="flex flex-col gap-8 pb-20">
-              <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
-                <h3 className="text-2xl font-bold text-primary mb-4">
-                  About this lesson
-                </h3>
-                <div className="text-[15px] text-on-surface-variant leading-relaxed">
-                  {activeItem?.content ? (
-                    <div
-                      dangerouslySetInnerHTML={{ __html: activeItem.content }}
-                    />
-                  ) : (
-                    <p>
-                      In this part of the course, we'll explore{" "}
-                      <strong>{activeItem?.title}</strong>. Pay close attention
-                      to the key concepts mentioned in the video.
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
+          </div>
+        </main>
       );
     }
 
-    // ── Reading ───────────────────────────────────────────────────────────
+    // ── Reading / Chapter Material ─────────────────────────────────────────
     if (activeItemType === "reading") {
       const url = getFullUrl((activeItem as any)?.url);
       const isFinished = isLessonCompleted;
 
       return (
-        <div className="bg-background text-on-surface w-full overflow-y-auto custom-scrollbar overflow-x-hidden animate-in fade-in duration-500 flex flex-col flex-1">
-          <main className="flex-1 max-w-[1280px] w-full mx-auto px-3 sm:px-4 md:px-8 py-4 sm:py-8 flex flex-col">
-            {/* Lesson Header & Metadata */}
-            <section className="mb-8 shrink-0">
-              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <span className="bg-secondary text-on-secondary px-3 py-1 rounded-full text-sm font-semibold tracking-wide">
-                  {isPdf ? "READING MATERIAL" : "EXTERNAL RESOURCE"}
-                </span>
+        <main className="lesson-content">
+          <div className="content-head">
+            <span className="material-badge">
+              {isPdf ? "Reading material" : "External resource"}
+            </span>
+            {isPdf && (
+              <button
+                className="expand-button"
+                onClick={() => setIsPdfViewerOpen(true)}
+              >
+                <Expand size={16} /> Expand
+              </button>
+            )}
+          </div>
 
-                <div className="flex items-center gap-2 ml-auto">
-                  {/* Expand PDF Button */}
-                  {isPdf && (
-                    <button
-                      onClick={() => setIsPdfViewerOpen(true)}
-                      className="text-primary font-bold text-sm px-3 py-1.5 rounded-md hover:bg-surface-container flex items-center gap-1.5 transition-colors"
-                    >
-                      <Maximize2 className="w-[18px] h-[18px] font-bold" />
-                      <span>Expand</span>
-                    </button>
-                  )}
-                </div>
+          <p className="course-name">
+            {course?.title || "Introduction to Certified Nursing Assistance"}
+          </p>
+
+          <h2>{activeItem?.title || activeLesson?.title || "Chapter 1"}</h2>
+
+          {/* Lovable Visual Chapter Hero Box */}
+          <div className="chapter-visual mb-4">
+            <div className="chapter-copy">
+              <button className="play-button" aria-label="Play chapter">
+                <Play size={22} fill="currentColor" />
+              </button>
+              <div>
+                <p>{activeLesson?.title?.toUpperCase() || "CHAPTER 1"}</p>
+                <h3>{activeItem?.title || "The Nursing Assistant in Long-Term Care"}</h3>
               </div>
-
-              <h1 className="text-[1.75rem] md:text-[2.25rem] font-bold leading-tight text-primary">
-                {activeItem?.title || activeLesson?.title}
-              </h1>
-            </section>
-
-            {/* Read Content Window - Similar to Video Player Wrapper but allowing full height expansion */}
-            <div className="relative w-full flex-1 min-h-[60vh] bg-surface-container-low rounded-2xl overflow-hidden shadow-lg border border-outline-variant flex flex-col">
-              {isPdf ? (
-                <InlinePdfViewer
-                  fileUrl={url}
-                  onPageChange={(current, total) => {
-                    setPdfCurrentPage(current);
-                    setPdfTotalPages(total);
-                    if (current === total && total > 1 && !isLessonCompleted) {
-                      handleMarkComplete();
-                    }
-                  }}
-                  onDocumentLoad={(total) => setPdfTotalPages(total)}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center flex-1 text-center p-12 bg-surface-container-lowest">
-                  <div className="w-20 h-20 bg-surface-container-highest rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                    <Link2 className="w-9 h-9 text-primary" />
-                  </div>
-                  <h4 className="text-2xl font-bold text-primary mb-2">
-                    External Resource
-                  </h4>
-                  <p className="text-[15px] text-on-surface-variant max-w-sm mb-8">
-                    This reading is available off-platform as an external
-                    resource link.
-                  </p>
-                  <button
-                    onClick={() => window.open(url, "_blank")}
-                    className="bg-primary text-on-primary px-8 py-3 rounded-full font-bold text-sm shadow-md hover:opacity-90 transition-opacity"
-                  >
-                    Open Resource in New Tab
-                  </button>
-                </div>
-              )}
             </div>
-          </main>
-        </div>
+            <div className="chapter-art" aria-hidden="true">
+              <span className="ring-shape" />
+              <span className="paper-shape" />
+              <div className="objective-card">
+                <strong>Learning objective</strong>
+                <p>Understand key roles and responsibilities of nursing assistants in long-term care settings.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Scroll Down Cue for Content Below */}
+          <div className="flex items-center justify-center mb-6">
+            <button
+              type="button"
+              aria-label="Scroll down for content"
+              onClick={() => {
+                const contentEl = document.querySelector(".lesson-content");
+                if (contentEl) {
+                  contentEl.scrollBy({ top: 340, behavior: "smooth" });
+                }
+              }}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white border border-[#e2e8f0] text-[#204a7c] shadow-xs hover:bg-[#f1f5f9] hover:border-[#bfdbfe] hover:scale-105 transition-all cursor-pointer group"
+            >
+              <ChevronDown size={16} className="text-[#204a7c] group-hover:translate-y-0.5 transition-transform" />
+            </button>
+          </div>
+
+          {/* PDF Viewer or Resource Link */}
+          {isPdf ? (
+            <div className="relative w-full min-h-[500px] bg-white rounded-lg overflow-hidden shadow-sm border border-[var(--lovable-border)] flex flex-col mb-8">
+              <InlinePdfViewer
+                fileUrl={url}
+                onPageChange={(current, total) => {
+                  setPdfCurrentPage(current);
+                  setPdfTotalPages(total);
+                  if (current === total && total > 1 && !isLessonCompleted) {
+                    handleMarkComplete();
+                  }
+                }}
+                onDocumentLoad={(total) => setPdfTotalPages(total)}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center p-10 bg-white rounded-lg border border-[var(--lovable-border)] text-center mb-8">
+              <div className="w-14 h-14 bg-[var(--lovable-active-soft)] rounded-full flex items-center justify-center mb-4 text-[var(--lovable-primary)]">
+                <Link2 size={24} />
+              </div>
+              <h4 className="text-base font-semibold text-[var(--lovable-fg)] font-sora mb-2 m-0">
+                External Resource
+              </h4>
+              <p className="text-xs text-[var(--lovable-muted-fg)] max-w-sm mb-5 font-manrope">
+                This reading is available off-platform as an external resource link.
+              </p>
+              <button
+                onClick={() => window.open(url, "_blank")}
+                className="complete-button"
+                style={{ width: "220px" }}
+              >
+                Open Resource in New Tab
+              </button>
+            </div>
+          )}
+        </main>
       );
     }
 
@@ -1065,7 +1026,7 @@ const LmsLearn = () => {
 
   // ── Main layout ───────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col h-screen overflow-hidden text-slate-900">
+    <div className="course-shell">
       <AnimatePresence>
         {isPdfViewerOpen && isPdf && (
           <PdfViewer
@@ -1076,359 +1037,240 @@ const LmsLearn = () => {
         )}
       </AnimatePresence>
 
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="h-12 md:h-14 shrink-0 flex items-center justify-between px-3 md:px-4 bg-white border-b border-slate-200 z-50 shadow-sm">
-        {/* Left */}
-        <div className="flex items-center gap-1 md:gap-2 overflow-hidden">
+      {/* ── Lovable Course Header ─────────────────────────────────────────── */}
+      <header className="course-header">
+        <div className="header-left">
           <button
+            className="icon-button"
+            aria-label="Toggle course menu"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-1.5 md:p-2 rounded-lg hover:bg-slate-100 transition-colors"
           >
-            <Menu className="w-5 h-5 text-slate-500" />
+            <Menu size={21} strokeWidth={1.7} />
           </button>
           <button
+            className="icon-button"
+            aria-label="Return to dashboard"
             onClick={() => navigate("/dashboard")}
-            className="p-1.5 md:p-2 rounded-full hover:bg-slate-100 transition-colors hidden sm:flex"
           >
-            <ArrowLeft className="w-5 h-5 text-slate-500" />
+            <ArrowLeft size={19} strokeWidth={1.8} />
           </button>
-          <h1 className="text-xs md:text-sm font-bold text-slate-800 truncate max-w-[150px] md:max-w-md lg:max-w-xl">
-            {course.title}
-          </h1>
+          <span className="header-divider" />
+          <h1>{course.title}</h1>
         </div>
 
-        {/* Right */}
-        <div className="flex items-center">
-          {/* Avatar dropdown */}
-          <div className="relative" ref={profileRef}>
-            <button
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
-            >
-              <Avatar className="h-8 w-8 border border-slate-200">
-                <AvatarImage
-                  src={user?.profilePicture || undefined}
-                  alt={user?.firstname}
-                />
-                <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                  {userInitials}
-                </AvatarFallback>
-              </Avatar>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
-            </button>
+        {/* Profile Dropdown */}
+        <div className="profile-wrap" ref={profileRef}>
+          <button
+            className="profile-button"
+            aria-label="Open profile menu"
+            onClick={() => setProfileOpen(!profileOpen)}
+          >
+            <span className="avatar">{userInitials}</span>
+            <ChevronDown size={14} />
+          </button>
 
-            {profileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl border border-slate-200 shadow-lg py-2 z-[100]">
-                <div className="px-4 py-3 border-b border-slate-100">
-                  <p className="text-sm font-semibold text-slate-900 truncate">
-                    {user ? `${user.firstname} ${user.lastname}` : "Student"}
-                  </p>
-                  <p className="text-xs text-slate-500 truncate">
-                    {user?.email}
-                  </p>
-                </div>
-                <div className="py-1">
-                  <Link
-                    to="/dashboard"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-slate-400" />
-                    My Dashboard
-                  </Link>
-                  <Link
-                    to="/profile"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                  >
-                    <User className="w-4 h-4 text-slate-400" />
-                    Profile
-                  </Link>
-                </div>
-                <div className="border-t border-slate-100 py-1">
-                  <button
-                    onClick={() => {
-                      logout();
-                      setProfileOpen(false);
-                    }}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors w-full text-left"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Log Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          {profileOpen && (
+            <div className="profile-menu">
+              <strong style={{ display: "block", marginBottom: "4px" }}>
+                {user ? `${user.firstname} ${user.lastname}` : "Student account"}
+              </strong>
+              <span
+                onClick={() => {
+                  navigate("/dashboard");
+                  setProfileOpen(false);
+                }}
+              >
+                View dashboard
+              </span>
+              <span
+                onClick={() => {
+                  navigate("/profile");
+                  setProfileOpen(false);
+                }}
+              >
+                View profile
+              </span>
+              <span
+                style={{ color: "#ef4444" }}
+                onClick={() => {
+                  logout();
+                  setProfileOpen(false);
+                }}
+              >
+                Sign out
+              </span>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* ── Body ───────────────────────────────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden">
+      {/* ── Course Body ───────────────────────────────────────────────────── */}
+      <div className="course-body">
         {/* Sidebar */}
-        <aside
-          className={cn(
-            "bg-surface-container-low shadow-sm flex flex-col gap-4 overflow-y-auto z-40 transition-all duration-300 shrink-0",
-            "fixed lg:relative top-[48px] md:top-[56px] lg:top-0 left-0 h-[calc(100vh-48px)] md:h-[calc(100vh-56px)] lg:h-full",
-            isSidebarOpen
-              ? "w-[320px] lg:w-80 translate-x-0 p-6"
-              : "w-0 -translate-x-full lg:w-0 p-0 border-none",
-          )}
-        >
-          {isSidebarOpen && (
-            <>
-              {/* Progress Section */}
-              <div className="flex flex-col gap-2 mb-4 shrink-0 transition-opacity">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-semibold text-primary">
-                    {progress}% Complete
-                  </span>
-                  <button
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="lg:hidden p-1.5 hover:bg-surface-variant rounded-md transition-colors"
-                  >
-                    <X className="w-[18px] h-[18px] text-on-surface-variant" />
-                  </button>
-                </div>
-                <div className="w-full h-2.5 bg-slate-300 rounded-full overflow-hidden">
-                  <div
-                    className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-              </div>
+        <aside className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
+          <div className="progress-block">
+            <div className="progress-label">
+              <span>Course progress</span>
+              <strong>{progress}%</strong>
+            </div>
+            <div className="progress-track">
+              <span style={{ width: `${progress}%` }} />
+            </div>
+          </div>
 
-              {/* Navigation Links */}
-              <nav className="flex flex-col gap-2 flex-1 pb-4">
-                {course.modules?.map((module, mIdx) => (
-                  <div key={module.id} className="flex flex-col gap-2 mb-4">
-                    <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider ml-1">
-                      {sentenceCase(module.title)}
-                    </p>
+          <nav className="lesson-nav pb-10" aria-label="Course lessons">
+            {course.modules?.map((module) => (
+              <div key={module.id} className="mb-4">
+                <p>{module.title}</p>
+                {module.lessons?.map((lesson) => {
+                  const isActiveLesson = activeLessonId === lesson.id;
+                  const isFinished = checkLessonCompleted(lesson.id);
 
-                    {module.lessons?.map((lesson, lIdx) => {
-                      const isActiveLesson = activeLessonId === lesson.id;
-                      const isFinishedLesson = checkLessonCompleted(lesson.id);
-                      const isLocked = isLessonLocked(lesson.id);
+                  return (
+                    <div className="lesson-group" key={lesson.id}>
+                      <button
+                        className={`lesson-button ${isActiveLesson ? "lesson-active" : ""}`}
+                        onClick={() => {
+                          setActiveLessonId(lesson.id);
+                          const items = allItems.filter(
+                            (i) => i.lessonId === lesson.id,
+                          );
+                          if (items.length > 0) {
+                            setActiveItemId(items[0].id);
+                            setActiveItemType(items[0].itemType);
+                          }
+                        }}
+                      >
+                        {isFinished ? (
+                          <Check size={17} />
+                        ) : (
+                          <LockKeyhole size={17} strokeWidth={1.7} />
+                        )}
+                        <span>{lesson.title}</span>
+                      </button>
 
-                      return (
-                        <div key={lesson.id} className="flex flex-col">
-                          <button
-                            onClick={() => {
-                              // Always navigate to the first item in this lesson
-                              setExpandedModules((prev) => ({
-                                ...prev,
-                                [module.id]: true,
-                              }));
-                              setActiveLessonId(lesson.id);
-
-                              // Find ALL items belonging to this lesson (contents + quizzes) in order
-                              const lessonItems = allItems.filter(
-                                (i) => i.lessonId === lesson.id,
-                              );
-                              if (lessonItems.length > 0) {
-                                const firstItem = lessonItems[0];
-                                setActiveItemId(firstItem.id);
-                                setActiveItemType(firstItem.itemType);
-                              }
-                            }}
-                            className={cn(
-                              "transition-all flex items-center gap-3 p-3 rounded-lg text-left",
-                              isActiveLesson
-                                ? "bg-secondary-container text-on-secondary-container font-bold translate-x-1"
-                                : "text-on-surface-variant hover:bg-surface-variant",
-                            )}
-                          >
-                            {isLocked ? (
-                              <Lock className="w-5 h-5 shrink-0" />
-                            ) : isFinishedLesson ? (
-                              <CheckCircle2 className="w-5 h-5 shrink-0 text-blue-500 fill-blue-100" />
-                            ) : (
-                              <Unlock className="w-5 h-5 shrink-0" />
-                            )}
-                            <span className="text-sm font-semibold truncate">
-                              {sentenceCase(lesson.title)}
-                            </span>
-                          </button>
-
-                          {/* Nested Lesson Links */}
-                          {isActiveLesson && (
-                            <div className="pl-10 flex flex-col gap-1 mt-1 mb-2 border-l-2 border-secondary-container ml-5">
-                              {lesson.contents?.map((content, cIdx) => {
-                                const isActiveItem =
-                                  activeItemId === content.id;
-                                return (
-                                  <button
-                                    key={content.id}
-                                    onClick={() => {
-                                      setActiveItemId(content.id);
-                                      setActiveItemType(
-                                        content.type === "VIDEO"
-                                          ? "video"
-                                          : "reading",
-                                      );
-                                      if (window.innerWidth < 1024)
-                                        setIsSidebarOpen(false);
-                                    }}
-                                    className={cn(
-                                      "text-sm p-2 rounded-md text-left transition-colors flex items-center gap-2",
-                                      isActiveItem
-                                        ? "bg-primary text-on-primary font-bold"
-                                        : "text-on-surface hover:bg-surface-container",
-                                    )}
-                                  >
-                                    {content.type === "VIDEO" ? (
-                                      <Play className="w-3.5 h-3.5 shrink-0" />
-                                    ) : content.type === "PDF" ||
-                                      content.url
-                                        ?.toLowerCase()
-                                        .endsWith(".pdf") ? (
-                                      <FileText className="w-3.5 h-3.5 shrink-0" />
-                                    ) : (
-                                      <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                                    )}
-                                    <span className="truncate">
-                                      {sentenceCase(content.title)}
-                                    </span>
-                                  </button>
-                                );
-                              })}
-
-                              {allItems
-                                .filter(
-                                  (item: any) =>
-                                    item.lessonId === lesson.id &&
-                                    item.itemType === "quiz",
-                                )
-                                .map((quizItem, qIdx) => {
-                                  const isActiveQuiz =
-                                    activeItemId === quizItem.id;
-                                  return (
-                                    <button
-                                      key={quizItem.id}
-                                      onClick={() => {
-                                        setActiveItemId(quizItem.id);
-                                        setActiveItemType("quiz");
-                                        if (window.innerWidth < 1024)
-                                          setIsSidebarOpen(false);
-                                      }}
-                                      className={cn(
-                                        "text-sm p-2 rounded-md text-left transition-colors flex items-center gap-2",
-                                        isActiveQuiz
-                                          ? "bg-primary text-on-primary font-bold"
-                                          : "text-on-surface hover:bg-surface-container",
-                                      )}
-                                    >
-                                      {(() => {
-                                        const isReportSubmitted =
-                                          quizItem.exercises?.some((ex: any) =>
-                                            reportData?.some((m: any) =>
-                                              m.lessons?.some((l: any) =>
-                                                l.exercises?.some(
-                                                  (rex: any) =>
-                                                    Number(rex.exerciseId) ===
-                                                      Number(ex.id) &&
-                                                    (rex.status === "GRADED" ||
-                                                      rex.status ===
-                                                        "COMPLETED"),
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        const isCurrentSubmitted =
-                                          quizSubmitted && isActiveQuiz;
-
-                                        return isReportSubmitted ||
-                                          isCurrentSubmitted ? (
-                                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-blue-500 shadow-sm" />
-                                        ) : (
-                                          <HelpCircle className="w-3.5 h-3.5 shrink-0" />
-                                        );
-                                      })()}
-                                      <span className="truncate">
-                                        {sentenceCase(quizItem.title)}
-                                      </span>
-                                    </button>
+                      {/* Sub-items (Chapters / Content / Quiz) */}
+                      {isActiveLesson && (
+                        <div className="flex flex-col gap-1 mt-1">
+                          {lesson.contents?.map((content) => {
+                            const isActiveItem = activeItemId === content.id;
+                            return (
+                              <button
+                                key={content.id}
+                                className={`chapter-button ${isActiveItem ? "chapter-button-active" : "chapter-button-inactive"}`}
+                                onClick={() => {
+                                  setActiveItemId(content.id);
+                                  setActiveItemType(
+                                    content.type === "VIDEO" ? "video" : "reading",
                                   );
-                                })}
-                            </div>
-                          )}
+                                  if (window.innerWidth < 900) setIsSidebarOpen(false);
+                                }}
+                              >
+                                <FileText size={15} strokeWidth={1.7} />
+                                <span className="truncate">{content.title}</span>
+                              </button>
+                            );
+                          })}
+
+                          {allItems
+                            .filter(
+                              (i) =>
+                                i.lessonId === lesson.id &&
+                                i.itemType === "quiz",
+                            )
+                            .map((quizItem) => {
+                              const isActiveQuiz = activeItemId === quizItem.id;
+                              return (
+                                <button
+                                  key={quizItem.id}
+                                  className={`chapter-button ${isActiveQuiz ? "chapter-button-active" : "chapter-button-inactive"}`}
+                                  onClick={() => {
+                                    setActiveItemId(quizItem.id);
+                                    setActiveItemType("quiz");
+                                    if (window.innerWidth < 900)
+                                      setIsSidebarOpen(false);
+                                  }}
+                                >
+                                  <HelpCircle size={15} strokeWidth={1.7} />
+                                  <span className="truncate">{quizItem.title}</span>
+                                </button>
+                              );
+                            })}
                         </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </nav>
-            </>
-          )}
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
+
+          {/* Sidebar Scroll Cue */}
+          <div className="absolute bottom-3 left-0 right-0 pointer-events-none flex justify-center z-20">
+            <button
+              type="button"
+              aria-label="Scroll down sidebar"
+              onClick={() => {
+                const navEl = document.querySelector(".lesson-nav");
+                if (navEl) navEl.scrollBy({ top: 180, behavior: "smooth" });
+              }}
+              className="pointer-events-auto w-7 h-7 rounded-full bg-[#204a7c] text-white shadow-md flex items-center justify-center hover:bg-[#173a63] hover:scale-105 transition-all cursor-pointer opacity-90 hover:opacity-100"
+            >
+              <ChevronDown size={15} />
+            </button>
+          </div>
         </aside>
 
-        {/* Mobile backdrop */}
+        {/* Mobile Backdrop */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-slate-900/20 backdrop-blur-[2px] z-30 lg:hidden"
+            className="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-10 md:hidden"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
 
-        {/* ── Content Area ─────────────────────────────────────────────────── */}
-        <main className="flex-1 bg-white flex flex-col relative overflow-hidden">
-          {/* Static Header for Lesson Contents */}
-          <div className="w-full bg-white border-b border-slate-100 px-4 md:px-6 py-3 flex items-center justify-between gap-3 shrink-0 z-10 relative h-14 md:h-16">
-            <div className="flex-1 min-w-0 pr-2">
-              <h2 className="text-sm md:text-xl font-black text-slate-900 tracking-tight truncate">
-                {sentenceCase(activeLesson?.title) || "Lesson details"}
-              </h2>
-            </div>
-
-            <div className="flex items-center gap-1.5 md:gap-3 shrink-0">
-              <div className="flex items-center bg-slate-100 p-1 rounded-lg">
+        {/* ── Learning Area ─────────────────────────────────────────────────── */}
+        <section className="learning-area">
+          <div className="lesson-toolbar">
+            <h2>{activeLesson?.title || "Lesson"}</h2>
+            <div className="toolbar-actions">
+              <div className="pager">
                 <button
-                  onClick={handlePrevItem}
                   disabled={currentItemIndex === 0}
-                  className="p-1.5 md:px-3 md:py-1.5 rounded-md hover:bg-white transition-all disabled:opacity-30 flex items-center gap-1 text-xs font-bold text-slate-600"
+                  onClick={handlePrevItem}
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span className="hidden md:inline">Prev</span>
+                  <ChevronLeft size={15} /> Prev
                 </button>
-                <div className="w-px h-4 bg-slate-200 mx-1 hidden md:block" />
                 <button
-                  onClick={handleNextItem}
                   disabled={currentItemIndex === allItems.length - 1}
-                  className="p-1.5 md:px-3 md:py-1.5 rounded-md hover:bg-white transition-all disabled:opacity-30 flex items-center gap-1 text-xs font-bold text-slate-600"
+                  onClick={handleNextItem}
                 >
-                  <span className="hidden md:inline">Next</span>
-                  <ChevronRight className="w-4 h-4" />
+                  Next <ChevronRight size={15} />
                 </button>
               </div>
 
               {activeItemType !== "quiz" && (
                 <button
+                  className={`complete-button ${isLessonCompleted ? "completed" : ""}`}
                   onClick={handleMarkComplete}
                   disabled={isLessonCompleted || markCompleteMutation.isPending}
-                  className={cn(
-                    "font-bold text-[10px] md:text-xs px-3 md:px-5 py-2 md:py-2.5 rounded-xl transition-all active:scale-[0.98] border shadow-sm",
-                    isLessonCompleted
-                      ? "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed opacity-70"
-                      : "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700",
-                  )}
                 >
-                  {isLessonCompleted
-                    ? "✓ Done"
-                    : markCompleteMutation.isPending
-                      ? "..."
-                      : "Complete"}
+                  {isLessonCompleted ? (
+                    <>
+                      <Check size={16} /> Completed
+                    </>
+                  ) : markCompleteMutation.isPending ? (
+                    "..."
+                  ) : (
+                    "Mark complete"
+                  )}
                 </button>
               )}
             </div>
           </div>
 
-          <div className="flex-1 w-full overflow-y-auto overflow-x-hidden flex flex-col transition-all duration-300 custom-scrollbar">
-            <div className="relative group flex-1 flex flex-col">
-              {renderActiveContent()}
-            </div>
-          </div>
-        </main>
+          {renderActiveContent()}
+        </section>
       </div>
 
       <CelebrationModal
@@ -1446,13 +1288,6 @@ const LmsLearn = () => {
           }
         }}
       />
-
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
-      `}</style>
     </div>
   );
 };

@@ -110,7 +110,7 @@ export const authService = {
   },
 
   resetPassword: async (data: {
-    email: string;
+    token: string;
     newPassword: string;
   }): Promise<any> => {
     const response = await api.post("/academy/reset-password", data);

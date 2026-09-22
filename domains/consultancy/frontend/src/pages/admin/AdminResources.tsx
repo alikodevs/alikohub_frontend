@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import api from "@/lib/api";
+import api, { formatUploadUrl } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -75,7 +75,7 @@ const AdminResources = () => {
       });
       setUploadProgress(100);
       setTimeout(() => { setUploading(false); setUploadProgress(0); }, 500);
-      return data.url;
+      return formatUploadUrl(data.url);
     } catch (error: any) {
       toast({ title: "Upload failed", description: error.response?.data?.message || error.message, variant: "destructive" });
       setUploading(false);

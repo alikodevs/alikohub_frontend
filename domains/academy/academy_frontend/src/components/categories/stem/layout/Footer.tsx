@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, MapPin } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import logoImg from "@/assets/categories/stem/aliko-stem-logo.png";
 
 const footerLinks = {
@@ -41,15 +41,35 @@ export function Footer() {
             </p>
             <div className="mt-7 space-y-3">
               <a
-                href="mailto:stem@alikogroup.com"
+                href="mailto:academy-stem@alikohub.com"
                 className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors font-medium"
               >
-                <Mail className="h-4 w-4 text-primary" />
-                stem@alikogroup.com
+                <Mail className="h-4 w-4 text-primary shrink-0" />
+                academy-stem@alikohub.com
               </a>
               <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
-                <MapPin className="h-4 w-4 text-accent" />
-                Middle East & International
+                <Phone className="h-4 w-4 text-primary shrink-0" />
+                <span className="flex flex-wrap gap-x-1.5">
+                  <a href="tel:+12063535373" className="hover:text-primary transition-colors">
+                    +1 (206) 353 5373
+                  </a>
+                  <span className="opacity-40">|</span>
+                  <a href="tel:+251920907878" className="hover:text-primary transition-colors">
+                    +251 920 907 878
+                  </a>
+                  <span className="opacity-40">|</span>
+                  <a href="tel:+251910813571" className="hover:text-primary transition-colors">
+                    +251 910 813 571
+                  </a>
+                </span>
+              </div>
+              <div className="flex items-start gap-3 text-sm text-muted-foreground font-medium">
+                <MapPin className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                <span>19550 International Blvd Suite STE 301, SeaTac, WA 98188</span>
+              </div>
+              <div className="flex items-start gap-3 text-sm text-muted-foreground font-medium">
+                <MapPin className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                <span>Addis Ababa, Bole Dembel, Tigi's Building, 12th Floor</span>
               </div>
             </div>
           </div>
@@ -124,7 +144,7 @@ export function Footer() {
         <div className="mt-14 pt-8 border-t border-divider">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground font-medium">
-              Â© {new Date().getFullYear()} Aliko Academy STEM. All rights
+              © {new Date().getFullYear()} Aliko Academy STEM. All rights
               reserved.
             </p>
             <p className="text-xs text-muted-foreground">

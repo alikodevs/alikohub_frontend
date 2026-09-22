@@ -8,16 +8,26 @@ import {
   BellRing,
   Star,
   Award,
+  AlertCircle,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useInstructorStats, useInstructorCourses } from "@/hooks/useAcademy";
 import { Link } from "react-router-dom";
 
 const InstructorDashboard = () => {
-  const { data: stats } = useInstructorStats();
-  const { data: coursesData, isLoading: coursesLoading } = useInstructorCourses(
-    { pageSize: 3 },
-  );
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    isError: statsError,
+    refetch: refetchStats,
+  } = useInstructorStats();
+  const {
+    data: coursesData,
+    isLoading: coursesLoading,
+    isError: coursesError,
+    refetch: refetchCourses,
+  } = useInstructorCourses({ pageSize: 3 });
 
   const instructorStats =
     (stats as any)?.stats || (stats as any)?.data || stats;
@@ -55,30 +65,76 @@ const InstructorDashboard = () => {
 
   return (
     <InstructorLayout>
-      {/* Header Section */}
-      <section className="bg-slate-900 border-b border-slate-800">
-        <div className="section-container py-10 md:py-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h1 className="text-xl md:text-2xl font-heading font-bold text-white">
+      <div className="w-full max-w-7xl px-6 sm:px-8 lg:px-10 py-6 sm:py-8 space-y-6">
+        {(statsError || coursesError) && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-red-50 border border-red-200 rounded-2xl gap-3">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-red-800">
+                  Failed to load dashboard data
+                </p>
+                <p className="text-xs text-red-600">
+                  Some metrics or course information could not be retrieved from the server.
+                </p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                refetchStats();
+                refetchCourses();
+              }}
+              className="gap-2 border-red-300 text-red-700 hover:bg-red-100 shrink-0 rounded-full font-semibold"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Retry
+            </Button>
+          </div>
+        )}
+
+        {/* ── Instructor Console Banner ── */}
+        <div
+          className="relative overflow-hidden rounded-2xl p-6 md:p-8 border border-blue-100/80 shadow-sm"
+          style={{
+            background:
+              "linear-gradient(135deg, #eef5ff 0%, #f4f8ff 55%, #fff7ed 100%)",
+          }}
+        >
+          {/* Soft warm glow top-right */}
+          <div
+            className="absolute top-0 right-0 w-80 h-80 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse at top right, rgba(254,215,170,0.45) 0%, rgba(253,230,138,0.2) 35%, transparent 70%)",
+            }}
+          />
+
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <p className="text-[#5a6e8c] text-[11px] font-bold uppercase tracking-widest">
+                Instructor Dashboard
+              </p>
+              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0b1a40] leading-tight">
                 Instructor Console
               </h1>
-              <p className="mt-2 text-slate-400 max-w-2xl">
+              <p className="text-slate-600 text-sm leading-relaxed">
                 Manage your curriculum, track student progress, and analyze your
                 performance all in one place.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
+
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
               <Button
                 asChild
                 variant="outline"
-                className="border-slate-700 text-white hover:bg-slate-800 bg-transparent"
+                className="border-slate-300 text-slate-700 hover:bg-white bg-white/80 font-semibold rounded-full px-5 py-2.5 text-sm"
               >
                 <Link to="/instructor/analytics">View Analytics</Link>
               </Button>
               <Button
                 asChild
-                className="gap-2 bg-accent hover:bg-amber-light text-slate-900"
+                className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-full px-6 py-2.5 shadow-md shadow-primary/20 border-0"
               >
                 <Link to="/instructor/courses/new">
                   <PlusCircle className="w-4 h-4" /> Create New Course
@@ -87,9 +143,7 @@ const InstructorDashboard = () => {
             </div>
           </div>
         </div>
-      </section>
 
-      <main className="section-container py-8 md:py-12">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {statCards.map((stat) => (
@@ -249,7 +303,7 @@ const InstructorDashboard = () => {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </InstructorLayout>
   );
 };

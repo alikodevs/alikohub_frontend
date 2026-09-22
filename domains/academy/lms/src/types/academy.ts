@@ -18,6 +18,7 @@ export interface Course {
   thumbnail?: string;
   videoUrl?: string;
   price?: number | null;
+  currency?: string | null;
   priceInUsd?: number | null;
   isFree?: boolean;
   status: CourseStatus;

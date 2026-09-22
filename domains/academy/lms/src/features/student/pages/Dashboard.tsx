@@ -1,3 +1,4 @@
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -11,61 +12,246 @@ import {
   ExternalLink,
   Sparkles,
   ChevronRight,
+  Megaphone,
+  X,
+  CalendarDays,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/features/auth/hooks/useAuth";
 import {
   useEnrollments,
   useStudentAnalytics,
   useStudentDashboard,
   useMyTransactions,
+  useAnnouncements,
 } from "@/hooks/useAcademy";
 import { Link } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
 import StudentLayout from "@/features/student/components/StudentLayout";
-import NotificationPromptBanner from "@/components/shared/NotificationPromptBanner";
+import { format, formatDistanceToNow } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 
-const upcomingWebinars = [
-  {
-    title: "AI in Healthcare: Trends & Opportunities",
-    date: "Mar 5, 2026",
-    time: "2:00 PM",
-    speaker: "Dr. Amina Yusuf",
-    status: "upcoming" as const,
-  },
-  {
-    title: "Cloud Career Pathways for Beginners",
-    date: "Mar 8, 2026",
-    time: "10:00 AM",
-    speaker: "Eng. Farouk Ali",
-    status: "live" as const,
-  },
-  {
-    title: "STEM Innovation & Entrepreneurship",
-    date: "Mar 10, 2026",
-    time: "3:00 PM",
-    speaker: "Prof. Halima Bello",
-    status: "upcoming" as const,
-  },
-];
+// ── Announcement helpers ──────────────────────────────────────────────────
 
-const recordedWebinars = [
-  {
-    title: "Getting Started with Data Science",
-    duration: "1h 20m",
-    views: 342,
-  },
-  { title: "Resume Building for Tech Careers", duration: "45m", views: 518 },
-  {
-    title: "Introduction to Biomedical Engineering",
-    duration: "1h 05m",
-    views: 276,
-  },
-];
+const DISMISSED_KEY = "lms_dismissed_announcement_id";
+
+const getDismissedId = (): string | null => localStorage.getItem(DISMISSED_KEY);
+
+const setDismissedId = (id: string) => localStorage.setItem(DISMISSED_KEY, id);
+
+// ── Announcement Banner ───────────────────────────────────────────────────
+
+interface AnnouncementItem {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const AnnouncementBanner = () => {
+  const { data, isLoading, isError } = useAnnouncements({
+    page: 1,
+    pageSize: 20,
+  });
+  const [isDismissed, setIsDismissed] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  // Get the latest announcement by createdAt descending
+  const latest: AnnouncementItem | null = useMemo(() => {
+    if (!data?.items || data.items.length === 0) return null;
+    return [...data.items].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )[0];
+  }, [data]);
+
+  // On mount, check if this announcement was already dismissed
+  useEffect(() => {
+    if (latest && getDismissedId() === latest.id) {
+      setIsDismissed(true);
+    } else {
+      setIsDismissed(false);
+    }
+  }, [latest]);
+
+  const handleDismiss = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (latest) {
+        setDismissedId(latest.id);
+        setIsDismissed(true);
+      }
+    },
+    [latest],
+  );
+
+  // Don't render anything while loading, on error, or when empty/dismissed
+  if (isLoading || isError || !latest || isDismissed) return null;
+
+  const publishedDate = format(new Date(latest.createdAt), "MMM d, yyyy");
+  const timeAgo = formatDistanceToNow(new Date(latest.createdAt), {
+    addSuffix: true,
+  });
+
+  return (
+    <>
+      {/* Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.25 }}
+        className="group relative bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200/60 rounded-2xl overflow-hidden cursor-pointer hover:shadow-md hover:border-amber-300/60 transition-all"
+        onClick={() => setShowModal(true)}
+        id="latest-announcement-banner"
+      >
+        {/* Decorative gradient bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400" />
+
+        <div className="p-4 sm:p-5 flex items-start gap-3.5">
+          {/* Icon */}
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-200/40 mt-0.5">
+            <Megaphone className="w-5 h-5 text-white" />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">
+                <Sparkles className="w-2.5 h-2.5" />
+                New
+              </span>
+              <span className="text-[11px] text-muted-foreground font-medium">
+                {timeAgo}
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-amber-800 transition-colors">
+              {latest.title}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+              {latest.content}
+            </p>
+            <button
+              className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowModal(true);
+              }}
+            >
+              Read more <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          {/* Dismiss button */}
+          <button
+            onClick={handleDismiss}
+            className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-black/5 transition-colors mt-0.5"
+            title="Dismiss"
+            id="dismiss-announcement-btn"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </motion.div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-[3px]"
+              onClick={() => setShowModal(false)}
+            />
+
+            {/* Modal content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.96 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="relative bg-white rounded-2xl shadow-2xl border border-amber-100/60 max-w-lg w-full max-h-[85vh] overflow-hidden"
+            >
+              {/* Modal header */}
+              <div className="sticky top-0 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100/60 p-5 flex items-start gap-3.5 z-10">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-200/40 shrink-0">
+                  <Megaphone className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base font-heading font-bold text-slate-900 leading-snug">
+                    {latest.title}
+                  </h2>
+                  <div className="flex items-center gap-2.5 mt-1 text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <CalendarDays className="w-3 h-3" />
+                      {publishedDate}
+                    </span>
+                    <span className="text-slate-300">·</span>
+                    <span>{timeAgo}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-black/5 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Modal body */}
+              <div className="p-5 overflow-y-auto max-h-[60vh]">
+                <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                  {latest.content}
+                </p>
+              </div>
+
+              {/* Modal footer */}
+              <div className="border-t border-slate-100 p-4 flex items-center justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowModal(false)}
+                  className="text-xs font-semibold"
+                >
+                  Close
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDismiss(e);
+                    setShowModal(false);
+                  }}
+                  className="text-xs font-semibold gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0"
+                  id="dismiss-and-close-btn"
+                >
+                  Got it
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+// ── Dashboard ─────────────────────────────────────────────────────────────
 
 const getGreeting = () => {
-  const hour = new Date().getHours();
+  // Use Africa/Nairobi timezone (UTC+3, same as Ethiopian time)
+  const nairobiHour = new Date().toLocaleString("en-US", {
+    timeZone: "Africa/Nairobi",
+    hour: "numeric",
+    hour12: false,
+  });
+  const hour = parseInt(nairobiHour, 10);
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
@@ -152,78 +338,67 @@ const StudentDashboard = () => {
 
   return (
     <StudentLayout>
-      <div className="max-w-6xl mx-auto px-5 py-6 space-y-6">
+      <div className="w-full max-w-7xl px-6 sm:px-8 lg:px-10 py-6 sm:py-8 space-y-6">
         {/* ── Hero / Welcome Banner ── */}
         <div
-          className="relative overflow-hidden rounded-2xl p-6 md:p-8"
+          className="relative overflow-hidden rounded-2xl p-6 md:p-8 border border-blue-100/80 shadow-sm"
           style={{
-            backgroundColor: "#081830",
+            background:
+              "linear-gradient(135deg, #eef5ff 0%, #f4f8ff 55%, #fff7ed 100%)",
           }}
         >
-          {/* Decorative blobs */}
+          {/* Soft warm glow top-right */}
           <div
-            className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10"
+            className="absolute top-0 right-0 w-80 h-80 pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle, #7c6ef0 0%, transparent 70%)",
-              transform: "translate(30%, -30%)",
-            }}
-          />
-          <div
-            className="absolute bottom-0 left-1/2 w-48 h-48 rounded-full opacity-10"
-            style={{
-              background:
-                "radial-gradient(circle, #4f8ef0 0%, transparent 70%)",
-              transform: "translateY(40%)",
+                "radial-gradient(ellipse at top right, rgba(254,215,170,0.45) 0%, rgba(253,230,138,0.2) 35%, transparent 70%)",
             }}
           />
 
-          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-            <div className="space-y-3">
-              <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="space-y-3 max-w-xl">
+              <p className="text-[#5a6e8c] text-[11px] font-bold uppercase tracking-widest">
                 Welcome back
               </p>
-              <h1 className="text-2xl md:text-3xl font-heading font-bold text-white">
+              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0b1a40] leading-tight">
                 {getGreeting()}, {user?.firstname || "Learner"} 👋
               </h1>
-              <p className="text-white/80 text-sm">
+              <p className="text-slate-600 text-sm leading-relaxed">
                 Continue learning with{" "}
-                <span className="font-semibold text-white">Aliko Academy</span>
+                <span className="font-semibold text-primary">Aliko Academy</span>
               </p>
 
               {/* Progress bar */}
-              <div className="max-w-xs mt-1">
+              <div className="max-w-xs pt-1">
                 <div className="flex items-center justify-between text-xs mb-1.5">
-                  <span className="text-white/60 font-medium">
+                  <span className="text-slate-500 font-medium">
                     Overall progress
                   </span>
-                  <span className="font-bold text-white">
+                  <span className="font-bold text-primary">
                     {overallProgress}%
                   </span>
                 </div>
-                <div className="h-2 rounded-full bg-white/20 overflow-hidden">
+                <div className="h-2 rounded-full bg-slate-200/80 overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-700"
+                    className="h-full rounded-full transition-all duration-700 bg-primary"
                     style={{
                       width: `${overallProgress}%`,
-                      background: "linear-gradient(90deg, #7c6ef0, #a78bfa)",
                     }}
                   />
                 </div>
+                <p className="text-slate-600 text-xs font-medium mt-2">
+                  {activeEnrollments?.length || 0} active enrollments ·{" "}
+                  {completedCount} completed
+                </p>
               </div>
-
-              <p className="text-white/60 text-xs">
-                {activeEnrollments?.length || 0} active enrollments ·{" "}
-                {completedCount} completed
-              </p>
             </div>
 
             {/* CTAs */}
-            <div className="flex flex-col gap-2 md:items-end shrink-0">
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
               <Button
                 asChild
-                size="sm"
-                className="gap-2 bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-sm text-sm font-semibold"
+                className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-full px-6 py-2.5 shadow-md shadow-primary/20 border-0 transition-all"
               >
                 <Link to="/learning">
                   <PlayCircle className="w-4 h-4" />
@@ -233,17 +408,18 @@ const StudentDashboard = () => {
               <Button
                 asChild
                 variant="outline"
-                size="sm"
-                className="gap-2 bg-white text-slate-900 hover:bg-white/90 border-0 text-sm font-semibold"
+                className="gap-2 bg-white/90 hover:bg-white text-slate-800 hover:text-slate-900 border border-slate-300/80 font-semibold text-sm rounded-full px-5 py-2.5 shadow-sm transition-all"
               >
-                <Link to="/courses">Browse new courses</Link>
+                <Link to="/courses">
+                  Browse new courses <ArrowRight className="w-4 h-4" />
+                </Link>
               </Button>
             </div>
           </div>
         </div>
 
-        {/* ── Push Notification Prompt ── */}
-        <NotificationPromptBanner />
+        {/* ── Announcement Banner ── */}
+        <AnnouncementBanner />
 
         {/* ── Two-column layout ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -463,3 +639,4 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+

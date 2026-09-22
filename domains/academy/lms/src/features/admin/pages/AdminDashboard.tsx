@@ -59,8 +59,6 @@ import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { useTheme } from "@/context/ThemeContext";
-import { ThemeToggle } from "@/features/admin/components/ThemeToggle";
 import { AdminAnnouncements } from "@/features/admin/components/AdminAnnouncements";
 
 // Deterministic color assignment for applicant avatar circles
@@ -106,16 +104,14 @@ const getAvatarColor = (key: string) => {
 
 const AdminDashboard = () => {
   const location = useLocation();
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
 
-  // Shared color tokens for chart libraries that don't accept Tailwind classes
+  // Shared color tokens for recharts
   const chartColors = {
-    grid: isDark ? "#3f3f46" : "#e4e4e7",
-    tick: isDark ? "#71717a" : "#71717a",
-    tooltipBg: isDark ? "#27272a" : "#ffffff",
-    tooltipBorder: isDark ? "#3f3f46" : "#e4e4e7",
-    tooltipText: isDark ? "#fff" : "#18181b",
+    grid: "#E1EAF2",
+    tick: "#71717a",
+    tooltipBg: "#ffffff",
+    tooltipBorder: "#E1EAF2",
+    tooltipText: "#1e293b",
   };
 
   const getActiveTab = () => {
@@ -340,7 +336,7 @@ const AdminDashboard = () => {
     new Set(paidTransactions?.map((tx: any) => tx.userId)).size || 0;
 
   return (
-    <div className="flex h-screen bg-zinc-50 dark:bg-[#18181b] transition-colors duration-300 overflow-hidden">
+    <div className="flex h-screen bg-[#F4F8FB] overflow-hidden">
       <AdminSidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} />
 
       <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
@@ -357,17 +353,17 @@ const AdminDashboard = () => {
                     ? "Announcements Manager"
                     : "Platform Analytics"
           }
-          darkTheme={isDark}
+          darkTheme={false}
         />
 
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
           {/* ── Teacher Applications ── */}
           {activeTab === "applications" && (
             <div className="space-y-6">
-              <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
+              <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-zinc-500 dark:text-zinc-400 uppercase text-xs font-bold border-b border-zinc-200 dark:border-[#3f3f46] transition-colors duration-300">
+                    <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
                       <tr>
                         <th className="px-6 py-4">Applicant</th>
                         <th className="px-6 py-4">Email</th>
@@ -377,14 +373,14 @@ const AdminDashboard = () => {
                         <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-100 dark:divide-[#3f3f46]">
+                    <tbody className="divide-y divide-[#E1EAF2]">
                       {appsLoading ? (
                         <tr>
                           <td
                             colSpan={6}
                             className="px-6 py-12 text-center text-zinc-500"
                           >
-                            <Clock className="w-8 h-8 text-zinc-400 dark:text-zinc-600 animate-spin mx-auto mb-4" />
+                            <Clock className="w-8 h-8 text-zinc-400  animate-spin mx-auto mb-4" />
                             Loading applications...
                           </td>
                         </tr>
@@ -407,7 +403,7 @@ const AdminDashboard = () => {
                           return (
                             <tr
                               key={app.id}
-                              className="hover:bg-zinc-50 dark:hover:bg-[#3f3f46]/50 transition-colors group"
+                              className="hover:bg-[#EAF4FB] transition-colors group"
                             >
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center gap-3">
@@ -423,22 +419,22 @@ const AdminDashboard = () => {
                                     {app.user?.lastname?.[0] ?? ""}
                                   </div>
                                   <div className="flex flex-col">
-                                    <span className="font-semibold text-zinc-900 dark:text-white text-sm">
+                                    <span className="font-semibold text-slate-800 text-sm">
                                       {app.user?.firstname ?? ""}{" "}
                                       {app.user?.lastname ?? ""}
                                     </span>
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-zinc-600 dark:text-zinc-300">
+                              <td className="px-6 py-4 whitespace-nowrap text-slate-600">
                                 {app.user?.email ?? ""}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-500  border border-blue-500/20">
                                   Instructor
                                 </span>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-zinc-500 dark:text-zinc-400">
+                              <td className="px-6 py-4 whitespace-nowrap text-slate-500">
                                 {new Date(app.createdAt).toLocaleDateString()}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
@@ -447,12 +443,12 @@ const AdminDashboard = () => {
                                     "text-[10px] font-bold px-2.5 py-0.5 rounded-full border",
                                     (app.status === "PENDING" ||
                                       app.status === "SUBMITTED") &&
-                                      "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+                                      "bg-amber-500/10 text-amber-600  border-amber-500/20",
                                     (app.status === "ACCEPTED" ||
                                       app.status === "APPROVED") &&
-                                      "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                                      "bg-emerald-500/10 text-emerald-600  border-emerald-500/20",
                                     app.status === "REJECTED" &&
-                                      "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+                                      "bg-red-500/10 text-red-600  border-red-500/20",
                                   )}
                                 >
                                   {app.status}
@@ -462,14 +458,14 @@ const AdminDashboard = () => {
                                 {app.status === "PENDING" ||
                                 app.status === "SUBMITTED" ? (
                                   <button
-                                    className="px-3 py-1.5 bg-[#005461] hover:bg-[#00434d] text-white text-xs font-bold rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold rounded-lg transition-colors"
                                     onClick={() => handleReview(app)}
                                   >
                                     Review
                                   </button>
                                 ) : (
                                   <button
-                                    className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-xs font-medium rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-medium rounded-lg transition-colors"
                                     onClick={() => handleReview(app)}
                                   >
                                     View details
@@ -484,20 +480,20 @@ const AdminDashboard = () => {
                   </table>
                 </div>
 
-                <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-[#3f3f46]">
+                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E1EAF2]">
                   <span className="text-xs text-zinc-500 font-medium">
                     Page {appsPage}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setAppsPage((p) => Math.max(1, p - 1))}
                       disabled={appsPage === 1}
                     >
                       Previous
                     </button>
                     <button
-                      className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setAppsPage((p) => p + 1)}
                       disabled={
                         !allApplications || allApplications.length < pageSize
@@ -514,10 +510,10 @@ const AdminDashboard = () => {
           {/* ── Course Reviews ── */}
           {activeTab === "courses" && (
             <div className="space-y-6">
-              <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
+              <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-zinc-500 dark:text-zinc-400 uppercase text-xs font-bold border-b border-zinc-200 dark:border-[#3f3f46] transition-colors duration-300">
+                    <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
                       <tr>
                         <th className="px-6 py-4">Course</th>
                         <th className="px-6 py-4">Instructor</th>
@@ -527,14 +523,14 @@ const AdminDashboard = () => {
                         <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-100 dark:divide-[#3f3f46]">
+                    <tbody className="divide-y divide-[#E1EAF2]">
                       {coursesLoading ? (
                         <tr>
                           <td
                             colSpan={6}
                             className="px-6 py-12 text-center text-zinc-500"
                           >
-                            <BookOpen className="w-8 h-8 text-zinc-400 dark:text-zinc-600 animate-pulse mx-auto mb-4" />
+                            <BookOpen className="w-8 h-8 text-zinc-400  animate-pulse mx-auto mb-4" />
                             Loading courses...
                           </td>
                         </tr>
@@ -544,7 +540,7 @@ const AdminDashboard = () => {
                             colSpan={6}
                             className="px-6 py-12 text-center text-zinc-500"
                           >
-                            <BookOpen className="w-12 h-12 text-zinc-300 dark:text-zinc-700 mx-auto mb-4" />
+                            <BookOpen className="w-12 h-12 text-zinc-300  mx-auto mb-4" />
                             <p className="font-medium">
                               No courses found in the system.
                             </p>
@@ -554,12 +550,12 @@ const AdminDashboard = () => {
                         allCourses.map((course: any) => (
                           <tr
                             key={course.id}
-                            className="hover:bg-zinc-50 dark:hover:bg-[#3f3f46]/50 transition-colors group"
+                            className="hover:bg-[#EAF4FB] transition-colors group"
                           >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex flex-col">
                                 <span
-                                  className="font-bold text-zinc-900 dark:text-white text-sm max-w-[200px] truncate"
+                                  className="font-bold text-slate-800 text-sm max-w-[200px] truncate"
                                   title={course.title}
                                 >
                                   {course.title}
@@ -569,17 +565,17 @@ const AdminDashboard = () => {
                                 </span>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-zinc-600 dark:text-zinc-300 font-semibold">
+                            <td className="px-6 py-4 whitespace-nowrap text-slate-600 font-semibold">
                               {course.instructor
                                 ? `${course.instructor.firstname} ${course.instructor.lastname}`
                                 : "N/A"}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="px-2.5 py-1 bg-zinc-100 dark:bg-[#3f3f46] border border-zinc-200 dark:border-[#52525b] rounded-lg text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">
+                              <span className="px-2.5 py-1 bg-zinc-100  border border-zinc-200  rounded-lg text-[10px] font-bold text-slate-500 uppercase">
                                 {course.category}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-zinc-900 dark:text-white font-bold">
+                            <td className="px-6 py-4 whitespace-nowrap text-slate-800 font-bold">
                               {course.enrolledNum ||
                                 course.enrolledCount ||
                                 course.enrollmentCount ||
@@ -591,14 +587,14 @@ const AdminDashboard = () => {
                                   "text-[10px] font-bold px-2.5 py-0.5 rounded-full border",
                                   (course.status === "PENDING" ||
                                     course.status === "PENDING_APPROVAL") &&
-                                    "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+                                    "bg-amber-500/10 text-amber-600  border-amber-500/20",
                                   (course.status === "PUBLISHED" ||
                                     course.status === "APPROVED") &&
-                                    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                                    "bg-emerald-500/10 text-emerald-600  border-emerald-500/20",
                                   course.status === "REJECTED" &&
-                                    "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
+                                    "bg-red-500/10 text-red-600  border-red-500/20",
                                   course.status === "DRAFT" &&
-                                    "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+                                    "bg-blue-500/10 text-blue-600  border-blue-500/20",
                                 )}
                               >
                                 {course.status}
@@ -610,14 +606,14 @@ const AdminDashboard = () => {
                                 course.status === "PENDING_APPROVAL" ||
                                 course.status === "DRAFT" ? (
                                   <button
-                                    className="px-3 py-1.5 bg-[#005461] hover:bg-[#00434d] text-white text-xs font-bold rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold rounded-lg transition-colors"
                                     onClick={() => handleReviewCourse(course)}
                                   >
                                     Review
                                   </button>
                                 ) : (
                                   <button
-                                    className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-xs font-medium rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-medium rounded-lg transition-colors"
                                     onClick={() => handleReviewCourse(course)}
                                   >
                                     View details
@@ -625,7 +621,7 @@ const AdminDashboard = () => {
                                 )}
 
                                 <button
-                                  className="h-8 w-8 flex items-center justify-center text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg transition-colors disabled:opacity-40"
+                                  className="h-8 w-8 flex items-center justify-center text-red-500  hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg transition-colors disabled:opacity-40"
                                   onClick={() =>
                                     handleDeleteCourse(course.id, course.title)
                                   }
@@ -642,20 +638,20 @@ const AdminDashboard = () => {
                   </table>
                 </div>
 
-                <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-[#3f3f46]">
+                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E1EAF2]">
                   <span className="text-xs text-zinc-500 font-medium">
                     Page {coursesPage}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setCoursesPage((p) => Math.max(1, p - 1))}
                       disabled={coursesPage === 1}
                     >
                       Previous
                     </button>
                     <button
-                      className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setCoursesPage((p) => p + 1)}
                       disabled={!allCourses || allCourses.length < pageSize}
                     >
@@ -672,54 +668,54 @@ const AdminDashboard = () => {
             <div className="space-y-6">
               {analyticsLoading ? (
                 <div className="py-12 text-center text-zinc-500">
-                  <Clock className="w-8 h-8 text-zinc-400 dark:text-zinc-600 animate-spin mx-auto mb-4" />
+                  <Clock className="w-8 h-8 text-zinc-400  animate-spin mx-auto mb-4" />
                   Loading analytics...
                 </div>
               ) : (
                 <>
                   {/* Summary cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 flex flex-col justify-between shadow-sm dark:shadow-none transition-colors duration-300">
-                      <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mb-2">
+                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                      <div className="flex items-center gap-2 text-slate-500 mb-2">
                         <BookOpen className="w-4 h-4" />
                         <span className="text-sm font-semibold">
                           Total courses
                         </span>
                       </div>
-                      <div className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+                      <div className="text-3xl font-bold text-slate-800 mb-2">
                         {analyticsData?.totalCourses || 0}
                       </div>
-                      <div className="text-zinc-400 dark:text-zinc-500 text-xs font-medium">
+                      <div className="text-slate-400 text-xs font-medium">
                         on the platform
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 flex flex-col justify-between shadow-sm dark:shadow-none transition-colors duration-300">
-                      <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mb-2">
+                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                      <div className="flex items-center gap-2 text-slate-500 mb-2">
                         <ArrowUpRight className="w-4 h-4" />
                         <span className="text-sm font-semibold">
                           Total progress
                         </span>
                       </div>
-                      <div className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+                      <div className="text-3xl font-bold text-slate-800 mb-2">
                         {analyticsData?.totalProgress || 0}
                       </div>
-                      <div className="text-zinc-400 dark:text-zinc-500 text-xs font-medium">
+                      <div className="text-slate-400 text-xs font-medium">
                         completions logged
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 flex flex-col justify-between shadow-sm dark:shadow-none transition-colors duration-300">
-                      <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mb-2">
+                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                      <div className="flex items-center gap-2 text-slate-500 mb-2">
                         <Users className="w-4 h-4" />
                         <span className="text-sm font-semibold">
                           Total enrollments
                         </span>
                       </div>
-                      <div className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+                      <div className="text-3xl font-bold text-slate-800 mb-2">
                         {analyticsData?.totalEnrollments || 0}
                       </div>
-                      <div className="text-zinc-400 dark:text-zinc-500 text-xs font-medium">
+                      <div className="text-slate-400 text-xs font-medium">
                         across all courses
                       </div>
                     </div>
@@ -727,9 +723,9 @@ const AdminDashboard = () => {
 
                   {/* Charts */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 shadow-sm dark:shadow-none transition-colors duration-300">
-                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-                        <span className="w-2 h-4 bg-[#3BC1A8] rounded-full"></span>
+                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 shadow-sm">
+                      <h3 className="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <span className="w-2 h-4 bg-[#0095DA] rounded-full"></span>
                         Overview distribution
                       </h3>
                       <div className="h-[320px]">
@@ -760,9 +756,7 @@ const AdminDashboard = () => {
                             />
                             <RechartsTooltip
                               cursor={{
-                                fill: isDark
-                                  ? "rgba(255,255,255,0.03)"
-                                  : "rgba(0,0,0,0.03)",
+                                fill: "rgba(0,0,0,0.03)",
                               }}
                               contentStyle={{
                                 borderRadius: "12px",
@@ -774,7 +768,7 @@ const AdminDashboard = () => {
                             />
                             <Bar
                               dataKey="value"
-                              fill="#3BC1A8"
+                              fill="#0095DA"
                               radius={[6, 6, 0, 0]}
                               barSize={50}
                             />
@@ -783,9 +777,9 @@ const AdminDashboard = () => {
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 shadow-sm dark:shadow-none">
-                      <h3 className="text-sm font-bold text-zinc-900 dark:text-white mb-6 flex items-center gap-2">
-                        <span className="w-2 h-4 bg-emerald-500 rounded-full"></span>
+                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 shadow-sm">
+                      <h3 className="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <span className="w-2 h-4 bg-[#F37E28] rounded-full"></span>
                         Platform trends
                       </h3>
                       <div className="h-[320px]">
@@ -826,11 +820,11 @@ const AdminDashboard = () => {
                             <Line
                               type="monotone"
                               dataKey="value"
-                              stroke="#10b981"
+                              stroke="#0095DA"
                               strokeWidth={4}
                               dot={{
                                 r: 6,
-                                fill: "#10b981",
+                                fill: "#0095DA",
                                 strokeWidth: 3,
                                 stroke: chartColors.tooltipBg,
                               }}
@@ -851,12 +845,12 @@ const AdminDashboard = () => {
             <div className="space-y-6">
               {/* Stats Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 flex flex-col justify-between shadow-sm dark:shadow-none transition-colors duration-300">
-                  <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mb-2">
+                <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                  <div className="flex items-center gap-2 text-slate-500 mb-2">
                     <DollarSign className="w-4 h-4" />
                     <span className="text-sm font-semibold">Total revenue</span>
                   </div>
-                  <div className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+                  <div className="text-3xl font-bold text-slate-800 mb-2">
                     ${totalRevenue.toLocaleString()}
                   </div>
                   <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500 text-xs font-medium">
@@ -865,56 +859,57 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 flex flex-col justify-between shadow-sm dark:shadow-none transition-colors duration-300">
-                  <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mb-2">
+                <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                  <div className="flex items-center gap-2 text-slate-500 mb-2">
                     <CheckCircle2 className="w-4 h-4" />
                     <span className="text-sm font-semibold">Completed</span>
                   </div>
-                  <div className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+                  <div className="text-3xl font-bold text-slate-800 mb-2">
                     {completedTx}
                   </div>
-                  <div className="text-zinc-400 dark:text-zinc-500 text-xs font-medium">
+                  <div className="text-slate-400 text-xs font-medium">
                     transactions
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 flex flex-col justify-between shadow-sm dark:shadow-none transition-colors duration-300">
-                  <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mb-2">
+                <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                  <div className="flex items-center gap-2 text-slate-500 mb-2">
                     <Clock className="w-4 h-4" />
                     <span className="text-sm font-semibold">Pending</span>
                   </div>
-                  <div className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+                  <div className="text-3xl font-bold text-slate-800 mb-2">
                     {pendingTx}
                   </div>
-                  <div className="text-zinc-400 dark:text-zinc-500 text-xs font-medium">
+                  <div className="text-slate-400 text-xs font-medium">
                     awaiting confirmation
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl p-6 flex flex-col justify-between shadow-sm dark:shadow-none transition-colors duration-300">
-                  <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mb-2">
+                <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                  <div className="flex items-center gap-2 text-slate-500 mb-2">
                     <Users className="w-4 h-4" />
                     <span className="text-sm font-semibold">Unique users</span>
                   </div>
-                  <div className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+                  <div className="text-3xl font-bold text-slate-800 mb-2">
                     {uniqueUsers}
                   </div>
-                  <div className="text-zinc-400 dark:text-zinc-500 text-xs font-medium">
+                  <div className="text-slate-400 text-xs font-medium">
                     this period
                   </div>
                 </div>
               </div>
 
               {/* Transactions Table Card */}
-              <div className="bg-white dark:bg-[#27272a] border border-zinc-200 dark:border-[#3f3f46] rounded-xl overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300">
-                <div className="px-6 py-5 border-b border-zinc-200 dark:border-[#3f3f46] flex items-center justify-between transition-colors duration-300">
-                  <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
+              <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+                <div className="px-6 py-5 border-b border-[#E1EAF2] flex items-center justify-between transition-colors">
+                  <h2 className="text-lg font-bold text-slate-800">
                     Transaction history
+                    <div className="h-0.5 w-8 bg-[#F37E28] rounded-full mt-0.5" />
                   </h2>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={exportToPdf}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#27272a] hover:bg-zinc-50 dark:hover:bg-[#3f3f46] border border-zinc-200 dark:border-[#3f3f46] text-zinc-900 dark:text-white text-sm font-semibold rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-white  hover:bg-zinc-50 dark:hover:bg-[#3f3f46] border border-zinc-200  text-slate-800 text-sm font-semibold rounded-lg transition-colors"
                     >
                       <Download className="w-4 h-4" />
                       Export
@@ -924,7 +919,7 @@ const AdminDashboard = () => {
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-zinc-500 dark:text-zinc-400 uppercase text-xs font-bold border-b border-zinc-200 dark:border-[#3f3f46]">
+                    <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
                       <tr>
                         <th className="px-4 py-4">Username</th>
                         <th className="px-4 py-4">Course Title</th>
@@ -936,14 +931,14 @@ const AdminDashboard = () => {
                         <th className="px-4 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-100 dark:divide-[#3f3f46]">
+                    <tbody className="divide-y divide-[#E1EAF2]">
                       {allTransactionsLoading ? (
                         <tr>
                           <td
                             colSpan={7}
                             className="px-6 py-12 text-center text-zinc-500"
                           >
-                            <Clock className="w-8 h-8 text-zinc-400 dark:text-zinc-600 animate-spin mx-auto mb-4" />
+                            <Clock className="w-8 h-8 text-zinc-400  animate-spin mx-auto mb-4" />
                             Loading transactions...
                           </td>
                         </tr>
@@ -971,10 +966,10 @@ const AdminDashboard = () => {
                           return (
                             <tr
                               key={tx.id}
-                              className="hover:bg-zinc-50 dark:hover:bg-[#3f3f46]/50 transition-colors"
+                              className="hover:bg-[#EAF4FB] transition-colors"
                             >
                               <td className="px-4 py-4 whitespace-nowrap">
-                                <span className="text-zinc-800 dark:text-zinc-200 font-medium text-sm">
+                                <span className="text-zinc-800  font-medium text-sm">
                                   {username}
                                 </span>
                               </td>
@@ -982,17 +977,17 @@ const AdminDashboard = () => {
                                 className="px-4 py-4 whitespace-nowrap max-w-[200px] truncate"
                                 title={courseTitle}
                               >
-                                <span className="text-zinc-600 dark:text-zinc-300 text-sm">
+                                <span className="text-slate-600 text-sm">
                                   {courseTitle}
                                 </span>
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap">
-                                <span className="font-bold text-zinc-900 dark:text-white text-sm">
+                                <span className="font-bold text-slate-800 text-sm">
                                   {Number(tx.amount).toLocaleString()}
                                 </span>
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap">
-                                <span className="text-zinc-600 dark:text-zinc-300 text-sm">
+                                <span className="text-slate-600 text-sm">
                                   {tx.currency || "USD"}
                                 </span>
                               </td>
@@ -1005,7 +1000,7 @@ const AdminDashboard = () => {
                                     tx.provider === "STRIPE" &&
                                       "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30",
                                     !tx.provider &&
-                                      "bg-zinc-500/10 text-zinc-500 dark:text-zinc-400 border-zinc-500/30",
+                                      "bg-zinc-500/10 text-slate-500 border-zinc-500/30",
                                   )}
                                 >
                                   {tx.provider || "N/A"}
@@ -1035,19 +1030,19 @@ const AdminDashboard = () => {
                                     )}
                                   >
                                     <option
-                                      className="bg-white dark:bg-[#27272a] text-amber-600 dark:text-amber-500"
+                                      className="bg-white  text-amber-600 dark:text-amber-500"
                                       value="PENDING"
                                     >
                                       PENDING
                                     </option>
                                     <option
-                                      className="bg-white dark:bg-[#27272a] text-emerald-600 dark:text-emerald-500"
+                                      className="bg-white  text-emerald-600 dark:text-emerald-500"
                                       value="COMPLETED"
                                     >
                                       COMPLETED
                                     </option>
                                     <option
-                                      className="bg-white dark:bg-[#27272a] text-red-600 dark:text-red-500"
+                                      className="bg-white  text-red-600 dark:text-red-500"
                                       value="FAILED"
                                     >
                                       FAILED
@@ -1059,7 +1054,7 @@ const AdminDashboard = () => {
                                 </div>
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap">
-                                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                                <span className="text-xs text-slate-500">
                                   {tx.createdAt
                                     ? new Date(tx.createdAt).toLocaleDateString(
                                         "en-US",
@@ -1079,7 +1074,7 @@ const AdminDashboard = () => {
                                   onClick={() =>
                                     setSelectedTransactionDetail(tx)
                                   }
-                                  className="p-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white rounded-lg transition-all"
+                                  className="p-1.5 bg-zinc-100 hover:bg-zinc-200   border border-zinc-200  text-slate-600 hover:text-zinc-900 dark:hover:text-white rounded-lg transition-all"
                                   title="View details"
                                 >
                                   <Eye className="w-4 h-4" />
@@ -1093,13 +1088,13 @@ const AdminDashboard = () => {
                   </table>
                 </div>
 
-                <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-200 dark:border-[#3f3f46]">
+                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E1EAF2]">
                   <span className="text-xs text-zinc-500 font-medium">
                     Page {transactionsPage}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() =>
                         setTransactionsPage((p) => Math.max(1, p - 1))
                       }
@@ -1108,7 +1103,7 @@ const AdminDashboard = () => {
                       Previous
                     </button>
                     <button
-                      className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#52525b] border border-zinc-200 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setTransactionsPage((p) => p + 1)}
                       disabled={
                         !paginatedTransactions ||
@@ -1155,23 +1150,23 @@ const AdminDashboard = () => {
             if (!open) setPendingStatusChange(null);
           }}
         >
-          <DialogContent className="sm:max-w-md bg-white dark:bg-[#27272a] border-zinc-200 dark:border-[#3f3f46] text-zinc-900 dark:text-white">
+          <DialogContent className="sm:max-w-md bg-white  border-zinc-200  text-slate-800">
             <DialogHeader>
-              <DialogTitle className="text-zinc-900 dark:text-white">
+              <DialogTitle className="text-slate-800">
                 Confirm Status Change
               </DialogTitle>
-              <DialogDescription className="text-zinc-500 dark:text-zinc-400">
+              <DialogDescription className="text-slate-500">
                 Are you sure you want to change transaction #
                 {pendingStatusChange?.txId} status to{" "}
                 <span
                   className={cn(
                     "font-bold",
                     pendingStatusChange?.newStatus === "COMPLETED" &&
-                      "text-emerald-600 dark:text-emerald-400",
+                      "text-emerald-600 ",
                     pendingStatusChange?.newStatus === "PENDING" &&
-                      "text-amber-600 dark:text-amber-400",
+                      "text-amber-600 ",
                     pendingStatusChange?.newStatus === "FAILED" &&
-                      "text-red-600 dark:text-red-400",
+                      "text-red-600 ",
                   )}
                 >
                   {pendingStatusChange?.newStatus}
@@ -1182,7 +1177,7 @@ const AdminDashboard = () => {
             <DialogFooter className="gap-2">
               <Button
                 onClick={() => setPendingStatusChange(null)}
-                className="text-zinc-700 dark:text-zinc-300 bg-zinc-100 hover:bg-zinc-200 dark:bg-[#3f3f46] dark:hover:bg-[#3f3f46]"
+                className="text-slate-700 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2]"
               >
                 Cancel
               </Button>
@@ -1211,19 +1206,19 @@ const AdminDashboard = () => {
             if (!open) setDeleteCourseTarget(null);
           }}
         >
-          <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#27272a] border-zinc-200 dark:border-[#3f3f46]">
+          <DialogContent className="sm:max-w-[425px] bg-white border-[#E1EAF2]">
             <DialogHeader>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 rounded-full bg-red-50 dark:bg-red-500/10">
-                  <AlertTriangle className="w-5 h-5 text-red-500 dark:text-red-400" />
+                  <AlertTriangle className="w-5 h-5 text-red-500 " />
                 </div>
-                <DialogTitle className="text-xl font-bold text-zinc-900 dark:text-white">
+                <DialogTitle className="text-xl font-bold text-slate-800">
                   Delete Course?
                 </DialogTitle>
               </div>
-              <DialogDescription className="text-zinc-500 dark:text-zinc-400 pt-2">
+              <DialogDescription className="text-slate-500 pt-2">
                 Are you sure you want to delete{" "}
-                <span className="font-semibold text-zinc-700 dark:text-zinc-200">
+                <span className="font-semibold text-slate-700">
                   "{deleteCourseTarget?.title}"
                 </span>
                 ? This action cannot be undone and all modules, lessons, and
@@ -1235,7 +1230,7 @@ const AdminDashboard = () => {
                 variant="ghost"
                 onClick={() => setDeleteCourseTarget(null)}
                 disabled={deleteCourseMutation.isPending}
-                className="flex-1 sm:flex-none border border-zinc-200 dark:border-[#3f3f46] text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-[#3f3f46]"
+                className="flex-1 sm:flex-none border border-[#E1EAF2] text-slate-700 hover:bg-[#EAF4FB]"
               >
                 Cancel
               </Button>

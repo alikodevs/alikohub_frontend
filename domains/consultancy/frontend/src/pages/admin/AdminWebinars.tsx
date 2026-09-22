@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import { Link } from "react-router-dom";
+import api, { formatUploadUrl } from "@/lib/api";
+import { formatWebinarDateTime, utcToEatDatetimeLocal, eatDatetimeLocalToUtcIso } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Upload, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, X, Users } from "lucide-react";
 
 type Webinar = {
   id: string;
@@ -47,7 +49,7 @@ const AdminWebinars = () => {
       description: editing.description || "",
       webinarUrl: editing.webinarUrl || null,
       thumbnailUrl: editing.thumbnailUrl || null,
-      scheduledAt: editing.scheduledAt || null,
+      scheduledAt: eatDatetimeLocalToUtcIso(editing.scheduledAt),
       durationMinutes: editing.durationMinutes || null,
       isPublished: editing.isPublished || false,
       isFree: editing.isFree ?? true,
@@ -68,9 +70,15 @@ const AdminWebinars = () => {
   };
 
   const remove = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this webinar?")) return;
     try {
-      await api.delete(`/consultancy/cms/webinars/${id}`);
-      toast({ title: "Webinar Deleted" });
+      // Use DELETE /consultancy/cms/webinars/:id/registrations or /webinars/:id
+      try {
+        await api.delete(`/consultancy/cms/webinars/${id}/registrations`);
+      } catch (err) {
+        await api.delete(`/consultancy/cms/webinars/${id}`);
+      }
+      toast({ title: "Webinar Removed" });
       fetchWebinars();
     } catch (e) {
       toast({ title: "Error", description: "Failed to delete.", variant: "destructive" });
@@ -79,14 +87,21 @@ const AdminWebinars = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl font-bold text-primary mb-1">Webinars</h1>
-          <p className="text-muted-foreground text-sm">Manage webinar listings.</p>
+          <p className="text-muted-foreground text-sm">Manage webinar listings and attendee registrations.</p>
         </div>
-        <Button onClick={() => { setEditing({ title: "", slug: "", isPublished: false, isFree: true }); setIsNew(true); }} className="bg-gold text-navy hover:bg-gold/90 font-semibold">
-          <Plus className="w-4 h-4 mr-2" /> Add Webinar
-        </Button>
+        <div className="flex items-center gap-3">
+          <Link to="/admin/webinar-registrations">
+            <Button variant="outline" className="font-medium">
+              <Users className="w-4 h-4 mr-2" /> View Registrations
+            </Button>
+          </Link>
+          <Button onClick={() => { setEditing({ title: "", slug: "", scheduledAt: "", isPublished: false, isFree: true }); setIsNew(true); }} className="bg-gold text-navy hover:bg-gold/90 font-semibold">
+            <Plus className="w-4 h-4 mr-2" /> Add Webinar
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -97,9 +112,9 @@ const AdminWebinars = () => {
             </span>
             <h3 className="font-semibold text-primary mt-3 mb-1">{w.title}</h3>
             <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{w.description}</p>
-            {w.scheduledAt && <p className="text-xs text-muted-foreground">Scheduled: {new Date(w.scheduledAt).toLocaleDateString()}</p>}
+            {w.scheduledAt && <p className="text-xs text-muted-foreground">Scheduled: {formatWebinarDateTime(w.scheduledAt, w.durationMinutes).fullStr}</p>}
             <div className="flex gap-2 mt-4">
-              <Button size="sm" variant="outline" onClick={() => { setEditing(w); setIsNew(false); }}><Pencil className="w-3 h-3 mr-1" /> Edit</Button>
+              <Button size="sm" variant="outline" onClick={() => { setEditing({ ...w, scheduledAt: utcToEatDatetimeLocal(w.scheduledAt) }); setIsNew(false); }}><Pencil className="w-3 h-3 mr-1" /> Edit</Button>
               <Button size="sm" variant="ghost" onClick={() => remove(w.id)} className="text-destructive"><Trash2 className="w-3 h-3" /></Button>
             </div>
           </div>
@@ -122,7 +137,7 @@ const AdminWebinars = () => {
                 <label className="text-sm font-medium">Thumbnail Image</label>
                 {editing.thumbnailUrl ? (
                   <div className="relative w-full aspect-video group">
-                    <img src={editing.thumbnailUrl.replace("http://", "https://")} alt="Thumbnail" className="w-full h-full object-cover rounded-lg border border-border" />
+                    <img src={formatUploadUrl(editing.thumbnailUrl)} alt="Thumbnail" className="w-full h-full object-cover rounded-lg border border-border" />
                     <button onClick={() => setEditing({ ...editing, thumbnailUrl: "" })} className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
                   </div>
                 ) : (
@@ -139,7 +154,7 @@ const AdminWebinars = () => {
                           formData.append("file", file);
                           try {
                             const { data } = await api.post("/upload/image", formData, { headers: { "Content-Type": "multipart/form-data" } });
-                            setEditing({ ...editing, thumbnailUrl: data.url });
+                            setEditing({ ...editing, thumbnailUrl: formatUploadUrl(data.url) });
                           } catch (err) {
                             toast({ title: "Upload failed", variant: "destructive" });
                           }
@@ -154,7 +169,7 @@ const AdminWebinars = () => {
                 )}
               </div>
 
-              <Input type="datetime-local" value={editing.scheduledAt ? new Date(editing.scheduledAt).toISOString().slice(0, 16) : ""} onChange={(e) => setEditing({ ...editing, scheduledAt: e.target.value })} />
+              <Input type="datetime-local" value={editing.scheduledAt || ""} onChange={(e) => setEditing({ ...editing, scheduledAt: e.target.value })} />
               <Input type="number" placeholder="Duration (minutes)" value={editing.durationMinutes || ""} onChange={(e) => setEditing({ ...editing, durationMinutes: parseInt(e.target.value) || null })} />
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2"><Switch checked={editing.isPublished || false} onCheckedChange={(v) => setEditing({ ...editing, isPublished: v })} /><span className="text-sm">Published</span></div>

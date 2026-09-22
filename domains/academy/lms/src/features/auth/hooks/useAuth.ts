@@ -182,10 +182,6 @@ export const useUser = () => {
           return remoteUser;
         }
       } catch (e) {
-        console.error(
-          "Failed to fetch remote profile, using local session:",
-          e,
-        );
         if (localUser) return localUser;
         throw e; // If no local user exists and remote fails, then we are truly unauthenticated
       }
@@ -274,6 +270,9 @@ export const useSwitchAcademyRole = () => {
           },
         };
       });
+
+      // Clear chat cache so the new role fetches its own contacts/conversations
+      queryClient.removeQueries({ queryKey: ["chat"] });
     },
     onError: (error: ApiError) => {
       const message =
@@ -340,7 +339,7 @@ export const useForgotPassword = () => {
 
 export const useResetPassword = () => {
   return useMutation({
-    mutationFn: (data: { email: string; newPassword: string }) =>
+    mutationFn: (data: { token: string; newPassword: string }) =>
       authService.resetPassword(data),
     onSuccess: () => {
       toast.success("Password reset successful!");

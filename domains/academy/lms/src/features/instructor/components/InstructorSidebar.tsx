@@ -6,6 +6,7 @@ import {
   ClipboardList,
   CalendarDays,
   Settings,
+  MessageCircle,
   X,
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
@@ -15,6 +16,7 @@ const mainNav = [
   { label: "Dashboard", to: "/instructor", icon: LayoutDashboard },
   { label: "My Courses", to: "/instructor/courses", icon: BookOpen },
   { label: "Analytics", to: "/instructor/analytics", icon: BarChart },
+  { label: "Chat", to: "/instructor/chat", icon: MessageCircle },
 ];
 
 const manageNav = [
@@ -55,16 +57,23 @@ const InstructorSidebar = ({
     const content = (
       <span
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 w-full border-l-2",
+          "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-all duration-200 w-full group font-medium",
           active
-            ? "bg-accent/10 text-accent font-semibold border-accent"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground font-medium border-transparent",
+            ? "bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/25"
+            : "text-slate-300/80 hover:bg-white/5 hover:text-white",
         )}
       >
-        <Icon className={`w-4 h-4 shrink-0 ${active ? "text-accent" : ""}`} />
+        <Icon className={cn("w-[18px] h-[18px] shrink-0", active ? "text-primary-foreground" : "text-slate-400 group-hover:text-slate-200")} />
         <span className="flex-1">{item.label}</span>
         {item.badge != null && item.badge > 0 && (
-          <span className="text-[11px] font-bold bg-accent text-accent-foreground rounded-full px-1.5 py-0.5 leading-none">
+          <span
+            className={cn(
+              "text-[11px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 leading-none",
+              active
+                ? "bg-primary-foreground/20 text-primary-foreground"
+                : "bg-primary/20 text-primary-foreground/80",
+            )}
+          >
             {item.badge}
           </span>
         )}
@@ -95,14 +104,14 @@ const InstructorSidebar = ({
       {/* Mobile backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       <aside
         className={cn(
-          "w-56 shrink-0 flex flex-col h-screen border-r border-border bg-card z-50",
+          "w-[240px] shrink-0 flex flex-col h-screen bg-[#0b1739] border-r border-slate-800/60 z-50 text-slate-300",
           // Desktop: always visible
           "hidden lg:flex lg:sticky lg:top-0",
           // Mobile: slide-in overlay
@@ -110,39 +119,27 @@ const InstructorSidebar = ({
         )}
       >
         {/* Logo + mobile close */}
-        <div className="flex items-center justify-between px-4 py-5 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 flex items-center justify-center shrink-0">
-              <img
-                src={logoLms}
-                alt="Aliko Academy"
-                className="w-8 h-8 object-contain"
-              />
-            </div>
-            <div className="leading-tight">
-              <p className="text-sm font-bold text-foreground font-heading">
-                Aliko Academy
-              </p>
-              <p className="text-[11px] text-muted-foreground font-medium tracking-wide uppercase">
-                Instructor Console
-              </p>
-            </div>
-          </div>
+        <div className="relative h-24 shrink-0 flex items-center justify-center px-7 border-b border-slate-800/60">
+          <img
+            src="/Aliko Academy - LMS 2.png"
+            alt="Aliko Academy LMS"
+            className="h-10 w-auto max-w-[180px] object-contain"
+          />
           <button
             onClick={onClose}
-            className="lg:hidden p-1.5 hover:bg-muted rounded-md transition-colors"
+            className="absolute right-7 lg:hidden p-2 hover:bg-white/10 rounded-md transition-colors"
           >
-            <X className="w-4 h-4 text-muted-foreground" />
+            <X className="w-5 h-5 text-slate-400" />
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-4 px-4 space-y-6">
+        <nav className="flex-1 overflow-y-auto sidebar-scroll py-6 px-4 space-y-7">
           <div>
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide px-3 mb-2">
+            <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2.5">
               Main Menu
             </p>
-            <div className="space-y-0.5">
+            <div className="space-y-1.5">
               {mainNav.map((item) => (
                 <NavItem key={item.to} item={item} />
               ))}
@@ -150,10 +147,10 @@ const InstructorSidebar = ({
           </div>
 
           <div>
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide px-3 mb-2">
+            <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2.5">
               Manage
             </p>
-            <div className="space-y-0.5">
+            <div className="space-y-1.5">
               {manageNav.map((item) => (
                 <NavItem key={item.to} item={item} />
               ))}

@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, CalendarDays, FileText, BookOpen,
-  Video, MessageSquare, Star, Newspaper, Settings
+  Video, MessageSquare, Star, Newspaper, Settings, Users
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -16,6 +16,7 @@ const items = [
   { title: "Applications", url: "/admin/applications", icon: FileText },
   { title: "Resources", url: "/admin/resources", icon: BookOpen },
   { title: "Webinars", url: "/admin/webinars", icon: Video },
+  { title: "Webinar Registrations", url: "/admin/webinar-registrations", icon: Users },
   { title: "Testimonials", url: "/admin/testimonials", icon: Star },
   { title: "Pages", url: "/admin/pages", icon: Newspaper },
   { title: "Contacts", url: "/admin/contacts", icon: MessageSquare },

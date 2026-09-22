@@ -196,30 +196,47 @@ const Footer = () => {
                   <Mail className="h-4 w-4 text-secondary" />
                 </div>
                 <a
-                  href="mailto:hello@alikoacademy.tech"
+                  href="mailto:academy-tech@alikohub.com"
                   className="text-sm text-white/60 hover:text-white transition-colors pt-2"
                 >
-                  hello@alikoacademy.tech
+                  academy-tech@alikohub.com
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
                   <Phone className="h-4 w-4 text-secondary" />
                 </div>
-                <a
-                  href="tel:+1234567890"
-                  className="text-sm text-white/60 hover:text-white transition-colors pt-2"
-                >
-                  +1 (234) 567-890
-                </a>
+                <div className="text-sm text-white/60 pt-2 flex flex-wrap gap-x-1.5">
+                  <a href="tel:+12063535373" className="hover:text-white transition-colors">
+                    +1 (206) 353 5373
+                  </a>
+                  <span className="text-white/40">|</span>
+                  <a href="tel:+251920907878" className="hover:text-white transition-colors">
+                    +251 920 907 878
+                  </a>
+                  <span className="text-white/40">|</span>
+                  <a href="tel:+251910813571" className="hover:text-white transition-colors">
+                    +251 910 813 571
+                  </a>
+                </div>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
                   <MapPin className="h-4 w-4 text-secondary" />
                 </div>
-                <span className="text-sm text-white/60 pt-2">
-                  Remote-first, Global
-                </span>
+                <div className="text-sm text-white/60 pt-1 space-y-1">
+                  <p>
+                    19550 International Blvd Suite STE 301, SeaTac, WA 98188
+                  </p>
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="h-4 w-4 text-secondary" />
+                </div>
+                <div className="text-sm text-white/60 pt-1 space-y-1">
+                  <p>Addis Ababa, Bole Dembel, Tigi's Building, 12th Floor</p>
+                </div>
               </li>
             </ul>
           </div>

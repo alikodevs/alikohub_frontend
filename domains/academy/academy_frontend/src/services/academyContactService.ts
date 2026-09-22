@@ -9,30 +9,46 @@ export interface AcademyContactParams {
   service_interest?: string;
   message: string;
   source_page?: string;
+  target_email?: string;
 }
 
 export async function sendAcademyContact(params: AcademyContactParams) {
   const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || "";
-  const TEMPLATE_ORG = import.meta.env.VITE_EMAILJS_TEMPLATE_ID_ORG || "";
+  const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || import.meta.env.VITE_EMAILJS_TEMPLATE_ID_ORG || "";
   const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "";
 
+  if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+    throw new Error("EmailJS service ID, template ID, or public key is missing from environment variables.");
+  }
+
+  const recipientEmail = params.target_email || "academy@alikohub.com";
+
+  const emailSubject = params.service_interest
+    ? `Academy Inquiry: ${params.service_interest} - ${params.name.trim()}`
+    : `New Academy Contact Submission from ${params.name.trim()}`;
+
   const templateParams = {
-    from_name: params.name,
-    from_email: params.email,
-    to_name: params.name,
-    to_email: params.email,
-    user_email: params.email,
-    reply_to: params.email,
-    email: params.email,
-    name: params.name,
-    full_name: params.name,
-    organization: params.organization || "N/A",
-    phone: params.phone || "N/A",
-    country: params.country || "N/A",
-    service_interest: params.service_interest || "N/A",
-    message: params.message,
+    to_email: recipientEmail,
+    to_name: "AlikoHub Academy Team",
+    from_name: params.name.trim(),
+    from_email: params.email.trim(),
+    reply_to: params.email.trim(),
+    name: params.name.trim(),
+    email: params.email.trim(),
+    phone: params.phone ? params.phone.trim() : "N/A",
+    organization: params.organization ? params.organization.trim() : "N/A",
+    role: "N/A",
+    country: params.country ? params.country.trim() : "N/A",
+    service_interest: params.service_interest ? params.service_interest.trim() : "N/A",
+    partnership_interest: params.service_interest ? params.service_interest.trim() : "N/A",
+    subject: emailSubject,
+    message: params.message.trim(),
+    user_message: params.message.trim(),
+    full_name: params.name.trim(),
+    user_email: params.email.trim(),
     source_page: params.source_page || "contact",
   };
 
-  await emailjs.send(SERVICE_ID, TEMPLATE_ORG, templateParams, PUBLIC_KEY);
+  const result = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+  return result;
 }

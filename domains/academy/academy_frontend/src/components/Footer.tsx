@@ -41,8 +41,8 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: Mail, href: "mailto:info@alikohub.com", name: "Email" },
-    { icon: Phone, href: "tel:+1234567890", name: "Phone" },
+    { icon: Mail, href: "mailto:academy@alikohub.com", name: "Email" },
+    { icon: Phone, href: "tel:+1 (206) 353 5373", name: "Phone" },
   ];
 
   return (
@@ -68,23 +68,45 @@ const Footer = () => {
 
             <div className="mt-8 space-y-4">
               <div className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors cursor-default">
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
-                  <MapPin className="w-4 h-4 text-accent" />
-                </div>
-                <span className="text-sm font-medium">
-                  Seattle, Washington, USA
-                </span>
-              </div>
-              <div className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors cursor-default">
                 <a
-                  href="mailto:info@alikohub.com"
+                  href="mailto:academy@alikohub.com"
                   className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors cursor-pointer"
                 >
                   <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
                     <Mail className="w-4 h-4 text-accent" />
                   </div>
-                  <span className="text-sm font-medium">info@alikohub.com</span>
+                  <span className="text-sm font-medium">
+                    academy@alikohub.com
+                  </span>
                 </a>
+              </div>
+              <div className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
+                  <Phone className="w-4 h-4 text-accent" />
+                </div>
+                <div className="text-sm font-medium flex flex-wrap gap-x-1.5">
+                  <a href="tel:+12063535373" className="hover:text-accent transition-colors">+1 (206) 353 5373</a>
+                  <span className="text-slate-500">|</span>
+                  <a href="tel:+251920907878" className="hover:text-accent transition-colors">+251 920 907 878</a>
+                  <span className="text-slate-500">|</span>
+                  <a href="tel:+251910813571" className="hover:text-accent transition-colors">+251 910 813 571</a>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
+                  <MapPin className="w-4 h-4 text-accent" />
+                </div>
+                <span className="text-sm font-medium">
+                  19550 International Blvd Suite STE 301, SeaTac, WA 98188
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-slate-300 hover:text-white transition-colors cursor-default">
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
+                  <MapPin className="w-4 h-4 text-accent" />
+                </div>
+                <span className="text-sm font-medium">
+                  Addis Ababa, Bole Dembel, Tigi's Building, 12th Floor
+                </span>
               </div>
             </div>
           </div>

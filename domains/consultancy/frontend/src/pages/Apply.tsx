@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, Upload, X } from "lucide-react";
-import api from "@/lib/api";
+import api, { formatUploadUrl } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 const Apply = () => {
@@ -82,7 +82,7 @@ const Apply = () => {
           await api.post("/consultancy/applications/documents", {
             applicationId: applicationId,
             fileName: file.name,
-            filePath: uploadRes.data.url,
+            filePath: formatUploadUrl(uploadRes.data.url),
             fileSize: file.size,
             mimeType: file.type,
           });

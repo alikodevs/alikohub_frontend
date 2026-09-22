@@ -63,7 +63,7 @@ interface CurriculumTabProps {
 const getFullUrl = (url?: string) => {
   if (!url) return "";
   if (url.startsWith("http")) return url;
-  const baseUrl = "https://api.consultancy.alikohub.com";
+  const baseUrl = import.meta.env.VITE_API_URL || "https://api.consultancy.alikohub.com";
   const cleanUrl = url.startsWith("/") ? url : `/${url}`;
   return `${baseUrl}${cleanUrl}`;
 };

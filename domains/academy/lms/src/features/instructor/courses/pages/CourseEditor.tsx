@@ -128,7 +128,7 @@ const InstructorCourseEditor = () => {
     Record<string, boolean>
   >({});
 
-  const reorderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reorderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleDescription, setModuleDescription] = useState("");

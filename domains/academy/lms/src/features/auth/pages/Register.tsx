@@ -82,7 +82,6 @@ const RegisterPage = () => {
   const onSubmit = (values: RegisterFormValues) => {
     // Honeypot check: if _hp is filled, it's likely a bot
     if (values._hp) {
-      console.warn("Honeypot hit! Bot detected.");
       return;
     }
     const { confirmPassword, _hp, ...apiValues } = values;

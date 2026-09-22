@@ -17,6 +17,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: () => Promise<{ error: Error | null; cancelled?: boolean }>;
   signOut: () => Promise<void>;
 }
 
@@ -74,11 +75,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         firstname,
         lastname,
       });
-      // After registration, user needs to login or we auto-login if API supports it.
-      // Assuming manual login for now or re-use signIn logic if token returned.
       return { error: null };
     } catch (error: any) {
       return { error: error as Error };
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      const { signInWithPopup } = await import("firebase/auth");
+      const { auth, googleProvider } = await import("@/lib/firebase");
+
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+
+      const response = await api.post("/auth/login/google", {
+        idToken,
+      });
+      const { accessToken, user: userData } = response.data;
+      if (accessToken) {
+        localStorage.setItem("token", accessToken);
+      }
+      setUser(userData);
+      setIsAdmin(userData?.globalRole === "ADMIN");
+      return { error: null, cancelled: false };
+    } catch (error: any) {
+      const code = error?.code || error?.message || "";
+      if (
+        code.includes("popup-closed-by-user") ||
+        code.includes("cancelled-popup-request") ||
+        code.includes("popup-blocked")
+      ) {
+        return { error: null, cancelled: true };
+      }
+      console.error("Google sign-in application error:", error);
+      return { error: error as Error, cancelled: false };
     }
   };
 
@@ -89,7 +120,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, isAdmin, loading, signIn, signUp, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );

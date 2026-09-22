@@ -44,6 +44,7 @@ const Contact = () => {
         service_interest: (fd.get("topic") as string) || undefined,
         message: (fd.get("message") as string) || "",
         source_page: "health-contact",
+        target_email: "academy-health@alikohub.com",
       });
       setIsSubmitted(true);
       toast({
@@ -237,11 +238,10 @@ const Contact = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
-                    {currentState.contact.address}
+                  <p className="text-muted-foreground space-y-1">
+                    <span>19550 International Blvd Suite STE 301, SeaTac, WA 98188</span>
                     <br />
-                    {currentState.contact.city}, {currentState.contact.state}{" "}
-                    {currentState.contact.zip}
+                    <span>Addis Ababa, Bole Dembel, Tigi's Building, 12th Floor</span>
                   </p>
                 </CardContent>
               </Card>
@@ -256,10 +256,18 @@ const Contact = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
-                    Main: {currentState.contact.phone}
-                    <br />
-                    Admissions: {currentState.contact.admissionsPhone}
+                  <p className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-sm">
+                    <a href={`tel:${currentState.contact.phone}`} className="hover:text-accent transition-colors">
+                      {currentState.contact.phone}
+                    </a>
+                    <span>|</span>
+                    <a href="tel:+251920907878" className="hover:text-accent transition-colors">
+                      +251 920 907 878
+                    </a>
+                    <span>|</span>
+                    <a href="tel:+251910813571" className="hover:text-accent transition-colors">
+                      +251 910 813 571
+                    </a>
                   </p>
                 </CardContent>
               </Card>

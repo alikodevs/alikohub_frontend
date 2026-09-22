@@ -26,15 +26,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
-    const root = document.documentElement;
-    const isAdminRoute =
-      typeof window !== "undefined" &&
-      window.location.pathname.startsWith("/admin");
-    if (theme === "dark" && isAdminRoute) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+    // Dark mode is disabled — always keep light
+    document.documentElement.classList.remove("dark");
     window.localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 

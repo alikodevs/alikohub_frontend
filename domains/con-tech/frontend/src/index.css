@@ -1,7 +1,0 @@
-@import "tailwindcss";
-.group:hover > .group-hover\:flip-y {
-  transform: rotateY(180deg);
-}
-div.border-extra-thin {
-  border-width: 1px !important;
-}

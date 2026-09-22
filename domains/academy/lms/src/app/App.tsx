@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotificationFCMProvider from "@/components/shared/NotificationFCMProvider";
+import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
 // Auth & Layout
 import ProtectedRoute from "@/components/shared/ProtectedRoute";
@@ -43,8 +44,11 @@ import SubmissionDetail from "@/features/instructor/analytics/SubmissionDetail";
 
 // Pages - Instructor/Admin
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
+import AdminChat from "@/features/admin/pages/AdminChat";
 import Schedules from "@/features/instructor/pages/Schedules";
 import InstructorSettings from "@/features/instructor/pages/Settings";
+import InstructorChat from "@/features/instructor/pages/Chat";
+import InstructorNotifications from "@/features/instructor/pages/InstructorNotifications";
 
 // Pages - Account
 import Profile from "@/features/student/account/Profile";
@@ -59,9 +63,10 @@ import TransactionsPage from "@/features/student/account/Transactions";
 import PeerGrading from "@/features/student/pages/PeerGrading";
 import PeerGradingDetail from "@/features/student/pages/PeerGradingDetail";
 import StudentSchedules from "@/features/student/pages/StudentSchedules";
-import AnnouncementsPage from "@/features/student/pages/Announcements";
+import Announcements from "@/features/student/pages/Announcements";
+import ChatPage from "@/features/chat/ChatPage";
 
-import { ThemeProvider, useTheme } from "@/context/ThemeContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,21 +77,7 @@ const queryClient = new QueryClient({
   },
 });
 
-/** Runs inside BrowserRouter + QueryClientProvider so hooks work correctly */
 const AppInner = () => {
-  const location = useLocation();
-  const { theme } = useTheme();
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const isAdminRoute = location.pathname.startsWith("/admin");
-    if (isAdminRoute && theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [location.pathname, theme]);
-
   return (
     <Routes>
       {/* Public Routes */}
@@ -109,12 +100,13 @@ const AppInner = () => {
         <Route path="/instructor/apply" element={<ApplyInstructor />} />
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/schedules" element={<StudentSchedules />} />
-        <Route path="/announcements" element={<AnnouncementsPage />} />
+        <Route path="/chat" element={<ChatPage />} />
 
         {/* Account Routes */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/announcements" element={<Announcements />} />
         <Route path="/photo" element={<Photo />} />
         <Route path="/account-security" element={<AccountSecurity />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
@@ -141,6 +133,11 @@ const AppInner = () => {
           />
           <Route path="/instructor/schedules" element={<Schedules />} />
           <Route path="/instructor/settings" element={<InstructorSettings />} />
+          <Route path="/instructor/chat" element={<InstructorChat />} />
+          <Route
+            path="/instructor/notifications"
+            element={<InstructorNotifications />}
+          />
         </Route>
 
         {/* Admin Routes */}
@@ -151,6 +148,7 @@ const AppInner = () => {
           <Route path="/admin/analytics" element={<AdminDashboard />} />
           <Route path="/admin/transactions" element={<AdminDashboard />} />
           <Route path="/admin/announcements" element={<AdminDashboard />} />
+          <Route path="/admin/chat" element={<AdminChat />} />
         </Route>
       </Route>
 
@@ -168,7 +166,9 @@ const App = () => (
           <Toaster />
           <Sonner />
           <NotificationFCMProvider>
-            <AppInner />
+            <ErrorBoundary>
+              <AppInner />
+            </ErrorBoundary>
           </NotificationFCMProvider>
         </TooltipProvider>
       </ThemeProvider>

@@ -832,6 +832,39 @@ export const useCreateAnnouncement = () => {
   });
 };
 
+export const useUpdateAnnouncement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: { title: string; content: string } }) =>
+      academyService.updateAnnouncement(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["announcements"] });
+      toast.success("Announcement updated successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error.response?.data?.message || "Failed to update announcement",
+      );
+    },
+  });
+};
+
+export const useDeleteAnnouncement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => academyService.deleteAnnouncement(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["announcements"] });
+      toast.success("Announcement deleted successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error.response?.data?.message || "Failed to delete announcement",
+      );
+    },
+  });
+};
+
 // Admin Hooks
 export const useTeacherApplications = (
   page: number = 1,

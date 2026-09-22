@@ -1,33 +1,26 @@
 {
-  "name": "alikohub-reimplementation",
+  "name": "alikohub-frontend",
   "private": true,
   "type": "module",
   "workspaces": [
-    "domains/*",
-    "domains/*/backend",
     "domains/*/frontend",
-    "domains/core-platform-services/*",
+    "domains/academy/*",
+    "domains/alikowash",
     "libraries/*"
   ],
-  "main": "domains/general/frontend/index.js",
+  "main": "domains/general/frontend/index.html",
   "scripts": {
-    "start": "node start-all.js",
-    "dev": "node start-all.js --sync",
-    "sync": "node start-all.js --sync",
-    "build": "node start-all.js --build",
-    "full-start": "node start-all.js --sync --build",
-    "docker-start": "docker-compose up -d",
-    "docker-stop": "docker-compose down",
-    "docker-build": "docker-compose build"
+    "dev:general": "npm --prefix domains/general/frontend run dev",
+    "dev:academy": "npm --prefix domains/academy/academy_frontend run dev",
+    "dev:consultancy": "npm --prefix domains/consultancy/frontend run dev",
+    "dev:events": "npm --prefix domains/events/frontend run dev",
+    "dev:careers": "npm --prefix domains/careers/frontend run dev",
+    "build": "nx run-many -t build"
   },
   "dependencies": {
     "nx": "^21.2.2",
-    "@nestjs/common": "^11.1.6",
-    "@nestjs/core": "^11.1.6",
-    "@nestjs/microservices": "^11.1.6",
-    "react-router-dom": "^7.6.3",
     "react-icons": "^5.5.0",
-    "tailwind-scrollbar": "^4.0.2",
-    "ts-jest": "^29.4.0"
+    "react-router-dom": "^7.6.3",
+    "tailwind-scrollbar": "^4.0.2"
   }
 }

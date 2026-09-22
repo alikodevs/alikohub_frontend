@@ -136,7 +136,7 @@ const LmsNavbar = () => {
               className="gap-2 border-primary/20 text-primary cursor-pointer shadow-sm"
             >
               <Repeat className="w-4 h-4" />
-              Instructor view
+              Switch to Instructor
             </Button>
           ) : isOnApplyPage ? (
             <Button
@@ -146,7 +146,7 @@ const LmsNavbar = () => {
               className="gap-2 border-primary/20 text-primary hover:bg-primary/5 shadow-sm"
             >
               <GraduationCap className="w-4 h-4" />
-              Student view
+              Switch to Student
             </Button>
           ) : isPending ? (
             <Button
@@ -332,7 +332,7 @@ const LmsNavbar = () => {
                   disabled={isSwitching}
                 >
                   <Repeat className="w-4 h-4" />
-                  Instructor view
+                  Switch to Instructor
                 </Button>
               </div>
             ) : isOnApplyPage ? (
@@ -347,7 +347,7 @@ const LmsNavbar = () => {
                   }}
                 >
                   <GraduationCap className="w-4 h-4" />
-                  Student view
+                  Switch to Student
                 </Button>
               </div>
             ) : isPending ? (

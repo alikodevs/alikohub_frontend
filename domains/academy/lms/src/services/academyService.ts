@@ -216,6 +216,11 @@ export const academyService = {
     return response.data;
   },
 
+  getNotificationDetails: async (notifId: string | number) => {
+    const response = await api.get(`/academy/notifications/${notifId}`);
+    return response.data;
+  },
+
   markNotificationRead: async (notifId: string) => {
     const response = await api.patch(`/academy/notifications/${notifId}/read`);
     return response.data;
@@ -249,11 +254,13 @@ export const academyService = {
     return response.data;
   },
 
-  // FCM token registration
-  registerFcmToken: async (token: string) => {
-    const response = await api.post("/academy/notifications/fcm-token", {
-      token,
-    });
+  updateAnnouncement: async (id: string, data: { title: string; content: string }) => {
+    const response = await api.put(`/academy/announcements/${id}`, data);
+    return response.data;
+  },
+
+  deleteAnnouncement: async (id: string) => {
+    const response = await api.delete(`/academy/announcements/${id}`);
     return response.data;
   },
 

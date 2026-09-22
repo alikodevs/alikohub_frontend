@@ -185,7 +185,7 @@ const CourseDetails = () => {
             asChild
             className="bg-[#1C2840] hover:bg-[#141d2e] rounded-xl h-12 px-8"
           >
-            <Link to="/explore">Return to Explore</Link>
+            <Link to="/courses">Return to Explore</Link>
           </Button>
         </div>
       </div>
@@ -291,9 +291,9 @@ const CourseDetails = () => {
                   <p className="text-3xl font-black text-slate-900">
                     {isCourseFree
                       ? "Free"
-                      : course?.priceInUsd && course.priceInUsd > 0
-                        ? `$${course.priceInUsd}`
-                        : `${course.price} ETB`}
+                      : course.currency === "USD"
+                        ? `$${course.price}`
+                        : `${course.price?.toLocaleString()} ETB`}
                   </p>
                   {cohorts.length > 0 && (
                     <p className="text-xs text-slate-500 mt-1">
@@ -777,9 +777,9 @@ const CourseDetails = () => {
               <p className="text-2xl font-extrabold text-[#1C2840]">
                 {isCourseFree
                   ? "FREE"
-                  : course?.priceInUsd && course.priceInUsd > 0
-                    ? `$${course.priceInUsd}`
-                    : `${course.price} ETB`}
+                  : course.currency === "USD"
+                    ? `$${course.price}`
+                    : `${course.price?.toLocaleString()} ETB`}
               </p>
             </div>
             <Button

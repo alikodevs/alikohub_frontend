@@ -28,6 +28,7 @@ import AdminBookings from "./pages/admin/AdminBookings";
 import AdminApplications from "./pages/admin/AdminApplications";
 import AdminResources from "./pages/admin/AdminResources";
 import AdminWebinars from "./pages/admin/AdminWebinars";
+import AdminWebinarRegistrations from "./pages/admin/AdminWebinarRegistrations";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminPages from "./pages/admin/AdminPages";
 import AdminContacts from "./pages/admin/AdminContacts";
@@ -102,6 +103,14 @@ const App = () => (
             />
             <Route
               path="/webinars"
+              element={
+                <Layout>
+                  <Webinars />
+                </Layout>
+              }
+            />
+            <Route
+              path="/webinars/:slug"
               element={
                 <Layout>
                   <Webinars />
@@ -197,6 +206,7 @@ const App = () => (
               <Route path="applications" element={<AdminApplications />} />
               <Route path="resources" element={<AdminResources />} />
               <Route path="webinars" element={<AdminWebinars />} />
+              <Route path="webinar-registrations" element={<AdminWebinarRegistrations />} />
               <Route path="testimonials" element={<AdminTestimonials />} />
               <Route path="pages" element={<AdminPages />} />
               <Route path="contacts" element={<AdminContacts />} />

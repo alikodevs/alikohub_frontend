@@ -1,13 +1,14 @@
 import React from "react";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
-import { BarChart2, TrendingUp, Users, BookOpen, Clock } from "lucide-react";
+import { BarChart2, TrendingUp, Users, BookOpen, Clock, AlertCircle, RotateCcw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 import { useInstructorStats } from "@/hooks/useAcademy";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const InstructorAnalytics = () => {
-  const { data: stats, isLoading } = useInstructorStats();
+  const { data: stats, isLoading, isError, refetch } = useInstructorStats();
 
   if (isLoading) {
     return (
@@ -24,6 +25,31 @@ const InstructorAnalytics = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </main>
+      </InstructorLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <InstructorLayout>
+        <main className="section-container py-8 md:py-12">
+          <div className="flex flex-col items-center justify-center p-8 bg-white border border-slate-200 rounded-2xl text-center max-w-md mx-auto my-12">
+            <AlertCircle className="w-10 h-10 text-red-500 mb-3" />
+            <h3 className="text-base font-bold text-slate-900 mb-1">
+              Failed to load analytics
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              We couldn't retrieve your analytics data. Please try again.
+            </p>
+            <Button
+              onClick={() => refetch()}
+              className="gap-2 font-bold rounded-full px-5"
+              size="sm"
+            >
+              <RotateCcw className="w-4 h-4" /> Retry
+            </Button>
           </div>
         </main>
       </InstructorLayout>

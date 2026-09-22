@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "@/lib/api";
+import api, { formatUploadUrl } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -122,7 +122,7 @@ const AdminTestimonials = () => {
                 <label className="text-sm font-medium">Author Image (Optional)</label>
                 {editing.authorImageUrl ? (
                   <div className="relative w-20 h-20 group">
-                    <img src={editing.authorImageUrl} alt="Author" className="w-full h-full object-cover rounded-full border border-border" />
+                    <img src={formatUploadUrl(editing.authorImageUrl)} alt="Author" className="w-full h-full object-cover rounded-full border border-border" />
                     <button onClick={() => setEditing({ ...editing, authorImageUrl: "" })} className="absolute top-0 right-0 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3" /></button>
                   </div>
                 ) : (
@@ -139,7 +139,7 @@ const AdminTestimonials = () => {
                           formData.append("file", file);
                           try {
                             const { data } = await api.post("/upload/image", formData, { headers: { "Content-Type": "multipart/form-data" } });
-                            setEditing({ ...editing, authorImageUrl: data.url });
+                            setEditing({ ...editing, authorImageUrl: formatUploadUrl(data.url) });
                           } catch (err) {
                             toast({ title: "Upload failed", variant: "destructive" });
                           }

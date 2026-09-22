@@ -108,7 +108,7 @@ const Contact = () => {
             {
               icon: Mail,
               label: "Email",
-              value: "info@alikohub.com",
+              value: "academy@alikohub.com",
               bg: "bg-gradient-to-br from-blue-50 to-blue-100/50",
               iconBg: "bg-blue-100",
               iconColor: "text-blue-600",
@@ -116,15 +116,22 @@ const Contact = () => {
             {
               icon: Phone,
               label: "Phone",
-              value: "+1 (234) 567-890",
+              values: [
+                "+1 (206) 353 5373",
+                "+251 920 907 878",
+                "+251 910 813 571",
+              ],
               bg: "bg-gradient-to-br from-amber-50 to-orange-100/50",
               iconBg: "bg-amber-100",
               iconColor: "text-amber-600",
             },
             {
               icon: MapPin,
-              label: "Location",
-              value: "Africa & Global",
+              label: "Locations",
+              values: [
+                "19550 International Blvd Suite STE 301, SeaTac, WA 98188",
+                "Addis Ababa, Bole Dembel, Tigi's Building, 12th Floor",
+              ],
               bg: "bg-gradient-to-br from-emerald-50 to-green-100/50",
               iconBg: "bg-emerald-100",
               iconColor: "text-emerald-600",
@@ -140,7 +147,23 @@ const Contact = () => {
                 <c.icon className={`w-5 h-5 ${c.iconColor}`} />
               </div>
               <p className="text-sm text-muted-foreground">{c.label}</p>
-              <p className="font-medium text-foreground mt-1">{c.value}</p>
+              {c.values ? (
+                <div className="font-medium text-foreground mt-1 text-sm space-y-1">
+                  {c.label === "Phone" ? (
+                    <p className="flex flex-wrap items-center justify-center gap-x-1.5">
+                      <span>+1 (206) 353 5373</span>
+                      <span className="text-muted-foreground/40">|</span>
+                      <span>+251 920 907 878</span>
+                      <span className="text-muted-foreground/40">|</span>
+                      <span>+251 910 813 571</span>
+                    </p>
+                  ) : (
+                    c.values.map((v) => <p key={v}>{v}</p>)
+                  )}
+                </div>
+              ) : (
+                <p className="font-medium text-foreground mt-1">{c.value}</p>
+              )}
             </div>
           ))}
         </div>

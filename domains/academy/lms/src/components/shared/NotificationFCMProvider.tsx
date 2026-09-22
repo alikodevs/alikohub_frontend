@@ -1,32 +1,19 @@
 import React, {
   useEffect,
-  useRef,
-  useCallback,
   createContext,
   useContext,
-  useState,
 } from "react";
-import { getToken, onMessage, type MessagePayload } from "firebase/messaging";
+import { onMessage, type MessagePayload } from "firebase/messaging";
 import { getFirebaseMessaging } from "@/lib/firebase";
-import { academyService } from "@/services/academyService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Bell, Megaphone, BookOpen, Users, X, ArrowRight } from "lucide-react";
 
-// ─── VAPID key for FCM (from Firebase console) ───
-const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY || "";
-
 interface NotificationContextValue {
-  permissionStatus: NotificationPermission | "unsupported";
-  requestPermission: () => Promise<void>;
-  fcmToken: string | null;
+  // kept minimal — token registration removed, banner removed
 }
 
-const NotificationContext = createContext<NotificationContextValue>({
-  permissionStatus: "default",
-  requestPermission: async () => {},
-  fcmToken: null,
-});
+const NotificationContext = createContext<NotificationContextValue>({});
 
 export const useNotificationFCM = () => useContext(NotificationContext);
 
@@ -94,69 +81,7 @@ function getNotificationColor(type?: string) {
 export const NotificationFCMProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const navigate = useNavigate();
-  const [permissionStatus, setPermissionStatus] = useState<
-    NotificationPermission | "unsupported"
-  >(() => {
-    if (typeof Notification === "undefined") return "unsupported";
-    return Notification.permission;
-  });
-  const [fcmToken, setFcmToken] = useState<string | null>(null);
-  const tokenRegistered = useRef(false);
-
-  /** Request permission + get FCM token + register with backend */
-  const requestPermission = useCallback(async () => {
-    try {
-      if (typeof Notification === "undefined") {
-        setPermissionStatus("unsupported");
-        return;
-      }
-
-      const permission = await Notification.requestPermission();
-      setPermissionStatus(permission);
-
-      if (permission !== "granted") {
-        console.log("[FCM] Permission not granted:", permission);
-        return;
-      }
-
-      const messaging = await getFirebaseMessaging();
-      if (!messaging) {
-        console.warn("[FCM] Messaging not supported in this browser");
-        return;
-      }
-
-      // Register the service worker first
-      const swRegistration = await navigator.serviceWorker.register(
-        "/firebase-messaging-sw.js",
-      );
-
-      const token = await getToken(messaging, {
-        vapidKey: VAPID_KEY,
-        serviceWorkerRegistration: swRegistration,
-      });
-
-      if (token) {
-        setFcmToken(token);
-        console.log("[FCM] Token obtained:", token.slice(0, 20) + "...");
-
-        // Register token with backend (only once per session)
-        if (!tokenRegistered.current) {
-          try {
-            await academyService.registerFcmToken(token);
-            tokenRegistered.current = true;
-            console.log("[FCM] Token registered with backend");
-          } catch (err) {
-            console.warn("[FCM] Failed to register token with backend:", err);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("[FCM] Error requesting permission / getting token:", err);
-    }
-  }, []);
-
-  /** Listen for foreground messages */
+  const navigate = useNavigate();  /** Listen for foreground messages */
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
 
@@ -165,8 +90,6 @@ export const NotificationFCMProvider: React.FC<{
       if (!messaging) return;
 
       unsubscribe = onMessage(messaging, (payload: MessagePayload) => {
-        console.log("[FCM] Foreground message:", payload);
-
         const { title, body } = payload.notification || {};
         const data = (payload.data || {}) as Record<string, string>;
         const targetPath = getNavigationPath(data);
@@ -231,13 +154,6 @@ export const NotificationFCMProvider: React.FC<{
     };
   }, [navigate]);
 
-  /** Auto-request if already granted (e.g. returning user) */
-  useEffect(() => {
-    if (permissionStatus === "granted" && !fcmToken) {
-      requestPermission();
-    }
-  }, [permissionStatus, fcmToken, requestPermission]);
-
   /** Listen for navigation messages from service worker */
   useEffect(() => {
     const handler = (event: MessageEvent) => {
@@ -252,9 +168,7 @@ export const NotificationFCMProvider: React.FC<{
   }, [navigate]);
 
   return (
-    <NotificationContext.Provider
-      value={{ permissionStatus, requestPermission, fcmToken }}
-    >
+    <NotificationContext.Provider value={{}}>
       {children}
     </NotificationContext.Provider>
   );
