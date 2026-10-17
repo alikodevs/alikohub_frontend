@@ -33,11 +33,32 @@ export const ContentModal = ({
   const [file, setFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState("upload");
 
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   React.useEffect(() => {
     if (isOpen) {
       resetForm();
     }
   }, [isOpen]);
+
+  React.useEffect(() => {
+    let interval: any;
+    if (isAdding && file) {
+      setUploadProgress(10);
+      interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 95) {
+            clearInterval(interval);
+            return 95;
+          }
+          return prev + 15;
+        });
+      }, 300);
+    } else if (!isAdding) {
+      setUploadProgress(0);
+    }
+    return () => clearInterval(interval);
+  }, [isAdding, file]);
 
   const resetForm = () => {
     setTitle("");
@@ -45,6 +66,7 @@ export const ContentModal = ({
     setUrl("");
     setFile(null);
     setActiveTab("upload");
+    setUploadProgress(0);
   };
 
   const handleAdd = () => {
@@ -160,9 +182,26 @@ export const ContentModal = ({
                       <p className="text-sm text-slate-900 font-bold max-w-[200px] truncate">
                         {file.name}
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Click to change file
-                      </p>
+                      {isAdding ? (
+                        <div className="w-full mt-3 space-y-1.5">
+                          <div className="flex justify-between text-xs text-slate-600 font-medium">
+                            <span>Uploading asset...</span>
+                            <span className="font-bold text-accent">
+                              {uploadProgress}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                            <div
+                              className="bg-accent h-full transition-all duration-300 rounded-full"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-500 mt-1">
+                          Click to change file
+                        </p>
+                      )}
                     </>
                   ) : (
                     <>

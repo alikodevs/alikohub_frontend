@@ -9,6 +9,7 @@ import {
 } from "@/hooks/useAcademy";
 import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCourseSEO } from "@/hooks/useCourseSEO";
 
 const streams = ["All", "Health", "Technology", "STEM"];
 const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
@@ -18,6 +19,12 @@ const LmsExplore = () => {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [activeStream, setActiveStream] = useState("All");
   const [activeLevel, setActiveLevel] = useState("All Levels");
+
+  useCourseSEO({
+    title: "Course Catalog & Discovery",
+    description: "Explore AlikoHub Academy's top tech, health, and STEM courses. Filter by stream, difficulty level, and search keywords.",
+    category: activeStream !== "All" ? activeStream : "General",
+  });
 
   useEffect(() => {
     const q = searchParams.get("search");

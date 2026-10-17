@@ -346,8 +346,23 @@ const InstructorCourseEditor = () => {
     );
   };
 
+  const [isSyncingReorder, setIsSyncingReorder] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isSyncingReorder) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved curriculum reordering changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSyncingReorder]);
+
   const handleReorderLessons = (moduleId: string, newLessons: any[]) => {
     const previousCourse = queryClient.getQueryData(["course", id]);
+    setIsSyncingReorder(true);
 
     queryClient.setQueryData(["course", id], (old: any) => {
       if (!old) return old;
@@ -389,6 +404,8 @@ const InstructorCourseEditor = () => {
         if (previousCourse) {
           queryClient.setQueryData(["course", id], previousCourse);
         }
+      } finally {
+        setIsSyncingReorder(false);
       }
     }, 1000);
   };

@@ -28,6 +28,7 @@ import { useMyTransactions } from "@/features/student/hooks/usePayment";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
+import { useCourseSEO } from "@/hooks/useCourseSEO";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +44,21 @@ const CourseDetails = () => {
   const { data: cohortsData } = useCohorts(id || "");
   const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollments();
   const { data: myTransactions } = useMyTransactions();
+
+  useCourseSEO({
+    title: course?.title || "Course Details",
+    description:
+      course?.shortDescription ||
+      course?.description ||
+      "Explore this course on AlikoHub Academy.",
+    image: course?.thumbnail,
+    price: course?.price ?? undefined,
+    currency: course?.currency || "ETB",
+    category: course?.category,
+    instructorName: course?.instructor
+      ? `${course.instructor.firstname} ${course.instructor.lastname}`
+      : (course as any)?.instructorName,
+  });
 
   const cohorts = ((cohortsData as any)?.cohorts || []).filter(
     (c: any) => c.courseId === Number(id),
@@ -302,64 +318,113 @@ const CourseDetails = () => {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-3">
-                  {/* Self-Paced Button — only when no cohorts */}
-                  {isEnrolledInCourse ? (
-                    <Button
-                      size="lg"
-                      className="w-full bg-slate-100 hover:bg-slate-200 text-[#1C2840] font-bold border border-slate-200 h-12 rounded-xl"
-                      onClick={() => navigate(`/learn/${course.id}`)}
-                    >
-                      Go to Course
-                    </Button>
-                  ) : isPendingPayment ? (
-                    <Button
-                      size="lg"
-                      className="w-full bg-amber-100 text-amber-700 font-bold h-12 rounded-xl cursor-default"
-                      disabled
-                    >
-                      Payment Pending
-                    </Button>
-                  ) : cohorts.length === 0 ? (
-                    <Button
-                      size="lg"
-                      className="w-full bg-[#1C2840] hover:bg-[#141d2e] text-white font-bold gap-2 h-12 rounded-xl"
-                      onClick={handleEnrollCourse}
-                      disabled={enrollMutation.isPending || enrollmentsLoading}
-                    >
-                      {enrollMutation.isPending ? (
-                        "Processing..."
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4" />{" "}
+                <div className="space-y-3">
+                  {/* Dual Enrollment Options when Cohorts Exist */}
+                  {cohorts.length > 0 && !isEnrolledInCourse && (
+                    <div className="space-y-3 pt-2">
+                      {/* Self-Paced Option Card */}
+                      <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:border-slate-300 transition-all">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                            Self-Paced
+                          </span>
+                          <span className="text-xs font-bold text-slate-700">
+                            Lifetime Access
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mb-3">
+                          Learn at your own speed with instant access to all
+                          video lessons and resources.
+                        </p>
+                        <Button
+                          size="sm"
+                          className="w-full bg-[#1C2840] hover:bg-[#141d2e] text-white font-bold gap-2 rounded-lg"
+                          onClick={handleEnrollCourse}
+                          disabled={
+                            enrollMutation.isPending || enrollmentsLoading
+                          }
+                        >
+                          <Play className="h-3.5 w-3.5" />
                           {isCourseFree
                             ? "Enroll Self-Paced - Free"
                             : "Enroll Self-Paced"}
-                        </>
-                      )}
-                    </Button>
-                  ) : null}
+                        </Button>
+                      </div>
 
-                  {/* Cohort Button */}
-                  {cohorts.length > 0 && (
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="w-full border-2 border-[#E6A337] text-[#E6A337] hover:bg-[#E6A337]/5 font-bold gap-2 h-12 rounded-xl"
-                      onClick={() => setShowEnrollModal(true)}
-                    >
-                      <Users className="h-4 w-4" />{" "}
-                      {enrolledCohortIds.length > 0
-                        ? "View My Cohorts"
-                        : "Join a Cohort"}
-                    </Button>
+                      {/* Instructor-Led Cohort Option Card */}
+                      <div className="p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50/50 hover:border-amber-300 transition-all">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-black uppercase text-amber-800 bg-amber-200 px-2 py-0.5 rounded">
+                            Instructor-Led Cohort
+                          </span>
+                          <span className="text-xs font-bold text-amber-900">
+                            {cohorts.length} Open
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mb-3">
+                          Structured class schedules with TA support, peer
+                          reviews, and live Q&A sessions.
+                        </p>
+                        <Button
+                          size="sm"
+                          className="w-full bg-[#E6A337] hover:bg-amber-light text-slate-900 font-bold gap-2 rounded-lg"
+                          onClick={() => setShowEnrollModal(true)}
+                        >
+                          <Users className="h-3.5 w-3.5" />
+                          {enrolledCohortIds.length > 0
+                            ? "View My Cohorts"
+                            : "Join a Cohort"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Self-Paced Button when NO Cohorts Exist */}
+                  {cohorts.length === 0 && (
+                    <>
+                      {isEnrolledInCourse ? (
+                        <Button
+                          size="lg"
+                          className="w-full bg-slate-100 hover:bg-slate-200 text-[#1C2840] font-bold border border-slate-200 h-12 rounded-xl"
+                          onClick={() => navigate(`/learn/${course.id}`)}
+                        >
+                          Go to Course
+                        </Button>
+                      ) : isPendingPayment ? (
+                        <Button
+                          size="lg"
+                          className="w-full bg-amber-100 text-amber-700 font-bold h-12 rounded-xl cursor-default"
+                          disabled
+                        >
+                          Payment Pending
+                        </Button>
+                      ) : (
+                        <Button
+                          size="lg"
+                          className="w-full bg-[#1C2840] hover:bg-[#141d2e] text-white font-bold gap-2 h-12 rounded-xl"
+                          onClick={handleEnrollCourse}
+                          disabled={
+                            enrollMutation.isPending || enrollmentsLoading
+                          }
+                        >
+                          {enrollMutation.isPending ? (
+                            "Processing..."
+                          ) : (
+                            <>
+                              <Play className="h-4 w-4" />{" "}
+                              {isCourseFree
+                                ? "Enroll Self-Paced - Free"
+                                : "Enroll Self-Paced"}
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </>
                   )}
                 </div>
 
-                <p className="text-xs text-center text-slate-500 px-4">
-                  {cohorts.length > 0
-                    ? "Live sessions · Instructor feedback · Certificate"
-                    : "Instant access · Lifetime updates · Certificate"}
+                <p className="text-xs text-center text-slate-500 px-4 pt-1">
+                  Instant access · Lifetime updates · Certificate
                 </p>
               </div>
             </div>

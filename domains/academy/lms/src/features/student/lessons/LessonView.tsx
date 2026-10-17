@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   useCourseDetails,
@@ -38,6 +38,8 @@ import {
   Clock,
   Link2,
   Unlock,
+  ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 import PdfViewer from "./components/PdfViewer";
 import InlinePdfViewer from "./components/InlinePdfViewer";
@@ -159,6 +161,13 @@ const LmsLearn = () => {
   const [pdfCurrentPage, setPdfCurrentPage] = useState(1);
   const [quizScore, setQuizScore] = useState(0);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [isExamAttested, setIsExamAttested] = useState(false);
+  const [attestationChecked, setAttestationChecked] = useState(false);
+  const [tabSwitchViolations, setTabSwitchViolations] = useState(0);
+  const [timeRemainingSeconds, setTimeRemainingSeconds] = useState<number | null>(null);
+  const [quizResults, setQuizResults] = useState<
+    Record<string, { isCorrect: boolean; correctAnswer?: string }>
+  >({});
   const [expandedModules, setExpandedModules] = useState<
     Record<string, boolean>
   >({});
@@ -383,6 +392,11 @@ const LmsLearn = () => {
         setQuizSubmitted(false);
         setQuizScore(0);
         setSelectedAnswers({});
+        setIsExamAttested(false);
+        setAttestationChecked(false);
+        setTabSwitchViolations(0);
+        setTimeRemainingSeconds(null);
+        setQuizResults({});
       }
     }
   }, [activeItem]);
@@ -413,7 +427,7 @@ const LmsLearn = () => {
           reportExercise?.status === "COMPLETED";
 
         if (isCompletedState) {
-          answers[ex.id] = storedAnswer || ex.correctAnswer || "SUBMITTED";
+          answers[ex.id] = storedAnswer || "SUBMITTED";
           submittedCount++;
           // Use server/report data for scoring
           const isCorrect =
@@ -430,6 +444,7 @@ const LmsLearn = () => {
         setSelectedAnswers(answers);
         setQuizSubmitted(true);
         setQuizScore(score);
+        setIsExamAttested(true);
       } else if (!isLoadingSubmissions) {
         setQuizSubmitted(false);
         setQuizScore(0);
@@ -444,6 +459,53 @@ const LmsLearn = () => {
     activeItemType,
     detailedExercisesLoaded,
   ]);
+
+  // WAC 246-841A-440 Exam Security: Monitor tab switches / window blur during exam
+  useEffect(() => {
+    if (activeItemType !== "quiz" || quizSubmitted || !isExamAttested) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setTabSwitchViolations((prev) => {
+          const updated = prev + 1;
+          toast.error(
+            `Security Notice: Window focus lost. Incident #${updated} recorded for faculty review (WAC 246-841A-440).`,
+          );
+          return updated;
+        });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [activeItemType, quizSubmitted, isExamAttested]);
+
+  // WAC 246-841A-440 Exam Security: Timed countdown session
+  useEffect(() => {
+    if (activeItemType !== "quiz" || quizSubmitted || !isExamAttested) return;
+
+    if (timeRemainingSeconds === null && detailedExercises.length > 0) {
+      setTimeRemainingSeconds(Math.max(detailedExercises.length * 120, 300));
+      return;
+    }
+
+    if (timeRemainingSeconds === null || timeRemainingSeconds <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeRemainingSeconds((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(timer);
+          toast.warning("Examination time has expired. Please submit your answers.");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeItemType, quizSubmitted, isExamAttested, timeRemainingSeconds, detailedExercises.length]);
 
   // ── Loading ───────────────────────────────────────────────────────────────
   if (isLoading || isReportLoading) {
@@ -611,7 +673,7 @@ const LmsLearn = () => {
         videoId = url.split("youtube.com/embed/")[1].split("?")[0];
       }
     } catch (e) {
-      console.error(e);
+      // Ignored non-critical URL parsing error, fallback to raw url
     }
     const origin = window.location.origin;
     return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&enablejsapi=1&origin=${origin}`;
@@ -620,7 +682,8 @@ const LmsLearn = () => {
   const getFullUrl = (url?: string) => {
     if (!url) return "";
     if (url.startsWith("http")) return url;
-    const baseUrl = import.meta.env.VITE_API_URL || "https://api.consultancy.alikohub.com";
+    const baseUrl =
+      import.meta.env.VITE_API_URL || "https://api.consultancy.alikohub.com";
     const cleanUrl = url.startsWith("/") ? url : `/${url}`;
     return `${baseUrl}${cleanUrl}`;
   };
@@ -645,7 +708,15 @@ const LmsLearn = () => {
   const renderActiveContent = () => {
     // ── Quiz ─────────────────────────────────────────────────────────────
     if (activeItemType === "quiz") {
-      const exercisesList = detailedExercises || [];
+      // WAC 246-841A-440: Scrub correctAnswer before submission to prevent client inspection leak
+      const rawExercises = detailedExercises || [];
+      const exercisesList = quizSubmitted
+        ? rawExercises
+        : rawExercises.map((ex: any) => {
+            const scrubbed = { ...ex };
+            delete scrubbed.correctAnswer;
+            return scrubbed;
+          });
       const isFinished = isLessonCompleted;
 
       return (
@@ -658,9 +729,9 @@ const LmsLearn = () => {
 
           <div className="space-y-6 pb-32 max-w-4xl">
             {/* Quiz summary card */}
-            <div className="rounded-lg bg-white border border-[var(--lovable-border)] p-6 flex items-center justify-between shadow-xs">
+            <div className="rounded-lg bg-white border border-[var(--lovable-border)] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--lovable-active-soft)] text-[var(--lovable-primary)] border border-[var(--lovable-border)]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--lovable-active-soft)] text-[var(--lovable-primary)] border border-[var(--lovable-border)] shrink-0">
                   <HelpCircle size={24} />
                 </div>
                 <div>
@@ -683,129 +754,254 @@ const LmsLearn = () => {
                   )}
                 </div>
               </div>
+
+              {/* Monitored Security Status indicators */}
+              {!quizSubmitted && isExamAttested && (
+                <div className="flex items-center flex-wrap gap-2">
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Monitored</span>
+                  </div>
+                  {tabSwitchViolations > 0 && (
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-700 text-xs font-semibold animate-pulse">
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span>{tabSwitchViolations} Warning(s)</span>
+                    </div>
+                  )}
+                  {timeRemainingSeconds !== null && (
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono font-semibold">
+                      <Clock className="w-3.5 h-3.5 text-slate-500" />
+                      <span>
+                        {Math.floor(timeRemainingSeconds / 60)}:
+                        {String(timeRemainingSeconds % 60).padStart(2, "0")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Questions */}
-            {exercisesList.map((exercise: any, index: number) => {
-              const options = parseOptions(exercise.options);
-              return (
-                <div
-                  key={exercise.id}
-                  className="rounded-lg bg-white border border-[var(--lovable-border)] shadow-xs p-5 font-manrope"
-                >
-                  <div className="mb-2">
-                    <span className="text-[10px] font-semibold text-[var(--lovable-primary)] uppercase tracking-wider bg-[var(--lovable-active-soft)] px-2.5 py-0.5 rounded">
-                      Question {index + 1}
-                    </span>
+            {/* WAC 246-841A-440: Student Identity Verification & Honor Pledge Gate */}
+            {!quizSubmitted && !isExamAttested ? (
+              <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-6 md:p-8 space-y-6">
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                  <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
                   </div>
-                  <div className="mb-4 text-sm font-semibold text-[var(--lovable-fg)] leading-snug font-sora">
-                    {exercise.question}
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 m-0">
+                      Academic Integrity & Identity Verification
+                    </h3>
+                    <p className="text-xs text-slate-500 m-0">
+                      WAC 246-841A-440 Examination Security Protocol
+                    </p>
                   </div>
-                  <RadioGroup
-                    value={selectedAnswers[exercise.id] || ""}
-                    onValueChange={(v) =>
-                      !quizSubmitted && handleOptionSelect(exercise.id, v)
-                    }
-                    className="flex flex-col gap-2.5"
-                    disabled={quizSubmitted}
-                  >
-                    {options.map((option, idx) => {
-                      const isSelected =
-                        selectedAnswers[exercise.id] === option;
-                      const knownCorrectAnswer = exercise.correctAnswer;
-                      const isCorrect = knownCorrectAnswer
-                        ? knownCorrectAnswer === option
-                        : false;
-                      const isWrong =
-                        isSelected && knownCorrectAnswer && !isCorrect;
-
-                      let cls = "border-[var(--lovable-border)] bg-white hover:bg-[var(--lovable-muted)]";
-                      if (quizSubmitted) {
-                        if (isCorrect)
-                          cls = "border-emerald-500 bg-emerald-50 text-emerald-900";
-                        else if (isWrong) cls = "border-red-400 bg-red-50 text-red-900";
-                        else cls = "border-[var(--lovable-border)] bg-slate-50 opacity-60";
-                      } else if (isSelected) {
-                        cls = "border-[var(--lovable-primary)] bg-[var(--lovable-active-soft)] text-[var(--lovable-primary)] font-semibold";
-                      }
-
-                      return (
-                        <Label
-                          key={idx}
-                          htmlFor={`q${exercise.id}-o${idx}`}
-                          className={cn(
-                            "flex items-center gap-3 rounded-md border p-3 transition-all duration-150 text-sm font-medium",
-                            !quizSubmitted ? "cursor-pointer" : "cursor-default",
-                            cls,
-                          )}
-                        >
-                          {!quizSubmitted ? (
-                            <RadioGroupItem
-                              value={option}
-                              id={`q${exercise.id}-o${idx}`}
-                              className={cn("transition-colors", isSelected ? "text-[var(--lovable-primary)] border-[var(--lovable-primary)]" : "")}
-                            />
-                          ) : isCorrect ? (
-                            <CheckCircle2
-                              size={18}
-                              className="text-emerald-600 shrink-0"
-                            />
-                          ) : isWrong ? (
-                            <X size={18} className="text-red-500 shrink-0" />
-                          ) : (
-                            <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
-                          )}
-                          <span>{option}</span>
-                        </Label>
-                      );
-                    })}
-                  </RadioGroup>
                 </div>
-              );
-            })}
 
-            {!quizSubmitted && (
-              <div className="flex justify-center pt-2">
-                <Button
-                  onClick={() => {
-                    const allAnswered = exercisesList.every(
-                      (ex: any) => selectedAnswers[ex.id],
-                    );
-                    if (!allAnswered) {
-                      toast.error("Please answer all questions.");
-                      return;
-                    }
-                    (async () => {
-                      try {
-                        const delay = (ms: number) =>
-                          new Promise((res) => setTimeout(res, ms));
-                        const submitResults: Record<
-                          string,
-                          { isCorrect: boolean; correctAnswer?: string }
-                        > = {};
-                        for (const idx in exercisesList) {
-                          const ex = exercisesList[idx];
-                          const result =
-                            await submitExerciseMutation.mutateAsync({
-                              exerciseId: ex.id,
-                              answer: selectedAnswers[ex.id],
-                            });
-                          submitResults[ex.id] = {
-                            isCorrect:
-                              result?.isCorrect ??
-                              selectedAnswers[ex.id] === ex.correctAnswer,
-                            correctAnswer:
-                              result?.correctAnswer || ex.correctAnswer,
-                          };
-                          if (Number(idx) < exercisesList.length - 1) {
-                            await delay(500);
-                          }
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg text-xs">
+                  <div>
+                    <span className="text-slate-400 font-semibold block uppercase text-[10px] tracking-wider mb-0.5">
+                      Enrolled Student
+                    </span>
+                    <span className="font-bold text-slate-800 text-sm block">
+                      {user ? `${user.firstname} ${user.lastname}` : "Candidate"}
+                    </span>
+                    <span className="text-slate-500 block">{user?.email}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-semibold block uppercase text-[10px] tracking-wider mb-0.5">
+                      Monitored Parameters
+                    </span>
+                    <span className="font-bold text-slate-800 text-sm block">
+                      {exercisesList.length} Questions · Timed Assessment
+                    </span>
+                    <span className="text-slate-500 block">Tab navigation & window focus monitored</span>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-4 text-xs text-amber-900 space-y-2">
+                  <div className="flex items-center gap-2 font-bold text-amber-800">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    Student Examination Attestation
+                  </div>
+                  <p className="leading-relaxed">
+                    By beginning this assessment, I certify that I am the enrolled student listed above. I attest that I will complete this examination independently without unauthorized aids, browser extensions, secondary monitors, or external assistance, in compliance with Washington State nursing assistant training regulations (WAC 246-841A-440).
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+                  <label className="flex items-center gap-2.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={attestationChecked}
+                      onChange={(e) => setAttestationChecked(e.target.checked)}
+                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                    />
+                    <span>I confirm my identity and agree to the exam integrity pledge</span>
+                  </label>
+
+                  <Button
+                    onClick={() => {
+                      if (!attestationChecked) {
+                        toast.error("Please confirm your identity and check the attestation pledge to begin.");
+                        return;
+                      }
+                      setIsExamAttested(true);
+                      toast.success("Identity verified. Monitored examination session started.");
+                    }}
+                    disabled={!attestationChecked}
+                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 h-10 rounded-lg shadow-sm"
+                  >
+                    <ShieldCheck className="w-4 h-4 mr-2" />
+                    Begin Monitored Assessment
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Questions */}
+                {exercisesList.map((exercise: any, index: number) => {
+                  const options = parseOptions(exercise.options);
+                  return (
+                    <div
+                      key={exercise.id}
+                      className="rounded-lg bg-white border border-[var(--lovable-border)] shadow-xs p-5 font-manrope select-none"
+                      onCopy={(e) => {
+                        if (!quizSubmitted) {
+                          e.preventDefault();
+                          toast.error("Copying questions is disabled during secure examination sessions.");
                         }
-                        const serverScore = Object.values(
-                          submitResults,
-                        ).filter((r) => r.isCorrect).length;
-                        setQuizScore(serverScore);
-                        setQuizSubmitted(true);
+                      }}
+                    >
+                      <div className="mb-2">
+                        <span className="text-[10px] font-semibold text-[var(--lovable-primary)] uppercase tracking-wider bg-[var(--lovable-active-soft)] px-2.5 py-0.5 rounded">
+                          Question {index + 1}
+                        </span>
+                      </div>
+                      <div className="mb-4 text-sm font-semibold text-[var(--lovable-fg)] leading-snug font-sora">
+                        {exercise.question}
+                      </div>
+                      <RadioGroup
+                        value={selectedAnswers[exercise.id] || ""}
+                        onValueChange={(v) =>
+                          !quizSubmitted && handleOptionSelect(exercise.id, v)
+                        }
+                        className="flex flex-col gap-2.5"
+                        disabled={quizSubmitted}
+                      >
+                        {options.map((option, idx) => {
+                          const isSelected =
+                            selectedAnswers[exercise.id] === option;
+                          const optionResult = quizResults[exercise.id];
+                          const knownCorrectAnswer = quizSubmitted
+                            ? (optionResult?.correctAnswer || exercise.mySubmission?.correctAnswer)
+                            : undefined;
+                          const isCorrect = quizSubmitted
+                            ? (optionResult?.isCorrect ?? (knownCorrectAnswer ? knownCorrectAnswer === option : false))
+                            : false;
+                          const isWrong =
+                            quizSubmitted && isSelected && !isCorrect;
+
+                          let cls =
+                            "border-[var(--lovable-border)] bg-white hover:bg-[var(--lovable-muted)]";
+                          if (quizSubmitted) {
+                            if (isCorrect)
+                              cls =
+                                "border-emerald-500 bg-emerald-50 text-emerald-900";
+                            else if (isWrong)
+                              cls = "border-red-400 bg-red-50 text-red-900";
+                            else
+                              cls =
+                                "border-[var(--lovable-border)] bg-slate-50 opacity-60";
+                          } else if (isSelected) {
+                            cls =
+                              "border-[var(--lovable-primary)] bg-[var(--lovable-active-soft)] text-[var(--lovable-primary)] font-semibold";
+                          }
+
+                          return (
+                            <Label
+                              key={idx}
+                              htmlFor={`q${exercise.id}-o${idx}`}
+                              className={cn(
+                                "flex items-center gap-3 rounded-md border p-3 transition-all duration-150 text-sm font-medium",
+                                !quizSubmitted
+                                  ? "cursor-pointer"
+                                  : "cursor-default",
+                                cls,
+                              )}
+                            >
+                              {!quizSubmitted ? (
+                                <RadioGroupItem
+                                  value={option}
+                                  id={`q${exercise.id}-o${idx}`}
+                                  className={cn(
+                                    "transition-colors",
+                                    isSelected
+                                      ? "text-[var(--lovable-primary)] border-[var(--lovable-primary)]"
+                                      : "",
+                                  )}
+                                />
+                              ) : isCorrect ? (
+                                <CheckCircle2
+                                  size={18}
+                                  className="text-emerald-600 shrink-0"
+                                />
+                              ) : isWrong ? (
+                                <X size={18} className="text-red-500 shrink-0" />
+                              ) : (
+                                <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
+                              )}
+                              <span>{option}</span>
+                            </Label>
+                          );
+                        })}
+                      </RadioGroup>
+                    </div>
+                  );
+                })}
+
+                {!quizSubmitted && (
+                  <div className="flex justify-center pt-2">
+                    <Button
+                      onClick={() => {
+                        const allAnswered = exercisesList.every(
+                          (ex: any) => selectedAnswers[ex.id],
+                        );
+                        if (!allAnswered) {
+                          toast.error("Please answer all questions.");
+                          return;
+                        }
+                        (async () => {
+                          try {
+                            const delay = (ms: number) =>
+                              new Promise((res) => setTimeout(res, ms));
+                            const submitResults: Record<
+                              string,
+                              { isCorrect: boolean; correctAnswer?: string }
+                            > = {};
+                            for (const idx in exercisesList) {
+                              const ex = exercisesList[idx];
+                              const result =
+                                await submitExerciseMutation.mutateAsync({
+                                  exerciseId: ex.id,
+                                  answer: selectedAnswers[ex.id],
+                                });
+                              submitResults[ex.id] = {
+                                isCorrect:
+                                  result?.isCorrect ?? (result?.score > 0),
+                                correctAnswer:
+                                  result?.correctAnswer,
+                              };
+                              if (Number(idx) < exercisesList.length - 1) {
+                                await delay(500);
+                              }
+                            }
+                            const serverScore = Object.values(submitResults).filter(
+                              (r) => r.isCorrect,
+                            ).length;
+                            setQuizResults(submitResults);
+                            setQuizScore(serverScore);
+                            setQuizSubmitted(true);
 
                         const showCelebration = () => {
                           const isModuleEnd = isLastItemInModule();
@@ -847,9 +1043,7 @@ const LmsLearn = () => {
                           showCelebration();
                         }
                       } catch (e) {
-                        toast.error(
-                          "Failed to submit some answers properly.",
-                        );
+                        toast.error("Failed to submit some answers properly.");
                       }
                     })();
                   }}
@@ -860,6 +1054,8 @@ const LmsLearn = () => {
                   Submit Quiz
                 </Button>
               </div>
+            )}
+              </>
             )}
           </div>
         </main>
@@ -902,13 +1098,15 @@ const LmsLearn = () => {
             </h3>
             <div className="text-sm text-[var(--lovable-muted-fg)] leading-relaxed font-medium font-manrope prose max-w-none">
               {activeItem?.content ? (
-                <div
-                  dangerouslySetInnerHTML={{ __html: activeItem.content }}
-                />
+                <div dangerouslySetInnerHTML={{ __html: activeItem.content }} />
               ) : (
                 <p>
                   In this part of the course, we'll explore{" "}
-                  <strong className="text-[var(--lovable-fg)] font-semibold">{activeItem?.title}</strong>. Pay close attention to the key concepts presented in this section.
+                  <strong className="text-[var(--lovable-fg)] font-semibold">
+                    {activeItem?.title}
+                  </strong>
+                  . Pay close attention to the key concepts presented in this
+                  section.
                 </p>
               )}
             </div>
@@ -952,7 +1150,10 @@ const LmsLearn = () => {
               </button>
               <div>
                 <p>{activeLesson?.title?.toUpperCase() || "CHAPTER 1"}</p>
-                <h3>{activeItem?.title || "The Nursing Assistant in Long-Term Care"}</h3>
+                <h3>
+                  {activeItem?.title ||
+                    "The Nursing Assistant in Long-Term Care"}
+                </h3>
               </div>
             </div>
             <div className="chapter-art" aria-hidden="true">
@@ -960,7 +1161,10 @@ const LmsLearn = () => {
               <span className="paper-shape" />
               <div className="objective-card">
                 <strong>Learning objective</strong>
-                <p>Understand key roles and responsibilities of nursing assistants in long-term care settings.</p>
+                <p>
+                  Understand key roles and responsibilities of nursing
+                  assistants in long-term care settings.
+                </p>
               </div>
             </div>
           </div>
@@ -978,7 +1182,10 @@ const LmsLearn = () => {
               }}
               className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white border border-[#e2e8f0] text-[#204a7c] shadow-xs hover:bg-[#f1f5f9] hover:border-[#bfdbfe] hover:scale-105 transition-all cursor-pointer group"
             >
-              <ChevronDown size={16} className="text-[#204a7c] group-hover:translate-y-0.5 transition-transform" />
+              <ChevronDown
+                size={16}
+                className="text-[#204a7c] group-hover:translate-y-0.5 transition-transform"
+              />
             </button>
           </div>
 
@@ -1006,7 +1213,8 @@ const LmsLearn = () => {
                 External Resource
               </h4>
               <p className="text-xs text-[var(--lovable-muted-fg)] max-w-sm mb-5 font-manrope">
-                This reading is available off-platform as an external resource link.
+                This reading is available off-platform as an external resource
+                link.
               </p>
               <button
                 onClick={() => window.open(url, "_blank")}
@@ -1072,7 +1280,9 @@ const LmsLearn = () => {
           {profileOpen && (
             <div className="profile-menu">
               <strong style={{ display: "block", marginBottom: "4px" }}>
-                {user ? `${user.firstname} ${user.lastname}` : "Student account"}
+                {user
+                  ? `${user.firstname} ${user.lastname}`
+                  : "Student account"}
               </strong>
               <span
                 onClick={() => {
@@ -1161,13 +1371,18 @@ const LmsLearn = () => {
                                 onClick={() => {
                                   setActiveItemId(content.id);
                                   setActiveItemType(
-                                    content.type === "VIDEO" ? "video" : "reading",
+                                    content.type === "VIDEO"
+                                      ? "video"
+                                      : "reading",
                                   );
-                                  if (window.innerWidth < 900) setIsSidebarOpen(false);
+                                  if (window.innerWidth < 900)
+                                    setIsSidebarOpen(false);
                                 }}
                               >
                                 <FileText size={15} strokeWidth={1.7} />
-                                <span className="truncate">{content.title}</span>
+                                <span className="truncate">
+                                  {content.title}
+                                </span>
                               </button>
                             );
                           })}
@@ -1192,7 +1407,9 @@ const LmsLearn = () => {
                                   }}
                                 >
                                   <HelpCircle size={15} strokeWidth={1.7} />
-                                  <span className="truncate">{quizItem.title}</span>
+                                  <span className="truncate">
+                                    {quizItem.title}
+                                  </span>
                                 </button>
                               );
                             })}

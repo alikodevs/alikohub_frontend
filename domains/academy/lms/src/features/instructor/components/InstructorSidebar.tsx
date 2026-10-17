@@ -63,7 +63,14 @@ const InstructorSidebar = ({
             : "text-slate-300/80 hover:bg-white/5 hover:text-white",
         )}
       >
-        <Icon className={cn("w-[18px] h-[18px] shrink-0", active ? "text-primary-foreground" : "text-slate-400 group-hover:text-slate-200")} />
+        <Icon
+          className={cn(
+            "w-[18px] h-[18px] shrink-0",
+            active
+              ? "text-primary-foreground"
+              : "text-slate-400 group-hover:text-slate-200",
+          )}
+        />
         <span className="flex-1">{item.label}</span>
         {item.badge != null && item.badge > 0 && (
           <span

@@ -188,6 +188,35 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
             {cohorts.map((cohort: any) => {
               let formattedStartDate = "Invalid date";
               let formattedEndDate = "Invalid date";
+              let statusBadge = {
+                label: "Enrollment Open",
+                color: "bg-emerald-100 text-emerald-800 border-emerald-200",
+              };
+              const now = new Date();
+              const start = cohort.startDate
+                ? new Date(cohort.startDate)
+                : null;
+              const end = cohort.endDate ? new Date(cohort.endDate) : null;
+
+              if (start && end) {
+                if (now < start) {
+                  statusBadge = {
+                    label: "Enrollment Open",
+                    color: "bg-emerald-100 text-emerald-800 border-emerald-200",
+                  };
+                } else if (now >= start && now <= end) {
+                  statusBadge = {
+                    label: "Class In Session",
+                    color: "bg-blue-100 text-blue-800 border-blue-200",
+                  };
+                } else {
+                  statusBadge = {
+                    label: "Past Cohort",
+                    color: "bg-slate-100 text-slate-600 border-slate-200",
+                  };
+                }
+              }
+
               try {
                 if (cohort.startDate) {
                   formattedStartDate = format(
@@ -210,14 +239,19 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                   <CardContent className="p-5 flex flex-col h-full">
                     <div className="flex items-start justify-between mb-4">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-accent/20 text-accent">
-                            COHORT
+                            COHORT #{cohort.id}
                           </span>
-                          <h4 className="font-bold text-slate-800 line-clamp-1">
-                            {cohort.name}
-                          </h4>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold border ${statusBadge.color}`}
+                          >
+                            {statusBadge.label}
+                          </span>
                         </div>
+                        <h4 className="font-bold text-slate-800 line-clamp-1 mt-1">
+                          {cohort.name}
+                        </h4>
                       </div>
                     </div>
 
