@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { useInstructorStats } from "@/hooks/useAcademy";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SeatTimeAuditTable } from "./SeatTimeAuditTable";
 
 const InstructorAnalytics = () => {
   const { data: stats, isLoading, isError, refetch } = useInstructorStats();
@@ -134,18 +135,7 @@ const InstructorAnalytics = () => {
           </Card>
         </div>
 
-        <Card className="min-h-[400px] flex items-center justify-center border-dashed">
-          <CardContent className="text-center py-12">
-            <BarChart2 className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-slate-900 mb-2">
-              Detailed Analytics Coming Soon
-            </h3>
-            <p className="text-slate-500 max-w-sm mx-auto">
-              We're building comprehensive visual reports to help you track
-              every aspect of your teaching performance.
-            </p>
-          </CardContent>
-        </Card>
+        <SeatTimeAuditTable />
       </main>
     </InstructorLayout>
   );

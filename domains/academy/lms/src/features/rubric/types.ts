@@ -310,3 +310,39 @@ export interface SeatTimeSummary {
     seconds: number;
   }>;
 }
+
+export interface StudentSeatTimeRecord {
+  id: string | number;
+  studentId: string | number;
+  studentName: string;
+  studentEmail?: string;
+  avatarUrl?: string;
+  courseId: string | number;
+  courseTitle?: string;
+  cohortId?: string | number;
+  cohortName?: string;
+  activeSeconds: number;
+  idleSeconds: number;
+  tabBlurIncidents: number;
+  engagementScore: number;
+  requiredSeconds: number;
+  lastHeartbeatAt?: string;
+  isCompliant: boolean;
+  lessonsBreakdown?: Array<{
+    lessonId: string | number;
+    title: string;
+    activeSeconds: number;
+    idleSeconds: number;
+  }>;
+}
+
+export interface CohortSeatTimeReport {
+  cohortId: string | number;
+  cohortName?: string;
+  courseId?: string | number;
+  totalStudents: number;
+  averageActiveHours: number;
+  averageEngagementScore: number;
+  compliantStudentsCount: number;
+  records: StudentSeatTimeRecord[];
+}

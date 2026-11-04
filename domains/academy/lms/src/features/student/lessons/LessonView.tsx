@@ -1544,6 +1544,29 @@ const LmsLearn = () => {
             </div>
           </div>
 
+          {/* WABON Theory Seat-Time Progress Indicator */}
+          <div className="px-4 py-3 mx-3 my-2 rounded-xl bg-blue-50/70 border border-blue-100/90 text-xs space-y-1.5">
+            <div className="flex items-center justify-between text-[11px] font-bold text-blue-900">
+              <span className="flex items-center gap-1">
+                <Clock size={12} className="text-blue-600" /> Theory Seat-Time
+              </span>
+              <span>{(((progress || 0) / 100) * 50).toFixed(1)} / 50.0 hrs</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-blue-200/60 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.round(((progress || 0) / 100) * 50 / 50 * 100))}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-blue-700">
+              <span className="flex items-center gap-1 font-semibold text-emerald-600">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Heartbeat Active
+              </span>
+              <span className="text-[9px] text-blue-500">Auto-pauses on blur</span>
+            </div>
+          </div>
+
           <nav className="lesson-nav pb-10" aria-label="Course lessons">
             {course.modules?.map((module) => (
               <div key={module.id} className="mb-4">

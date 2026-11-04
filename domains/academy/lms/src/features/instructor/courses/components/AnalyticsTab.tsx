@@ -2,7 +2,8 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCourseAnalytics } from "@/hooks/useAcademy";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, CheckCircle, Clock, BarChart3 } from "lucide-react";
+import { Users, CheckCircle, Clock } from "lucide-react";
+import { SeatTimeAuditTable } from "@/features/instructor/analytics/SeatTimeAuditTable";
 
 interface AnalyticsTabProps {
   courseId: string;
@@ -67,25 +68,7 @@ export const AnalyticsTab = ({ courseId }: AnalyticsTabProps) => {
         ))}
       </div>
 
-      <Card className="border-none shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-lg font-bold flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-accent" />
-            Course Engagement
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="h-[300px] flex items-center justify-center border-2 border-dashed border-slate-100 rounded-xl m-6">
-          <div className="text-center">
-            <BarChart3 className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-            <p className="text-slate-500 font-medium">
-              Visual analytics coming soon
-            </p>
-            <p className="text-slate-400 text-sm">
-              We are processing your data for detailed reports.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <SeatTimeAuditTable courseId={courseId} />
     </div>
   );
 };

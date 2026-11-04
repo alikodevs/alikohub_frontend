@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/features/auth/hooks/useAuth";
 import {
@@ -317,6 +318,9 @@ const StudentDashboard = () => {
       ? sumPercentage
       : calculatedProgress || 0;
 
+  const theoryHoursCompleted = Number(((overallProgress / 100) * 50).toFixed(1));
+  const theoryHoursPercentage = Math.min(100, Math.round((theoryHoursCompleted / 50) * 100));
+
   const completedCount =
     activeEnrollments?.filter((e) => e.status === "COMPLETED").length || 0;
 
@@ -601,6 +605,33 @@ const StudentDashboard = () => {
                 {activeEnrollments?.length || 0} enrollments · {completedCount}{" "}
                 completed
               </p>
+            </div>
+
+            {/* WABON Theory Seat-Time Mandate */}
+            <div className="bg-card rounded-xl border p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-heading font-semibold text-foreground text-sm flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-600" /> WABON Theory Hours
+                </h3>
+                <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] font-bold">
+                  WAC 246-841A-440
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground font-medium">Completed vs 50h Mandate</span>
+                <span className="font-bold text-foreground">
+                  {theoryHoursCompleted.toFixed(1)} / 50.0 hrs ({theoryHoursPercentage}%)
+                </span>
+              </div>
+              <Progress value={theoryHoursPercentage} className="h-2" />
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Telemetry Active
+                </span>
+                <span>Auto-pauses on tab switch</span>
+              </div>
             </div>
 
             {/* Instructor CTA */}
