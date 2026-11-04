@@ -478,7 +478,7 @@ export const useCourseSchedules = (courseId: string | number) => {
 export const useCreateCourse = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (formData: FormData) =>
+    mutationFn: (formData: FormData | Record<string, any>) =>
       academyService.instructor.createCourse(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["instructor-courses"] });
@@ -517,7 +517,7 @@ export const useUpdateCourse = () => {
       formData,
     }: {
       courseId: string;
-      formData: FormData;
+      formData: FormData | Record<string, any>;
     }) => academyService.instructor.updateCourse(courseId, formData),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["instructor-courses"] });

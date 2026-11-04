@@ -101,6 +101,8 @@ export interface Exercise {
   correctAnswer?: any;
   userAnswer?: string;
   points: number;
+  rubricId?: string;
+  rubric?: any;
   mySubmission?: ExerciseSubmission;
   order?: number;
   createdAt: string;
@@ -116,6 +118,9 @@ export interface ExerciseSubmission {
   feedback?: string;
   answer: string;
   isCorrect?: boolean;
+  rubricId?: string;
+  rubricEvaluation?: any;
+  selectedLevelIds?: string[];
   createdAt: string;
   updatedAt: string;
 }

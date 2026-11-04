@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import AuthLayout from "@/features/auth/components/AuthLayout";
 import PasswordInput from "@/features/auth/components/PasswordInput";
 import GoogleButton from "@/features/auth/components/GoogleButton";
+import { toast } from "sonner";
 
 const loginSchema = zod.object({
   email: zod.string().email("Invalid email address"),
@@ -31,6 +32,13 @@ const LoginPage = () => {
   const { mutate: login, isPending } = useLogin();
   const { data: user, isLoading, isFetched } = useUser();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get("expired") === "1") {
+      toast.info("Your session has expired. Please sign in again.");
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {

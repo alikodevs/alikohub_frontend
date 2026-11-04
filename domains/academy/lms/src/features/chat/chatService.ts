@@ -8,10 +8,10 @@ import type {
 } from "./types";
 
 export const chatService = {
-  /** GET /academy/chat/contacts */
+  /** GET /chat/contacts (Postman 2.7.13) */
   getContacts(): Promise<ChatContact[]> {
     return api
-      .get("/academy/chat/contacts")
+      .get("/chat/contacts")
       .then((r) => r.data)
       .catch((err) => {
         // Backend returns 403 Forbidden for first-time users with no contacts/conversations yet.
@@ -23,17 +23,17 @@ export const chatService = {
       });
   },
 
-  /** POST /academy/chat/conversations */
+  /** POST /chat/conversations (Postman 2.7.8) */
   createConversation(
     payload: CreateConversationPayload,
   ): Promise<ChatConversation> {
-    return api.post("/academy/chat/conversations", payload).then((r) => r.data);
+    return api.post("/chat/conversations", payload).then((r) => r.data);
   },
 
-  /** GET /academy/chat/conversations */
+  /** GET /chat/conversations (Postman 2.7.9) */
   getConversations(): Promise<ChatConversation[]> {
     return api
-      .get("/academy/chat/conversations")
+      .get("/chat/conversations")
       .then((r) => r.data)
       .catch((err) => {
         if (err.response?.status === 403) {
@@ -43,10 +43,10 @@ export const chatService = {
       });
   },
 
-  /** GET /academy/chat/conversations/:id/messages */
+  /** GET /chat/conversations/:id/messages (Postman 2.7.10) */
   getMessages(conversationId: number): Promise<ChatMessage[]> {
     return api
-      .get(`/academy/chat/conversations/${conversationId}/messages`)
+      .get(`/chat/conversations/${conversationId}/messages`)
       .then((r) => {
         // API returns { conversationId, messages: [...] }
         const data = r.data as ChatMessagesResponse | ChatMessage[];
@@ -55,17 +55,17 @@ export const chatService = {
       });
   },
 
-  /** POST /academy/chat/conversations/:id/messages */
+  /** POST /chat/conversations/:id/messages (Postman 2.7.11) */
   sendMessage(conversationId: number, body: string): Promise<ChatMessage> {
     return api
-      .post(`/academy/chat/conversations/${conversationId}/messages`, { body })
+      .post(`/chat/conversations/${conversationId}/messages`, { body })
       .then((r) => r.data);
   },
 
-  /** PATCH /academy/chat/conversations/:id/read */
+  /** PUT /chat/conversations/:id/read (Postman 2.7.12) */
   markConversationRead(conversationId: number): Promise<void> {
     return api
-      .patch(`/academy/chat/conversations/${conversationId}/read`)
+      .put(`/chat/conversations/${conversationId}/read`)
       .then(() => undefined);
   },
 };

@@ -22,7 +22,7 @@ export const useEnrollment = () => {
       courseId,
       paymentGateway = "CHAPA",
     }: EnrollmentRequest): Promise<EnrollmentResponse> => {
-      const response = await api.post("/enrollments", {
+      const response = await api.post("/enrollment", {
         courseId,
         paymentGateway,
       });
@@ -75,12 +75,12 @@ export const useEnrollmentStatus = (courseId?: number) => {
   });
 };
 
-// Hook to get user's enrollments
+// Hook to get user's enrollments (Postman 2.2.2 GET /enrollment/me)
 export const useUserEnrollments = () => {
   return useQuery({
     queryKey: ["enrollments"],
     queryFn: async () => {
-      const response = await api.get("/enrollments");
+      const response = await api.get("/enrollment/me");
       return response.data;
     },
   });

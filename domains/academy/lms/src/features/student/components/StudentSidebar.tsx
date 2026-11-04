@@ -11,6 +11,7 @@ import {
   CalendarDays,
   MessageCircle,
   ChevronDown,
+  GraduationCap,
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,7 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
 
   const mainNav = [
     { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+    { label: "Orientation", to: "/orientation", icon: GraduationCap },
     {
       label: "My Learning",
       to: "/learning",

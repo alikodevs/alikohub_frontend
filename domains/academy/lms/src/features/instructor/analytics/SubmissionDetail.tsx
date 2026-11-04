@@ -13,11 +13,15 @@ import {
   Clock,
   Inbox,
   Loader2,
+  Award,
+  Sparkles,
 } from "lucide-react";
 import {
   useInstructorSubmissions,
   useGradeSubmission,
 } from "@/hooks/useAcademy";
+import { useRubricDetail } from "@/features/rubric/hooks/useRubrics";
+import { RubricGradingMatrix } from "@/features/rubric/components/RubricGradingMatrix";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -287,9 +291,13 @@ const SubmissionDetail = () => {
   ).length;
   const feedbackCount = submissions.filter((s: any) => s.feedback).length;
 
-  // ── Handlers ──────────────────────────────────────────────────────────
+  // ── Handlers & Rubric State ───────────────────────────────────────────
+  const [useRubricMode, setUseRubricMode] = useState(false);
+  const { data: attachedRubric } = useRubricDetail(selectedSubmission?.exercise?.rubricId);
+
   const openGradeModal = (sub: any) => {
     setSelectedSubmission(sub);
+    setUseRubricMode(Boolean(sub.exercise?.rubricId || sub.exercise?.rubric));
     setGradingForm({
       score: sub.score ?? 0,
       feedback: sub.feedback ?? "",
@@ -475,91 +483,130 @@ const SubmissionDetail = () => {
         open={!!selectedSubmission}
         onOpenChange={(open) => !open && setSelectedSubmission(null)}
       >
-        <DialogContent className="sm:max-w-[480px] bg-white rounded-2xl border border-slate-200 shadow-xl p-0 overflow-hidden flex flex-col max-h-[90vh] gap-0 text-left">
-          <div className="px-7 pt-6 pb-5 border-b border-slate-100 shrink-0">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">
-              Grade entry
-            </span>
-            <DialogTitle className="text-lg font-bold text-slate-900 mt-1">
-              {cleanTitle(selectedSubmission?.exercise?.title) ||
-                "Manual assessment"}
-            </DialogTitle>
+        <DialogContent
+          className={cn(
+            "bg-white rounded-2xl border border-slate-200 shadow-xl p-0 overflow-hidden flex flex-col max-h-[90vh] gap-0 text-left transition-all",
+            useRubricMode && (attachedRubric || selectedSubmission?.exercise?.rubric)
+              ? "sm:max-w-[750px]"
+              : "sm:max-w-[480px]"
+          )}
+        >
+          <div className="px-7 pt-6 pb-5 border-b border-slate-100 shrink-0 flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">
+                Grade entry
+              </span>
+              <DialogTitle className="text-lg font-bold text-slate-900 mt-1">
+                {cleanTitle(selectedSubmission?.exercise?.title) ||
+                  "Manual assessment"}
+              </DialogTitle>
+            </div>
+
+            {(attachedRubric || selectedSubmission?.exercise?.rubric) && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setUseRubricMode(!useRubricMode)}
+                className="text-xs font-bold rounded-lg border-blue-200 text-blue-700 hover:bg-blue-50 h-8"
+              >
+                <Award className="w-3.5 h-3.5 mr-1 text-blue-600" />
+                {useRubricMode ? "Manual Override" : "Grade with Rubric"}
+              </Button>
+            )}
           </div>
 
           <div className="px-7 py-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
-            <div>
-              <label className="text-xs font-semibold text-slate-500 mb-2 block">
-                Score
-              </label>
-              <div className="flex items-center gap-3">
-                <Input
-                  type="number"
-                  min={0}
-                  max={selectedSubmission?.exercise?.points}
-                  value={gradingForm.score}
-                  onChange={(e) =>
-                    setGradingForm({
-                      ...gradingForm,
-                      score: parseInt(e.target.value) || 0,
-                    })
-                  }
-                  className="h-11 w-24 rounded-lg border-slate-200 bg-white text-base font-semibold text-center"
-                />
-                <span className="text-sm text-slate-400 font-medium">
-                  out of {selectedSubmission?.exercise?.points} pts
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-slate-500 mb-2 block">
-                Verdict
-              </label>
-              <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 gap-1">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setGradingForm({ ...gradingForm, isCorrect: true })
-                  }
-                  className={cn(
-                    "flex items-center justify-center gap-1.5 rounded-md px-4 h-9 font-medium text-sm transition-colors",
-                    gradingForm.isCorrect
-                      ? "bg-white text-emerald-600 shadow-sm"
-                      : "text-slate-400 hover:text-slate-600",
-                  )}
-                >
-                  <CheckCircle2 size={15} /> Correct
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setGradingForm({ ...gradingForm, isCorrect: false })
-                  }
-                  className={cn(
-                    "flex items-center justify-center gap-1.5 rounded-md px-4 h-9 font-medium text-sm transition-colors",
-                    !gradingForm.isCorrect
-                      ? "bg-white text-rose-600 shadow-sm"
-                      : "text-slate-400 hover:text-slate-600",
-                  )}
-                >
-                  <X size={15} /> Incorrect
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-semibold text-slate-500 mb-2 block">
-                Feedback for student
-              </label>
-              <Textarea
-                value={gradingForm.feedback}
-                onChange={(e) =>
-                  setGradingForm({ ...gradingForm, feedback: e.target.value })
-                }
-                placeholder="Tell the student how to improve..."
-                className="min-h-[110px] rounded-lg border-slate-200 bg-white p-3.5 text-sm resize-none focus-visible:ring-blue-500/20 focus-visible:border-blue-500"
+            {useRubricMode && (attachedRubric || selectedSubmission?.exercise?.rubric) ? (
+              <RubricGradingMatrix
+                rubric={attachedRubric || selectedSubmission?.exercise?.rubric}
+                initialFeedback={gradingForm.feedback}
+                onApplyScore={(score, feedback, evalResult) => {
+                  setGradingForm({
+                    score,
+                    isCorrect: (evalResult.percentage || 0) >= 80,
+                    feedback: feedback || evalResult.customFeedback || "",
+                  });
+                  setUseRubricMode(false);
+                }}
               />
-            </div>
+            ) : (
+              <>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 mb-2 block">
+                    Score
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={selectedSubmission?.exercise?.points}
+                      value={gradingForm.score}
+                      onChange={(e) =>
+                        setGradingForm({
+                          ...gradingForm,
+                          score: parseInt(e.target.value) || 0,
+                        })
+                      }
+                      className="h-11 w-24 rounded-lg border-slate-200 bg-white text-base font-semibold text-center"
+                    />
+                    <span className="text-sm text-slate-400 font-medium">
+                      out of {selectedSubmission?.exercise?.points} pts
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 mb-2 block">
+                    Verdict
+                  </label>
+                  <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 gap-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setGradingForm({ ...gradingForm, isCorrect: true })
+                      }
+                      className={cn(
+                        "flex items-center justify-center gap-1.5 rounded-md px-4 h-9 font-medium text-sm transition-colors",
+                        gradingForm.isCorrect
+                          ? "bg-white text-emerald-600 shadow-sm"
+                          : "text-slate-400 hover:text-slate-600",
+                      )}
+                    >
+                      <CheckCircle2 size={15} /> Correct
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setGradingForm({ ...gradingForm, isCorrect: false })
+                      }
+                      className={cn(
+                        "flex items-center justify-center gap-1.5 rounded-md px-4 h-9 font-medium text-sm transition-colors",
+                        !gradingForm.isCorrect
+                          ? "bg-white text-rose-600 shadow-sm"
+                          : "text-slate-400 hover:text-slate-600",
+                      )}
+                    >
+                      <X size={15} /> Incorrect
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 mb-2 block">
+                    Feedback for student
+                  </label>
+                  <Textarea
+                    value={gradingForm.feedback}
+                    onChange={(e) =>
+                      setGradingForm({ ...gradingForm, feedback: e.target.value })
+                    }
+                    placeholder="Tell the student how to improve..."
+                    className="min-h-[110px] rounded-lg border-slate-200 bg-white p-3.5 text-sm resize-none focus-visible:ring-blue-500/20 focus-visible:border-blue-500"
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           <div className="px-7 py-4 flex justify-end gap-2.5 shrink-0 border-t border-slate-100 bg-slate-50/60">

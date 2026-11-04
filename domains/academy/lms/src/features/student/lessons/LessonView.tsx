@@ -40,6 +40,7 @@ import {
   Unlock,
   ShieldCheck,
   AlertTriangle,
+  MessageSquare,
 } from "lucide-react";
 import PdfViewer from "./components/PdfViewer";
 import InlinePdfViewer from "./components/InlinePdfViewer";
@@ -54,12 +55,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { RubricCriteriaTable } from "@/features/rubric/components/RubricCriteriaTable";
+import { DiscussionForumView } from "@/features/rubric/components/DiscussionForumView";
+import { examSecurityService } from "@/features/rubric/services/examSecurityService";
+import { wabonComplianceService } from "@/features/rubric/services/wabonComplianceService";
 
 interface CourseItem {
   id: string;
   title: string;
   lessonId: string;
-  itemType: "video" | "reading" | "quiz" | "pdf";
+  itemType: "video" | "reading" | "quiz" | "pdf" | "discussion";
   type?: string;
   url?: string;
   exercises?: any[];
@@ -149,8 +154,9 @@ const LmsLearn = () => {
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [activeItemType, setActiveItemType] = useState<
-    "video" | "reading" | "quiz" | "pdf"
+    "video" | "reading" | "quiz" | "pdf" | "discussion"
   >("video");
+  const [activeModuleId, setActiveModuleId] = useState<string | number | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
   const [selectedAnswers, setSelectedAnswers] = useState<
@@ -164,6 +170,7 @@ const LmsLearn = () => {
   const [isExamAttested, setIsExamAttested] = useState(false);
   const [attestationChecked, setAttestationChecked] = useState(false);
   const [tabSwitchViolations, setTabSwitchViolations] = useState(0);
+  const [examSessionId, setExamSessionId] = useState<string | number | null>(null);
   const [timeRemainingSeconds, setTimeRemainingSeconds] = useState<number | null>(null);
   const [quizResults, setQuizResults] = useState<
     Record<string, { isCorrect: boolean; correctAnswer?: string }>
@@ -370,9 +377,36 @@ const LmsLearn = () => {
       );
       if (course.modules?.[0]) {
         setExpandedModules({ [course.modules[0].id]: true });
+        setActiveModuleId(course.modules[0].id);
       }
     }
   }, [course, activeItemId, allItems]);
+
+  // Keep activeModuleId synchronized with activeLesson
+  useEffect(() => {
+    if (activeLessonId && course?.modules) {
+      const parentModule = course.modules.find((m) =>
+        m.lessons?.some((l) => String(l.id) === String(activeLessonId))
+      );
+      if (parentModule) {
+        setActiveModuleId(parentModule.id);
+      }
+    }
+  }, [activeLessonId, course?.modules]);
+
+  const currentModule =
+    course?.modules?.find(
+      (m) => String(m.id) === String(activeModuleId)
+    ) ||
+    course?.modules?.find((m) =>
+      m.lessons?.some((l) => String(l.id) === String(activeLessonId))
+    ) ||
+    course?.modules?.[0];
+
+  const isInstructor =
+    user?.academyRole === "INSTRUCTOR" ||
+    user?.academyActiveRole === "INSTRUCTOR" ||
+    user?.globalRole === "ADMIN";
 
   const prevQuizLessonRef = useRef<string | null>(null);
 
@@ -471,6 +505,16 @@ const LmsLearn = () => {
           toast.error(
             `Security Notice: Window focus lost. Incident #${updated} recorded for faculty review (WAC 246-841A-440).`,
           );
+          if (examSessionId) {
+            examSecurityService
+              .recordTabBlur({
+                sessionId: examSessionId,
+                blurDurationSeconds: 4,
+              })
+              .catch((err) => {
+                console.warn("[ExamSecurity] Tab blur event logging failed:", err);
+              });
+          }
           return updated;
         });
       }
@@ -480,7 +524,38 @@ const LmsLearn = () => {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [activeItemType, quizSubmitted, isExamAttested]);
+  }, [activeItemType, quizSubmitted, isExamAttested, examSessionId]);
+
+  // WAC 246-841A-440(6) Active Seat-Time Heartbeat Engine (60s interval / Active engagement rules)
+  useEffect(() => {
+    if (!activeLessonId || !course?.id) return;
+
+    const pulseInterval = setInterval(() => {
+      const isFocused = !document.hidden;
+      wabonComplianceService
+        .recordSeatTimeHeartbeat({
+          lessonId: activeLessonId,
+          courseId: course.id,
+          cohortId: (course as any).cohortId || 1,
+          activeSeconds: isFocused ? 60 : 0,
+          idleSeconds: isFocused ? 0 : 60,
+          tabFocused: isFocused,
+          intervalSeconds: 60,
+          engagementScore: isFocused ? 1.0 : 0.0,
+          interactionType:
+            activeItemType === "video"
+              ? "VIDEO_PLAYBACK"
+              : activeItemType === "quiz"
+              ? "QUIZ_INTERACTION"
+              : "READING",
+        })
+        .catch((err: any) => {
+          console.warn("[SeatTime] Heartbeat sync failed:", err?.message || err);
+        });
+    }, 60000);
+
+    return () => clearInterval(pulseInterval);
+  }, [activeLessonId, course?.id, activeItemType]);
 
   // WAC 246-841A-440 Exam Security: Timed countdown session
   useEffect(() => {
@@ -848,6 +923,18 @@ const LmsLearn = () => {
                       }
                       setIsExamAttested(true);
                       toast.success("Identity verified. Monitored examination session started.");
+                      examSecurityService
+                        .startSession({
+                          exerciseId: exercisesList[0]?.id || 1,
+                          honorCodeAccepted: true,
+                          userAgent: navigator.userAgent,
+                        })
+                        .then((session) => {
+                          if (session?.id) setExamSessionId(session.id);
+                        })
+                        .catch((err) => {
+                          console.warn("[ExamSecurity] Failed to register proctored exam session:", err);
+                        });
                     }}
                     disabled={!attestationChecked}
                     className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 h-10 rounded-lg shadow-sm"
@@ -873,22 +960,49 @@ const LmsLearn = () => {
                         }
                       }}
                     >
-                      <div className="mb-2">
+                      <div className="mb-2 flex items-center justify-between">
                         <span className="text-[10px] font-semibold text-[var(--lovable-primary)] uppercase tracking-wider bg-[var(--lovable-active-soft)] px-2.5 py-0.5 rounded">
                           Question {index + 1}
                         </span>
+                        {exercise.rubric && (
+                          <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] font-bold">
+                            Rubric Assessed ({exercise.points} pts)
+                          </Badge>
+                        )}
                       </div>
                       <div className="mb-4 text-sm font-semibold text-[var(--lovable-fg)] leading-snug font-sora">
                         {exercise.question}
                       </div>
-                      <RadioGroup
-                        value={selectedAnswers[exercise.id] || ""}
-                        onValueChange={(v) =>
-                          !quizSubmitted && handleOptionSelect(exercise.id, v)
-                        }
-                        className="flex flex-col gap-2.5"
-                        disabled={quizSubmitted}
-                      >
+
+                      {/* Display Rubric Criteria Table if Rubric is Attached */}
+                      {exercise.rubric && (
+                        <div className="mb-4">
+                          <RubricCriteriaTable rubric={exercise.rubric} compact />
+                        </div>
+                      )}
+
+                      {options.length === 0 ? (
+                        <div className="space-y-2">
+                          <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                            Your Clinical Response
+                          </label>
+                          <textarea
+                            value={selectedAnswers[exercise.id] || ""}
+                            disabled={quizSubmitted}
+                            onChange={(e) => handleOptionSelect(exercise.id, e.target.value)}
+                            placeholder="Type your response with clinical rationales and evidence..."
+                            className="w-full min-h-[90px] text-xs bg-white rounded-xl border border-slate-200 p-3 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      ) : (
+                        <RadioGroup
+                          value={selectedAnswers[exercise.id] || ""}
+                          onValueChange={(v) =>
+                            !quizSubmitted && handleOptionSelect(exercise.id, v)
+                          }
+                          className="flex flex-col gap-2.5"
+                          disabled={quizSubmitted}
+                        >
                         {options.map((option, idx) => {
                           const isSelected =
                             selectedAnswers[exercise.id] === option;
@@ -956,8 +1070,9 @@ const LmsLearn = () => {
                           );
                         })}
                       </RadioGroup>
-                    </div>
-                  );
+                    )}
+                  </div>
+                );
                 })}
 
                 {!quizSubmitted && (
@@ -1002,6 +1117,14 @@ const LmsLearn = () => {
                             setQuizResults(submitResults);
                             setQuizScore(serverScore);
                             setQuizSubmitted(true);
+
+                            if (examSessionId) {
+                              examSecurityService
+                                .endSession({ sessionId: examSessionId })
+                                .catch((err) => {
+                                  console.warn("[ExamSecurity] Failed to cleanly end session:", err);
+                                });
+                            }
 
                         const showCelebration = () => {
                           const isModuleEnd = isLastItemInModule();
@@ -1110,6 +1233,34 @@ const LmsLearn = () => {
                 </p>
               )}
             </div>
+          </div>
+
+          {/* Unit Discussion Callout (WAC 246-841A-440) */}
+          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/40 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-4xl shadow-2xs">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="p-1 rounded-md bg-blue-100/70 text-blue-700">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs font-bold text-slate-900">
+                  Unit Discussion Forum &bull; {currentModule?.title || "This Unit"}
+                </span>
+              </div>
+              <p className="text-xs text-slate-600">
+                Participate in rubric-guided clinical dialogue with fellow nursing candidates.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                setActiveItemType("discussion");
+                if (currentModule?.id) setActiveModuleId(currentModule.id);
+                setActiveItemId(`discussion-${currentModule?.id || "unit"}`);
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 px-4 rounded-xl shrink-0 shadow-xs"
+            >
+              <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Go to Unit Discussion
+            </Button>
           </div>
         </main>
       );
@@ -1225,6 +1376,71 @@ const LmsLearn = () => {
               </button>
             </div>
           )}
+
+          {/* Unit Discussion Callout (WAC 246-841A-440) */}
+          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/40 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="p-1 rounded-md bg-blue-100/70 text-blue-700">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-xs font-bold text-slate-900">
+                  Unit Discussion Forum &bull; {currentModule?.title || "This Unit"}
+                </span>
+              </div>
+              <p className="text-xs text-slate-600">
+                Engage in substantive clinical discussions and review evaluation criteria.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                setActiveItemType("discussion");
+                if (currentModule?.id) setActiveModuleId(currentModule.id);
+                setActiveItemId(`discussion-${currentModule?.id || "unit"}`);
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 px-4 rounded-xl shrink-0 shadow-xs"
+            >
+              <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Go to Unit Discussion
+            </Button>
+          </div>
+        </main>
+      );
+    }
+
+    // ── Unit Discussion Forum (WAC 246-841A-440) ───────────────────────────
+    if (activeItemType === "discussion") {
+      const activeMod =
+        course?.modules?.find(
+          (m) => String(m.id) === String(activeModuleId)
+        ) ||
+        course?.modules?.find((m) =>
+          m.lessons?.some((l) => String(l.id) === String(activeLessonId))
+        ) ||
+        course?.modules?.[0];
+
+      return (
+        <main className="lesson-content w-full max-w-full">
+          <div className="content-head">
+            <span className="material-badge flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200">
+              <MessageSquare size={13} /> Unit Asynchronous Discussion (WAC 246-841A-440)
+            </span>
+          </div>
+
+          <p className="course-name">
+            {course?.title || "Nursing Assistant Training"} &bull; {activeMod?.title || "Course Unit"}
+          </p>
+
+          <h2>{activeMod?.title || "Unit"}: Clinical Dialogue & Peer Responses</h2>
+
+          <div className="mt-6 w-full max-w-full">
+            <DiscussionForumView
+              moduleId={activeMod?.id || 1}
+              isInstructor={isInstructor}
+              canCreateTopic={false}
+              className="w-full"
+            />
+          </div>
         </main>
       );
     }
@@ -1418,6 +1634,30 @@ const LmsLearn = () => {
                     </div>
                   );
                 })}
+
+                {/* Unit Discussion Forum Button for this Module */}
+                <div className="unit-discussion-wrap mt-1.5 pt-1.5 border-t border-slate-100">
+                  <button
+                    className={`chapter-button w-full flex items-center gap-2 py-2 px-2.5 rounded-lg transition-colors ${
+                      activeItemType === "discussion" && String(activeModuleId) === String(module.id)
+                        ? "chapter-button-active bg-blue-50 text-blue-700 font-bold border border-blue-200"
+                        : "chapter-button-inactive hover:bg-slate-100/80 text-slate-600"
+                    }`}
+                    onClick={() => {
+                      setActiveItemType("discussion");
+                      setActiveModuleId(module.id);
+                      setActiveLessonId(null);
+                      setActiveItemId(`discussion-${module.id}`);
+                      if (window.innerWidth < 900) setIsSidebarOpen(false);
+                    }}
+                  >
+                    <MessageSquare size={14} className="text-blue-600 shrink-0" />
+                    <span className="truncate text-xs font-semibold">Unit Discussion</span>
+                    <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-blue-100/60 text-blue-700 border border-blue-200/60">
+                      WAC
+                    </span>
+                  </button>
+                </div>
               </div>
             ))}
           </nav>
@@ -1449,24 +1689,32 @@ const LmsLearn = () => {
         {/* ── Learning Area ─────────────────────────────────────────────────── */}
         <section className="learning-area">
           <div className="lesson-toolbar">
-            <h2>{activeLesson?.title || "Lesson"}</h2>
+            <h2>
+              {activeItemType === "discussion"
+                ? `${currentModule?.title || "Unit"}: Discussion Forum`
+                : (activeLesson?.title || "Lesson")}
+            </h2>
             <div className="toolbar-actions">
               <div className="pager">
                 <button
-                  disabled={currentItemIndex === 0}
+                  disabled={currentItemIndex <= 0 || activeItemType === "discussion"}
                   onClick={handlePrevItem}
                 >
                   <ChevronLeft size={15} /> Prev
                 </button>
                 <button
-                  disabled={currentItemIndex === allItems.length - 1}
+                  disabled={
+                    currentItemIndex === -1 ||
+                    currentItemIndex === allItems.length - 1 ||
+                    activeItemType === "discussion"
+                  }
                   onClick={handleNextItem}
                 >
                   Next <ChevronRight size={15} />
                 </button>
               </div>
 
-              {activeItemType !== "quiz" && (
+              {activeItemType !== "quiz" && activeItemType !== "discussion" && (
                 <button
                   className={`complete-button ${isLessonCompleted ? "completed" : ""}`}
                   onClick={handleMarkComplete}

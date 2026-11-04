@@ -213,37 +213,25 @@ const InstructorCreateCourse = () => {
   };
 
   const handleFinalCreate = async () => {
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("shortDescription", formData.shortDescription);
-    data.append("longDescription", formData.longDescription);
-    data.append("category", formData.category);
-    data.append("price", formData.price ? formData.price.toString() : "0");
-    data.append(
-      "priceInUsd",
-      formData.priceInUsd ? formData.priceInUsd.toString() : "0",
-    );
-    data.append("status", "DRAFT");
-    data.append("targetLevel", formData.targetLevel);
-    data.append(
-      "estimatedTime",
-      formData.estimatedTime ? formData.estimatedTime.toString() : "0",
-    );
-    data.append(
-      "createDefaultCohort",
-      formData.createDefaultCohort ? "true" : "false",
-    );
-    formData.skills.forEach((s) => data.append("skills", s));
-    formData.conceptsLearned.forEach((s) => data.append("conceptsLearned", s));
-    formData.outcomes.forEach((s) => data.append("outcomes", s));
-    formData.prerequisites.forEach((s) => data.append("prerequisites", s));
-    formData.languages.forEach((s) => data.append("languages", s));
+    const payload = {
+      title: formData.title.trim(),
+      shortDescription: formData.shortDescription.trim(),
+      longDescription: formData.longDescription.trim(),
+      category: formData.category,
+      price: formData.price ? Number(formData.price) : 0,
+      priceInUsd: formData.priceInUsd ? Number(formData.priceInUsd) : 0,
+      status: "DRAFT",
+      targetLevel: formData.targetLevel,
+      estimatedTime: formData.estimatedTime ? Number(formData.estimatedTime) : 0,
+      createDefaultCohort: Boolean(formData.createDefaultCohort),
+      skills: formData.skills,
+      conceptsLearned: formData.conceptsLearned,
+      outcomes: formData.outcomes,
+      prerequisites: formData.prerequisites,
+      languages: formData.languages,
+    };
 
-    if (formData.thumbnail) {
-      data.append("thumbnail", formData.thumbnail);
-    }
-
-    createCourseMutation.mutate(data, {
+    createCourseMutation.mutate(payload, {
       onSuccess: (newCourse) => {
         toast.success("Course shell created successfully!");
         navigate(`/instructor/courses/${newCourse.id}`);

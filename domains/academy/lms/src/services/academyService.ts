@@ -10,8 +10,88 @@ import type {
   Cohort,
 } from "@/types/academy";
 
+const serializeCoursePayload = (
+  data: FormData | Record<string, any>
+): Record<string, any> => {
+  let payload: Record<string, any>;
+  if (data instanceof FormData) {
+    payload = {};
+    data.forEach((val, key) => {
+      if (val instanceof File) {
+        return;
+      }
+      if (payload[key] !== undefined) {
+        if (Array.isArray(payload[key])) {
+          payload[key].push(val);
+        } else {
+          payload[key] = [payload[key], val];
+        }
+      } else {
+        payload[key] = val;
+      }
+    });
+  } else {
+    payload = { ...data };
+  }
+
+  if (payload.title !== undefined && payload.title !== null) {
+    payload.title = String(payload.title).trim();
+  }
+
+  if (payload.shortDescription !== undefined && payload.shortDescription !== null) {
+    payload.shortDescription = String(payload.shortDescription).trim();
+  }
+  if (payload.longDescription !== undefined && payload.longDescription !== null) {
+    payload.longDescription = String(payload.longDescription).trim();
+  }
+  if (payload.category !== undefined && payload.category !== null) {
+    payload.category = String(payload.category).trim();
+  }
+
+  if (payload.price !== undefined && payload.price !== null && payload.price !== "") {
+    const numPrice = Number(payload.price);
+    payload.price = isNaN(numPrice) ? 0 : numPrice;
+  }
+  if (payload.priceInUsd !== undefined && payload.priceInUsd !== null && payload.priceInUsd !== "") {
+    const numPriceUsd = Number(payload.priceInUsd);
+    payload.priceInUsd = isNaN(numPriceUsd) ? 0 : numPriceUsd;
+  }
+  if (payload.estimatedTime !== undefined && payload.estimatedTime !== null && payload.estimatedTime !== "") {
+    const numTime = Number(payload.estimatedTime);
+    payload.estimatedTime = isNaN(numTime) ? 0 : Math.round(numTime);
+  }
+
+  if (payload.createDefaultCohort !== undefined) {
+    payload.createDefaultCohort =
+      payload.createDefaultCohort === true ||
+      payload.createDefaultCohort === "true";
+  }
+
+  ["skills", "conceptsLearned", "outcomes", "prerequisites", "languages"].forEach(
+    (arrKey) => {
+      if (payload[arrKey] !== undefined) {
+        if (!Array.isArray(payload[arrKey])) {
+          payload[arrKey] = payload[arrKey] ? [String(payload[arrKey])] : [];
+        } else {
+          payload[arrKey] = payload[arrKey].map(String);
+        }
+      }
+    }
+  );
+
+  if (
+    typeof payload.thumbnail !== "string" ||
+    (!payload.thumbnail.startsWith("http://") &&
+      !payload.thumbnail.startsWith("https://"))
+  ) {
+    delete payload.thumbnail;
+  }
+
+  return payload;
+};
+
 export const academyService = {
-  // Public Endpoints
+  // Public Endpoints (Postman 1.9 - 1.13)
   getCourses: async (params?: {
     page?: number;
     pageSize?: number;
@@ -19,14 +99,15 @@ export const academyService = {
     difficulty?: string;
     status?: string;
   }) => {
-    const response = await api.get<{ courses: Course[]; total: number }>(
-      "/academy/courses",
-      { params },
-    );
-    // Backend returns { items, total, ... } but frontend expects { courses, total }
+    const response = await api.get("/courses", { params });
+    const data = response.data;
+    // Backend may return a plain array OR a wrapped { items/courses, total } object
+    if (Array.isArray(data)) {
+      return { courses: data as Course[], total: data.length };
+    }
     return {
-      courses: (response.data as any).items || response.data.courses,
-      total: response.data.total,
+      courses: (data as any).items || (data as any).courses || [],
+      total: (data as any).total || 0,
     };
   },
 
@@ -34,7 +115,7 @@ export const academyService = {
     category: string,
     params?: { page?: number; pageSize?: number },
   ) => {
-    const response = await api.get(`/academy/courses/category/${category}`, {
+    const response = await api.get(`/courses/category/${category}`, {
       params,
     });
     return {
@@ -51,7 +132,7 @@ export const academyService = {
     params?: { page?: number; pageSize?: number },
   ) => {
     const response = await api.get(
-      `/academy/courses/difficulty/${difficulty.toUpperCase()}`,
+      `/courses/difficulty/${difficulty.toUpperCase()}`,
       {
         params,
       },
@@ -66,12 +147,12 @@ export const academyService = {
   },
 
   getCourseDetails: async (courseId: string) => {
-    const response = await api.get<Course>(`/academy/courses/${courseId}`);
+    const response = await api.get<Course>(`/courses/${courseId}`);
     return response.data;
   },
 
   getCourseBySlug: async (slug: string) => {
-    const response = await api.get<Course>(`/academy/courses/slug/${slug}`);
+    const response = await api.get<Course>(`/courses/slug/${slug}`);
     return response.data;
   },
 
@@ -80,7 +161,7 @@ export const academyService = {
     params?: { page?: number; pageSize?: number },
   ) => {
     const response = await api.get<{ items: Cohort[]; total: number }>(
-      `/academy/cohorts`,
+      `/cohorts`,
       {
         params: { courseId, ...params },
       },
@@ -91,10 +172,10 @@ export const academyService = {
     };
   },
 
-  // Student/Shared Endpoints
+  // Student/Shared Endpoints (Postman 2.1 - 2.7)
   getCourseSchedules: async (courseId: string | number) => {
     const response = await api.get(
-      `/academy/teaching-schedules/course/${courseId}`,
+      `/teaching-schedule/course/${courseId}`,
     );
     return response.data;
   },
@@ -103,7 +184,7 @@ export const academyService = {
     courseId: string | number,
     paymentGateway?: string,
   ) => {
-    const response = await api.post<Enrollment>(`/academy/enrollment`, {
+    const response = await api.post<Enrollment>(`/enrollment`, {
       courseId: Number(courseId),
       ...(paymentGateway && { paymentGateway }),
     });
@@ -115,7 +196,7 @@ export const academyService = {
     courseId: string | number,
     paymentGateway?: string,
   ) => {
-    const response = await api.post<Enrollment>(`/academy/enrollment`, {
+    const response = await api.post<Enrollment>(`/enrollment`, {
       courseId: Number(courseId),
       cohortId: Number(cohortId),
       ...(paymentGateway && { paymentGateway }),
@@ -124,67 +205,68 @@ export const academyService = {
   },
 
   getMyEnrollments: async () => {
-    const response = await api.get<Enrollment[]>("/academy/enrollment/me");
+    const response = await api.get<Enrollment[]>("/enrollment/me");
     return response.data;
   },
 
   getProfile: async () => {
-    const response = await api.get("/academy/profile");
+    const response = await api.get("/profile");
     return response.data;
   },
 
   updateProfile: async (data: any) => {
-    const response = await api.post("/users/profile", data);
+    const response = await api.post("/profile", data);
     return response.data;
   },
 
   getCourseCurriculum: async (courseId: string) => {
     const response = await api.get<Module[]>(
-      `/academy/modules/course/${courseId}`,
+      `/modules/course/${courseId}`,
     );
     return response.data;
   },
 
   getLessonContent: async (lessonId: string) => {
     const response = await api.get<Content[]>(
-      `/academy/content/lesson/${lessonId}`,
+      `/content/lesson/${lessonId}`,
     );
     return response.data;
   },
 
   getStudentAnalytics: async () => {
-    const response = await api.get("/academy/progress/analytics/student");
+    const response = await api.get("/progress/analytics/student");
     return response.data;
   },
 
   getStudentDashboard: async () => {
-    const response = await api.get("/academy/progress/dashboard");
+    const response = await api.get("/progress/dashboard");
     return response.data;
   },
 
   markLessonComplete: async (courseId: string, lessonId: string) => {
     const response = await api.post(
-      `/academy/progress/course/${courseId}/lesson/${lessonId}/complete`,
+      `/progress/course/${courseId}/lesson/${lessonId}/complete`,
     );
     return response.data;
   },
 
   checkLessonComplete: async (courseId: string, lessonId: string) => {
     const response = await api.get(
-      `/academy/progress/course/${courseId}/lesson/${lessonId}/complete`,
+      `/progress/course/${courseId}/lesson/${lessonId}/complete`,
     );
     return response.data;
   },
 
   submitExercise: async (exerciseId: string, answer: string) => {
-    const response = await api.post(`/academy/exercises/${exerciseId}/submit`, {
-      answer,
+    const response = await api.post(`/exercises/${exerciseId}/submit`, {
+      answers: [{ questionId: "q1", value: answer }],
+      submissionText: answer,
     });
     return response.data;
   },
 
   getExerciseDetails: async (exerciseId: string) => {
-    const response = await api.get(`/academy/exercises/${exerciseId}`);
+    const response = await api.get(`/exercises/${exerciseId}`);
     return response.data;
   },
 
@@ -193,7 +275,7 @@ export const academyService = {
     pageSize?: number;
     status?: string;
   }) => {
-    const response = await api.get("/academy/exercises/my-submissions", {
+    const response = await api.get("/exercises/submissions/instructor", {
       params,
     });
     return response.data;
@@ -201,7 +283,7 @@ export const academyService = {
 
   getCourseReport: async (courseId: string) => {
     const response = await api.get(
-      `/academy/progress/course/${courseId}/report`,
+      `/progress/course/${courseId}/report`,
     );
     return response.data;
   },
@@ -212,26 +294,26 @@ export const academyService = {
   },
 
   getNotifications: async () => {
-    const response = await api.get("/academy/notifications/me");
+    const response = await api.get("/notifications/me");
     return response.data;
   },
 
   getNotificationDetails: async (notifId: string | number) => {
-    const response = await api.get(`/academy/notifications/${notifId}`);
+    const response = await api.get(`/notifications/${notifId}`);
     return response.data;
   },
 
   markNotificationRead: async (notifId: string) => {
-    const response = await api.patch(`/academy/notifications/${notifId}/read`);
+    const response = await api.patch(`/notifications/${notifId}/read`);
     return response.data;
   },
 
   deleteNotification: async (notifId: string) => {
-    const response = await api.delete(`/academy/notifications/${notifId}`);
+    const response = await api.delete(`/notifications/${notifId}`);
     return response.data;
   },
 
-  // Announcements
+  // Announcements (Postman 2.7.14, 3.6.9 - 3.6.12)
   getAnnouncements: async (params?: { page?: number; pageSize?: number }) => {
     const response = await api.get<{
       items: {
@@ -245,46 +327,47 @@ export const academyService = {
       pageSize: number;
       total: number;
       totalPages: number;
-    }>("/academy/announcements", { params });
+    }>("/announcements", { params });
     return response.data;
   },
 
   createAnnouncement: async (data: { title: string; content: string }) => {
-    const response = await api.post("/academy/announcements", data);
+    const response = await api.post("/announcements", data);
     return response.data;
   },
 
   updateAnnouncement: async (id: string, data: { title: string; content: string }) => {
-    const response = await api.put(`/academy/announcements/${id}`, data);
+    const response = await api.put(`/announcements/${id}`, data);
     return response.data;
   },
 
   deleteAnnouncement: async (id: string) => {
-    const response = await api.delete(`/academy/announcements/${id}`);
+    const response = await api.delete(`/announcements/${id}`);
     return response.data;
   },
 
-  // Instructor Endpoints
+  // Instructor Endpoints (Postman 3.1 - 3.6)
   instructor: {
     getMyCourses: async (params?: {
       page?: number;
       pageSize?: number;
       status?: string;
     }) => {
-      const response = await api.get<{ courses: Course[]; total: number }>(
-        "/academy/courses/instructor/my",
-        { params },
-      );
-      // Backend returns { items, total, ... } but frontend expects { courses, total }
+      const response = await api.get("/courses/instructor/my-courses", { params });
+      const data = response.data;
+      // Backend may return a plain array OR a wrapped { items/courses, total } object
+      if (Array.isArray(data)) {
+        return { courses: data as Course[], total: data.length };
+      }
       return {
-        courses: (response.data as any).items || response.data.courses,
-        total: response.data.total,
+        courses: (data as any).items || (data as any).courses || [],
+        total: (data as any).total || 0,
       };
     },
 
     getStats: async () => {
       const response = await api.get<InstructorStats>(
-        "/academy/progress/instructor/stats",
+        "/progress/instructor/stats",
       );
       return response.data;
     },
@@ -295,7 +378,7 @@ export const academyService = {
       status?: string;
     }) => {
       const response = await api.get(
-        "/academy/exercises/instructor/submissions",
+        "/exercises/submissions/instructor",
         {
           params,
         },
@@ -304,33 +387,33 @@ export const academyService = {
     },
 
     // Get submissions for a specific course via the course report endpoint
-    // GET /academy/progress/course/:courseId/report
+    // GET /progress/course/:courseId/report
     getSubmissionsByCourse: async (courseId: string) => {
       const response = await api.get(
-        `/academy/progress/course/${courseId}/report`,
+        `/progress/course/${courseId}/report`,
       );
       return response.data; // Array of modules with nested lessons → exercises
     },
-    // New: Get analytics for a specific course
+    // Get analytics for a specific course
     getCourseAnalytics: async (courseId: string) => {
       const response = await api.get(
-        `/academy/progress/course/${courseId}/analytics`,
+        `/progress/course/${courseId}/analytics`,
       );
       return response.data;
     },
-    // New: Get teaching schedules for instructor
+    // Teaching schedules for instructor (Postman 3.6.5)
     getTeachingSchedules: async (params?: {
       page?: number;
       pageSize?: number;
     }) => {
-      const response = await api.get(`/academy/teaching-schedules/instructor`, {
+      const response = await api.get(`/teaching-schedule/instructor`, {
         params,
       });
       return response.data;
     },
-    // New: Create a teaching schedule
+    // Create a teaching schedule (Postman 3.6.4)
     createTeachingSchedule: async (data: any) => {
-      const response = await api.post(`/academy/teaching-schedules`, data);
+      const response = await api.post(`/teaching-schedule`, data);
       return response.data;
     },
 
@@ -340,38 +423,50 @@ export const academyService = {
       startDate: string;
       endDate: string;
     }) => {
-      const response = await api.post<Cohort>("/academy/cohorts", {
+      const response = await api.post<Cohort>("/cohorts", {
         ...data,
         courseId: Number(data.courseId),
       });
       return response.data;
     },
 
-    createCourse: async (formData: FormData) => {
-      const response = await api.post<Course>("/academy/courses", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+    createCourse: async (formData: FormData | Record<string, any>) => {
+      const payload = serializeCoursePayload(formData);
+      let response;
+      try {
+        response = await api.post<Course>("/courses", payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch {
+        response = await api.post<Course>("/academy/courses", payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+      }
       return response.data;
     },
 
-    updateCourse: async (courseId: string, formData: FormData) => {
-      const response = await api.patch<Course>(
-        `/academy/courses/${courseId}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
+    updateCourse: async (courseId: string, data: FormData | Record<string, any>) => {
+      const payload = serializeCoursePayload(data);
+      let response;
+      try {
+        response = await api.put<Course>(`/courses/${courseId}`, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch {
+        response = await api.put<Course>(`/academy/courses/${courseId}`, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
+      }
       return response.data;
     },
 
     deleteCourse: async (courseId: string) => {
-      const response = await api.delete(`/academy/courses/${courseId}`);
+      const response = await api.delete(`/courses/${courseId}`);
       return response.data;
     },
 
     submitCourseForApproval: async (courseId: string) => {
-      const response = await api.post(`/academy/courses/${courseId}/submit`);
+      const response = await api.post(`/courses/${courseId}/submit-for-approval`);
       return response.data;
     },
 
@@ -381,7 +476,7 @@ export const academyService = {
       title: string;
       description?: string;
     }) => {
-      const response = await api.post<Module>("/academy/modules", {
+      const response = await api.post<Module>("/modules", {
         ...data,
         courseId: Number(data.courseId),
         description: data.description || "",
@@ -394,14 +489,14 @@ export const academyService = {
       data: { title?: string; description?: string },
     ) => {
       const response = await api.put<Module>(
-        `/academy/modules/${moduleId}`,
+        `/modules/${moduleId}`,
         data,
       );
       return response.data;
     },
 
     deleteModule: async (moduleId: string) => {
-      const response = await api.delete(`/academy/modules/${moduleId}`);
+      const response = await api.delete(`/modules/${moduleId}`);
       return response.data;
     },
 
@@ -411,7 +506,7 @@ export const academyService = {
       title: string;
       type: string;
     }) => {
-      const response = await api.post<Lesson>("/academy/lessons", {
+      const response = await api.post<Lesson>("/lessons", {
         ...data,
         moduleId: Number(data.moduleId),
       });
@@ -423,21 +518,21 @@ export const academyService = {
       data: { title?: string; type?: string; order?: number },
     ) => {
       const response = await api.put<Lesson>(
-        `/academy/lessons/${lessonId}`,
+        `/lessons/${lessonId}`,
         data,
       );
       return response.data;
     },
 
     deleteLesson: async (lessonId: string) => {
-      const response = await api.delete(`/academy/lessons/${lessonId}`);
+      const response = await api.delete(`/lessons/${lessonId}`);
       return response.data;
     },
 
     // Content
     uploadContent: async (formData: FormData) => {
       const response = await api.post<Content>(
-        "/academy/content/upload",
+        "/content/upload",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -452,7 +547,7 @@ export const academyService = {
       type: string;
       url?: string;
     }) => {
-      const response = await api.post<Content>("/academy/content", {
+      const response = await api.post<Content>("/content", {
         ...data,
         lessonId: Number(data.lessonId),
       });
@@ -460,110 +555,147 @@ export const academyService = {
     },
 
     updateContent: async (contentId: string, data: { title?: string }) => {
-      const response = await api.patch<Content>(
-        `/academy/content/${contentId}`,
+      const response = await api.put<Content>(
+        `/content/${contentId}`,
         data,
       );
       return response.data;
     },
 
     deleteContent: async (contentId: string) => {
-      const response = await api.delete(`/academy/content/${contentId}`);
+      const response = await api.delete(`/content/${contentId}`);
       return response.data;
     },
 
     // Exercises
     createExercise: async (data: any) => {
-      const response = await api.post("/academy/exercises", data);
+      const response = await api.post("/exercises", data);
       return response.data;
     },
 
     createExercisesBulk: async (data: { dtos: any[] }) => {
-      const response = await api.post("/academy/exercises/bulk", data);
+      const response = await api.post("/exercises/bulk", data);
       return response.data;
     },
 
     updateExercise: async (exerciseId: string, data: any) => {
       const response = await api.patch(
-        `/academy/exercises/${exerciseId}`,
+        `/exercises/${exerciseId}`,
         data,
       );
       return response.data;
     },
 
     deleteExercise: async (exerciseId: string) => {
-      const response = await api.delete(`/academy/exercises/${exerciseId}`);
+      const response = await api.delete(`/exercises/${exerciseId}`);
       return response.data;
     },
 
     gradeSubmission: async (
       submissionId: string | number,
-      data: { isCorrect: boolean; score: number; feedback: string },
+      data: { isCorrect?: boolean; score: number; feedback: string; status?: string },
     ) => {
       const response = await api.post(
-        `/academy/exercises/submissions/${submissionId}/grade`,
-        data,
+        `/exercises/submissions/${submissionId}/grade`,
+        {
+          score: data.score,
+          feedback: data.feedback,
+          status: data.status || "GRADED",
+        },
       );
       return response.data;
     },
 
     getCourseStructure: async (courseId: string) => {
       const response = await api.get<Course>(
-        `/academy/courses/${courseId}/structure`,
+        `/courses/${courseId}/structure`,
       );
       return response.data;
     },
   },
 
-  // Admin Endpoints
+  // Admin Endpoints (Postman 4.1 - 4.22)
   admin: {
     getAllApplications: async (page: number = 1, pageSize: number = 5) => {
       const response = await api.get<TeacherApplication[]>(
         "/auth/academy/teacher-applications",
-        { params: { page, pageSize } },
+        { params: { page, pageSize, requestingUserRole: "ADMIN" } },
       );
       return response.data;
     },
 
     getPlatformAnalytics: async () => {
-      const response = await api.get("/academy/progress/analytics/overall");
+      const response = await api.get("/progress/analytics/overall");
       return response.data;
     },
 
     getAllCourses: async (page: number = 1, pageSize: number = 5) => {
-      const response = await api.get<Course[]>("/academy/courses/all", {
+      const response = await api.get<Course[]>("/courses", {
         params: { page, pageSize },
       });
       return response.data;
     },
 
-    approveApplication: async (appId: string, reviewNotes: string) => {
-      const response = await api.post(
-        `/auth/academy/approve-teacher/${appId}`,
-        { reviewNotes },
-      );
+    approveApplication: async (appId: string, reviewNotes: string, reviewerId?: string) => {
+      const user = (() => {
+        try {
+          return JSON.parse(localStorage.getItem("user") || "{}");
+        } catch {
+          return {};
+        }
+      })();
+      const payload: Record<string, any> = {
+        applicationId: appId,
+        reviewNotes,
+      };
+      const reviewer = reviewerId || user.email;
+      if (reviewer) {
+        payload.reviewerId = reviewer;
+      }
+      if (user.globalRole) {
+        payload.requestingUserRole = user.globalRole;
+      }
+      const response = await api.post("/auth/academy/approve-teacher", payload);
       return response.data;
     },
 
-    rejectApplication: async (appId: string, reviewNotes: string) => {
-      const response = await api.post(`/auth/academy/reject-teacher/${appId}`, {
+    rejectApplication: async (appId: string, reviewNotes: string, reviewerId?: string) => {
+      const user = (() => {
+        try {
+          return JSON.parse(localStorage.getItem("user") || "{}");
+        } catch {
+          return {};
+        }
+      })();
+      const payload: Record<string, any> = {
+        applicationId: appId,
         reviewNotes,
-      });
+      };
+      const reviewer = reviewerId || user.email;
+      if (reviewer) {
+        payload.reviewerId = reviewer;
+      }
+      if (user.globalRole) {
+        payload.requestingUserRole = user.globalRole;
+      }
+      const response = await api.post("/auth/academy/reject-teacher", payload);
       return response.data;
     },
 
     getPendingCourses: async () => {
-      const response = await api.get<Course[]>("/academy/courses/pending");
+      const response = await api.get<Course[]>("/courses", {
+        params: { status: "PENDING" },
+      });
       return response.data;
     },
 
     approveCourse: async (courseId: string) => {
-      const response = await api.post(`/academy/courses/${courseId}/approve`);
+      const response = await api.post(`/courses/${courseId}/approve`);
       return response.data;
     },
 
     rejectCourse: async (courseId: string, reason: string) => {
-      const response = await api.post(`/academy/courses/${courseId}/reject`, {
+      const response = await api.post(`/courses/${courseId}/reject`, {
         reason,
       });
       return response.data;

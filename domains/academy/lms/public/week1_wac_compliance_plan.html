@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week 1 Sprint Plan &amp; Deliverables</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #0095da;
+        --primary-dark: #0077b3;
+        --primary-light: #ebf7fd;
+        --slate-900: #0f172a;
+        --slate-800: #1e293b;
+        --slate-700: #334155;
+        --slate-600: #475569;
+        --slate-500: #64748b;
+        --slate-200: #e2e8f0;
+        --slate-100: #f1f5f9;
+        --slate-50: #f8fafc;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Plus Jakarta Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: #f8fafc;
+        color: var(--slate-800);
+        line-height: 1.6;
+        padding: 48px 24px 80px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      /* Page Header */
+      .page-header {
+        margin-bottom: 32px;
+      }
+
+      .page-title {
+        font-size: 30px;
+        font-weight: 800;
+        color: var(--slate-900);
+        letter-spacing: -0.025em;
+        margin-bottom: 6px;
+      }
+
+      .page-subtitle {
+        font-size: 15px;
+        color: var(--slate-500);
+        line-height: 1.5;
+      }
+
+      /* Day-by-Day Cards */
+      .timeline-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .day-card {
+        background: white;
+        border-radius: 18px;
+        border: 1px solid var(--slate-200);
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+      }
+
+      .day-card:hover {
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+        border-color: #cbd5e1;
+      }
+
+      .day-card-header {
+        padding: 20px 26px;
+        border-bottom: 1px solid var(--slate-100);
+        background: #fafcfe;
+      }
+
+      .day-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+
+      .day-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        border: 1px solid #bae6fd;
+        letter-spacing: 0.04em;
+      }
+
+      .day-date {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--slate-500);
+      }
+
+      .day-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--slate-900);
+      }
+
+      .day-card-body {
+        padding: 22px 26px;
+      }
+
+      .tasks-col-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--slate-500);
+        margin-bottom: 12px;
+      }
+
+      .task-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .task-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 14px;
+        color: var(--slate-700);
+        line-height: 1.5;
+      }
+
+      .bullet-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--primary);
+        flex-shrink: 0;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Page Header -->
+      <header class="page-header">
+        <h1 class="page-title">Week 1 Sprint Plan &amp; Deliverables</h1>
+        <p class="page-subtitle">
+          5-Day frontend implementation plan covering foundational student
+          orientation, discussion rubrics, seat-time tracking, and gradebook
+          workflows.
+        </p>
+      </header>
+
+      <!-- Day-by-Day Sprint Cards -->
+      <section class="timeline-cards">
+        <!-- Day 1 (Monday) -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">DAY 1</span>
+              <span class="day-date">Monday, Nov 2, 2026</span>
+            </div>
+            <h3 class="day-title">
+              Discussion Rubrics &amp; Student Orientation
+            </h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Milestones &amp; Features</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Mandatory orientation checklist and course access lock until
+                  orientation is completed.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Discussion topics with attached grading rubrics and rubric
+                  creation.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Instructor grading matrix with direct rubric criteria
+                  evaluation.</span
+                >
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Day 2 (Tuesday) -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">DAY 2</span>
+              <span class="day-date">Tuesday, Nov 3, 2026</span>
+            </div>
+            <h3 class="day-title">
+              Active Seat-Time Tracking &amp; Theory Hours
+            </h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Milestones &amp; Features</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Active student seat-time tracking with automatic pause during
+                  inactivity or tab switching.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Student progress indicator showing completed theory hours
+                  against required hours.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Instructor review view for verified student participation and
+                  seat-time records.</span
+                >
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Day 3 (Wednesday) -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">DAY 3</span>
+              <span class="day-date">Wednesday, Nov 4, 2026</span>
+            </div>
+            <h3 class="day-title">
+              Admissions Clearance &amp; First-Week Attendance
+            </h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Milestones &amp; Features</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Student entry requirements checklist for prerequisite
+                  documents and background clearances.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Instructor clearance dashboard to approve incoming cohort
+                  students.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >First-week attendance verification to confirm active
+                  enrollment census.</span
+                >
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Day 4 (Thursday) -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">DAY 4</span>
+              <span class="day-date">Thursday, Nov 5, 2026</span>
+            </div>
+            <h3 class="day-title">
+              Gradebook, 80% Passing Standard &amp; Remediation
+            </h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Milestones &amp; Features</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Centralized gradebook tracking module scores, quizzes, and
+                  discussions per student.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Clear indicators for the 80% passing standard across all
+                  required units.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Remediation assignment workflow for students scoring below
+                  the passing standard.</span
+                >
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Day 5 (Friday) -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">DAY 5</span>
+              <span class="day-date">Friday, Nov 6, 2026</span>
+            </div>
+            <h3 class="day-title">
+              Instructor Feedback System &amp; Week 1 Review
+            </h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Milestones &amp; Features</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Individualized instructor feedback drawer for student
+                  discussion submissions.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >Student feedback history and evaluation archive with
+                  instructor timestamps.</span
+                >
+              </li>
+              <li class="task-item">
+                <span class="bullet-dot"></span>
+                <span
+                  >End-to-end review and verification of all Week 1 student and
+                  instructor workflows.</span
+                >
+              </li>
+            </ul>
+          </div>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>

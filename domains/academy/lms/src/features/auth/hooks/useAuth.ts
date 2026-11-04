@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import type { ApiError } from "@/features/auth/types/auth";
+import { disconnectChatSocket } from "@/features/chat/chatSocket";
 
 export const useLogin = () => {
   const queryClient = useQueryClient();
@@ -26,6 +27,9 @@ export const useLogin = () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
       toast.success("Successfully logged in!");
 
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirect = searchParams.get("redirect");
+
       // Determine active role, prefer academyUser.activeRole as it's the most accurate
       const activeRole = (
         data.user.academyUser?.activeRole ||
@@ -33,8 +37,10 @@ export const useLogin = () => {
         ""
       ).toLowerCase();
 
-      // If user is admin, redirect to /admin
-      if (data.user.globalRole === "ADMIN") {
+      // If user had a saved return path prior to session expiry, honor it
+      if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+        navigate(redirect);
+      } else if (data.user.globalRole === "ADMIN") {
         navigate("/admin");
       } else if (activeRole === "instructor") {
         navigate("/instructor");
@@ -67,6 +73,9 @@ export const useGoogleLogin = () => {
         toast.info("Welcome to Aliko Academy! Please complete your profile.");
       }
 
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirect = searchParams.get("redirect");
+
       // Determine active role
       const activeRole = (
         data.user.academyUser?.activeRole ||
@@ -74,7 +83,9 @@ export const useGoogleLogin = () => {
         ""
       ).toLowerCase();
 
-      if (data.user.globalRole === "ADMIN") {
+      if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+        navigate(redirect);
+      } else if (data.user.globalRole === "ADMIN") {
         navigate("/admin");
       } else if (activeRole === "instructor") {
         navigate("/instructor");
@@ -141,6 +152,11 @@ export const useLogout = () => {
     } catch (error) {
       console.error("Firebase signOut error", error);
     }
+    try {
+      disconnectChatSocket();
+    } catch (error) {
+      console.warn("Failed to cleanly disconnect chat socket during logout:", error);
+    }
     authService.logout();
     queryClient.setQueryData(["user"], null);
     queryClient.removeQueries({ queryKey: ["user"] });
@@ -181,7 +197,11 @@ export const useUser = () => {
         } catch (statusError) {
           return remoteUser;
         }
-      } catch (e) {
+      } catch (e: any) {
+        // If server actively returned 401 Unauthorized, session is invalidated
+        if (e?.response?.status === 401) {
+          return null;
+        }
         if (localUser) return localUser;
         throw e; // If no local user exists and remote fails, then we are truly unauthenticated
       }

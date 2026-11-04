@@ -42,6 +42,12 @@ import InstructorAnalytics from "@/features/instructor/analytics/InstructorAnaly
 import Submissions from "@/features/instructor/analytics/Submissions";
 import SubmissionDetail from "@/features/instructor/analytics/SubmissionDetail";
 
+// Pages - Rubrics & WABON Compliance
+import RubricsManagementPage from "@/features/rubric/pages/RubricsManagementPage";
+import CNACompetencyMatrixPage from "@/features/rubric/pages/CNACompetencyMatrixPage";
+import OrientationChecklistPage from "@/features/orientation/pages/OrientationChecklistPage";
+import { OrientationGate } from "@/features/orientation/components/OrientationGate";
+
 // Pages - Instructor/Admin
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import AdminChat from "@/features/admin/pages/AdminChat";
@@ -95,8 +101,16 @@ const AppInner = () => {
         <Route path="/dashboard" element={<StudentDashboard />} />
         <Route path="/courses" element={<CourseExplorer />} />
         <Route path="/courses/:id" element={<CourseDetails />} />
+        <Route path="/orientation" element={<OrientationChecklistPage />} />
         <Route path="/learning" element={<StudentProgress />} />
-        <Route path="/learn/:id" element={<LessonView />} />
+        <Route
+          path="/learn/:id"
+          element={
+            <OrientationGate>
+              <LessonView />
+            </OrientationGate>
+          }
+        />
         <Route path="/instructor/apply" element={<ApplyInstructor />} />
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/schedules" element={<StudentSchedules />} />
@@ -115,6 +129,8 @@ const AppInner = () => {
         <Route path="/transactions" element={<TransactionsPage />} />
         <Route path="/peer-grading" element={<PeerGrading />} />
         <Route path="/peer-grading/:courseId" element={<PeerGradingDetail />} />
+        <Route path="/rubrics" element={<RubricsManagementPage />} />
+        <Route path="/skills-lab" element={<CNACompetencyMatrixPage />} />
 
         {/* Instructor Routes */}
         <Route element={<InstructorRoute />}>
@@ -131,6 +147,8 @@ const AppInner = () => {
             path="/instructor/submissions/:submissionId"
             element={<SubmissionDetail />}
           />
+          <Route path="/instructor/rubrics" element={<RubricsManagementPage />} />
+          <Route path="/instructor/skills-lab" element={<CNACompetencyMatrixPage />} />
           <Route path="/instructor/schedules" element={<Schedules />} />
           <Route path="/instructor/settings" element={<InstructorSettings />} />
           <Route path="/instructor/chat" element={<InstructorChat />} />

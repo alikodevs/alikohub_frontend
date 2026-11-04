@@ -28,6 +28,8 @@ import {
   Sparkles,
   Copy,
   UploadCloud,
+  MessageSquare,
+  Award,
   Link as LinkIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,6 +39,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DiscussionForumView } from "@/features/rubric/components/DiscussionForumView";
 
 interface CurriculumTabProps {
   course?: Course;
@@ -153,6 +156,138 @@ export const CurriculumTab = ({
   const renderPreview = () => {
     if (!selectedItem) return null;
     const { type, data } = selectedItem;
+
+    if (type === "MODULE" || type === "MODULE_DISCUSSION") {
+      const moduleData =
+        course?.modules?.find(
+          (m) => m.id.toString() === selectedItem.moduleId?.toString()
+        ) || data;
+
+      return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 pb-16">
+          {/* Module Banner Card */}
+          <div className="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm transition-all">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div className="flex flex-col gap-2.5">
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className="w-fit gap-1.5 border-blue-200 bg-blue-50 text-blue-700 font-semibold text-[10px] uppercase tracking-wide rounded-full px-3 py-1"
+                  >
+                    <Layers className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Course Unit / Module</span>
+                  </Badge>
+                  <span className="text-xs text-slate-400 font-medium">
+                    {moduleData?.lessons?.length || 0} Lessons
+                  </span>
+                </div>
+
+                <h3 className="text-2xl font-bold text-slate-900 font-heading leading-tight tracking-tight">
+                  {moduleData?.title || "Course Module"}
+                </h3>
+                {moduleData?.description && (
+                  <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+                    {moduleData.description}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  onClick={() => onAddLesson(selectedItem.moduleId)}
+                  className="bg-[#7c6ef0] hover:bg-[#6b5ee0] text-white text-xs font-semibold rounded-xl h-9 px-4 gap-1.5 shadow-sm"
+                >
+                  <Plus className="w-4 h-4" /> Add Lesson
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onDeleteModule(selectedItem.moduleId)}
+                  className="h-9 w-9 p-0 text-slate-400 bg-white hover:text-red-600 hover:bg-red-50 hover:border-red-200 border-slate-200 rounded-xl transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Module Content Tabs */}
+          <Tabs defaultValue="discussion" className="w-full">
+            <TabsList className="bg-transparent border-b border-slate-200 w-full justify-start rounded-none h-auto p-0 gap-8">
+              <TabsTrigger
+                value="discussion"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none font-semibold text-slate-500 data-[state=active]:text-blue-700 pb-3 px-0 transition-all text-sm flex items-center gap-2"
+              >
+                <MessageSquare className="w-4 h-4 text-blue-600" />
+                <span>Unit Discussion &amp; Rubrics</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="lessons"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none font-semibold text-slate-500 data-[state=active]:text-blue-700 pb-3 px-0 transition-all text-sm flex items-center gap-2"
+              >
+                <Book className="w-4 h-4 text-slate-500" />
+                <span>Unit Lessons ({moduleData?.lessons?.length || 0})</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="discussion" className="mt-6">
+              <DiscussionForumView
+                moduleId={selectedItem.moduleId}
+                isInstructor={true}
+                canCreateTopic={true}
+              />
+            </TabsContent>
+
+            <TabsContent value="lessons" className="mt-6 space-y-3">
+              {moduleData?.lessons && moduleData.lessons.length > 0 ? (
+                moduleData.lessons.map((lesson: any, idx: number) => (
+                  <div
+                    key={lesson.id}
+                    onClick={() => {
+                      onSetSelectedItem({
+                        type: "LESSON",
+                        data: lesson,
+                        moduleId: selectedItem.moduleId,
+                        lessonId: lesson.id,
+                      });
+                    }}
+                    className="p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between hover:border-blue-300 hover:shadow-xs transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                        {idx + 1}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                          {lesson.title}
+                        </h4>
+                        <span className="text-xs text-slate-400">
+                          {lesson.contents?.length || 0} materials &bull; {lesson.exercises?.length || 0} assessments
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                ))
+              ) : (
+                <div className="p-12 text-center bg-white rounded-3xl border border-dashed border-slate-200 space-y-3">
+                  <Book className="w-8 h-8 text-slate-300 mx-auto" />
+                  <p className="text-xs text-slate-500 font-medium">No lessons added to this unit yet.</p>
+                  <Button
+                    size="sm"
+                    onClick={() => onAddLesson(selectedItem.moduleId)}
+                    className="bg-[#7c6ef0] hover:bg-[#6b5ee0] text-white text-xs font-semibold rounded-xl"
+                  >
+                    <Plus className="w-3.5 h-3.5 mr-1.5" /> Add First Lesson
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+      );
+    }
 
     if (type === "LESSON") {
       const lesson = data;

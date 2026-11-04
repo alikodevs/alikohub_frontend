@@ -16,7 +16,9 @@ import {
   Inbox,
   Loader2,
   ArrowLeft,
+  Award,
 } from "lucide-react";
+import { RubricStudentResultView } from "@/features/rubric/components/RubricStudentResultView";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 const cleanTitle = (raw: string | undefined | null) => {
@@ -345,8 +347,15 @@ const SubmissionCard = ({ sub }: { sub: FlatSubmission }) => {
           </div>
         )}
 
+        {/* Rubric scorecard evaluation if present */}
+        {isGraded && (sub as any).rubricEvaluation && (
+          <div className="pt-2">
+            <RubricStudentResultView evaluation={(sub as any).rubricEvaluation} />
+          </div>
+        )}
+
         {/* Instructor feedback */}
-        {isGraded && sub.feedback ? (
+        {isGraded && sub.feedback && !(sub as any).rubricEvaluation ? (
           <div>
             <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <MessageSquareText size={11} />
@@ -356,16 +365,16 @@ const SubmissionCard = ({ sub }: { sub: FlatSubmission }) => {
               {sub.feedback}
             </div>
           </div>
-        ) : isGraded ? (
+        ) : isGraded && !(sub as any).rubricEvaluation ? (
           <p className="text-xs text-slate-400 italic">
             No written feedback provided.
           </p>
-        ) : (
+        ) : !isGraded ? (
           <div className="flex items-center gap-2 text-sm text-amber-600">
             <Clock size={13} />
             <span>Your instructor hasn't graded this yet.</span>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

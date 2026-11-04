@@ -8,6 +8,8 @@ import {
   Settings,
   MessageCircle,
   X,
+  Award,
+  Stethoscope,
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
 import { cn } from "@/lib/utils";
@@ -21,6 +23,8 @@ const mainNav = [
 
 const manageNav = [
   { label: "Submissions", to: "/instructor/submissions", icon: ClipboardList },
+  { label: "Rubrics", to: "/instructor/rubrics", icon: Award },
+  { label: "Skills Lab", to: "/instructor/skills-lab", icon: Stethoscope },
   { label: "Schedules", to: "/instructor/schedules", icon: CalendarDays },
   { label: "Settings", to: "/instructor/settings", icon: Settings },
 ];

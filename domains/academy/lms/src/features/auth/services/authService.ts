@@ -25,7 +25,7 @@ export const authService = {
   },
 
   googleLogin: async (idToken: string): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>("/auth/login/google", {
+    const response = await api.post<AuthResponse>("/auth/login-google", {
       idToken,
     });
     return response.data;
@@ -56,6 +56,21 @@ export const authService = {
       accessToken,
       user: userJson ? JSON.parse(userJson) : null,
     };
+  },
+
+  isTokenExpired: (token?: string | null): boolean => {
+    const t = token || localStorage.getItem("accessToken");
+    if (!t) return true;
+    try {
+      const parts = t.split(".");
+      if (parts.length !== 3) return false;
+      const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const payload = JSON.parse(atob(base64));
+      if (typeof payload.exp !== "number") return false;
+      return Date.now() >= payload.exp * 1000;
+    } catch {
+      return false;
+    }
   },
 
   selectAcademyRole: async (roleData: SelectRoleRequest): Promise<any> => {
@@ -90,7 +105,7 @@ export const authService = {
   },
 
   getProfile: async (): Promise<User> => {
-    const response = await api.get<User>("/users/profile");
+    const response = await api.get<User>("/profile");
     return response.data;
   },
 
@@ -100,12 +115,12 @@ export const authService = {
   },
 
   getAllUsers: async (): Promise<any[]> => {
-    const response = await api.get<any[]>("/users/all");
+    const response = await api.get<any[]>("/users");
     return response.data;
   },
 
   forgotPassword: async (data: { email: string }): Promise<any> => {
-    const response = await api.post("/academy/forgot-password", data);
+    const response = await api.post("/auth/forgot-password", data);
     return response.data;
   },
 
@@ -113,7 +128,7 @@ export const authService = {
     token: string;
     newPassword: string;
   }): Promise<any> => {
-    const response = await api.post("/academy/reset-password", data);
+    const response = await api.post("/auth/reset-password", data);
     return response.data;
   },
 };

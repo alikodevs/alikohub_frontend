@@ -8,8 +8,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, List, CheckSquare, X } from "lucide-react";
+import { Plus, Trash2, List, CheckSquare, X, FileText, BookOpen, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { RubricSelector } from "@/features/rubric/components/RubricSelector";
 
 interface ExerciseModalProps {
   isOpen: boolean;
@@ -78,6 +79,7 @@ export const ExerciseModal = ({
       : ["", ""],
     correctAnswer: initialData?.correctAnswer || "",
     points: initialData?.points || 1,
+    rubricId: initialData?.rubricId || "",
   });
 
   // Update form if initialData or initialTitle changes
@@ -92,6 +94,7 @@ export const ExerciseModal = ({
           options: parseOptions(initialData.options),
           correctAnswer: initialData.correctAnswer || "",
           points: initialData.points || 1,
+          rubricId: initialData.rubricId || "",
         });
         const [, batchId] = initialData.title?.split(" ||| ") || [];
         if (batchId) setActiveBatchId(batchId);
@@ -105,6 +108,7 @@ export const ExerciseModal = ({
           options: ["", ""],
           correctAnswer: "",
           points: 1,
+          rubricId: "",
         }));
         if (batchId) setActiveBatchId(batchId);
       } else if (!initialTitle && !bulkExercises.length) {
@@ -124,6 +128,7 @@ export const ExerciseModal = ({
       options: ["", ""],
       correctAnswer: "",
       points: 1,
+      rubricId: "",
     });
   };
 
@@ -138,6 +143,13 @@ export const ExerciseModal = ({
         ...formData,
         type: newType,
         options: ["True", "False"],
+        correctAnswer: "",
+      });
+    } else if (newType === "SHORT_ANSWER" || newType === "ESSAY") {
+      setFormData({
+        ...formData,
+        type: newType,
+        options: [],
         correctAnswer: "",
       });
     } else {
@@ -185,6 +197,9 @@ export const ExerciseModal = ({
 
   const validateForm = () => {
     if (!formData.title) return false;
+    if (formData.type === "SHORT_ANSWER" || formData.type === "ESSAY") {
+      return true;
+    }
     return formData.correctAnswer !== "";
   };
 
@@ -283,22 +298,24 @@ export const ExerciseModal = ({
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {[
               { id: "MULTIPLE_CHOICE", icon: List, label: "Multiple Choice" },
               { id: "TRUE_FALSE", icon: CheckSquare, label: "True / False" },
+              { id: "SHORT_ANSWER", icon: FileText, label: "Short Answer" },
+              { id: "ESSAY", icon: BookOpen, label: "Clinical Essay / Rubric" },
             ].map((t) => (
               <button
                 key={t.id}
                 type="button"
                 onClick={() => handleTypeChange(t.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all text-xs font-bold ${
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg border transition-all text-xs font-bold ${
                   formData.type === t.id
-                    ? "bg-[#F5C07A]/10 border-[#F5C07A] text-[#d98e32]"
-                    : "bg-white border-slate-200 text-slate-400"
+                    ? "bg-[#F5C07A]/15 border-[#F5C07A] text-[#d98e32]"
+                    : "bg-white border-slate-200 text-slate-500 hover:border-slate-300"
                 }`}
               >
-                <t.icon className="w-4 h-4" /> {t.label}
+                <t.icon className="w-3.5 h-3.5" /> {t.label}
               </button>
             ))}
           </div>
@@ -306,14 +323,18 @@ export const ExerciseModal = ({
           <div className="flex gap-4">
             <div className="flex-1 space-y-2">
               <label className="text-sm font-bold text-slate-800">
-                Question
+                {formData.type === "ESSAY" ? "Prompt / Clinical Case Study" : "Question"}
               </label>
               <Input
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                placeholder="e.g. What is React?"
+                placeholder={
+                  formData.type === "ESSAY"
+                    ? "e.g. Analyze the patient scenario and outline immediate non-pharmacological interventions..."
+                    : "e.g. What is the standard duration for medical asepsis hand hygiene?"
+                }
                 className="bg-white border-slate-200 h-12 rounded-xl focus-visible:ring-[#F5C07A]"
               />
             </div>
@@ -325,76 +346,126 @@ export const ExerciseModal = ({
                 type="number"
                 value={formData.points}
                 onChange={(e) =>
-                  setFormData({ ...formData, points: parseInt(e.target.value) })
+                  setFormData({ ...formData, points: parseInt(e.target.value) || 0 })
                 }
                 className="bg-white border-slate-200 h-12 rounded-xl text-center focus-visible:ring-[#F5C07A]"
               />
             </div>
           </div>
 
-          <div className="space-y-3 pb-4">
-            <label className="text-sm font-bold text-slate-800 block">
-              Options —{" "}
-              <span className="font-normal text-slate-500">
-                select the correct answer
-              </span>
-            </label>
+          {formData.type === "SHORT_ANSWER" || formData.type === "ESSAY" ? (
+            <div className="space-y-4 pb-2">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-800 block">
+                  Sample Answer / Clinical Benchmark Guidelines (Optional)
+                </label>
+                <Input
+                  value={formData.correctAnswer}
+                  onChange={(e) =>
+                    setFormData({ ...formData, correctAnswer: e.target.value })
+                  }
+                  placeholder="Key concepts or rationales expected in student responses..."
+                  className="bg-white border-slate-200 h-11 rounded-xl text-xs"
+                />
+              </div>
 
-            <div className="space-y-3">
-              {formData.options.map((option: string, index: number) => (
-                <div key={index} className="flex items-center gap-3 group">
-                  <div
-                    onClick={() =>
-                      setFormData({ ...formData, correctAnswer: option })
-                    }
-                    className={`w-5 h-5 rounded-full border-2 cursor-pointer flex items-center justify-center transition-all flex-shrink-0 ${
-                      formData.correctAnswer === option && option !== ""
-                        ? "border-[#F59E0B] bg-white"
-                        : "border-slate-300 bg-white"
-                    }`}
-                  >
-                    {formData.correctAnswer === option && option !== "" && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-                    )}
-                  </div>
-                  <span className="text-sm font-bold text-slate-400 w-4">
-                    {String.fromCharCode(65 + index)}
-                  </span>
-                  <div className="flex-1 relative">
-                    <Input
-                      value={option}
-                      disabled={formData.type === "TRUE_FALSE"}
-                      onChange={(e) =>
-                        handleOptionChange(index, e.target.value)
-                      }
-                      placeholder={`Option ${String.fromCharCode(65 + index)}`}
-                      className="bg-white border-slate-200 h-12 rounded-xl focus-visible:ring-[#F5C07A] pr-10"
-                    />
-                    {formData.type === "MULTIPLE_CHOICE" &&
-                      formData.options.length > 2 && (
-                        <button
-                          onClick={() => handleRemoveOption(index)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                  </div>
-                </div>
-              ))}
+              {/* Standardized Rubric Selector */}
+              <div className="pt-2 border-t border-slate-100">
+                <RubricSelector
+                  selectedRubricId={formData.rubricId}
+                  onSelectRubric={(rubricId, rubric) => {
+                    setFormData({
+                      ...formData,
+                      rubricId: rubricId || "",
+                      points: rubric
+                        ? rubric.criteria.reduce((s, c) => s + (c.maxPoints || 0), 0)
+                        : formData.points,
+                    });
+                  }}
+                  typeFilter={formData.type === "ESSAY" ? "ASSIGNMENT" : undefined}
+                  label="Attach Standardized Evaluation Rubric"
+                />
+              </div>
             </div>
+          ) : (
+            <div className="space-y-3 pb-4">
+              <label className="text-sm font-bold text-slate-800 block">
+                Options —{" "}
+                <span className="font-normal text-slate-500">
+                  select the correct answer
+                </span>
+              </label>
 
-            {formData.type === "MULTIPLE_CHOICE" && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAddOption}
-                className="mt-2 border-slate-200 text-slate-900 font-bold rounded-xl h-12 px-6 flex items-center gap-2 hover:bg-slate-50 hover:text-primary"
-              >
-                <Plus className="w-4 h-4" /> Add Option
-              </Button>
-            )}
-          </div>
+              <div className="space-y-3">
+                {formData.options.map((option: string, index: number) => (
+                  <div key={index} className="flex items-center gap-3 group">
+                    <div
+                      onClick={() =>
+                        setFormData({ ...formData, correctAnswer: option })
+                      }
+                      className={`w-5 h-5 rounded-full border-2 cursor-pointer flex items-center justify-center transition-all flex-shrink-0 ${
+                        formData.correctAnswer === option && option !== ""
+                          ? "border-[#F59E0B] bg-white"
+                          : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {formData.correctAnswer === option && option !== "" && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
+                      )}
+                    </div>
+                    <span className="text-sm font-bold text-slate-400 w-4">
+                      {String.fromCharCode(65 + index)}
+                    </span>
+                    <div className="flex-1 relative">
+                      <Input
+                        value={option}
+                        disabled={formData.type === "TRUE_FALSE"}
+                        onChange={(e) =>
+                          handleOptionChange(index, e.target.value)
+                        }
+                        placeholder={`Option ${String.fromCharCode(65 + index)}`}
+                        className="bg-white border-slate-200 h-12 rounded-xl focus-visible:ring-[#F5C07A] pr-10"
+                      />
+                      {formData.type === "MULTIPLE_CHOICE" &&
+                        formData.options.length > 2 && (
+                          <button
+                            onClick={() => handleRemoveOption(index)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {formData.type === "MULTIPLE_CHOICE" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddOption}
+                  className="mt-2 border-slate-200 text-slate-900 font-bold rounded-xl h-12 px-6 flex items-center gap-2 hover:bg-slate-50 hover:text-primary"
+                >
+                  <Plus className="w-4 h-4" /> Add Option
+                </Button>
+              )}
+
+              {/* Optional Rubric Selector for objective quizzes */}
+              <div className="pt-4 border-t border-slate-100">
+                <RubricSelector
+                  selectedRubricId={formData.rubricId}
+                  onSelectRubric={(rubricId, rubric) => {
+                    setFormData({
+                      ...formData,
+                      rubricId: rubricId || "",
+                    });
+                  }}
+                  label="Attach Optional Rubric Criteria (Optional)"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="p-6 flex justify-between items-center bg-white border-t border-slate-50">

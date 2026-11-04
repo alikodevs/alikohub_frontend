@@ -7,8 +7,10 @@ import {
   CalendarDays,
   MessageCircle,
   BookOpen,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import StudentLayout from "@/features/student/components/StudentLayout";
 import {
@@ -17,6 +19,7 @@ import {
   useStudentAnalytics,
   useMyTransactions,
 } from "@/hooks/useAcademy";
+import { useOrientationStatus } from "@/features/orientation/hooks/useOrientation";
 import { useUser } from "@/features/auth/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,6 +39,15 @@ const LmsMyLearning = () => {
 
   const isLoading =
     isEnrollmentsLoading || isAnalyticsLoading || isDashboardLoading;
+
+  const primaryCohortId = Number(
+    enrollments?.find((e: any) => e.cohortId || e.cohort?.id)?.cohortId ||
+    enrollments?.find((e: any) => e.cohortId || e.cohort?.id)?.cohort?.id ||
+    1
+  );
+  const { data: orientationStatus, isLoading: isOrientationLoading } =
+    useOrientationStatus(primaryCohortId);
+  const isOrientationComplete = Boolean(orientationStatus?.orientationCompleted);
 
   // Cross-check: courses with COMPLETED transactions count as enrolled even if enrollment is still PENDING
   const completedTxCourseIds = new Set(
@@ -341,6 +353,40 @@ const LmsMyLearning = () => {
             </div>
           </div>
         </div>
+
+        {/* ── Mandatory Orientation Prerequisite Banner ── */}
+        {!isOrientationLoading && !isOrientationComplete && (
+          <div className="rounded-2xl p-5 bg-gradient-to-r from-amber-50 via-orange-50 to-white border border-amber-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-500/25 text-amber-800 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-sm font-bold text-slate-900">
+                    Mandatory Student Orientation Required
+                  </h4>
+                  <Badge variant="outline" className="bg-amber-100 text-amber-900 border-amber-300 text-[10px] font-bold">
+                    WABON WAC 246-841A-440(2)
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Complete the orientation checklist, LMS tutorial, and netiquette pledge to unlock your lessons.
+                  Orientation hours are non-credited (0 theory hours) per Req 11.
+                </p>
+              </div>
+            </div>
+            <Button
+              asChild
+              size="sm"
+              className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl h-9 px-5 shrink-0 shadow-xs"
+            >
+              <Link to={`/orientation?cohortId=${primaryCohortId}`}>
+                Complete Orientation <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+              </Link>
+            </Button>
+          </div>
+        )}
 
         {/* ── Tabs ── */}
         <div className="flex gap-3">

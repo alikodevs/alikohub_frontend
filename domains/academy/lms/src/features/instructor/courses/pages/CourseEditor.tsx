@@ -23,6 +23,8 @@ import {
   PlayCircle,
   ChevronDown,
   Loader2,
+  MessageSquare,
+  Award,
 } from "lucide-react";
 import { Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -118,7 +120,7 @@ const InstructorCourseEditor = () => {
 
   // Curriculum Selection State (Lifted from CurriculumTab)
   const [selectedCurriculumItem, setSelectedCurriculumItem] = useState<{
-    type: "CONTENT" | "EXERCISE" | "OVERVIEW" | "LESSON" | "QUIZ_SESSION";
+    type: "CONTENT" | "EXERCISE" | "OVERVIEW" | "LESSON" | "QUIZ_SESSION" | "MODULE" | "MODULE_DISCUSSION";
     data: any;
     moduleId?: string;
     lessonId?: string;
@@ -174,6 +176,15 @@ const InstructorCourseEditor = () => {
           } else if (!freshLesson) {
             setSelectedCurriculumItem(null);
           }
+        } else if (selectedCurriculumItem.type === "MODULE" || selectedCurriculumItem.type === "MODULE_DISCUSSION") {
+          const freshModule = course.modules?.find(
+            (m: any) => m.id.toString() === selectedCurriculumItem.moduleId
+          );
+          if (freshModule && JSON.stringify(freshModule) !== JSON.stringify(selectedCurriculumItem.data)) {
+            setSelectedCurriculumItem((prev) => (prev ? { ...prev, data: freshModule } : null));
+          } else if (!freshModule) {
+            setSelectedCurriculumItem(null);
+          }
         } else if (selectedCurriculumItem.type === "QUIZ_SESSION") {
           const freshLesson = course.modules
             ?.flatMap((m: any) => m.lessons || [])
@@ -197,23 +208,18 @@ const InstructorCourseEditor = () => {
   }, [course]);
 
   const handleSaveBasicInfo = async () => {
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("shortDescription", formData.shortDescription);
-    data.append("category", formData.category);
-    data.append("price", formData.price ? formData.price.toString() : "0");
-    data.append(
-      "priceInUsd",
-      formData.priceInUsd ? formData.priceInUsd.toString() : "0",
-    );
-    data.append("status", "DRAFT");
-    if (formData.thumbnail) {
-      data.append("thumbnail", formData.thumbnail);
-    }
+    const payload = {
+      title: formData.title.trim(),
+      shortDescription: formData.shortDescription.trim(),
+      category: formData.category,
+      price: formData.price ? Number(formData.price) : 0,
+      priceInUsd: formData.priceInUsd ? Number(formData.priceInUsd) : 0,
+      status: "DRAFT",
+    };
 
     if (isEdit) {
       updateCourseMutation.mutate(
-        { courseId: id!, formData: data },
+        { courseId: id!, formData: payload },
         {
           onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["course", id] });
@@ -222,7 +228,7 @@ const InstructorCourseEditor = () => {
         },
       );
     } else {
-      createCourseMutation.mutate(data, {
+      createCourseMutation.mutate(payload, {
         onSuccess: (newCourse) => {
           queryClient.invalidateQueries({ queryKey: ["instructor-courses"] });
           navigate(`/instructor/courses/${newCourse.id}`);
@@ -706,9 +712,17 @@ const InstructorCourseEditor = () => {
                           onClick={() => {
                             toggleModule(module.id.toString());
                             setActiveTab("curriculum");
+                            setSelectedCurriculumItem({
+                              type: "MODULE",
+                              data: module,
+                              moduleId: module.id.toString(),
+                            });
                           }}
                           className={`flex items-center gap-3 px-6 py-4 cursor-pointer transition-all ${
-                            expandedModules[module.id]
+                            (selectedCurriculumItem?.type === "MODULE" || selectedCurriculumItem?.type === "MODULE_DISCUSSION") &&
+                            selectedCurriculumItem?.moduleId === module.id.toString()
+                              ? "bg-blue-50/80 border-l-4 border-blue-600 text-blue-900"
+                              : expandedModules[module.id]
                               ? "bg-slate-50/50"
                               : "hover:bg-slate-50/30"
                           }`}
@@ -730,6 +744,36 @@ const InstructorCourseEditor = () => {
 
                         {expandedModules[module.id] && (
                           <div className="flex flex-col bg-white pt-2 pb-3 relative">
+                            {/* Unit Discussion & Rubric item in sidebar */}
+                            <div
+                              className={cn(
+                                "flex items-center p-2.5 mx-3 mb-2 rounded-xl text-left transition-all cursor-pointer gap-2.5 border",
+                                (selectedCurriculumItem?.type === "MODULE_DISCUSSION" ||
+                                  (selectedCurriculumItem?.type === "MODULE" &&
+                                    selectedCurriculumItem?.moduleId === module.id.toString()))
+                                  ? "bg-blue-50 border-blue-200 text-blue-900 font-semibold shadow-2xs"
+                                  : "bg-slate-50/60 border-slate-100 text-slate-700 hover:bg-slate-100"
+                              )}
+                              onClick={() => {
+                                setActiveTab("curriculum");
+                                setSelectedCurriculumItem({
+                                  type: "MODULE_DISCUSSION",
+                                  data: module,
+                                  moduleId: module.id.toString(),
+                                });
+                                if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                              }}
+                            >
+                              <div className="w-6 h-6 rounded-lg bg-blue-100/70 text-blue-600 flex items-center justify-center shrink-0">
+                                <MessageSquare className="w-3.5 h-3.5" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-[12px] truncate block font-medium">
+                                  Unit Discussion &amp; Rubrics
+                                </span>
+                              </div>
+                            </div>
+
                             {/* Vertical Connector Line */}
                             <div className="absolute left-[2.25rem] top-0 bottom-12 w-[1.5px] bg-slate-100" />
 
