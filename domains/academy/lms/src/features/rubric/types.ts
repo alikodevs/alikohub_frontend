@@ -3,7 +3,7 @@
  * Source of Truth: AlikoHub_Academy_WABON_Compliance.postman_collection.json
  */
 
-export type RubricType = "DISCUSSION" | "ASSIGNMENT" | "SKILLS_LAB" | "PEER_REVIEW";
+export type RubricType = "DISCUSSION" | "ASSIGNMENT";
 
 export interface RubricLevel {
   id?: string;

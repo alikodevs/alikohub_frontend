@@ -99,10 +99,8 @@ export const RubricsManagementPage: React.FC = () => {
           <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-full md:w-auto overflow-x-auto">
             {[
               { id: "ALL", label: "All Rubrics" },
-              { id: "ASSIGNMENT", label: "Assignments" },
-              { id: "DISCUSSION", label: "Discussions" },
-              { id: "SKILLS_LAB", label: "Skills Lab" },
-              { id: "PEER_REVIEW", label: "Peer Review" },
+              { id: "DISCUSSION", label: "Discussion Topics" },
+              { id: "ASSIGNMENT", label: "Assignments & Submissions" },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -270,7 +268,7 @@ export const RubricsManagementPage: React.FC = () => {
           isOpen={isBuilderOpen}
           onClose={() => setIsBuilderOpen(false)}
           defaultType={
-            activeTab === "ALL" ? "ASSIGNMENT" : (activeTab as RubricType)
+            activeTab === "ALL" ? "DISCUSSION" : (activeTab as RubricType)
           }
           onCreated={() => {
             refetch();

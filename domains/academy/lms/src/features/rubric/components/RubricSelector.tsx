@@ -127,7 +127,7 @@ export const RubricSelector: React.FC<RubricSelectorProps> = ({
       <RubricBuilderModal
         isOpen={isBuilderOpen}
         onClose={() => setIsBuilderOpen(false)}
-        defaultType={(typeFilter as RubricType) || "ASSIGNMENT"}
+        defaultType={(typeFilter as RubricType) || "DISCUSSION"}
         onCreated={(created) => {
           onSelectRubric(created.id, created);
         }}

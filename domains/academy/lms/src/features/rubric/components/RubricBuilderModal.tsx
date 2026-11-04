@@ -110,33 +110,33 @@ const TEMPLATES: Record<
       },
     ],
   },
-  skillsLab: {
-    name: "CNA Practical Skills Lab Evaluation Rubric",
+  assignmentPractice: {
+    name: "CNA Clinical Case Assignment Rubric",
     description:
-      "Evaluates mandatory clinical competencies, manual dexterity, patient safety, and communication.",
+      "Evaluates written assignment submissions, patient safety protocols, clinical documentation, and critical thinking.",
     type: "ASSIGNMENT",
     criteria: [
       {
         title: "Procedural Accuracy & Safety Standards",
-        description: "Executes mandatory sequential steps without safety breaches or contamination.",
+        description: "Addresses mandatory care steps and infection prevention without breaches or contamination.",
         maxPoints: 10,
         order: 1,
         levels: [
-          { name: "Mastery", description: "All steps completed in exact sequence without prompt.", points: 10, order: 1 },
-          { name: "Proficient", description: "Completed steps safely with minor non-critical hesitation.", points: 8, order: 2 },
-          { name: "Needs Practice", description: "Missed 1-2 non-critical steps; safety preserved.", points: 5, order: 3 },
-          { name: "Unsafe", description: "Critical safety or infection control violation.", points: 0, order: 4 },
+          { name: "Mastery", description: "All steps and rationales thoroughly articulated.", points: 10, order: 1 },
+          { name: "Proficient", description: "Key principles explained safely with minor non-critical gaps.", points: 8, order: 2 },
+          { name: "Needs Practice", description: "Missed 1-2 non-critical points; safety principles preserved.", points: 5, order: 3 },
+          { name: "Unsafe", description: "Critical safety or infection control violation identified.", points: 0, order: 4 },
         ],
       },
       {
         title: "Resident Communication & Dignity",
-        description: "Greets resident, explains procedure, provides privacy, and ensures comfort.",
+        description: "Demonstrates resident rights, privacy protection, and empathetic bedside communication.",
         maxPoints: 5,
         order: 2,
         levels: [
-          { name: "Exemplary", description: "Compassionate, professional bed-side manner throughout.", points: 5, order: 1 },
-          { name: "Adequate", description: "Introduced self and explained steps clearly.", points: 3.5, order: 2 },
-          { name: "Deficient", description: "Failed to address resident or preserve dignity/privacy.", points: 0, order: 3 },
+          { name: "Exemplary", description: "Compassionate, professional care considerations throughout.", points: 5, order: 1 },
+          { name: "Adequate", description: "Addresses resident privacy and basic dignity.", points: 3.5, order: 2 },
+          { name: "Deficient", description: "Failed to address resident rights or preserve dignity/privacy.", points: 0, order: 3 },
         ],
       },
     ],
@@ -147,7 +147,7 @@ export const RubricBuilderModal: React.FC<RubricBuilderModalProps> = ({
   isOpen,
   onClose,
   onCreated,
-  defaultType = "ASSIGNMENT",
+  defaultType = "DISCUSSION",
 }) => {
   const [formData, setFormData] = useState<CreateRubricDto>({
     name: "",
@@ -358,16 +358,16 @@ export const RubricBuilderModal: React.FC<RubricBuilderModalProps> = ({
               onClick={() => handleLoadTemplate("infectionControl")}
               className="text-[11px] h-7 rounded-lg bg-white hover:bg-blue-50 hover:text-blue-700 border-slate-200"
             >
-              Infection Control
+              Discussion Rubric
             </Button>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => handleLoadTemplate("skillsLab")}
+              onClick={() => handleLoadTemplate("assignmentPractice")}
               className="text-[11px] h-7 rounded-lg bg-white hover:bg-blue-50 hover:text-blue-700 border-slate-200"
             >
-              Skills Lab Practical
+              Assignment Rubric
             </Button>
           </div>
         </div>
@@ -405,10 +405,8 @@ export const RubricBuilderModal: React.FC<RubricBuilderModalProps> = ({
                 }
                 className="w-full h-10 px-3 rounded-xl border border-slate-200 bg-white text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="ASSIGNMENT">Assignment / Essay</option>
-                <option value="DISCUSSION">Discussion Forum</option>
-                <option value="SKILLS_LAB">Skills Lab Checkoff</option>
-                <option value="PEER_REVIEW">Peer Review</option>
+                <option value="DISCUSSION">DISCUSSION (Module Discussion Topics)</option>
+                <option value="ASSIGNMENT">ASSIGNMENT (Written Submissions &amp; Exercises)</option>
               </select>
             </div>
 
