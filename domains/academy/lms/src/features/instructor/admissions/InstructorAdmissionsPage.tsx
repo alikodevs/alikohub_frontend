@@ -337,7 +337,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
                         </td>
 
                         <td className="py-3.5 px-4 text-center">
-                          {app.agreementSigned || app.agreementSignature ? (
+                          {app.agreementSigned || app.agreementSignature || app.agreementSignatureUrl ? (
                             <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-bold">
                               <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" /> Signed
                             </Badge>
@@ -531,7 +531,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="font-bold text-slate-900 block">
-                        Signature: {inspectingApp.agreementSignature || "Not signed"}
+                        Signature: {inspectingApp.agreementSignature || inspectingApp.agreementSignatureUrl || "Not signed"}
                       </span>
                       {inspectingApp.agreementSignedAt && (
                         <span className="text-[11px] text-slate-500">
@@ -539,7 +539,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    {inspectingApp.agreementSigned || inspectingApp.agreementSignature ? (
+                    {inspectingApp.agreementSigned || inspectingApp.agreementSignature || inspectingApp.agreementSignatureUrl ? (
                       <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs font-bold">
                         <Check className="w-3 h-3 mr-1" /> Compliant
                       </Badge>

@@ -16,7 +16,9 @@ export interface SubmitDocumentsPayload {
 
 export interface SignAgreementPayload {
   cohortId: number;
-  signature: string;
+  signatureUrl?: string;
+  disclosuresAcknowledged?: boolean;
+  signature?: string;
   acknowledgments?: Record<string, boolean> | boolean;
   agreedToStatutoryDisclosures?: boolean;
   signedAt?: string;
@@ -35,7 +37,9 @@ export interface AdmissionsApplication {
   highSchoolProofUrl?: string | null;
   agreementSigned?: boolean;
   agreementSignature?: string | null;
+  agreementSignatureUrl?: string | null;
   agreementSignedAt?: string | null;
+  disclosuresAcknowledged?: boolean;
   rejectionReason?: string | null;
   reviewedBy?: string | null;
   reviewedAt?: string | null;

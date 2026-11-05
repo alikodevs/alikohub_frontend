@@ -15,17 +15,26 @@ export const admissionsService = {
   submitPrerequisites: async (
     payload: SubmitDocumentsPayload
   ): Promise<AdmissionsApplication> => {
+    const body = {
+      cohortId: Number(payload.cohortId),
+      backgroundCheckUrl: payload.backgroundCheckUrl || "",
+      tbTestProofUrl: payload.tbTestProofUrl || "",
+      immunizationProofUrl: payload.immunizationProofUrl || "",
+      cprCertUrl: payload.cprCertUrl || "",
+      idDocUrl: payload.idDocUrl || "",
+      highSchoolProofUrl: payload.highSchoolProofUrl || "",
+    };
     try {
       const response = await api.post<AdmissionsApplication>(
         "/admissions/submit",
-        payload
+        body
       );
       return response.data;
     } catch (err: any) {
       if (err?.response?.status === 404) {
         const fallback = await api.post<AdmissionsApplication>(
           "/academy/admissions/submit",
-          payload
+          body
         );
         return fallback.data;
       }
@@ -40,17 +49,32 @@ export const admissionsService = {
   signAgreement: async (
     payload: SignAgreementPayload
   ): Promise<AdmissionsApplication> => {
+    // Backend Joi schema strictly requires:
+    // { cohortId: number (integer), signatureUrl: string, disclosuresAcknowledged: true }
+    // Joi will reject any extra/unknown keys with: "value" does not match any of the allowed types
+    const signatureText = (
+      payload.signatureUrl ||
+      payload.signature ||
+      ""
+    ).trim();
+
+    const body = {
+      cohortId: Number(payload.cohortId),
+      signatureUrl: signatureText,
+      disclosuresAcknowledged: true,
+    };
+
     try {
       const response = await api.post<AdmissionsApplication>(
         "/admissions/sign-agreement",
-        payload
+        body
       );
       return response.data;
     } catch (err: any) {
       if (err?.response?.status === 404) {
         const fallback = await api.post<AdmissionsApplication>(
           "/academy/admissions/sign-agreement",
-          payload
+          body
         );
         return fallback.data;
       }
@@ -117,17 +141,25 @@ export const admissionsService = {
   reviewApplication: async (
     payload: AdmissionsReviewPayload
   ): Promise<AdmissionsApplication> => {
+    const body: Record<string, any> = {
+      applicationId: Number(payload.applicationId),
+      status: payload.status,
+    };
+    if (payload.status === "REJECTED" && payload.rejectionReason) {
+      body.rejectionReason = payload.rejectionReason;
+    }
+
     try {
       const response = await api.patch<AdmissionsApplication>(
         "/admissions/review",
-        payload
+        body
       );
       return response.data;
     } catch (err: any) {
       if (err?.response?.status === 404) {
         const fallback = await api.patch<AdmissionsApplication>(
           "/academy/admissions/review",
-          payload
+          body
         );
         return fallback.data;
       }

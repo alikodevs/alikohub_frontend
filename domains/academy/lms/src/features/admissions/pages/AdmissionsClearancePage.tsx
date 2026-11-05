@@ -185,14 +185,29 @@ export const AdmissionsClearancePage: React.FC = () => {
       return;
     }
 
-    await signAgreementMutation.mutateAsync({
-      cohortId: selectedCohortId,
-      signature: signatureName.trim(),
-      acknowledgments: agreedDisclosures,
-      agreedToStatutoryDisclosures: true,
-      signedAt: new Date().toISOString(),
-    });
-    setIsAgreementModalOpen(false);
+    try {
+      // Backend requires an admissions application record in database before signing agreement
+      if (!application) {
+        await submitDocsMutation.mutateAsync({
+          cohortId: selectedCohortId,
+          backgroundCheckUrl: docUrls.backgroundCheckUrl || "",
+          tbTestProofUrl: docUrls.tbTestProofUrl || "",
+          immunizationProofUrl: docUrls.immunizationProofUrl || "",
+          cprCertUrl: docUrls.cprCertUrl || "",
+          idDocUrl: docUrls.idDocUrl || "",
+          highSchoolProofUrl: docUrls.highSchoolProofUrl || "",
+        });
+      }
+
+      await signAgreementMutation.mutateAsync({
+        cohortId: selectedCohortId,
+        signatureUrl: signatureName.trim(),
+        disclosuresAcknowledged: true,
+      });
+      setIsAgreementModalOpen(false);
+    } catch {
+      // Errors handled by mutation onError toasts
+    }
   };
 
   // Checklist counts & completion progress
@@ -212,7 +227,11 @@ export const AdmissionsClearancePage: React.FC = () => {
     hasHighSchool,
   ].filter(Boolean).length;
 
-  const isAgreementSigned = Boolean(application?.agreementSigned || application?.agreementSignature);
+  const isAgreementSigned = Boolean(
+    application?.agreementSigned ||
+    application?.agreementSignature ||
+    application?.agreementSignatureUrl
+  );
   const isOrientationDone = Boolean(orientationStatus?.orientationCompleted);
   const isApproved = application?.status === "APPROVED";
   const isRejected = application?.status === "REJECTED";
@@ -1038,7 +1057,13 @@ export const AdmissionsClearancePage: React.FC = () => {
                 id="digital-signature-input"
                 aria-label="Digital Signature"
                 disabled={isAgreementSigned}
-                value={isAgreementSigned ? application?.agreementSignature || "" : signatureName}
+                value={
+                  isAgreementSigned
+                    ? application?.agreementSignature ||
+                      application?.agreementSignatureUrl ||
+                      signatureName
+                    : signatureName
+                }
                 onChange={(e) => setSignatureName(e.target.value)}
                 placeholder="e.g. Jane Marie Doe"
                 className="font-serif text-sm tracking-wide bg-slate-50/50"
