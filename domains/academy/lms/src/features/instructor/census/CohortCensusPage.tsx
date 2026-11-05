@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
 import { useCohortCensus } from "@/features/admissions/hooks/useAdmissions";
 import { useInstructorCohortsList } from "@/features/rubric/hooks/useSeatTime";
@@ -26,16 +27,34 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
+const formatCohortOption = (c: any) => {
+  const name = c.name || `Cohort #${c.id}`;
+  const courseTitle = c.course?.title || "";
+  if (!courseTitle) return name;
+  const words = courseTitle.trim().split(/\s+/);
+  const trimmed = words.slice(0, 3).join(" ");
+  const suffix = words.length > 3 ? "..." : "";
+  return `${name} (${trimmed}${suffix})`;
+};
+
 export const CohortCensusPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paramCohort = searchParams.get("cohortId");
   const { data: cohorts, isLoading: cohortsLoading } = useInstructorCohortsList();
 
-  const [selectedCohortId, setSelectedCohortId] = useState<number | undefined>(undefined);
+  const [selectedCohortId, setSelectedCohortId] = useState<number | undefined>(() => {
+    if (paramCohort && !isNaN(Number(paramCohort))) {
+      return Number(paramCohort);
+    }
+    return undefined;
+  });
 
   const effectiveCohortId = useMemo(() => {
     if (selectedCohortId) return selectedCohortId;
+    if (paramCohort && !isNaN(Number(paramCohort))) return Number(paramCohort);
     if (cohorts && cohorts.length > 0) return Number(cohorts[0].id);
     return 1;
-  }, [selectedCohortId, cohorts]);
+  }, [selectedCohortId, paramCohort, cohorts]);
 
   const {
     data: censusList,
@@ -137,25 +156,22 @@ export const CohortCensusPage: React.FC = () => {
     <InstructorLayout>
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* ── Top Header ── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs font-bold">
-                WAC 246-841A-440 Attendance Census
-              </Badge>
-              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs font-bold">
-                Automated Academic Gate Sync
+              <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[11px] font-bold py-0.5 px-2">
+                First-Week Attendance
               </Badge>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-heading tracking-tight">
-              First-Week Attendance & Enrollment Census
+            <h1 className="text-xl font-bold text-slate-900 font-heading tracking-tight">
+              Attendance & Enrollment Census
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Cohort roster monitoring attendance verification, academic gate completion timestamps, and non-attendance attrition risk.
+            <p className="text-xs text-slate-500 mt-0.5">
+              First-week academic attendance verification and cohort census roster.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             {/* Cohort Selector */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-600">Cohort:</span>
@@ -163,12 +179,12 @@ export const CohortCensusPage: React.FC = () => {
                 aria-label="Select cohort"
                 value={effectiveCohortId}
                 onChange={(e) => setSelectedCohortId(Number(e.target.value))}
-                className="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[190px] sm:max-w-[240px] truncate"
               >
                 {cohorts && cohorts.length > 0 ? (
                   cohorts.map((c: any) => (
                     <option key={c.id} value={c.id}>
-                      {c.name || `Cohort #${c.id}`} ({c.course?.title || "CNA Program"})
+                      {formatCohortOption(c)}
                     </option>
                   ))
                 ) : (
@@ -181,7 +197,8 @@ export const CohortCensusPage: React.FC = () => {
             <Button
               onClick={handleExportDossier}
               disabled={isExportingDossier}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl h-10 px-4 shadow-xs"
+              size="sm"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl h-9 px-3.5 shadow-xs"
             >
               {isExportingDossier ? (
                 <>
@@ -315,7 +332,10 @@ export const CohortCensusPage: React.FC = () => {
                   filteredCensus.map((item) => {
                     const studentName =
                       `${item.user?.firstname || ""} ${item.user?.lastname || ""}`.trim() ||
-                      `Student #${item.userId.slice(0, 8)}`;
+                      (item.user?.email && item.user.email.includes("@")
+                        ? item.user.email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+                        : "Enrolled Student");
+                    const studentEmail = item.user?.email || "Enrolled Student";
 
                     return (
                       <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
@@ -329,7 +349,7 @@ export const CohortCensusPage: React.FC = () => {
                                 {studentName}
                               </span>
                               <span className="text-[11px] text-slate-400">
-                                {item.user?.email || item.userId}
+                                {studentEmail}
                               </span>
                             </div>
                           </div>

@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
 import {
   useCohortAdmissions,
+  useCohortCensus,
   useReviewApplicationMutation,
 } from "@/features/admissions/hooks/useAdmissions";
 import { useInstructorCohortsList } from "@/features/rubric/hooks/useSeatTime";
@@ -138,6 +139,71 @@ const getPrerequisiteDocuments = (app?: AdmissionsApplication | null) => {
   return { docs, count, hasAll: count === 6 };
 };
 
+const formatCohortOption = (c: any) => {
+  const name = c.name || `Cohort #${c.id}`;
+  const courseTitle = c.course?.title || "";
+  if (!courseTitle) return name;
+  const words = courseTitle.trim().split(/\s+/);
+  const trimmed = words.slice(0, 3).join(" ");
+  const suffix = words.length > 3 ? "..." : "";
+  return `${name} (${trimmed}${suffix})`;
+};
+
+const getApplicantName = (
+  app?: AdmissionsApplication | null,
+  userMap?: Map<string, { name: string; email: string }>
+): { name: string; email: string } => {
+  if (!app) return { name: "Student", email: "" };
+
+  const raw = app as any;
+  const fromUser = `${app.user?.firstname || ""} ${app.user?.lastname || ""}`.trim();
+  if (fromUser) {
+    return { name: fromUser, email: app.user?.email || raw.email || "" };
+  }
+
+  const fromProfile =
+    `${raw.profile?.firstname || ""} ${raw.profile?.lastname || ""}`.trim() ||
+    raw.profile?.name;
+  if (fromProfile) {
+    return { name: fromProfile, email: raw.profile?.email || raw.email || "" };
+  }
+
+  const fromStudent =
+    `${raw.student?.firstname || ""} ${raw.student?.lastname || ""}`.trim() ||
+    raw.student?.name;
+  if (fromStudent) {
+    return { name: fromStudent, email: raw.student?.email || raw.email || "" };
+  }
+
+  // Check cohort census user map (from enrollment roster)
+  if (app.userId && userMap?.has(String(app.userId))) {
+    const entry = userMap.get(String(app.userId))!;
+    if (entry.name) return entry;
+  }
+
+  // Digital Agreement Signature (student types their full legal name)
+  const sig = String(app.agreementSignatureUrl || app.agreementSignature || "").trim();
+  if (sig && !sig.startsWith("http") && !sig.startsWith("data:")) {
+    return { name: sig, email: app.user?.email || raw.email || "" };
+  }
+
+  // Derive readable name from email
+  const email = app.user?.email || raw.email || raw.profile?.email || "";
+  if (email && email.includes("@")) {
+    const localPart = email.split("@")[0].replace(/[._-]/g, " ");
+    const formatted = localPart
+      .split(" ")
+      .filter(Boolean)
+      .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+    if (formatted) {
+      return { name: formatted, email };
+    }
+  }
+
+  return { name: "Enrolled Student", email: "" };
+};
+
 export const InstructorAdmissionsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const paramCohort = searchParams.get("cohortId");
@@ -164,6 +230,19 @@ export const InstructorAdmissionsPage: React.FC = () => {
     refetch,
   } = useCohortAdmissions(effectiveCohortId);
 
+  const { data: censusList } = useCohortCensus(effectiveCohortId);
+
+  const userMap = useMemo(() => {
+    const map = new Map<string, { name: string; email: string }>();
+    censusList?.forEach((c) => {
+      const name = `${c.user?.firstname || ""} ${c.user?.lastname || ""}`.trim();
+      if (c.userId && name) {
+        map.set(String(c.userId), { name, email: c.user?.email || "" });
+      }
+    });
+    return map;
+  }, [censusList]);
+
   const reviewMutation = useReviewApplicationMutation();
 
   // Filters & Search
@@ -178,11 +257,10 @@ export const InstructorAdmissionsPage: React.FC = () => {
   const filteredApplications = useMemo(() => {
     if (!applications) return [];
     return applications.filter((app) => {
-      const studentName = `${app.user?.firstname || ""} ${app.user?.lastname || ""}`.toLowerCase();
-      const email = (app.user?.email || "").toLowerCase();
+      const { name, email } = getApplicantName(app, userMap);
       const matchesSearch =
-        studentName.includes(searchQuery.toLowerCase()) ||
-        email.includes(searchQuery.toLowerCase()) ||
+        name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        email.toLowerCase().includes(searchQuery.toLowerCase()) ||
         String(app.id).includes(searchQuery);
 
       const matchesStatus =
@@ -190,7 +268,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
 
       return matchesSearch && matchesStatus;
     });
-  }, [applications, searchQuery, statusFilter]);
+  }, [applications, searchQuery, statusFilter, userMap]);
 
   // Metric counts
   const totalCount = applications?.length || 0;
@@ -246,21 +324,18 @@ export const InstructorAdmissionsPage: React.FC = () => {
     <InstructorLayout>
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* ── Header Bar ── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 text-xs font-bold">
-                Admissions Clearance Portal
-              </Badge>
-              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs font-bold">
-                Live Enrollment Activation
+              <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[11px] font-bold py-0.5 px-2">
+                Admissions Clearance
               </Badge>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-heading tracking-tight">
-              Cohort Admissions Clearance & Document Review
+            <h1 className="text-xl font-bold text-slate-900 font-heading tracking-tight">
+              Admissions & Document Review
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Verify incoming student prerequisite documents, digital enrollment agreements, and approve/reject statutory compliance gates.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Review student prerequisite files, digital agreements, and clearance status.
             </p>
           </div>
 
@@ -268,14 +343,15 @@ export const InstructorAdmissionsPage: React.FC = () => {
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs font-bold text-slate-600">Cohort:</span>
             <select
+              aria-label="Select cohort"
               value={effectiveCohortId}
               onChange={(e) => setSelectedCohortId(Number(e.target.value))}
-              className="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[210px] sm:max-w-[260px] truncate"
             >
               {cohorts && cohorts.length > 0 ? (
                 cohorts.map((c: any) => (
                   <option key={c.id} value={c.id}>
-                    {c.name || `Cohort #${c.id}`} ({c.course?.title || "CNA Program"})
+                    {formatCohortOption(c)}
                   </option>
                 ))
               ) : (
@@ -392,7 +468,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
                   </tr>
                 ) : (
                   filteredApplications.map((app) => {
-                    const studentName = `${app.user?.firstname || ""} ${app.user?.lastname || ""}`.trim() || `Candidate #${app.userId.slice(0, 8)}`;
+                    const { name: studentName, email: studentEmail } = getApplicantName(app, userMap);
                     const { count: docsCount, hasAll: hasAllDocs } = getPrerequisiteDocuments(app);
 
                     return (
@@ -407,7 +483,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
                                 {studentName}
                               </span>
                               <span className="text-[11px] text-slate-400">
-                                {app.user?.email || app.userId}
+                                {studentEmail || "Enrolled Student"}
                               </span>
                             </div>
                           </div>
@@ -514,14 +590,14 @@ export const InstructorAdmissionsPage: React.FC = () => {
               <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center font-bold text-sm">
-                    {inspectingApp.user?.firstname?.charAt(0) || "C"}
+                    {getApplicantName(inspectingApp, userMap).name.charAt(0)}
                   </div>
                   <div>
                     <DialogTitle className="text-base font-bold text-slate-900">
-                      Admissions Dossier: {inspectingApp.user?.firstname} {inspectingApp.user?.lastname}
+                      Admissions Dossier: {getApplicantName(inspectingApp, userMap).name}
                     </DialogTitle>
                     <DialogDescription className="text-xs text-slate-500">
-                      {inspectingApp.user?.email || inspectingApp.userId} &bull; Application ID #{inspectingApp.id}
+                      {getApplicantName(inspectingApp, userMap).email || "Enrolled Student"} &bull; Application ID #{inspectingApp.id}
                     </DialogDescription>
                   </div>
                 </div>
