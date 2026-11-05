@@ -301,10 +301,19 @@ const StudentDashboard = () => {
     const totalLessons =
       pData?.totalLessons ?? (enrollment.course?.lessonsCount || 0);
     const completedLessons = pData?.completed ?? 0;
-    const percentage =
+
+    const backendCalcPercent =
       pData && pData.totalLessons > 0
         ? Math.round((pData.completed / pData.totalLessons) * 100)
-        : Math.round(pData?.percentage ?? enrollment.progress ?? 0);
+        : 0;
+    const dashboardPercent = Math.round(pData?.percentage ?? 0);
+    const enrollmentPercent = Math.round(enrollment?.progress ?? 0);
+
+    const percentage = Math.min(
+      100,
+      Math.max(backendCalcPercent, dashboardPercent, enrollmentPercent),
+    );
+
     const isCompleted =
       enrollment.status === "COMPLETED" ||
       percentage >= 100 ||
@@ -557,9 +566,11 @@ const StudentDashboard = () => {
                           <div className="mt-2 max-w-xs">
                             <div className="flex items-center justify-between text-xs mb-1">
                               <span className="text-muted-foreground">
-                                {totalLessons > 0
-                                  ? `${completedLessons} of ${totalLessons} lessons`
-                                  : "Progress"}
+                                {percentage >= 100
+                                  ? "Completed"
+                                  : totalLessons > 0
+                                    ? `${completedLessons} of ${totalLessons} lessons`
+                                    : "Progress"}
                               </span>
                               <span className="font-semibold text-foreground">
                                 {percentage}%

@@ -85,10 +85,19 @@ const LmsMyLearning = () => {
     const totalLessons =
       pData?.totalLessons ?? (enrollment.course?.lessonsCount || 0);
     const completedLessons = pData?.completed ?? 0;
-    const percentage =
+
+    const backendCalcPercent =
       pData && pData.totalLessons > 0
         ? Math.round((pData.completed / pData.totalLessons) * 100)
-        : Math.round(pData?.percentage ?? enrollment.progress ?? 0);
+        : 0;
+    const dashboardPercent = Math.round(pData?.percentage ?? 0);
+    const enrollmentPercent = Math.round(enrollment?.progress ?? 0);
+
+    const percentage = Math.min(
+      100,
+      Math.max(backendCalcPercent, dashboardPercent, enrollmentPercent),
+    );
+
     const isCompleted =
       enrollment.status === "COMPLETED" ||
       percentage >= 100 ||
@@ -104,23 +113,20 @@ const LmsMyLearning = () => {
     };
   });
 
-  const completedCoursesCount = enrolledCoursesProgress.filter(
+  const completedCoursesList = enrolledCoursesProgress.filter(
     (c: any) => c.isCompleted,
-  ).length;
-  const inProgressCoursesCount = enrolledCoursesProgress.filter(
-    (c: any) => !c.isCompleted,
-  ).length;
+  );
+  const inProgressCoursesList = enrolledCoursesProgress.filter(
+    (c: any) => !c.isCompleted || c.enrollment.status === "ACTIVE",
+  );
 
   const tabCounts: Record<string, number> = {
-    "In Progress": inProgressCoursesCount,
-    Completed: completedCoursesCount,
+    "In Progress": inProgressCoursesList.length,
+    Completed: completedCoursesList.length,
   };
 
-  const filteredCoursesProgress = enrolledCoursesProgress.filter((c: any) => {
-    if (activeTab === "In Progress") return !c.isCompleted;
-    if (activeTab === "Completed") return c.isCompleted;
-    return false;
-  });
+  const filteredCoursesProgress =
+    activeTab === "Completed" ? completedCoursesList : inProgressCoursesList;
 
   const totalCompletedLessons = enrolledCoursesProgress.reduce(
     (sum: number, c: any) => sum + c.completedLessons,
@@ -143,7 +149,7 @@ const LmsMyLearning = () => {
       : 0;
 
   const totalCourses = activeEnrollments.length;
-  const completedCourses = completedCoursesCount;
+  const completedCourses = completedCoursesList.length;
 
   // Primary WABON CNA cohort enrollment for seat time
   const primaryEnrollment =
@@ -619,10 +625,11 @@ const LmsMyLearning = () => {
                               </span>
                               <span className="text-slate-300">·</span>
                               <span>
-                                {totalLessons > 0
-                                  ? `${completedLessons} of ${totalLessons} lessons · `
-                                  : ""}
-                                {percentage}% complete
+                                {percentage >= 100
+                                  ? "All lessons completed · 100% complete"
+                                  : totalLessons > 0
+                                    ? `${completedLessons} of ${totalLessons} lessons · ${percentage}% complete`
+                                    : `${percentage}% complete`}
                               </span>
                               {isCnaCourse && (
                                 <>
