@@ -10,6 +10,8 @@ import {
   X,
   Award,
   Stethoscope,
+  FileCheck2,
+  CalendarCheck,
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
 import { cn } from "@/lib/utils";
@@ -22,6 +24,8 @@ const mainNav = [
 ];
 
 const manageNav = [
+  { label: "Admissions", to: "/instructor/admissions", icon: FileCheck2 },
+  { label: "Attendance Census", to: "/instructor/census", icon: CalendarCheck },
   { label: "Submissions", to: "/instructor/submissions", icon: ClipboardList },
   { label: "Rubrics", to: "/instructor/rubrics", icon: Award },
   { label: "Skills Lab", to: "/instructor/skills-lab", icon: Stethoscope },

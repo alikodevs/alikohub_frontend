@@ -11,6 +11,8 @@ import {
   Shield,
   Settings,
   HelpCircle,
+  FileCheck2,
+  CalendarCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
@@ -37,6 +39,16 @@ const sections: { title: string; items: NavItem[] }[] = [
   {
     title: "ACADEMY",
     items: [
+      {
+        label: "Admissions Clearance",
+        href: "/instructor/admissions",
+        icon: <FileCheck2 className="w-5 h-5" />,
+      },
+      {
+        label: "Attendance Census",
+        href: "/instructor/census",
+        icon: <CalendarCheck className="w-5 h-5" />,
+      },
       {
         label: "Course Reviews",
         href: "/admin/courses",

@@ -3,7 +3,6 @@ import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useUser } from "@/features/auth/hooks/useAuth";
 import { useEnrollments } from "@/hooks/useAcademy";
 import { useOrientationStatus } from "../hooks/useOrientation";
-import { useMyAdmissionsApplication } from "@/features/admissions/hooks/useAdmissions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -55,9 +54,6 @@ export const OrientationGate: React.FC<OrientationGateProps> = ({ children }) =>
     error,
     refetch,
   } = useOrientationStatus(isPrivileged ? null : cohortId);
-
-  const { data: admissionsApp, isLoading: admissionsLoading } =
-    useMyAdmissionsApplication(isPrivileged ? null : cohortId);
 
   if (userLoading || (enrollmentsLoading && !isPrivileged)) {
     return (
@@ -125,53 +121,6 @@ export const OrientationGate: React.FC<OrientationGateProps> = ({ children }) =>
               className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl h-10 px-5"
             >
               Go to Orientation
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // If student admissions application was rejected, enforce document remediation gate
-  if (admissionsApp && admissionsApp.status === "REJECTED") {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 text-center space-y-6 shadow-2xl relative overflow-hidden">
-          <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto shadow-inner">
-            <ShieldAlert className="w-8 h-8" />
-          </div>
-          <div className="space-y-1.5">
-            <Badge
-              variant="outline"
-              className="bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5"
-            >
-              Admissions Remediation Required
-            </Badge>
-            <h2 className="text-xl font-bold text-white tracking-tight">
-              Prerequisite Documents Action Required
-            </h2>
-          </div>
-          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-left text-xs text-slate-300 space-y-2 leading-relaxed">
-            <p className="font-semibold text-rose-400">
-              Instructor Reviewer Feedback:
-            </p>
-            <p className="italic bg-slate-900/80 p-3 rounded-xl border border-slate-700 text-slate-200">
-              "{admissionsApp.rejectionReason || "Please re-upload your required documents to proceed."}"
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-            <Button
-              variant="outline"
-              onClick={() => navigate("/dashboard")}
-              className="w-full sm:w-auto bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 text-xs font-bold rounded-xl h-11 px-5"
-            >
-              <LayoutDashboard className="w-4 h-4 mr-2" /> Back to Dashboard
-            </Button>
-            <Button
-              onClick={() => navigate(`/admissions?cohortId=${cohortId}`)}
-              className="w-full sm:flex-1 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl h-11 px-6 shadow-lg shadow-rose-600/25"
-            >
-              Update Documents Now <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
         </div>
