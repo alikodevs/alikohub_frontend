@@ -281,57 +281,99 @@ const StudentDashboard = () => {
   );
 
   // Only show enrollments that are ACTIVE, COMPLETED, or have a completed transaction
-  const activeEnrollments = enrollments?.filter(
-    (e: any) =>
-      e.status === "ACTIVE" ||
-      e.status === "COMPLETED" ||
-      completedTxCourseIds.has(e.courseId ?? e.course?.id),
+  const activeEnrollments =
+    enrollments?.filter((e: any) => {
+      const cId = Number(e.courseId ?? e.course?.id);
+      return (
+        e.status === "ACTIVE" ||
+        e.status === "COMPLETED" ||
+        completedTxCourseIds.has(cId)
+      );
+    }) || [];
+
+  // Map each enrolled course with backend dashboard progress as source of truth
+  const enrolledCoursesProgress = activeEnrollments.map((enrollment: any) => {
+    const courseId = Number(enrollment.courseId ?? enrollment.course?.id);
+    const pData =
+      dashboard && Array.isArray(dashboard)
+        ? dashboard.find((d: any) => Number(d.courseId) === courseId)
+        : null;
+    const totalLessons =
+      pData?.totalLessons ?? (enrollment.course?.lessonsCount || 0);
+    const completedLessons = pData?.completed ?? 0;
+    const percentage =
+      pData && pData.totalLessons > 0
+        ? Math.round((pData.completed / pData.totalLessons) * 100)
+        : Math.round(pData?.percentage ?? enrollment.progress ?? 0);
+    const isCompleted =
+      enrollment.status === "COMPLETED" ||
+      percentage >= 100 ||
+      (totalLessons > 0 && completedLessons >= totalLessons);
+    return {
+      enrollment,
+      courseId,
+      pData,
+      totalLessons,
+      completedLessons,
+      percentage,
+      isCompleted,
+    };
+  });
+
+  const totalCompletedLessons = enrolledCoursesProgress.reduce(
+    (sum: number, c: any) => sum + c.completedLessons,
+    0,
+  );
+  const totalLessonsAll = enrolledCoursesProgress.reduce(
+    (sum: number, c: any) => sum + c.totalLessons,
+    0,
   );
 
-  const totalLessonsAll =
-    activeEnrollments?.reduce((acc, e) => {
-      const lessonsInModules = e.course?.modules?.reduce(
-        (sum: number, m: any) => sum + (m.lessons?.length || 0),
-        0
-      );
-      return acc + (lessonsInModules || e.course?.lessonsCount || 0);
-    }, 0) || 1;
-  const calculatedProgress = analytics
-    ? Math.min(
-        Math.round((analytics.lessonsViewed / totalLessonsAll) * 100),
-        100,
-      )
-    : 0;
-
-  let sumPercentage = 0;
-  if (dashboard && Array.isArray(dashboard) && dashboard.length > 0) {
-    const validProgresses = dashboard.filter(
-      (d: any) => typeof d.percentage === "number",
-    );
-    if (validProgresses.length > 0) {
-      sumPercentage = validProgresses.reduce(
-        (sum: number, d: any) => sum + d.percentage,
-        0,
-      );
-      sumPercentage = Math.round(sumPercentage / validProgresses.length);
-    }
-  }
-
+  const coursesWithLessons = enrolledCoursesProgress.filter(
+    (c: any) => c.totalLessons > 0,
+  );
   const overallProgress =
-    dashboard && Array.isArray(dashboard) && dashboard.length > 0
-      ? sumPercentage
-      : calculatedProgress || 0;
+    coursesWithLessons.length > 0
+      ? Math.round(
+          coursesWithLessons.reduce((sum: number, c: any) => sum + c.percentage, 0) /
+            coursesWithLessons.length,
+        )
+      : 0;
 
-  const primaryCourseId = activeEnrollments?.[0]?.courseId ?? activeEnrollments?.[0]?.course?.id;
+  const completedCount = enrolledCoursesProgress.filter(
+    (c: any) => c.isCompleted,
+  ).length;
+
+  // Primary WABON CNA cohort course for seat-time telemetry
+  const primaryEnrollment =
+    enrollments?.find(
+      (e: any) =>
+        (e.cohortId || e.cohort?.id) &&
+        (e.status === "ACTIVE" ||
+          completedTxCourseIds.has(Number(e.courseId ?? e.course?.id))),
+    ) ||
+    enrollments?.find(
+      (e: any) =>
+        e.status === "ACTIVE" ||
+        completedTxCourseIds.has(Number(e.courseId ?? e.course?.id)),
+    ) ||
+    enrollments?.[0];
+  const primaryCourseId =
+    primaryEnrollment?.courseId ?? primaryEnrollment?.course?.id;
   const { data: seatTimeSummary } = useSeatTimeSummary(primaryCourseId);
 
-  const actualActiveSeconds = seatTimeSummary?.totalActiveTimeSeconds ?? seatTimeSummary?.totalActiveSeconds ?? 0;
-  const actualActiveMinutes = seatTimeSummary?.totalActiveTimeMinutes ?? Math.round(actualActiveSeconds / 60);
+  const actualActiveSeconds =
+    seatTimeSummary?.totalActiveTimeSeconds ??
+    seatTimeSummary?.totalActiveSeconds ??
+    0;
+  const actualActiveMinutes =
+    seatTimeSummary?.totalActiveTimeMinutes ??
+    Math.round(actualActiveSeconds / 60);
   const theoryHoursCompleted = Number((actualActiveSeconds / 3600).toFixed(1));
-  const theoryHoursPercentage = Math.min(100, Math.round((actualActiveSeconds / (50 * 3600)) * 100));
-
-  const completedCount =
-    activeEnrollments?.filter((e) => e.status === "COMPLETED").length || 0;
+  const theoryHoursPercentage = Math.min(
+    100,
+    Math.round((actualActiveSeconds / (50 * 3600)) * 100),
+  );
 
   const instructorStatus = user?.instructorStatus?.toUpperCase();
   const isInstructor =
@@ -457,7 +499,7 @@ const StudentDashboard = () => {
                   .map((_, i) => (
                     <Skeleton key={i} className="h-28 w-full rounded-xl" />
                   ))
-              ) : activeEnrollments?.length === 0 ? (
+              ) : enrolledCoursesProgress.length === 0 ? (
                 <div className="bg-card rounded-xl border p-8 text-center">
                   <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
                     <BookOpen className="w-6 h-6 text-muted-foreground" />
@@ -470,76 +512,77 @@ const StudentDashboard = () => {
                   </Button>
                 </div>
               ) : (
-                activeEnrollments?.map((enrollment) => {
-                  const pData =
-                    dashboard && Array.isArray(dashboard)
-                      ? dashboard.find(
-                          (d: any) =>
-                            d.courseId === Number(enrollment.courseId),
-                        )
-                      : null;
-                  const currentProgress = Math.round(
-                    pData?.percentage || enrollment.progress || 0,
-                  );
-
-                  return (
-                    <div
-                      key={enrollment.id}
-                      className="bg-card rounded-xl border hover:shadow-md transition-shadow duration-200 p-4 flex gap-4"
-                    >
-                      {/* Course thumbnail placeholder */}
-                      <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center shrink-0 border border-border overflow-hidden">
-                        {enrollment.course?.thumbnail ? (
-                          <img
-                            src={enrollment.course.thumbnail}
-                            alt={enrollment.course.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <BookOpen className="w-6 h-6 text-indigo-400" />
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        {/* Category badge */}
-                        {enrollment.course?.category && (
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wide">
-                              {enrollment.course.category}
-                            </span>
-                          </div>
-                        )}
-
-                        <h3 className="text-sm font-heading font-semibold text-foreground leading-snug truncate">
-                          {enrollment.course?.title}
-                        </h3>
-
-                        {/* Progress */}
-                        <div className="mt-2 max-w-xs">
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-muted-foreground">
-                              Progress
-                            </span>
-                            <span className="font-semibold text-foreground">
-                              {currentProgress}%
-                            </span>
-                          </div>
-                          <Progress value={currentProgress} className="h-1.5" />
-                        </div>
-                      </div>
-
-                      <Button
-                        size="sm"
-                        asChild
-                        className="gap-1 self-center shrink-0 text-xs"
+                enrolledCoursesProgress.map(
+                  ({
+                    enrollment,
+                    courseId,
+                    totalLessons,
+                    completedLessons,
+                    percentage,
+                    isCompleted,
+                  }: any) => {
+                    return (
+                      <div
+                        key={enrollment.id}
+                        className="bg-card rounded-xl border hover:shadow-md transition-shadow duration-200 p-4 flex gap-4"
                       >
-                        <Link to={`/learn/${enrollment.courseId}`}>
-                          Continue <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      </Button>
-                    </div>
-                  );
-                })
+                        {/* Course thumbnail placeholder */}
+                        <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center shrink-0 border border-border overflow-hidden">
+                          {enrollment.course?.thumbnail ? (
+                            <img
+                              src={enrollment.course.thumbnail}
+                              alt={enrollment.course.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <BookOpen className="w-6 h-6 text-indigo-400" />
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          {/* Category badge */}
+                          {enrollment.course?.category && (
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                {enrollment.course.category}
+                              </span>
+                            </div>
+                          )}
+
+                          <h3 className="text-sm font-heading font-semibold text-foreground leading-snug truncate">
+                            {enrollment.course?.title}
+                          </h3>
+
+                          {/* Progress */}
+                          <div className="mt-2 max-w-xs">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <span className="text-muted-foreground">
+                                {totalLessons > 0
+                                  ? `${completedLessons} of ${totalLessons} lessons`
+                                  : "Progress"}
+                              </span>
+                              <span className="font-semibold text-foreground">
+                                {percentage}%
+                              </span>
+                            </div>
+                            <Progress value={percentage} className="h-1.5" />
+                          </div>
+                        </div>
+
+                        <Button
+                          size="sm"
+                          asChild
+                          className="gap-1 self-center shrink-0 text-xs"
+                        >
+                          <Link to={`/learn/${courseId}`}>
+                            {isCompleted ? "Review" : "Continue"}{" "}
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </Button>
+                      </div>
+                    );
+                  },
+                )
               )}
             </div>
           </div>
@@ -563,14 +606,14 @@ const StudentDashboard = () => {
                   {
                     icon: Award,
                     label: "Courses done",
-                    value: analytics?.programsCompleted || 0,
+                    value: analytics?.programsCompleted || completedCount || 0,
                     color: "text-emerald-600",
                     bg: "bg-emerald-50",
                   },
                   {
                     icon: Clock,
                     label: "Lessons viewed",
-                    value: analytics?.lessonsViewed || 0,
+                    value: analytics?.lessonsViewed || totalCompletedLessons || 0,
                     color: "text-amber-600",
                     bg: "bg-amber-50",
                   },

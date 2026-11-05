@@ -63,120 +63,121 @@ const LmsMyLearning = () => {
       .filter(Boolean) || [],
   );
 
-  const filteredEnrollments = enrollments?.filter((enrollment) => {
-    const hasCompletedTx = completedTxCourseIds.has(
-      enrollment.courseId ?? enrollment.course?.id,
-    );
-    // Check dashboard percentage for 100% completion
+  // Active/Enrolled courses
+  const activeEnrollments =
+    enrollments?.filter((enrollment: any) => {
+      const courseId = Number(enrollment.courseId ?? enrollment.course?.id);
+      const hasCompletedTx = completedTxCourseIds.has(courseId);
+      return (
+        enrollment.status === "ACTIVE" ||
+        enrollment.status === "COMPLETED" ||
+        hasCompletedTx
+      );
+    }) || [];
+
+  // Map each enrolled course with backend dashboard progress as source of truth
+  const enrolledCoursesProgress = activeEnrollments.map((enrollment: any) => {
+    const courseId = Number(enrollment.courseId ?? enrollment.course?.id);
     const pData =
       dashboard && Array.isArray(dashboard)
-        ? dashboard.find((d: any) => d.courseId === Number(enrollment.courseId))
+        ? dashboard.find((d: any) => Number(d.courseId) === courseId)
         : null;
-    const isFullyComplete =
-      enrollment.status === "COMPLETED" || pData?.percentage === 100;
+    const totalLessons =
+      pData?.totalLessons ?? (enrollment.course?.lessonsCount || 0);
+    const completedLessons = pData?.completed ?? 0;
+    const percentage =
+      pData && pData.totalLessons > 0
+        ? Math.round((pData.completed / pData.totalLessons) * 100)
+        : Math.round(pData?.percentage ?? enrollment.progress ?? 0);
+    const isCompleted =
+      enrollment.status === "COMPLETED" ||
+      percentage >= 100 ||
+      (totalLessons > 0 && completedLessons >= totalLessons);
+    return {
+      enrollment,
+      courseId,
+      pData,
+      totalLessons,
+      completedLessons,
+      percentage,
+      isCompleted,
+    };
+  });
 
-    if (activeTab === "In Progress")
-      return (
-        !isFullyComplete && (enrollment.status === "ACTIVE" || hasCompletedTx)
-      );
-    if (activeTab === "Completed") return isFullyComplete;
+  const completedCoursesCount = enrolledCoursesProgress.filter(
+    (c: any) => c.isCompleted,
+  ).length;
+  const inProgressCoursesCount = enrolledCoursesProgress.filter(
+    (c: any) => !c.isCompleted,
+  ).length;
+
+  const tabCounts: Record<string, number> = {
+    "In Progress": inProgressCoursesCount,
+    Completed: completedCoursesCount,
+  };
+
+  const filteredCoursesProgress = enrolledCoursesProgress.filter((c: any) => {
+    if (activeTab === "In Progress") return !c.isCompleted;
+    if (activeTab === "Completed") return c.isCompleted;
     return false;
   });
 
-  const totalLessonsAll =
-    enrollments?.reduce((acc, e) => {
-      const lessonsInModules = e.course?.modules?.reduce(
-        (sum: number, m: any) => sum + (m.lessons?.length || 0),
-        0
-      );
-      return acc + (lessonsInModules || e.course?.lessonsCount || 0);
-    }, 0) || 1;
-  const calculatedProgress = analytics
-    ? Math.min(
-        Math.round((analytics.lessonsViewed / totalLessonsAll) * 100),
-        100,
-      )
-    : 0;
+  const totalCompletedLessons = enrolledCoursesProgress.reduce(
+    (sum: number, c: any) => sum + c.completedLessons,
+    0,
+  );
+  const totalLessonsAll = enrolledCoursesProgress.reduce(
+    (sum: number, c: any) => sum + c.totalLessons,
+    0,
+  );
 
-  let sumPercentage = 0;
-  if (dashboard && Array.isArray(dashboard) && dashboard.length > 0) {
-    const validProgresses = dashboard.filter(
-      (d: any) => typeof d.percentage === "number",
-    );
-    if (validProgresses.length > 0) {
-      sumPercentage = validProgresses.reduce(
-        (sum: number, d: any) => sum + d.percentage,
-        0,
-      );
-      sumPercentage = Math.round(sumPercentage / validProgresses.length);
-    }
-  }
-
+  const coursesWithLessons = enrolledCoursesProgress.filter(
+    (c: any) => c.totalLessons > 0,
+  );
   const overallProgress =
-    dashboard && Array.isArray(dashboard) && dashboard.length > 0
-      ? sumPercentage
-      : calculatedProgress || 0;
+    coursesWithLessons.length > 0
+      ? Math.round(
+          coursesWithLessons.reduce((sum: number, c: any) => sum + c.percentage, 0) /
+            coursesWithLessons.length,
+        )
+      : 0;
 
+  const totalCourses = activeEnrollments.length;
+  const completedCourses = completedCoursesCount;
+
+  // Primary WABON CNA cohort enrollment for seat time
   const primaryEnrollment =
     enrollments?.find(
       (e: any) =>
-        e.status === "ACTIVE" ||
-        completedTxCourseIds.has(e.courseId ?? e.course?.id)
-    ) || enrollments?.[0];
-  const primaryCourseId = primaryEnrollment?.courseId ?? primaryEnrollment?.course?.id;
-  const { data: seatTimeSummary } = useSeatTimeSummary(primaryCourseId);
-
-  const actualActiveSeconds = seatTimeSummary?.totalActiveTimeSeconds ?? seatTimeSummary?.totalActiveSeconds ?? 0;
-  const actualActiveMinutes = seatTimeSummary?.totalActiveTimeMinutes ?? Math.round(actualActiveSeconds / 60);
-  const theoryHoursCompleted = Number((actualActiveSeconds / 3600).toFixed(1));
-  const theoryHoursPercentage = Math.min(100, Math.round((actualActiveSeconds / (50 * 3600)) * 100));
-  const remainingHours = Number(Math.max(0, 50 - (actualActiveSeconds / 3600)).toFixed(1));
-
-  const totalCourses =
-    enrollments?.filter(
+        (e.cohortId || e.cohort?.id) &&
+        (e.status === "ACTIVE" ||
+          completedTxCourseIds.has(Number(e.courseId ?? e.course?.id))),
+    ) ||
+    enrollments?.find(
       (e: any) =>
         e.status === "ACTIVE" ||
-        e.status === "COMPLETED" ||
-        completedTxCourseIds.has(e.courseId ?? e.course?.id),
-    ).length || 0;
+        completedTxCourseIds.has(Number(e.courseId ?? e.course?.id)),
+    ) ||
+    enrollments?.[0];
+  const primaryCourseId =
+    primaryEnrollment?.courseId ?? primaryEnrollment?.course?.id;
+  const { data: seatTimeSummary } = useSeatTimeSummary(primaryCourseId);
 
-  const completedCourses =
-    enrollments?.filter((e: any) => e.status === "COMPLETED").length || 0;
-
-  // Count for tab badges
-  const inProgressCount =
-    enrollments?.filter((enrollment) => {
-      const hasCompletedTx = completedTxCourseIds.has(
-        enrollment.courseId ?? enrollment.course?.id,
-      );
-      const pData =
-        dashboard && Array.isArray(dashboard)
-          ? dashboard.find(
-              (d: any) => d.courseId === Number(enrollment.courseId),
-            )
-          : null;
-      const isFullyComplete =
-        enrollment.status === "COMPLETED" || pData?.percentage === 100;
-      return (
-        !isFullyComplete && (enrollment.status === "ACTIVE" || hasCompletedTx)
-      );
-    }).length || 0;
-
-  const completedCount =
-    enrollments?.filter((enrollment) => {
-      const pData =
-        dashboard && Array.isArray(dashboard)
-          ? dashboard.find(
-              (d: any) => d.courseId === Number(enrollment.courseId),
-            )
-          : null;
-      return enrollment.status === "COMPLETED" || pData?.percentage === 100;
-    }).length || 0;
-
-  const tabCounts: Record<string, number> = {
-    "In Progress": inProgressCount,
-    Completed: completedCount,
-  };
+  const actualActiveSeconds =
+    seatTimeSummary?.totalActiveTimeSeconds ??
+    seatTimeSummary?.totalActiveSeconds ??
+    0;
+  const actualActiveMinutes =
+    seatTimeSummary?.totalActiveTimeMinutes ??
+    Math.round(actualActiveSeconds / 60);
+  const theoryHoursCompleted = Number((actualActiveSeconds / 3600).toFixed(1));
+  const theoryHoursPercentage = Math.min(
+    100,
+    Math.round((actualActiveSeconds / (50 * 3600)) * 100),
+  );
+  const remainingHours = Number(
+    Math.max(0, 50 - actualActiveSeconds / 3600).toFixed(1),
+  );
 
   // SVG circular progress
   const circleSize = 100;
@@ -534,7 +535,7 @@ const LmsMyLearning = () => {
         )}
 
         {/* ── Empty State ── */}
-        {!isLoading && filteredEnrollments?.length === 0 && (
+        {!isLoading && filteredCoursesProgress.length === 0 && (
           <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <BookOpen className="w-7 h-7 text-primary" />
@@ -553,135 +554,150 @@ const LmsMyLearning = () => {
 
         {/* ── Course Cards ── */}
         {!isLoading &&
-          filteredEnrollments &&
-          filteredEnrollments.length > 0 && (
+          filteredCoursesProgress &&
+          filteredCoursesProgress.length > 0 && (
             <div className="space-y-4">
-              {filteredEnrollments.map((enrollment, index) => {
-                const pData =
-                  dashboard && Array.isArray(dashboard)
-                    ? dashboard.find(
-                        (d) => d.courseId === Number(enrollment.courseId),
-                      )
-                    : null;
+              {filteredCoursesProgress.map(
+                (
+                  {
+                    enrollment,
+                    courseId,
+                    totalLessons,
+                    completedLessons,
+                    percentage,
+                    isCompleted,
+                  }: any,
+                  index: number,
+                ) => {
+                  const isCnaCourse =
+                    Boolean(enrollment.cohortId || enrollment.cohort?.id) ||
+                    enrollment.course?.category?.toUpperCase() === "HEALTH" ||
+                    enrollment.course?.title?.toLowerCase().includes("nursing") ||
+                    enrollment.course?.title?.toLowerCase().includes("patient care");
 
-                const currentProgress = Math.round(
-                  pData?.percentage || enrollment.progress || 0,
-                );
-                const isCompleted = enrollment.status === "COMPLETED";
+                  return (
+                    <div
+                      key={enrollment.id}
+                      className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-300 group"
+                    >
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        {/* Thumbnail */}
+                        <div className="w-full sm:w-36 h-28 sm:h-24 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100">
+                          {enrollment.course?.thumbnail ? (
+                            <img
+                              src={enrollment.course.thumbnail}
+                              alt={enrollment.course.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <BookOpen className="w-8 h-8 text-primary/40" />
+                          )}
+                        </div>
 
-                return (
-                  <div
-                    key={enrollment.id}
-                    className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-300 group"
-                  >
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      {/* Thumbnail */}
-                      <div className="w-full sm:w-36 h-28 sm:h-24 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100">
-                        {enrollment.course?.thumbnail ? (
-                          <img
-                            src={enrollment.course.thumbnail}
-                            alt={enrollment.course.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <BookOpen className="w-8 h-8 text-primary/40" />
-                        )}
-                      </div>
-
-                      {/* Course info */}
-                      <div className="flex-1 min-w-0 flex flex-col justify-between">
-                        <div>
-                          {/* Status badge */}
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 ${
-                              isCompleted
-                                ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                                : "bg-primary/10 text-primary border border-primary/20"
-                            }`}
-                          >
-                            {isCompleted ? "Completed" : "In Progress"}
-                          </span>
-
-                          <h3 className="text-[15px] font-heading font-bold text-slate-900 leading-snug group-hover:text-primary transition-colors">
-                            {enrollment.course?.title}
-                          </h3>
-
-                          <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500">
-                            <span className="flex items-center gap-1">
-                              <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
-                              Course {index + 1} of {filteredEnrollments.length}
+                        {/* Course info */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between">
+                          <div>
+                            {/* Status badge */}
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 ${
+                                isCompleted
+                                  ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                                  : "bg-primary/10 text-primary border border-primary/20"
+                              }`}
+                            >
+                              {isCompleted ? "Completed" : "In Progress"}
                             </span>
-                            <span className="text-slate-300">·</span>
-                            <span>{currentProgress}% complete</span>
-                            <span className="text-slate-300">·</span>
-                            <span className="inline-flex items-center gap-1 text-blue-700 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
-                              <Clock className="w-3 h-3 text-blue-600" />
-                              Theory: {theoryHoursCompleted}h / 50.0h
-                            </span>
+
+                            <h3 className="text-[15px] font-heading font-bold text-slate-900 leading-snug group-hover:text-primary transition-colors">
+                              {enrollment.course?.title}
+                            </h3>
+
+                            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500">
+                              <span className="flex items-center gap-1">
+                                <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
+                                Course {index + 1} of {filteredCoursesProgress.length}
+                              </span>
+                              <span className="text-slate-300">·</span>
+                              <span>
+                                {totalLessons > 0
+                                  ? `${completedLessons} of ${totalLessons} lessons · `
+                                  : ""}
+                                {percentage}% complete
+                              </span>
+                              {isCnaCourse && (
+                                <>
+                                  <span className="text-slate-300">·</span>
+                                  <span className="inline-flex items-center gap-1 text-blue-700 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                                    <Clock className="w-3 h-3 text-blue-600" />
+                                    Theory: {theoryHoursCompleted}h / 50.0h
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Progress bar + View details */}
+                          <div className="mt-3 space-y-2">
+                            <div className="flex items-center gap-3">
+                              <div className="flex-1 max-w-xs">
+                                <Progress
+                                  value={percentage}
+                                  className="h-1.5 bg-slate-100"
+                                />
+                              </div>
+                              <span className="text-xs text-slate-400 font-medium shrink-0">
+                                {percentage}%
+                              </span>
+                            </div>
+
+                            {isCompleted ? (
+                              <button className="text-[13px] font-semibold text-primary hover:underline flex items-center gap-1 transition-colors">
+                                View certificate{" "}
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <Link
+                                to={`/courses/${courseId}`}
+                                className="text-[13px] font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
+                              >
+                                View details{" "}
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </Link>
+                            )}
                           </div>
                         </div>
 
-                        {/* Progress bar + View details */}
-                        <div className="mt-3 space-y-2">
-                          <div className="flex items-center gap-3">
-                            <div className="flex-1 max-w-xs">
-                              <Progress
-                                value={currentProgress}
-                                className="h-1.5 bg-slate-100"
-                              />
-                            </div>
-                            <span className="text-xs text-slate-400 font-medium shrink-0">
-                              {currentProgress}%
-                            </span>
-                          </div>
-
-                          {isCompleted ? (
-                            <button className="text-[13px] font-semibold text-primary hover:underline flex items-center gap-1 transition-colors">
-                              View certificate{" "}
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </button>
-                          ) : (
-                            <Link
-                              to={`/courses/${enrollment.courseId}`}
-                              className="text-[13px] font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
+                        {/* Right actions */}
+                        <div className="flex sm:flex-col items-center gap-2 sm:justify-center shrink-0">
+                          {!isCompleted ? (
+                            <Button
+                              size="sm"
+                              asChild
+                              className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 rounded-xl font-bold text-sm shadow-md shadow-primary/15 transition-all border-0"
                             >
-                              View details{" "}
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </Link>
+                              <Link to={`/learn/${courseId}`}>
+                                <PlayCircle className="w-4 h-4" />
+                                Resume
+                              </Link>
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              asChild
+                              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 rounded-xl font-bold text-sm border-0"
+                            >
+                              <Link to={`/learn/${courseId}`}>
+                                <CheckCircle2 className="w-4 h-4" />
+                                Review
+                              </Link>
+                            </Button>
                           )}
                         </div>
                       </div>
-
-                      {/* Right actions */}
-                      <div className="flex sm:flex-col items-center gap-2 sm:justify-center shrink-0">
-                        {!isCompleted ? (
-                          <Button
-                            size="sm"
-                            asChild
-                            className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 rounded-xl font-bold text-sm shadow-md shadow-primary/15 transition-all border-0"
-                          >
-                            <Link to={`/learn/${enrollment.courseId}`}>
-                              <PlayCircle className="w-4 h-4" />
-                              Resume
-                            </Link>
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            asChild
-                            className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 rounded-xl font-bold text-sm border-0"
-                          >
-                            <Link to={`/learn/${enrollment.courseId}`}>
-                              <CheckCircle2 className="w-4 h-4" />
-                              Review
-                            </Link>
-                          </Button>
-                        )}
-                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                },
+              )}
             </div>
           )}
 
