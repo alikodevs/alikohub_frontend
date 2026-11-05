@@ -15,14 +15,22 @@ export const admissionsService = {
   submitPrerequisites: async (
     payload: SubmitDocumentsPayload
   ): Promise<AdmissionsApplication> => {
+    const toUri = (val?: string | null) => {
+      if (!val || typeof val !== "string") return "";
+      const trimmed = val.trim();
+      if (!trimmed) return "";
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      return `https://${trimmed.replace(/^\/+/, "")}`;
+    };
+
     const body = {
       cohortId: Number(payload.cohortId),
-      backgroundCheckUrl: payload.backgroundCheckUrl || "",
-      tbTestProofUrl: payload.tbTestProofUrl || "",
-      immunizationProofUrl: payload.immunizationProofUrl || "",
-      cprCertUrl: payload.cprCertUrl || "",
-      idDocUrl: payload.idDocUrl || "",
-      highSchoolProofUrl: payload.highSchoolProofUrl || "",
+      backgroundCheckUrl: toUri(payload.backgroundCheckUrl),
+      tbTestProofUrl: toUri(payload.tbTestProofUrl),
+      immunizationProofUrl: toUri(payload.immunizationProofUrl),
+      cprCertUrl: toUri(payload.cprCertUrl),
+      idDocUrl: toUri(payload.idDocUrl),
+      highSchoolProofUrl: toUri(payload.highSchoolProofUrl),
     };
     try {
       const response = await api.post<AdmissionsApplication>(
@@ -196,16 +204,38 @@ export const admissionsService = {
   uploadDocumentFile: async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("document", file);
     try {
-      const res = await api.post<{ url: string }>("/upload/document", formData, {
+      const res = await api.post<any>("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return res.data?.url;
+      const rawUrl =
+        res.data?.url ||
+        res.data?.fileUrl ||
+        res.data?.secure_url ||
+        res.data?.data?.url ||
+        res.data?.data?.fileUrl ||
+        "";
+      if (!rawUrl) return "";
+      if (/^https?:\/\//i.test(rawUrl)) return rawUrl;
+      const base = (import.meta.env.VITE_API_URL || "https://api.consultancy.alikohub.com").replace(/\/+$/, "");
+      return `${base}/${rawUrl.replace(/^\/+/, "")}`;
     } catch {
-      const fallback = await api.post<{ url: string }>("/content/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return fallback.data?.url;
+      try {
+        const res2 = await api.post<any>("/files/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const rawUrl = res2.data?.url || res2.data?.fileUrl || res2.data?.secure_url || "";
+        if (!rawUrl) return "";
+        if (/^https?:\/\//i.test(rawUrl)) return rawUrl;
+        const base = (import.meta.env.VITE_API_URL || "https://api.consultancy.alikohub.com").replace(/\/+$/, "");
+        return `${base}/${rawUrl.replace(/^\/+/, "")}`;
+      } catch {
+        const fallback = await api.post<any>("/content/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        return fallback.data?.url || fallback.data?.fileUrl || "";
+      }
     }
   },
 };

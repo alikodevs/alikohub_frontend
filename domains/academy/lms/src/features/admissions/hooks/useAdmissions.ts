@@ -29,6 +29,9 @@ export const useSubmitPrerequisitesMutation = () => {
         queryKey: ["admissions-cohort", vars.cohortId],
       });
       queryClient.invalidateQueries({
+        queryKey: ["admissions-cohort"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["enrollments"],
       });
       toast.success("Prerequisite documents submitted for admissions clearance.");
@@ -53,6 +56,9 @@ export const useSignAgreementMutation = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["admissions-cohort", vars.cohortId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admissions-cohort"],
       });
       toast.success("Enrollment agreement digitally signed and statutory disclosures acknowledged.");
     },

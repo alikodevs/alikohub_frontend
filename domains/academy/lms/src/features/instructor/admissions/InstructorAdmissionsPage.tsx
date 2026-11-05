@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
 import {
   useCohortAdmissions,
@@ -38,17 +39,124 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
+const getPrerequisiteDocuments = (app?: AdmissionsApplication | null) => {
+  if (!app) {
+    return {
+      docs: [
+        { label: "Background Check", url: "" },
+        { label: "TB Test Proof", url: "" },
+        { label: "Immunizations (HepB, MMR, Varicella)", url: "" },
+        { label: "BLS / CPR Card", url: "" },
+        { label: "Government Photo ID", url: "" },
+        { label: "High School Diploma / GED", url: "" },
+      ],
+      count: 0,
+      hasAll: false,
+    };
+  }
+
+  const raw = app as any;
+  const docsObj =
+    raw.documents && typeof raw.documents === "object" && !Array.isArray(raw.documents)
+      ? raw.documents
+      : {};
+  const docsArr: any[] = Array.isArray(raw.documents)
+    ? raw.documents
+    : Array.isArray(raw.files)
+    ? raw.files
+    : [];
+
+  const findInArray = (matchers: string[]) => {
+    const item = docsArr.find((d) => {
+      const tag = String(d?.type || d?.name || d?.category || d?.key || d?.label || "").toLowerCase();
+      return matchers.some((m) => tag.includes(m.toLowerCase()));
+    });
+    return item?.url || item?.fileUrl || item?.path || item?.filePath || "";
+  };
+
+  const clean = (val: any) => (typeof val === "string" ? val.trim() : "");
+
+  const bg = clean(
+    raw.backgroundCheckUrl ||
+      raw.background_check_url ||
+      docsObj.backgroundCheckUrl ||
+      docsObj.background_check_url ||
+      findInArray(["background", "bg_check", "bgcheck"])
+  );
+
+  const tb = clean(
+    raw.tbTestProofUrl ||
+      raw.tb_test_proof_url ||
+      docsObj.tbTestProofUrl ||
+      docsObj.tb_test_proof_url ||
+      findInArray(["tb", "tuberculosis", "tb_test"])
+  );
+
+  const immun = clean(
+    raw.immunizationProofUrl ||
+      raw.immunization_proof_url ||
+      docsObj.immunizationProofUrl ||
+      docsObj.immunization_proof_url ||
+      findInArray(["immunization", "vaccine", "hepb", "mmr"])
+  );
+
+  const cpr = clean(
+    raw.cprCertUrl ||
+      raw.cpr_cert_url ||
+      docsObj.cprCertUrl ||
+      docsObj.cpr_cert_url ||
+      findInArray(["cpr", "bls"])
+  );
+
+  const id = clean(
+    raw.idDocUrl ||
+      raw.id_doc_url ||
+      docsObj.idDocUrl ||
+      docsObj.id_doc_url ||
+      findInArray(["id", "identification", "photo_id", "license", "government"])
+  );
+
+  const hs = clean(
+    raw.highSchoolProofUrl ||
+      raw.high_school_proof_url ||
+      docsObj.highSchoolProofUrl ||
+      docsObj.high_school_proof_url ||
+      findInArray(["highschool", "high_school", "diploma", "ged"])
+  );
+
+  const docs = [
+    { label: "Background Check", url: bg },
+    { label: "TB Test Proof", url: tb },
+    { label: "Immunizations (HepB, MMR, Varicella)", url: immun },
+    { label: "BLS / CPR Card", url: cpr },
+    { label: "Government Photo ID", url: id },
+    { label: "High School Diploma / GED", url: hs },
+  ];
+
+  const count = docs.filter((d) => d.url.length > 0).length;
+
+  return { docs, count, hasAll: count === 6 };
+};
+
 export const InstructorAdmissionsPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paramCohort = searchParams.get("cohortId");
   const { data: cohorts, isLoading: cohortsLoading } = useInstructorCohortsList();
 
-  const [selectedCohortId, setSelectedCohortId] = useState<number | undefined>(undefined);
+  const [selectedCohortId, setSelectedCohortId] = useState<number | undefined>(() => {
+    if (paramCohort && !isNaN(Number(paramCohort))) {
+      return Number(paramCohort);
+    }
+    return undefined;
+  });
 
-  // Auto-select first cohort
+  // Auto-select cohort from param, selection, or first cohort in list
   const effectiveCohortId = useMemo(() => {
     if (selectedCohortId) return selectedCohortId;
+    if (paramCohort && !isNaN(Number(paramCohort))) return Number(paramCohort);
     if (cohorts && cohorts.length > 0) return Number(cohorts[0].id);
     return 1;
-  }, [selectedCohortId, cohorts]);
+  }, [selectedCohortId, paramCohort, cohorts]);
 
   const {
     data: applications,
@@ -285,22 +393,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
                 ) : (
                   filteredApplications.map((app) => {
                     const studentName = `${app.user?.firstname || ""} ${app.user?.lastname || ""}`.trim() || `Candidate #${app.userId.slice(0, 8)}`;
-                    const hasAllDocs = Boolean(
-                      app.backgroundCheckUrl &&
-                      app.tbTestProofUrl &&
-                      app.immunizationProofUrl &&
-                      app.cprCertUrl &&
-                      app.idDocUrl &&
-                      app.highSchoolProofUrl
-                    );
-                    const docsCount = [
-                      app.backgroundCheckUrl,
-                      app.tbTestProofUrl,
-                      app.immunizationProofUrl,
-                      app.cprCertUrl,
-                      app.idDocUrl,
-                      app.highSchoolProofUrl,
-                    ].filter(Boolean).length;
+                    const { count: docsCount, hasAll: hasAllDocs } = getPrerequisiteDocuments(app);
 
                     return (
                       <tr key={app.id} className="hover:bg-slate-50/60 transition-colors">
@@ -323,7 +416,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
                         <td className="py-3.5 px-4 text-center">
                           <span
                             className={cn(
-                              "inline-flex items-center gap-1 font-bold text-[11px] px-2 py-0.5 rounded-full border",
+                              "inline-flex items-center gap-1 font-bold text-[11px] px-2.5 py-0.5 rounded-full border",
                               docsCount === 6
                                 ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                 : docsCount > 0
@@ -332,7 +425,7 @@ export const InstructorAdmissionsPage: React.FC = () => {
                             )}
                           >
                             {docsCount === 6 ? <Check className="w-3 h-3" /> : null}
-                            {docsCount} / 6 Verified
+                            {docsCount} / 6 Uploaded
                           </span>
                         </td>
 
@@ -458,37 +551,17 @@ export const InstructorAdmissionsPage: React.FC = () => {
 
                 {/* Submitted Documents Grid */}
                 <div className="space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Mandatory Prerequisite Files (6 Required)
-                  </h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Mandatory Prerequisite Files (6 Required)
+                    </h4>
+                    <span className="text-xs font-bold text-slate-700">
+                      {getPrerequisiteDocuments(inspectingApp).count} of 6 Uploaded
+                    </span>
+                  </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {[
-                      {
-                        label: "Background Check",
-                        url: inspectingApp.backgroundCheckUrl,
-                      },
-                      {
-                        label: "TB Test Proof",
-                        url: inspectingApp.tbTestProofUrl,
-                      },
-                      {
-                        label: "Immunizations (HepB, MMR, Varicella)",
-                        url: inspectingApp.immunizationProofUrl,
-                      },
-                      {
-                        label: "BLS / CPR Card",
-                        url: inspectingApp.cprCertUrl,
-                      },
-                      {
-                        label: "Government Photo ID",
-                        url: inspectingApp.idDocUrl,
-                      },
-                      {
-                        label: "High School Diploma / GED",
-                        url: inspectingApp.highSchoolProofUrl,
-                      },
-                    ].map((doc, idx) => (
+                    {getPrerequisiteDocuments(inspectingApp).docs.map((doc, idx) => (
                       <div
                         key={idx}
                         className="p-3.5 rounded-xl border border-slate-200/90 bg-slate-50/60 flex items-center justify-between gap-3"
@@ -503,16 +576,21 @@ export const InstructorAdmissionsPage: React.FC = () => {
                         </div>
 
                         {doc.url ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            asChild
-                            className="h-8 text-xs font-bold text-blue-600 hover:text-blue-700 border-blue-200 hover:bg-blue-50 rounded-lg shrink-0 gap-1"
-                          >
-                            <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="w-3.5 h-3.5" /> View
-                            </a>
-                          </Button>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-bold">
+                              Uploaded
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              asChild
+                              className="h-8 text-xs font-bold text-blue-600 hover:text-blue-700 border-blue-200 hover:bg-blue-50 rounded-lg shrink-0 gap-1"
+                            >
+                              <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-3.5 h-3.5" /> View
+                              </a>
+                            </Button>
+                          </div>
                         ) : (
                           <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-200 shrink-0">
                             Missing
@@ -553,8 +631,8 @@ export const InstructorAdmissionsPage: React.FC = () => {
               </div>
 
               <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                <span className="text-xs text-slate-400">
-                  Target endpoint: <code className="font-mono text-slate-600">PATCH /admissions/review</code>
+                <span className="text-xs text-slate-500 font-medium">
+                  Admissions Clearance Review
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -619,8 +697,8 @@ export const InstructorAdmissionsPage: React.FC = () => {
               />
             </div>
 
-            <p className="text-[11px] text-slate-400">
-              Payload: <code className="font-mono">{JSON.stringify({ applicationId: inspectingApp?.id, status: "REJECTED", rejectionReason: "..." })}</code>
+            <p className="text-[11px] text-slate-500">
+              The student will receive this remediation notice and be required to re-upload required items before full clearance.
             </p>
           </div>
 

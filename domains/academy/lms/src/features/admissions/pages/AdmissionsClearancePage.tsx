@@ -157,12 +157,12 @@ export const AdmissionsClearancePage: React.FC = () => {
     if (!selectedCohortId) return;
 
     if (
-      !docUrls.backgroundCheckUrl ||
-      !docUrls.tbTestProofUrl ||
-      !docUrls.immunizationProofUrl ||
-      !docUrls.cprCertUrl ||
-      !docUrls.idDocUrl ||
-      !docUrls.highSchoolProofUrl
+      !docUrls.backgroundCheckUrl?.trim() ||
+      !docUrls.tbTestProofUrl?.trim() ||
+      !docUrls.immunizationProofUrl?.trim() ||
+      !docUrls.cprCertUrl?.trim() ||
+      !docUrls.idDocUrl?.trim() ||
+      !docUrls.highSchoolProofUrl?.trim()
     ) {
       toast.error("Please provide all 6 mandatory prerequisite documents.");
       return;
@@ -170,7 +170,12 @@ export const AdmissionsClearancePage: React.FC = () => {
 
     await submitDocsMutation.mutateAsync({
       cohortId: selectedCohortId,
-      ...docUrls,
+      backgroundCheckUrl: docUrls.backgroundCheckUrl.trim(),
+      tbTestProofUrl: docUrls.tbTestProofUrl.trim(),
+      immunizationProofUrl: docUrls.immunizationProofUrl.trim(),
+      cprCertUrl: docUrls.cprCertUrl.trim(),
+      idDocUrl: docUrls.idDocUrl.trim(),
+      highSchoolProofUrl: docUrls.highSchoolProofUrl.trim(),
     });
   };
 
@@ -186,18 +191,16 @@ export const AdmissionsClearancePage: React.FC = () => {
     }
 
     try {
-      // Backend requires an admissions application record in database before signing agreement
-      if (!application) {
-        await submitDocsMutation.mutateAsync({
-          cohortId: selectedCohortId,
-          backgroundCheckUrl: docUrls.backgroundCheckUrl || "",
-          tbTestProofUrl: docUrls.tbTestProofUrl || "",
-          immunizationProofUrl: docUrls.immunizationProofUrl || "",
-          cprCertUrl: docUrls.cprCertUrl || "",
-          idDocUrl: docUrls.idDocUrl || "",
-          highSchoolProofUrl: docUrls.highSchoolProofUrl || "",
-        });
-      }
+      // Save current document URLs so application record is complete in database
+      await submitDocsMutation.mutateAsync({
+        cohortId: selectedCohortId,
+        backgroundCheckUrl: docUrls.backgroundCheckUrl || application?.backgroundCheckUrl || "",
+        tbTestProofUrl: docUrls.tbTestProofUrl || application?.tbTestProofUrl || "",
+        immunizationProofUrl: docUrls.immunizationProofUrl || application?.immunizationProofUrl || "",
+        cprCertUrl: docUrls.cprCertUrl || application?.cprCertUrl || "",
+        idDocUrl: docUrls.idDocUrl || application?.idDocUrl || "",
+        highSchoolProofUrl: docUrls.highSchoolProofUrl || application?.highSchoolProofUrl || "",
+      });
 
       await signAgreementMutation.mutateAsync({
         cohortId: selectedCohortId,
@@ -778,8 +781,8 @@ export const AdmissionsClearancePage: React.FC = () => {
             </div>
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
-              <span className="text-xs text-slate-400">
-                Payload destination: <code className="font-mono text-slate-600">POST /admissions/submit</code>
+              <span className="text-xs text-slate-500">
+                Ensure all documents are current, authentic, and legible.
               </span>
               <Button
                 type="submit"
@@ -832,10 +835,10 @@ export const AdmissionsClearancePage: React.FC = () => {
               {isAgreementSigned && (
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-0.5">
                   <div className="font-semibold text-slate-800">
-                    Digitally signed by: {application?.agreementSignature || user?.firstname}
+                    Digitally signed by: {application?.agreementSignature || application?.agreementSignatureUrl || user?.firstname}
                   </div>
-                  <div className="text-[11px] text-slate-400">
-                    Verified through <code className="font-mono">POST /admissions/sign-agreement</code>
+                  <div className="text-[11px] text-emerald-600 font-medium">
+                    Agreement on file & acknowledged
                   </div>
                 </div>
               )}
@@ -886,10 +889,10 @@ export const AdmissionsClearancePage: React.FC = () => {
               </p>
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-0.5">
                 <div className="font-semibold text-slate-800">
-                  Orientation Gate: {isOrientationDone ? "Satisfied (Pass)" : "Enforced on Theory Lessons"}
+                  Orientation Gate: {isOrientationDone ? "Completed" : "Pending Completion"}
                 </div>
-                <div className="text-[11px] text-slate-400">
-                  Verified through <code className="font-mono">POST /orientation/complete</code>
+                <div className="text-[11px] text-slate-500">
+                  Required before accessing clinical theory lessons
                 </div>
               </div>
             </div>
