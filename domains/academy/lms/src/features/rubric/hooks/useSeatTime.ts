@@ -1,8 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { wabonComplianceService } from "../services/wabonComplianceService";
-import type { SeatTimeSummary, StudentSeatTimeRecord, CohortSeatTimeReport } from "../types";
+import type { SeatTimeSummary, CohortSeatTimeReport, StudentSeatTimeRecord } from "../types";
 
 export const DEFAULT_REQUIRED_THEORY_SECONDS = 50 * 3600; // 50 hours per WAC 246-841A-440
+
+export const useInstructorCohortsList = () => {
+  return useQuery({
+    queryKey: ["instructor-cohorts-list"],
+    queryFn: async () => {
+      try {
+        const res = await wabonComplianceService.getInstructorCohorts();
+        return res?.items || (Array.isArray(res) ? res : []);
+      } catch (err) {
+        console.warn("[useInstructorCohortsList] Error fetching instructor cohorts:", err);
+        return [];
+      }
+    },
+    staleTime: 60 * 1000,
+  });
+};
 
 export const useSeatTimeSummary = (courseId?: string | number) => {
   return useQuery<SeatTimeSummary>({
@@ -11,29 +27,45 @@ export const useSeatTimeSummary = (courseId?: string | number) => {
       if (!courseId) {
         return {
           courseId: 0,
+          totalActiveTimeSeconds: 0,
+          totalActiveTimeMinutes: 0,
           totalActiveSeconds: 0,
           totalRequiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
           progressPercentage: 0,
+          lessons: [],
           lessonsBreakdown: [],
         };
       }
       try {
         const data = await wabonComplianceService.getSeatTimeSummary(courseId);
-        if (data && typeof data.totalActiveSeconds === "number") {
+        if (data) {
+          const totalSecs = data.totalActiveTimeSeconds ?? data.totalActiveSeconds ?? 0;
+          const totalMins = data.totalActiveTimeMinutes ?? Math.round(totalSecs / 60);
           return {
             ...data,
-            totalRequiredSeconds: data.totalRequiredSeconds || DEFAULT_REQUIRED_THEORY_SECONDS,
+            totalActiveTimeSeconds: totalSecs,
+            totalActiveTimeMinutes: totalMins,
+            totalActiveSeconds: totalSecs,
+            totalRequiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
+            progressPercentage: Math.min(
+              100,
+              Math.round((totalSecs / DEFAULT_REQUIRED_THEORY_SECONDS) * 100)
+            ),
+            lessons: data.lessons || [],
           };
         }
       } catch (err) {
-        console.warn("[useSeatTimeSummary] Fetch failed, falling back to computed summary:", err);
+        console.warn("[useSeatTimeSummary] Fetch failed:", err);
       }
 
       return {
         courseId,
+        totalActiveTimeSeconds: 0,
+        totalActiveTimeMinutes: 0,
         totalActiveSeconds: 0,
         totalRequiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
         progressPercentage: 0,
+        lessons: [],
         lessonsBreakdown: [],
       };
     },
@@ -42,159 +74,203 @@ export const useSeatTimeSummary = (courseId?: string | number) => {
   });
 };
 
-export const useCohortSeatTimeReport = (cohortId?: string | number, courseId?: string | number) => {
+export const useStudentCourseSeatTime = (
+  courseId?: string | number,
+  userId?: string
+) => {
+  return useQuery<SeatTimeSummary>({
+    queryKey: ["studentCourseSeatTime", courseId, userId],
+    queryFn: async () => {
+      if (!courseId || !userId) {
+        return {
+          courseId: courseId || 0,
+          userId: userId || "",
+          totalActiveTimeSeconds: 0,
+          totalActiveTimeMinutes: 0,
+          lessons: [],
+        };
+      }
+      try {
+        const res = await wabonComplianceService.getStudentCourseSeatTime(courseId, userId);
+        if (res) {
+          return {
+            ...res,
+            totalActiveTimeSeconds: res.totalActiveTimeSeconds ?? 0,
+            totalActiveTimeMinutes: res.totalActiveTimeMinutes ?? Math.round((res.totalActiveTimeSeconds || 0) / 60),
+            lessons: res.lessons || [],
+          };
+        }
+      } catch (err) {
+        console.warn("[useStudentCourseSeatTime] Failed to fetch student breakdown:", err);
+      }
+      return {
+        courseId,
+        userId,
+        totalActiveTimeSeconds: 0,
+        totalActiveTimeMinutes: 0,
+        lessons: [],
+      };
+    },
+    enabled: Boolean(courseId && userId),
+    staleTime: 30 * 1000,
+  });
+};
+
+export const useCohortSeatTimeReport = (
+  cohortId?: string | number,
+  courseId?: string | number
+) => {
   return useQuery<CohortSeatTimeReport>({
     queryKey: ["cohortSeatTimeReport", cohortId, courseId],
     queryFn: async () => {
-      const activeCohortId = cohortId || 1;
-      try {
-        const report = await wabonComplianceService.getCohortSeatTimeReport(activeCohortId);
-        if (report && Array.isArray(report.records) && report.records.length > 0) {
-          return report;
+      let activeCohortId = cohortId ? Number(cohortId) : undefined;
+      let activeCourseId = courseId ? Number(courseId) : undefined;
+      let activeCohortName = "";
+      let activeCourseTitle = "";
+
+      // Auto-discover instructor's active cohort if not passed
+      if (!activeCohortId) {
+        try {
+          const cohortsRes = await wabonComplianceService.getInstructorCohorts();
+          const cohortList = cohortsRes?.items || (Array.isArray(cohortsRes) ? cohortsRes : []);
+          if (cohortList.length > 0) {
+            activeCohortId = cohortList[0].id;
+            activeCohortName = cohortList[0].name || "";
+            activeCourseId = activeCourseId || cohortList[0].courseId;
+            activeCourseTitle = cohortList[0].course?.title || "";
+          }
+        } catch (e) {
+          console.warn("[useCohortSeatTimeReport] Failed to fetch instructor cohorts:", e);
         }
-      } catch (err) {
-        console.warn("[useCohortSeatTimeReport] Live endpoint fallback:", err);
       }
 
-      // High-fidelity standard cohort roster conforming to WAC 246-841A-440 audit standards
-      const standardMockRecords: StudentSeatTimeRecord[] = [
-        {
-          id: "rec-01",
-          studentId: 101,
-          studentName: "Bezawit Eshetu",
-          studentEmail: "bezawit.eshetu@student.alikohub.edu",
-          courseId: courseId || 1,
-          courseTitle: "Certified Nursing Assistant (CNA) Theory",
-          cohortId: activeCohortId,
-          cohortName: "Cohort 2026-Fall-A",
-          activeSeconds: 182400, // 50.6 hrs (Compliant)
-          idleSeconds: 3600,
-          tabBlurIncidents: 1,
-          engagementScore: 0.98,
-          requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
-          lastHeartbeatAt: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
-          isCompliant: true,
-          lessonsBreakdown: [
-            { lessonId: 1, title: "Module 1: Professional Communication & HIPAA", activeSeconds: 36000, idleSeconds: 600 },
-            { lessonId: 2, title: "Module 2: Infection Control Protocols (CDC/OSHA)", activeSeconds: 43200, idleSeconds: 1200 },
-            { lessonId: 3, title: "Module 3: Resident Rights & Dignity Protection", activeSeconds: 50400, idleSeconds: 800 },
-            { lessonId: 4, title: "Module 4: Vital Signs & Clinical Observation", activeSeconds: 52800, idleSeconds: 1000 },
-          ],
-        },
-        {
-          id: "rec-02",
-          studentId: 102,
-          studentName: "Marcus Vance",
-          studentEmail: "marcus.vance@student.alikohub.edu",
-          courseId: courseId || 1,
-          courseTitle: "Certified Nursing Assistant (CNA) Theory",
-          cohortId: activeCohortId,
-          cohortName: "Cohort 2026-Fall-A",
-          activeSeconds: 144000, // 40.0 hrs (80% / On Track)
-          idleSeconds: 9200,
-          tabBlurIncidents: 3,
-          engagementScore: 0.94,
-          requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
-          lastHeartbeatAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-          isCompliant: false,
-          lessonsBreakdown: [
-            { lessonId: 1, title: "Module 1: Professional Communication & HIPAA", activeSeconds: 36000, idleSeconds: 2400 },
-            { lessonId: 2, title: "Module 2: Infection Control Protocols (CDC/OSHA)", activeSeconds: 38000, idleSeconds: 3000 },
-            { lessonId: 3, title: "Module 3: Resident Rights & Dignity Protection", activeSeconds: 42000, idleSeconds: 2200 },
-            { lessonId: 4, title: "Module 4: Vital Signs & Clinical Observation", activeSeconds: 28000, idleSeconds: 1600 },
-          ],
-        },
-        {
-          id: "rec-03",
-          studentId: 103,
-          studentName: "Sarah Jenkins",
-          studentEmail: "sarah.jenkins@student.alikohub.edu",
-          courseId: courseId || 1,
-          courseTitle: "Certified Nursing Assistant (CNA) Theory",
-          cohortId: activeCohortId,
-          cohortName: "Cohort 2026-Fall-A",
-          activeSeconds: 180000, // 50.0 hrs (Compliant)
-          idleSeconds: 4800,
-          tabBlurIncidents: 0,
-          engagementScore: 0.99,
-          requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
-          lastHeartbeatAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-          isCompliant: true,
-          lessonsBreakdown: [
-            { lessonId: 1, title: "Module 1: Professional Communication & HIPAA", activeSeconds: 37000, idleSeconds: 800 },
-            { lessonId: 2, title: "Module 2: Infection Control Protocols (CDC/OSHA)", activeSeconds: 44000, idleSeconds: 1000 },
-            { lessonId: 3, title: "Module 3: Resident Rights & Dignity Protection", activeSeconds: 51000, idleSeconds: 1500 },
-            { lessonId: 4, title: "Module 4: Vital Signs & Clinical Observation", activeSeconds: 48000, idleSeconds: 1500 },
-          ],
-        },
-        {
-          id: "rec-04",
-          studentId: 104,
-          studentName: "David Kim",
-          studentEmail: "david.kim@student.alikohub.edu",
-          courseId: courseId || 1,
-          courseTitle: "Certified Nursing Assistant (CNA) Theory",
-          cohortId: activeCohortId,
-          cohortName: "Cohort 2026-Fall-A",
-          activeSeconds: 86400, // 24.0 hrs (48% / Needs Attention)
-          idleSeconds: 14400,
-          tabBlurIncidents: 6,
-          engagementScore: 0.85,
-          requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
-          lastHeartbeatAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-          isCompliant: false,
-          lessonsBreakdown: [
-            { lessonId: 1, title: "Module 1: Professional Communication & HIPAA", activeSeconds: 32000, idleSeconds: 4800 },
-            { lessonId: 2, title: "Module 2: Infection Control Protocols (CDC/OSHA)", activeSeconds: 30000, idleSeconds: 5200 },
-            { lessonId: 3, title: "Module 3: Resident Rights & Dignity Protection", activeSeconds: 24400, idleSeconds: 4400 },
-          ],
-        },
-        {
-          id: "rec-05",
-          studentId: 105,
-          studentName: "Amina Yusuf",
-          studentEmail: "amina.yusuf@student.alikohub.edu",
-          courseId: courseId || 1,
-          courseTitle: "Certified Nursing Assistant (CNA) Theory",
-          cohortId: activeCohortId,
-          cohortName: "Cohort 2026-Fall-A",
-          activeSeconds: 187200, // 52.0 hrs (Compliant)
-          idleSeconds: 2400,
-          tabBlurIncidents: 0,
-          engagementScore: 1.0,
-          requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
-          lastHeartbeatAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-          isCompliant: true,
-          lessonsBreakdown: [
-            { lessonId: 1, title: "Module 1: Professional Communication & HIPAA", activeSeconds: 38000, idleSeconds: 400 },
-            { lessonId: 2, title: "Module 2: Infection Control Protocols (CDC/OSHA)", activeSeconds: 46000, idleSeconds: 800 },
-            { lessonId: 3, title: "Module 3: Resident Rights & Dignity Protection", activeSeconds: 52000, idleSeconds: 600 },
-            { lessonId: 4, title: "Module 4: Vital Signs & Clinical Observation", activeSeconds: 51200, idleSeconds: 600 },
-          ],
-        },
-      ];
+      if (!activeCohortId) {
+        return {
+          cohortId: 0,
+          cohortName: "",
+          courseId: activeCourseId || 0,
+          courseTitle: activeCourseTitle || "",
+          totalStudents: 0,
+          averageActiveHours: 0,
+          totalActiveHours: 0,
+          compliantStudentsCount: 0,
+          students: [],
+        };
+      }
 
-      const compliantCount = standardMockRecords.filter((r) => r.isCompliant).length;
-      const totalSecs = standardMockRecords.reduce((acc, r) => acc + r.activeSeconds, 0);
-      const avgHours = Number((totalSecs / standardMockRecords.length / 3600).toFixed(1));
-      const avgScore = Number(
-        (
-          standardMockRecords.reduce((acc, r) => acc + r.engagementScore, 0) /
-          standardMockRecords.length
-        ).toFixed(2)
-      );
+      // 1. Fetch real seat-time report for this cohort from backend
+      let rawReport: any = null;
+      try {
+        rawReport = await wabonComplianceService.getCohortSeatTimeReport(activeCohortId);
+      } catch (err) {
+        console.warn("[useCohortSeatTimeReport] Failed to fetch cohort report:", err);
+      }
+
+      // 2. Fetch instructor enrollments to enrich with student name, email & profile
+      let enrollments: any[] = [];
+      try {
+        const enrollmentsRes = await wabonComplianceService.getInstructorEnrollments(activeCohortId);
+        enrollments = enrollmentsRes?.items || (Array.isArray(enrollmentsRes) ? enrollmentsRes : []);
+      } catch (err) {
+        console.warn("[useCohortSeatTimeReport] Failed to fetch enrollments:", err);
+      }
+
+      const rawStudents: any[] = Array.isArray(rawReport?.students)
+        ? rawReport.students
+        : Array.isArray(rawReport?.records)
+        ? rawReport.records
+        : [];
+
+      const studentMap = new Map<string, any>();
+      for (const s of rawStudents) {
+        if (s.userId) studentMap.set(s.userId, s);
+      }
+
+      const mergedList: StudentSeatTimeRecord[] = [];
+
+      for (const s of rawStudents) {
+        const enrollment = enrollments.find(
+          (e) => e.userId === s.userId || e.user?.firebaseId === s.userId
+        );
+        const name = enrollment?.user
+          ? `${enrollment.user.firstname || ""} ${enrollment.user.lastname || ""}`.trim() ||
+            enrollment.user.email ||
+            s.userId
+          : s.studentName || s.userId;
+        const email = enrollment?.user?.email || s.studentEmail || "";
+        const totalSecs = s.totalActiveTimeSeconds ?? s.activeSeconds ?? 0;
+        const totalMins = s.totalActiveTimeMinutes ?? Math.round(totalSecs / 60);
+        const activeHrs = Number((totalSecs / 3600).toFixed(1));
+
+        mergedList.push({
+          id: s.userId,
+          userId: s.userId,
+          studentId: enrollment?.user?.id || s.studentId,
+          studentName: name,
+          studentEmail: email,
+          avatarUrl: enrollment?.user?.profilePicture,
+          courseId: activeCourseId || s.courseId || rawReport?.courseId,
+          courseTitle: activeCourseTitle || enrollment?.course?.title,
+          cohortId: activeCohortId,
+          cohortName: activeCohortName || enrollment?.cohort?.name,
+          totalActiveTimeSeconds: totalSecs,
+          totalActiveTimeMinutes: totalMins,
+          activeHours: activeHrs,
+          requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
+          isCompliant: totalSecs >= DEFAULT_REQUIRED_THEORY_SECONDS,
+          progressPct: Math.min(100, Math.round((totalSecs / DEFAULT_REQUIRED_THEORY_SECONDS) * 100)),
+          enrolledAt: enrollment?.enrolledAt,
+          enrollmentStatus: enrollment?.status || "ACTIVE",
+        });
+      }
+
+      // Add any enrolled students that may not have a progress row in the DB yet
+      for (const e of enrollments) {
+        if (!studentMap.has(e.userId)) {
+          const name = e.user
+            ? `${e.user.firstname || ""} ${e.user.lastname || ""}`.trim() || e.user.email || e.userId
+            : e.userId;
+          mergedList.push({
+            id: e.userId,
+            userId: e.userId,
+            studentId: e.user?.id,
+            studentName: name,
+            studentEmail: e.user?.email || "",
+            avatarUrl: e.user?.profilePicture,
+            courseId: activeCourseId || e.courseId,
+            courseTitle: activeCourseTitle || e.course?.title,
+            cohortId: activeCohortId,
+            cohortName: activeCohortName || e.cohort?.name,
+            totalActiveTimeSeconds: 0,
+            totalActiveTimeMinutes: 0,
+            activeHours: 0,
+            requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
+            isCompliant: false,
+            progressPct: 0,
+            enrolledAt: e.enrolledAt,
+            enrollmentStatus: e.status || "ACTIVE",
+          });
+        }
+      }
+
+      const totalStudents = mergedList.length;
+      const sumSeconds = mergedList.reduce((acc, s) => acc + s.totalActiveTimeSeconds, 0);
+      const avgHours = totalStudents > 0 ? Number((sumSeconds / totalStudents / 3600).toFixed(1)) : 0;
+      const totalHours = Number((sumSeconds / 3600).toFixed(1));
+      const compliantCount = mergedList.filter((s) => s.isCompliant).length;
 
       return {
         cohortId: activeCohortId,
-        cohortName: "Cohort 2026-Fall-A",
-        courseId: courseId || 1,
-        totalStudents: standardMockRecords.length,
+        cohortName: activeCohortName,
+        courseId: activeCourseId,
+        courseTitle: activeCourseTitle,
+        totalStudents,
         averageActiveHours: avgHours,
-        averageEngagementScore: avgScore,
+        totalActiveHours: totalHours,
         compliantStudentsCount: compliantCount,
-        records: standardMockRecords,
+        students: mergedList,
       };
     },
-    staleTime: 60 * 1000,
+    staleTime: 30 * 1000,
   });
 };

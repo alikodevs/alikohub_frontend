@@ -42,6 +42,25 @@ export const wabonComplianceService = {
     return response.data;
   },
 
+  getStudentCourseSeatTime: async (courseId: string | number, userId: string): Promise<SeatTimeSummary> => {
+    const response = await api.get<SeatTimeSummary>(`/seat-time/summary/course/${courseId}`, {
+      params: { userId },
+    });
+    return response.data;
+  },
+
+  getInstructorCohorts: async () => {
+    const response = await api.get('/cohorts/instructor');
+    return response.data;
+  },
+
+  getInstructorEnrollments: async (cohortId?: string | number) => {
+    const response = await api.get('/enrollments/instructor', {
+      params: cohortId ? { cohortId } : undefined,
+    });
+    return response.data;
+  },
+
   // ── Clinical Hours & Ratio Enforcement (WAC 246-841A-440) ──
   createClinicalShift: async (dto: any) => {
     const response = await api.post("/clinical/shifts", dto);

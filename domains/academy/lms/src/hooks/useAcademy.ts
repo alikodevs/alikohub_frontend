@@ -276,6 +276,38 @@ export const useMarkLessonComplete = () => {
   });
 };
 
+export const useUpdateContentProgress = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      courseId: number;
+      moduleId: number;
+      lessonId: number;
+      contentId: number;
+      status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
+      score?: number | null;
+    }) => academyService.updateContentProgress(data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["course", String(variables.courseId)],
+      });
+      queryClient.invalidateQueries({ queryKey: ["enrollments"] });
+      queryClient.invalidateQueries({ queryKey: ["student-analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["student-dashboard"] });
+      queryClient.invalidateQueries({
+        queryKey: ["course-report", String(variables.courseId)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          "lesson-complete",
+          String(variables.courseId),
+          String(variables.lessonId),
+        ],
+      });
+    },
+  });
+};
+
 export const useCheckLessonComplete = (courseId: string, lessonId: string) => {
   return useQuery({
     queryKey: ["lesson-complete", courseId, lessonId],
@@ -291,8 +323,8 @@ export const useSubmitExercise = () => {
       exerciseId,
       answer,
     }: {
-      exerciseId: string;
-      answer: string;
+      exerciseId: string | number;
+      answer: any;
     }) => academyService.submitExercise(exerciseId, answer),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["student-analytics"] });

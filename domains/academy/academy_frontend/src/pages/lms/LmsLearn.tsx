@@ -422,8 +422,30 @@ const LmsLearn = () => {
                     {options.map((option, idx) => {
                       const isSelected =
                         selectedAnswers[exercise.id] === option;
-                      const isCorrect = exercise.correctAnswer === option;
-                      const isWrong = isSelected && !isCorrect;
+                      const sub = exercise.mySubmission || exercise.submission;
+                      const reportExercise = reportData
+                        ?.flatMap((m: any) => m.lessons || [])
+                        .find((l: any) => Number(l.lessonId) === Number(activeLessonId))
+                        ?.exercises?.find((rex: any) => Number(rex.exerciseId) === Number(exercise.id));
+
+                      const questionIsCorrect = Boolean(
+                        sub?.isCorrect ??
+                        reportExercise?.isCorrect ??
+                        (sub?.score && sub.score > 0) ??
+                        (reportExercise?.score && reportExercise.score > 0)
+                      );
+
+                      const knownCorrectAnswer = quizSubmitted
+                        ? (sub?.correctAnswer || exercise.correctAnswer)
+                        : undefined;
+
+                      const isCorrect = quizSubmitted && (
+                        knownCorrectAnswer
+                          ? knownCorrectAnswer === option
+                          : (questionIsCorrect && isSelected)
+                      );
+
+                      const isWrong = quizSubmitted && isSelected && !questionIsCorrect;
 
                       let bgClass =
                         "border-slate-100 bg-slate-50/30 hover:bg-slate-50 hover:border-slate-200";
@@ -528,15 +550,6 @@ const LmsLearn = () => {
                       return;
                     }
 
-                    // Calculate score
-                    let correctCount = 0;
-                    exercisesList.forEach((ex: any) => {
-                      if (selectedAnswers[ex.id] === ex.correctAnswer) {
-                        correctCount++;
-                      }
-                    });
-                    setQuizScore(correctCount);
-
                     // Submit all
                     Promise.all(
                       exercisesList.map((ex: any) =>
@@ -546,7 +559,21 @@ const LmsLearn = () => {
                         }),
                       ),
                     )
-                      .then(() => {
+                      .then((results) => {
+                        let correctCount = 0;
+                        results.forEach((res: any, idx: number) => {
+                          const ex = exercisesList[idx];
+                          const isCorrect = Boolean(res?.isCorrect ?? (res?.score > 0));
+                          if (isCorrect) correctCount++;
+                          if (ex) {
+                            ex.mySubmission = {
+                              ...ex.mySubmission,
+                              ...res,
+                              isCorrect,
+                            };
+                          }
+                        });
+                        setQuizScore(correctCount);
                         setQuizSubmitted(true);
                         toast.success(
                           `Quiz completed! Score: ${correctCount}/${exercisesList.length}`,

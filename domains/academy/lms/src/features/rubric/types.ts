@@ -301,9 +301,24 @@ export interface SeatTimeHeartbeatDto {
 
 export interface SeatTimeSummary {
   courseId: string | number;
-  totalActiveSeconds: number;
-  totalRequiredSeconds: number;
-  progressPercentage: number;
+  userId?: string;
+  totalActiveTimeSeconds: number;
+  totalActiveTimeMinutes: number;
+  creditHourActiveTimeSeconds?: number;
+  creditHourActiveTimeMinutes?: number;
+  totalActiveSeconds?: number;
+  totalRequiredSeconds?: number;
+  progressPercentage?: number;
+  lessons?: Array<{
+    lessonId: string | number;
+    lessonTitle?: string;
+    title?: string;
+    isCreditHour?: boolean;
+    activeTimeSeconds: number;
+    activeTimeMinutes: number;
+    status?: string;
+    lastActivity?: string;
+  }>;
   lessonsBreakdown?: Array<{
     lessonId: string | number;
     title: string;
@@ -313,26 +328,32 @@ export interface SeatTimeSummary {
 
 export interface StudentSeatTimeRecord {
   id: string | number;
-  studentId: string | number;
+  userId: string;
+  studentId?: string | number;
   studentName: string;
   studentEmail?: string;
   avatarUrl?: string;
-  courseId: string | number;
+  courseId?: string | number;
   courseTitle?: string;
   cohortId?: string | number;
   cohortName?: string;
-  activeSeconds: number;
-  idleSeconds: number;
-  tabBlurIncidents: number;
-  engagementScore: number;
+  totalActiveTimeSeconds: number;
+  totalActiveTimeMinutes: number;
+  activeHours: number;
   requiredSeconds: number;
-  lastHeartbeatAt?: string;
   isCompliant: boolean;
+  progressPct: number;
+  enrolledAt?: string;
+  enrollmentStatus?: string;
   lessonsBreakdown?: Array<{
     lessonId: string | number;
-    title: string;
-    activeSeconds: number;
-    idleSeconds: number;
+    lessonTitle?: string;
+    title?: string;
+    isCreditHour?: boolean;
+    activeTimeSeconds: number;
+    activeTimeMinutes: number;
+    status?: string;
+    lastActivity?: string;
   }>;
 }
 
@@ -340,9 +361,10 @@ export interface CohortSeatTimeReport {
   cohortId: string | number;
   cohortName?: string;
   courseId?: string | number;
+  courseTitle?: string;
   totalStudents: number;
   averageActiveHours: number;
-  averageEngagementScore: number;
+  totalActiveHours: number;
   compliantStudentsCount: number;
-  records: StudentSeatTimeRecord[];
+  students: StudentSeatTimeRecord[];
 }

@@ -2,23 +2,30 @@ import React, { useState, useMemo } from "react";
 import {
   Clock,
   ShieldCheck,
-  AlertTriangle,
   Download,
   Search,
   Eye,
   CheckCircle2,
   Users,
-  Activity,
   Layers,
-  Sparkles,
-  HelpCircle,
+  Loader2,
+  BookOpen,
+  Activity,
+  PauseCircle,
+  Info,
+  Calendar,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { useCohortSeatTimeReport } from "@/features/rubric/hooks/useSeatTime";
+import {
+  useCohortSeatTimeReport,
+  useInstructorCohortsList,
+  useStudentCourseSeatTime,
+} from "@/features/rubric/hooks/useSeatTime";
 import type { StudentSeatTimeRecord } from "@/features/rubric/types";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -31,96 +38,168 @@ interface SeatTimeAuditTableProps {
 }
 
 export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
-  cohortId = 1,
-  courseId,
+  cohortId: propCohortId,
+  courseId: propCourseId,
   className,
 }) => {
-  const { data: report, isLoading } = useCohortSeatTimeReport(cohortId, courseId);
+  const { data: instructorCohorts, isLoading: isCohortsLoading } = useInstructorCohortsList();
+
+  const [selectedCohortId, setSelectedCohortId] = useState<string | number | undefined>(propCohortId);
+
+  // Automatically select first cohort if not provided via props
+  const effectiveCohortId = useMemo(() => {
+    if (propCohortId) return propCohortId;
+    if (selectedCohortId) return selectedCohortId;
+    if (instructorCohorts && instructorCohorts.length > 0) {
+      return instructorCohorts[0].id;
+    }
+    return undefined;
+  }, [propCohortId, selectedCohortId, instructorCohorts]);
+
+  const effectiveCourseId = useMemo(() => {
+    if (propCourseId) return propCourseId;
+    if (instructorCohorts && instructorCohorts.length > 0) {
+      const match = instructorCohorts.find((c: any) => c.id === effectiveCohortId);
+      return match ? match.courseId : instructorCohorts[0].courseId;
+    }
+    return undefined;
+  }, [propCourseId, effectiveCohortId, instructorCohorts]);
+
+  const { data: report, isLoading: isReportLoading } = useCohortSeatTimeReport(
+    effectiveCohortId,
+    effectiveCourseId
+  );
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"ALL" | "COMPLIANT" | "IN_PROGRESS" | "FLAGGED">("ALL");
+  const [filterStatus, setFilterStatus] = useState<"ALL" | "COMPLIANT" | "IN_PROGRESS">("ALL");
   const [selectedRecordForDetail, setSelectedRecordForDetail] = useState<StudentSeatTimeRecord | null>(null);
+
+  const { data: studentBreakdown, isLoading: isBreakdownLoading } = useStudentCourseSeatTime(
+    effectiveCourseId || selectedRecordForDetail?.courseId,
+    selectedRecordForDetail?.userId
+  );
 
   const formatHours = (seconds: number) => {
     const hrs = seconds / 3600;
     return `${hrs.toFixed(1)} hrs`;
   };
 
-  const formatDuration = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
+  const formatMinutes = (minutes: number) => {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
     if (hrs > 0) return `${hrs}h ${mins}m`;
     return `${mins}m`;
   };
 
   const filteredRecords = useMemo(() => {
-    if (!report?.records) return [];
+    if (!report?.students) return [];
 
-    return report.records.filter((rec) => {
+    return report.students.filter((rec) => {
       const matchesSearch =
         rec.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (rec.studentEmail || "").toLowerCase().includes(searchQuery.toLowerCase());
+        (rec.studentEmail || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        rec.userId.toLowerCase().includes(searchQuery.toLowerCase());
 
       if (!matchesSearch) return false;
 
       if (filterStatus === "COMPLIANT") return rec.isCompliant;
-      if (filterStatus === "IN_PROGRESS") return !rec.isCompliant && rec.tabBlurIncidents < 5;
-      if (filterStatus === "FLAGGED") return rec.tabBlurIncidents >= 3;
+      if (filterStatus === "IN_PROGRESS") return !rec.isCompliant;
 
       return true;
     });
-  }, [report?.records, searchQuery, filterStatus]);
+  }, [report?.students, searchQuery, filterStatus]);
+
+  const latestActivity = useMemo(() => {
+    if (!studentBreakdown?.lessons || studentBreakdown.lessons.length === 0) return null;
+    const timestamps = studentBreakdown.lessons
+      .filter((l: any) => l.lastActivity)
+      .map((l: any) => new Date(l.lastActivity).getTime());
+    if (timestamps.length === 0) return null;
+    return new Date(Math.max(...timestamps));
+  }, [studentBreakdown?.lessons]);
 
   const handleExportCSV = () => {
-    if (!report?.records || report.records.length === 0) {
+    if (!report?.students || report.students.length === 0) {
       toast.error("No seat-time records available to export.");
       return;
     }
 
     const headers = [
-      "Student ID",
+      "User ID",
       "Student Name",
       "Email",
       "Course",
       "Cohort",
-      "Active Hours",
-      "Idle Hours",
-      "Tab Blur Incidents",
-      "Engagement Score (%)",
+      "Active Theory Hours",
+      "Active Theory Minutes",
       "WABON 50h Status",
-      "Last Heartbeat",
+      "Enrollment Status",
+      "Enrolled Date",
     ];
 
-    const rows = report.records.map((r) => [
-      r.studentId,
+    const rows = report.students.map((r) => [
+      `"${r.userId}"`,
       `"${r.studentName}"`,
       r.studentEmail || "",
-      `"${r.courseTitle || "CNA Theory"}"`,
-      `"${r.cohortName || "Cohort 1"}"`,
-      (r.activeSeconds / 3600).toFixed(2),
-      (r.idleSeconds / 3600).toFixed(2),
-      r.tabBlurIncidents,
-      Math.round(r.engagementScore * 100),
-      r.isCompliant ? "COMPLIANT (50+ hrs)" : "IN PROGRESS",
-      r.lastHeartbeatAt || "",
+      `"${r.courseTitle || "NA-C Theory"}"`,
+      `"${r.cohortName || "Cohort"}"`,
+      (r.totalActiveTimeSeconds / 3600).toFixed(2),
+      r.totalActiveTimeMinutes,
+      r.isCompliant ? "COMPLIANT" : "IN_PROGRESS",
+      r.enrollmentStatus || "ACTIVE",
+      r.enrolledAt ? `"${new Date(r.enrolledAt).toLocaleDateString()}"` : "",
     ]);
 
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `WABON_SeatTime_Audit_Cohort_${cohortId}_${format(new Date(), "yyyy-MM-dd")}.csv`);
+    link.setAttribute(
+      "download",
+      `seat_time_report_cohort_${effectiveCohortId}_${format(new Date(), "yyyy-MM-dd")}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    toast.success("WABON Seat-Time Audit CSV exported successfully.");
+    toast.success("Seat-time audit ledger exported to CSV.");
   };
+
+  if (isReportLoading || isCohortsLoading) {
+    return (
+      <div className={cn("p-12 text-center bg-white border border-slate-200 rounded-2xl space-y-3", className)}>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
+        <p className="text-sm font-semibold text-slate-700">Loading seat-time compliance audit records...</p>
+        <p className="text-xs text-slate-400">Verifying real cohort seat-time heartbeats</p>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("space-y-6", className)}>
+      {/* ── Cohort Selector (if multiple cohorts exist) ── */}
+      {instructorCohorts && instructorCohorts.length > 1 && (
+        <div className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-slate-500" />
+            <span className="text-xs font-bold text-slate-700">Active Cohort Roster:</span>
+          </div>
+          <select
+            value={effectiveCohortId}
+            onChange={(e) => setSelectedCohortId(Number(e.target.value))}
+            className="text-xs font-semibold px-3 py-1.5 border border-slate-200 rounded-lg bg-slate-50 text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+          >
+            {instructorCohorts.map((c: any) => (
+              <option key={c.id} value={c.id}>
+                {c.name} (Course #{c.courseId})
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* ── Metric Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
@@ -131,7 +210,7 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
           <div className="text-2xl font-black text-slate-900">
             {report?.totalStudents || 0}
           </div>
-          <p className="text-[11px] text-slate-500 font-medium">Actively tracked cohort roster</p>
+          <p className="text-[11px] text-slate-500 font-medium">Actively enrolled in cohort</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
@@ -153,18 +232,18 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
           <div className="text-2xl font-black text-slate-900">
             {report?.compliantStudentsCount || 0} <span className="text-sm font-semibold text-slate-400">/ {report?.totalStudents || 0}</span>
           </div>
-          <p className="text-[11px] text-blue-600 font-bold">Theory clearance certificates unlocked</p>
+          <p className="text-[11px] text-blue-600 font-bold">Theory clearance unlocked</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold text-slate-600">Avg. Engagement</span>
-            <Activity className="w-4 h-4 text-amber-500" />
+            <span className="text-xs font-bold text-slate-600">Cohort Total Hours</span>
+            <BookOpen className="w-4 h-4 text-purple-500" />
           </div>
           <div className="text-2xl font-black text-slate-900">
-            {report ? Math.round(report.averageEngagementScore * 100) : 100}%
+            {report?.totalActiveHours || 0} <span className="text-sm font-semibold text-slate-400">hrs</span>
           </div>
-          <p className="text-[11px] text-slate-500 font-medium">Based on 60s client heartbeats</p>
+          <p className="text-[11px] text-purple-600 font-bold">Total accumulated theory</p>
         </div>
       </div>
 
@@ -182,7 +261,7 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
               </Badge>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Automated active-vs-idle ledger recorded via 60-second telemetry pulses with tab focus detection.
+              Live telemetry ledger recorded per student against the 50-hour theory standard.
             </p>
           </div>
 
@@ -205,7 +284,6 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
               { id: "ALL", label: "All Candidates" },
               { id: "COMPLIANT", label: "Compliant (50+ hrs)" },
               { id: "IN_PROGRESS", label: "In Progress (< 50 hrs)" },
-              { id: "FLAGGED", label: "Flagged Incidents" },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -227,7 +305,7 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search candidate by name..."
+              placeholder="Search candidate by name or ID..."
               className="pl-8 h-9 text-xs rounded-xl bg-slate-50 border-slate-200"
             />
           </div>
@@ -240,19 +318,17 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
               <tr>
                 <th className="py-3 px-5">Student / Candidate</th>
                 <th className="py-3 px-4">Active Theory Seat-Time</th>
-                <th className="py-3 px-4">Idle / Inactive</th>
-                <th className="py-3 px-4">Tab Blur Incidents</th>
-                <th className="py-3 px-4">Engagement Rate</th>
+                <th className="py-3 px-4">Mandate Progress (50h)</th>
                 <th className="py-3 px-4">WABON 50h Status</th>
-                <th className="py-3 px-4">Last Activity</th>
+                <th className="py-3 px-4">Enrollment Status</th>
                 <th className="py-3 px-5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
               {filteredRecords.length > 0 ? (
                 filteredRecords.map((rec) => {
-                  const activeHours = rec.activeSeconds / 3600;
-                  const progressPct = Math.min(100, Math.round((activeHours / 50) * 100));
+                  const activeHours = rec.totalActiveTimeSeconds / 3600;
+                  const progressPct = rec.progressPct;
 
                   return (
                     <tr key={rec.id} className="hover:bg-slate-50/60 transition-colors">
@@ -260,67 +336,40 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
                       <td className="py-3.5 px-5">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0">
-                            {rec.studentName.charAt(0)}
+                            {rec.studentName ? rec.studentName.charAt(0).toUpperCase() : "U"}
                           </div>
                           <div>
                             <span className="font-bold text-slate-900 block leading-tight">
                               {rec.studentName}
                             </span>
-                            <span className="text-[11px] text-slate-400">
-                              {rec.studentEmail}
+                            <span className="text-[11px] text-slate-400 block">
+                              {rec.studentEmail || rec.userId}
                             </span>
                           </div>
                         </div>
                       </td>
 
                       {/* Active Theory Time */}
-                      <td className="py-3.5 px-4 min-w-[150px]">
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between font-bold text-slate-900">
-                            <span>{formatHours(rec.activeSeconds)}</span>
-                            <span className="text-[10px] text-slate-400">{progressPct}%</span>
-                          </div>
-                          <Progress value={progressPct} className="h-1.5 bg-slate-100" />
+                      <td className="py-3.5 px-4 min-w-[140px]">
+                        <div className="space-y-0.5">
+                          <span className="font-bold text-slate-900 block">
+                            {formatHours(rec.totalActiveTimeSeconds)}
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            {formatMinutes(rec.totalActiveTimeMinutes)} recorded
+                          </span>
                         </div>
                       </td>
 
-                      {/* Idle Time */}
-                      <td className="py-3.5 px-4 text-slate-500 font-semibold">
-                        {formatDuration(rec.idleSeconds)}
-                      </td>
-
-                      {/* Tab Blur Incidents */}
-                      <td className="py-3.5 px-4">
-                        {rec.tabBlurIncidents > 0 ? (
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-[10px] font-bold px-2 py-0.5",
-                              rec.tabBlurIncidents >= 5
-                                ? "bg-rose-50 text-rose-700 border-rose-300"
-                                : "bg-amber-50 text-amber-700 border-amber-300"
-                            )}
-                          >
-                            <AlertTriangle className="w-3 h-3 mr-1" />
-                            {rec.tabBlurIncidents} blur incident{rec.tabBlurIncidents > 1 ? "s" : ""}
-                          </Badge>
-                        ) : (
-                          <span className="text-[11px] text-slate-400 font-normal">None recorded</span>
-                        )}
-                      </td>
-
-                      {/* Engagement Score */}
-                      <td className="py-3.5 px-4 font-bold text-slate-800">
-                        <span className={cn(
-                          "px-2 py-0.5 rounded-md text-[11px]",
-                          rec.engagementScore >= 0.95
-                            ? "bg-emerald-50 text-emerald-700"
-                            : rec.engagementScore >= 0.85
-                            ? "bg-blue-50 text-blue-700"
-                            : "bg-amber-50 text-amber-700"
-                        )}>
-                          {Math.round(rec.engagementScore * 100)}%
-                        </span>
+                      {/* Progress towards 50h Mandate */}
+                      <td className="py-3.5 px-4 min-w-[150px]">
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between font-bold text-slate-900">
+                            <span className="text-[11px]">{progressPct}%</span>
+                            <span className="text-[10px] text-slate-400">of 50.0 hrs</span>
+                          </div>
+                          <Progress value={progressPct} className="h-1.5 bg-slate-100" />
+                        </div>
                       </td>
 
                       {/* WABON Status */}
@@ -336,9 +385,18 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
                         )}
                       </td>
 
-                      {/* Last Heartbeat */}
-                      <td className="py-3.5 px-4 text-slate-400 text-[11px]">
-                        {rec.lastHeartbeatAt ? format(new Date(rec.lastHeartbeatAt), "MMM d, h:mm a") : "Recent"}
+                      {/* Enrollment Status */}
+                      <td className="py-3.5 px-4">
+                        <div className="space-y-0.5">
+                          <Badge variant="outline" className="text-[10px] font-bold uppercase bg-slate-50 text-slate-700">
+                            {rec.enrollmentStatus || "ACTIVE"}
+                          </Badge>
+                          {rec.enrolledAt && (
+                            <span className="text-[10px] text-slate-400 block">
+                              Enrolled {format(new Date(rec.enrolledAt), "MMM d, yyyy")}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Actions */}
@@ -357,7 +415,7 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
                 })
               ) : (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400 text-xs">
+                  <td colSpan={6} className="py-12 text-center text-slate-400 text-xs">
                     No student seat-time records found matching filter criteria.
                   </td>
                 </tr>
@@ -372,67 +430,190 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
         open={Boolean(selectedRecordForDetail)}
         onOpenChange={(open) => !open && setSelectedRecordForDetail(null)}
       >
-        <DialogContent className="sm:max-w-[650px] p-0 border-none rounded-3xl overflow-hidden bg-white max-h-[85vh] flex flex-col">
-          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center">
-                {selectedRecordForDetail?.studentName.charAt(0)}
+        <DialogContent className="sm:max-w-[720px] p-0 border-none rounded-3xl overflow-hidden bg-white max-h-[90vh] flex flex-col">
+          {/* Modal Header */}
+          <div className="p-6 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-sm shadow-2xs">
+                {selectedRecordForDetail?.studentName ? selectedRecordForDetail.studentName.charAt(0).toUpperCase() : "U"}
               </div>
               <div>
-                <DialogTitle className="text-base font-bold text-slate-900">
-                  {selectedRecordForDetail?.studentName}
-                </DialogTitle>
-                <DialogDescription className="text-xs text-slate-500">
-                  Detailed Lesson Seat-Time Breakdown &bull; {selectedRecordForDetail?.courseTitle}
+                <div className="flex items-center gap-2">
+                  <DialogTitle className="text-base font-bold text-slate-900">
+                    {selectedRecordForDetail?.studentName}
+                  </DialogTitle>
+                  <Badge className="bg-blue-100 text-blue-800 border-none text-[10px] font-bold">
+                    {selectedRecordForDetail?.enrollmentStatus || "ACTIVE"}
+                  </Badge>
+                </div>
+                <DialogDescription className="text-xs text-slate-500 mt-0.5">
+                  {selectedRecordForDetail?.studentEmail || selectedRecordForDetail?.userId} &bull; {selectedRecordForDetail?.courseTitle || "Course"} &bull; {selectedRecordForDetail?.cohortName || "Active Cohort"}
                 </DialogDescription>
               </div>
             </div>
+            {selectedRecordForDetail?.isCompliant ? (
+              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-bold py-1 px-2.5">
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" /> 50h Certified
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-300 text-xs font-bold py-1 px-2.5">
+                <Clock className="w-3.5 h-3.5 mr-1 text-amber-600" /> In Progress
+              </Badge>
+            )}
           </div>
 
-          <div className="p-6 overflow-y-auto space-y-4">
-            <div className="grid grid-cols-3 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-100 text-center">
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Active</span>
-                <span className="text-base font-black text-slate-900">
-                  {selectedRecordForDetail ? formatHours(selectedRecordForDetail.activeSeconds) : "0 hrs"}
+          <div className="p-6 overflow-y-auto space-y-6">
+            {/* 1. Required vs Earned Theory Hours */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  WAC 246-841A-440 Theory Hours Clearance
+                </span>
+                <span className="text-xs font-bold text-slate-500">
+                  {selectedRecordForDetail?.progressPct || 0}% Cleared
                 </span>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Idle / Paused</span>
-                <span className="text-base font-black text-slate-600">
-                  {selectedRecordForDetail ? formatDuration(selectedRecordForDetail.idleSeconds) : "0m"}
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                <div className="p-2 space-y-0.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Required Standard</span>
+                  <span className="text-lg font-black text-slate-900 block">50.0 hrs</span>
+                  <span className="text-[11px] text-slate-500">3,000 minutes mandate</span>
+                </div>
+                <div className="p-2 space-y-0.5 border-y sm:border-y-0 sm:border-x border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Earned Theory Hours</span>
+                  <span className="text-lg font-black text-emerald-600 block">
+                    {selectedRecordForDetail ? formatHours(selectedRecordForDetail.totalActiveTimeSeconds) : "0.0 hrs"}
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    {selectedRecordForDetail?.totalActiveTimeMinutes || 0} min verified
+                  </span>
+                </div>
+                <div className="p-2 space-y-0.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Remaining Deficit</span>
+                  <span className="text-lg font-black text-amber-600 block">
+                    {selectedRecordForDetail
+                      ? `${Math.max(0, 50 - selectedRecordForDetail.totalActiveTimeSeconds / 3600).toFixed(1)} hrs`
+                      : "50.0 hrs"}
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    {selectedRecordForDetail?.isCompliant ? "Requirement satisfied" : "Seat-time pending"}
+                  </span>
+                </div>
+              </div>
+
+              <Progress value={selectedRecordForDetail?.progressPct || 0} className="h-2 bg-slate-100" />
+            </div>
+
+            {/* 2. Session Monitoring & Inactivity Telemetry Card */}
+            <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                  <Activity className="w-4 h-4 text-blue-600" />
+                  Real-Time Heartbeat &amp; Inactivity Telemetry
+                </span>
+                <span className="text-[11px] font-semibold text-blue-700 bg-blue-100/70 px-2.5 py-0.5 rounded-full">
+                  Continuous Heartbeat
                 </span>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Engagement</span>
-                <span className="text-base font-black text-blue-600">
-                  {selectedRecordForDetail ? Math.round(selectedRecordForDetail.engagementScore * 100) : 100}%
-                </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="flex items-start gap-2.5 bg-white p-3 rounded-xl border border-blue-100">
+                  <PauseCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-slate-800 block">Tab Blur &amp; Inactivity Guard</span>
+                    <span className="text-[11px] text-slate-500 leading-tight block mt-0.5">
+                      Client halts seat-time pulse on window blur or 60s idle. Inactive seconds are deducted before heartbeat submission.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5 bg-white p-3 rounded-xl border border-blue-100">
+                  <Calendar className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-slate-800 block">Latest Heartbeat Pulse</span>
+                    <span className="text-[11px] text-slate-500 leading-tight block mt-0.5">
+                      {latestActivity ? (
+                        <>Active on {format(latestActivity, "MMM d, yyyy 'at' h:mm a")}</>
+                      ) : (
+                        "No session telemetry pulses recorded yet"
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 text-[11px] text-slate-500 bg-white/70 p-2.5 rounded-xl border border-slate-100">
+                <Info className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  <span className="font-semibold text-slate-700">Audit Traceability Note:</span> Telemetry heartbeats atomically update cumulative active seat-time in <code className="text-slate-800 font-mono bg-slate-100 px-1 py-0.5 rounded">Progress.activeTimeSeconds</code>. Raw individual heartbeat pulse logs and tab blur incidents are not persisted in the database schema.
+                </p>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-700 block">Unit Module Breakdown:</span>
-              <div className="space-y-2 divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
-                {selectedRecordForDetail?.lessonsBreakdown && selectedRecordForDetail.lessonsBreakdown.length > 0 ? (
-                  selectedRecordForDetail.lessonsBreakdown.map((lb, idx) => (
-                    <div key={idx} className="p-3.5 flex items-center justify-between text-xs bg-white hover:bg-slate-50/50">
-                      <span className="font-medium text-slate-800 flex-1 pr-3">
-                        {lb.title}
-                      </span>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className="font-bold text-slate-900">
-                          {formatHours(lb.activeSeconds)}
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          ({formatDuration(lb.idleSeconds)} idle)
-                        </span>
+            {/* 3. Detailed Lesson Seat-Time Breakdown Table */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-slate-500" />
+                  Lesson &amp; Module Seat-Time Ledger
+                </span>
+                <span className="text-[11px] font-medium text-slate-400">
+                  {studentBreakdown?.lessons?.length || 0} lessons logged
+                </span>
+              </div>
+
+              <div className="border border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100 bg-white shadow-2xs">
+                {isBreakdownLoading ? (
+                  <div className="p-8 text-center text-xs text-slate-400 space-y-2">
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto text-blue-600" />
+                    <p className="font-medium text-slate-600">Retrieving lesson telemetry pulse history...</p>
+                  </div>
+                ) : studentBreakdown?.lessons && studentBreakdown.lessons.length > 0 ? (
+                  studentBreakdown.lessons.map((lb: any, idx: number) => {
+                    const lessonMinutes = lb.activeTimeMinutes || Math.round((lb.activeTimeSeconds || 0) / 60);
+                    const lessonHours = ((lb.activeTimeSeconds || 0) / 3600).toFixed(2);
+                    return (
+                      <div key={idx} className="p-3.5 flex items-center justify-between text-xs hover:bg-slate-50/70 transition-colors">
+                        <div className="flex-1 pr-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900">
+                              {lb.lessonTitle || lb.title || `Lesson #${lb.lessonId}`}
+                            </span>
+                            {lb.isCreditHour ? (
+                              <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-[9px] font-bold px-1.5 py-0">
+                                Theory Credit
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-[9px] text-slate-400 border-slate-200 px-1.5 py-0">
+                                Non-Credit
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+                            <span>Status: <strong className="text-slate-600 uppercase font-semibold">{lb.status || "IN_PROGRESS"}</strong></span>
+                            {lb.lastActivity && (
+                              <span>&bull; Last pulse: {format(new Date(lb.lastActivity), "MMM d, h:mm a")}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="font-bold text-slate-900 block">
+                            {formatMinutes(lessonMinutes)}
+                          </span>
+                          <span className="text-[10px] text-slate-400 block">
+                            {lessonHours} hrs logged
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
-                  <div className="p-4 text-center text-xs text-slate-400">
-                    No lesson breakdown data recorded for this candidate yet.
+                  <div className="p-8 text-center text-xs text-slate-400 space-y-1">
+                    <AlertCircle className="w-5 h-5 mx-auto text-slate-300" />
+                    <p className="font-semibold text-slate-600">No individual lesson telemetry recorded yet.</p>
+                    <p className="text-[11px] text-slate-400">Seat-time pulses will appear here once the student launches course theory lessons.</p>
                   </div>
                 )}
               </div>

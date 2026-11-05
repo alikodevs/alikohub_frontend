@@ -4,6 +4,7 @@ import InstructorLayout from "@/features/instructor/components/InstructorLayout"
 import { Inbox, Search, MoreVertical } from "lucide-react";
 import { useInstructorSubmissions } from "@/hooks/useAcademy";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -478,12 +479,22 @@ const InstructorSubmissions = () => {
                           </span>
                         </TableCell>
                         <TableCell className="text-right pr-6">
-                          <button
-                            onClick={() => viewSubmissionDetail(sub)}
-                            className="p-2 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
-                          >
-                            <MoreVertical size={18} />
-                          </button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => viewSubmissionDetail(sub)}
+                              className="h-8 text-xs font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 rounded-lg"
+                            >
+                              Review Attempt
+                            </Button>
+                            <button
+                              onClick={() => viewSubmissionDetail(sub)}
+                              className="p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                            >
+                              <MoreVertical size={16} />
+                            </button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

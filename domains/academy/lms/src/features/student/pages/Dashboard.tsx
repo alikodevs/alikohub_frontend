@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSeatTimeSummary } from "@/features/rubric/hooks/useSeatTime";
 import { useUser } from "@/features/auth/hooks/useAuth";
 import {
   useEnrollments,
@@ -288,10 +289,13 @@ const StudentDashboard = () => {
   );
 
   const totalLessonsAll =
-    activeEnrollments?.reduce(
-      (acc, e) => acc + (e.course?.lessonsCount || 0),
-      0,
-    ) || 1;
+    activeEnrollments?.reduce((acc, e) => {
+      const lessonsInModules = e.course?.modules?.reduce(
+        (sum: number, m: any) => sum + (m.lessons?.length || 0),
+        0
+      );
+      return acc + (lessonsInModules || e.course?.lessonsCount || 0);
+    }, 0) || 1;
   const calculatedProgress = analytics
     ? Math.min(
         Math.round((analytics.lessonsViewed / totalLessonsAll) * 100),
@@ -318,8 +322,13 @@ const StudentDashboard = () => {
       ? sumPercentage
       : calculatedProgress || 0;
 
-  const theoryHoursCompleted = Number(((overallProgress / 100) * 50).toFixed(1));
-  const theoryHoursPercentage = Math.min(100, Math.round((theoryHoursCompleted / 50) * 100));
+  const primaryCourseId = activeEnrollments?.[0]?.courseId ?? activeEnrollments?.[0]?.course?.id;
+  const { data: seatTimeSummary } = useSeatTimeSummary(primaryCourseId);
+
+  const actualActiveSeconds = seatTimeSummary?.totalActiveTimeSeconds ?? seatTimeSummary?.totalActiveSeconds ?? 0;
+  const actualActiveMinutes = seatTimeSummary?.totalActiveTimeMinutes ?? Math.round(actualActiveSeconds / 60);
+  const theoryHoursCompleted = Number((actualActiveSeconds / 3600).toFixed(1));
+  const theoryHoursPercentage = Math.min(100, Math.round((actualActiveSeconds / (50 * 3600)) * 100));
 
   const completedCount =
     activeEnrollments?.filter((e) => e.status === "COMPLETED").length || 0;
@@ -621,7 +630,7 @@ const StudentDashboard = () => {
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground font-medium">Completed vs 50h Mandate</span>
                 <span className="font-bold text-foreground">
-                  {theoryHoursCompleted.toFixed(1)} / 50.0 hrs ({theoryHoursPercentage}%)
+                  {theoryHoursCompleted} hrs ({actualActiveMinutes}m) / 50.0 hrs ({theoryHoursPercentage}%)
                 </span>
               </div>
               <Progress value={theoryHoursPercentage} className="h-2" />

@@ -23,6 +23,7 @@ import {
   useMyTransactions,
 } from "@/hooks/useAcademy";
 import { useOrientationStatus } from "@/features/orientation/hooks/useOrientation";
+import { useSeatTimeSummary } from "@/features/rubric/hooks/useSeatTime";
 import { useUser } from "@/features/auth/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,8 +84,13 @@ const LmsMyLearning = () => {
   });
 
   const totalLessonsAll =
-    enrollments?.reduce((acc, e) => acc + (e.course?.lessonsCount || 0), 0) ||
-    1;
+    enrollments?.reduce((acc, e) => {
+      const lessonsInModules = e.course?.modules?.reduce(
+        (sum: number, m: any) => sum + (m.lessons?.length || 0),
+        0
+      );
+      return acc + (lessonsInModules || e.course?.lessonsCount || 0);
+    }, 0) || 1;
   const calculatedProgress = analytics
     ? Math.min(
         Math.round((analytics.lessonsViewed / totalLessonsAll) * 100),
@@ -111,8 +117,20 @@ const LmsMyLearning = () => {
       ? sumPercentage
       : calculatedProgress || 0;
 
-  const theoryHoursCompleted = Number(((overallProgress / 100) * 50).toFixed(1));
-  const theoryHoursPercentage = Math.min(100, Math.round((theoryHoursCompleted / 50) * 100));
+  const primaryEnrollment =
+    enrollments?.find(
+      (e: any) =>
+        e.status === "ACTIVE" ||
+        completedTxCourseIds.has(e.courseId ?? e.course?.id)
+    ) || enrollments?.[0];
+  const primaryCourseId = primaryEnrollment?.courseId ?? primaryEnrollment?.course?.id;
+  const { data: seatTimeSummary } = useSeatTimeSummary(primaryCourseId);
+
+  const actualActiveSeconds = seatTimeSummary?.totalActiveTimeSeconds ?? seatTimeSummary?.totalActiveSeconds ?? 0;
+  const actualActiveMinutes = seatTimeSummary?.totalActiveTimeMinutes ?? Math.round(actualActiveSeconds / 60);
+  const theoryHoursCompleted = Number((actualActiveSeconds / 3600).toFixed(1));
+  const theoryHoursPercentage = Math.min(100, Math.round((actualActiveSeconds / (50 * 3600)) * 100));
+  const remainingHours = Number(Math.max(0, 50 - (actualActiveSeconds / 3600)).toFixed(1));
 
   const totalCourses =
     enrollments?.filter(
@@ -436,7 +454,7 @@ const LmsMyLearning = () => {
                 ) : (
                   <>
                     <Clock className="w-3.5 h-3.5 mr-1.5 text-amber-600 inline" />
-                    {(50 - theoryHoursCompleted).toFixed(1)} hrs remaining
+                    {remainingHours} hrs remaining
                   </>
                 )}
               </Badge>
@@ -447,7 +465,7 @@ const LmsMyLearning = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-slate-700">
-                Verified Active Theory: <strong className="text-blue-700 font-bold">{theoryHoursCompleted.toFixed(1)} hrs</strong> of <strong>50.0 hrs</strong> required
+                Verified Active Theory: <strong className="text-blue-700 font-bold">{theoryHoursCompleted} hrs ({actualActiveMinutes}m)</strong> of <strong>50.0 hrs</strong> required
               </span>
               <span className="font-bold text-slate-900">
                 {theoryHoursPercentage}%
@@ -460,7 +478,7 @@ const LmsMyLearning = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 text-xs">
             <div>
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Active Seat-Time</span>
-              <span className="font-bold text-slate-900 text-sm">{theoryHoursCompleted.toFixed(1)} hrs</span>
+              <span className="font-bold text-slate-900 text-sm">{theoryHoursCompleted} hrs ({actualActiveMinutes}m)</span>
             </div>
             <div>
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Required Hours</span>
@@ -598,7 +616,7 @@ const LmsMyLearning = () => {
                             <span className="text-slate-300">·</span>
                             <span className="inline-flex items-center gap-1 text-blue-700 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
                               <Clock className="w-3 h-3 text-blue-600" />
-                              Theory: {((currentProgress / 100) * 50).toFixed(1)}h / 50h
+                              Theory: {theoryHoursCompleted}h / 50.0h
                             </span>
                           </div>
                         </div>

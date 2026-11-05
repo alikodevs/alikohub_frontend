@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   useCourseDetails,
   useMarkLessonComplete,
+  useUpdateContentProgress,
   useEnrollments,
   useStudentAnalytics,
   useStudentDashboard,
@@ -59,11 +60,13 @@ import { RubricCriteriaTable } from "@/features/rubric/components/RubricCriteria
 import { DiscussionForumView } from "@/features/rubric/components/DiscussionForumView";
 import { examSecurityService } from "@/features/rubric/services/examSecurityService";
 import { wabonComplianceService } from "@/features/rubric/services/wabonComplianceService";
+import { useSeatTimeSummary } from "@/features/rubric/hooks/useSeatTime";
 
 interface CourseItem {
   id: string;
   title: string;
   lessonId: string;
+  moduleId?: string | number;
   itemType: "video" | "reading" | "quiz" | "pdf" | "discussion";
   type?: string;
   url?: string;
@@ -81,9 +84,14 @@ const LmsLearn = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: course, isLoading } = useCourseDetails(id || "");
+  const { data: seatTimeSummary } = useSeatTimeSummary(course?.id || id);
   const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollments();
   const { data: analytics } = useStudentAnalytics();
   const markCompleteMutation = useMarkLessonComplete();
+  const updateContentMutation = useUpdateContentProgress();
+  const [completedContents, setCompletedContents] = useState<Set<string>>(
+    new Set(),
+  );
   const submitExerciseMutation = useSubmitExercise();
   const { data: dashboardData } = useStudentDashboard();
   const { data: reportData, isLoading: isReportLoading } = useCourseReport(
@@ -233,6 +241,7 @@ const LmsLearn = () => {
             l.contents?.map((c) => ({
               ...c,
               lessonId: l.id,
+              moduleId: m.id,
               itemType: (c.type === "VIDEO" ? "video" : "reading") as
                 | "video"
                 | "reading"
@@ -263,6 +272,7 @@ const LmsLearn = () => {
                   title: displayTitle,
                   fullTitle,
                   lessonId: l.id,
+                  moduleId: m.id,
                   itemType: "quiz",
                   exercises,
                 });
@@ -437,37 +447,51 @@ const LmsLearn = () => {
 
   const detailedExercisesLoaded = Object.keys(detailedExercisesMap).length;
 
+  const currentReportLesson = useMemo(() => {
+    return reportData
+      ?.flatMap((m: any) => m.lessons || [])
+      .find((l: any) => Number(l.lessonId) === Number(activeLessonId));
+  }, [reportData, activeLessonId]);
+
   useEffect(() => {
     if (activeItemType === "quiz" && detailedExercises.length) {
       const answers: Record<string, string> = {};
+      const results: Record<string, { isCorrect: boolean; correctAnswer?: string }> = {};
       let submittedCount = 0;
       let score = 0;
-      const reportLesson = reportData
-        ?.flatMap((m: any) => m.lessons || [])
-        .find((l: any) => Number(l.lessonId) === Number(activeLessonId));
 
       detailedExercises.forEach((ex: any) => {
-        const reportExercise = reportLesson?.exercises?.find(
+        const reportExercise = currentReportLesson?.exercises?.find(
           (rex: any) => Number(rex.exerciseId) === Number(ex.id),
         );
+        const sub = ex.mySubmission || ex.submission;
         const storedAnswer =
-          ex.mySubmission?.answer ||
+          sub?.answer ||
           reportExercise?.answer ||
-          ex.userAnswer ||
-          ex.submission?.answer;
+          ex.userAnswer;
         const isCompletedState =
           !!storedAnswer ||
+          sub?.status === "GRADED" ||
           reportExercise?.status === "GRADED" ||
           reportExercise?.status === "COMPLETED";
 
         if (isCompletedState) {
           answers[ex.id] = storedAnswer || "SUBMITTED";
           submittedCount++;
-          // Use server/report data for scoring
-          const isCorrect =
-            reportExercise?.status === "GRADED" &&
-            (reportExercise?.isCorrect || reportExercise?.score > 0);
+          // Determine correctness from submission or reportExercise
+          const isCorrect = Boolean(
+            sub?.isCorrect ??
+            reportExercise?.isCorrect ??
+            (sub?.score && sub.score > 0) ??
+            (reportExercise?.score && reportExercise.score > 0) ??
+            (ex.correctAnswer && storedAnswer && ex.correctAnswer === storedAnswer)
+          );
           if (isCorrect) score++;
+
+          results[ex.id] = {
+            isCorrect,
+            correctAnswer: ex.correctAnswer || sub?.correctAnswer,
+          };
         }
       });
 
@@ -476,6 +500,7 @@ const LmsLearn = () => {
       );
       if (submittedCount > 0) {
         setSelectedAnswers(answers);
+        setQuizResults(results);
         setQuizSubmitted(true);
         setQuizScore(score);
         setIsExamAttested(true);
@@ -483,13 +508,14 @@ const LmsLearn = () => {
         setQuizSubmitted(false);
         setQuizScore(0);
         setSelectedAnswers({});
+        setQuizResults({});
       }
     }
     // Don't reset quiz state when exercises are still loading — wait for them to arrive
   }, [
     activeLessonId,
     lastSyncKey,
-    reportData,
+    currentReportLesson,
     activeItemType,
     detailedExercisesLoaded,
   ]);
@@ -653,6 +679,87 @@ const LmsLearn = () => {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+
+  // Hydrate completed contents from course report
+  useEffect(() => {
+    if (!reportData || !Array.isArray(reportData)) return;
+    const cSet = new Set<string>();
+    reportData.forEach((m: any) => {
+      m.lessons?.forEach((l: any) => {
+        l.contents?.forEach((c: any) => {
+          if (c.status === "COMPLETED") {
+            cSet.add(String(c.contentId || c.id));
+          }
+        });
+      });
+    });
+    setCompletedContents((prev) => {
+      const next = new Set(prev);
+      cSet.forEach((cId) => next.add(cId));
+      return next;
+    });
+  }, [reportData]);
+
+  const isContentCompleted = (contentId?: string | number) => {
+    if (!contentId) return false;
+    const key = String(contentId);
+    if (completedContents.has(key)) return true;
+    if (!reportData || !Array.isArray(reportData)) return false;
+    for (const m of reportData) {
+      for (const l of m.lessons || []) {
+        const found = l.contents?.find(
+          (c: any) => String(c.contentId || c.id) === key,
+        );
+        if (found && found.status === "COMPLETED") return true;
+      }
+    }
+    return false;
+  };
+
+  const handleMarkContentComplete = async (contentItem?: any) => {
+    const item = contentItem || activeItem;
+    if (!item || !course?.id) return;
+    if (item.itemType === "quiz" || item.itemType === "discussion") return;
+
+    const contentId = Number(item.id);
+    if (!contentId || isNaN(contentId)) return;
+
+    const cKey = String(contentId);
+    if (completedContents.has(cKey) || updateContentMutation.isPending) return;
+
+    const currentModId = item.moduleId || activeModuleId || currentModule?.id;
+    const lessonId = item.lessonId || activeLessonId;
+    if (!currentModId || !lessonId) return;
+
+    try {
+      await updateContentMutation.mutateAsync({
+        courseId: Number(course.id),
+        moduleId: Number(currentModId),
+        lessonId: Number(lessonId),
+        contentId,
+        status: "COMPLETED",
+      });
+      setCompletedContents((prev) => new Set(prev).add(cKey));
+      toast.success("Progress saved: Content completed");
+
+      // Verify bottom-up auto-completion of lesson
+      try {
+        const checkResult = await academyService.checkLessonComplete(
+          course.id,
+          lessonId,
+        );
+        if (
+          checkResult?.completed ||
+          checkResult?.isCompleted ||
+          checkResult === true
+        ) {
+          setCompletedLessons((prev) => new Set(prev).add(String(lessonId)));
+        }
+      } catch (_) {}
+    } catch (err: any) {
+      console.warn("Failed to update content progress:", err);
+    }
+  };
 
   const checkLessonCompleted = (lessonId: string | number) => {
     const key = String(lessonId);
@@ -1007,14 +1114,35 @@ const LmsLearn = () => {
                           const isSelected =
                             selectedAnswers[exercise.id] === option;
                           const optionResult = quizResults[exercise.id];
+                          const sub = exercise.mySubmission || exercise.submission;
+                          const reportEx = currentReportLesson?.exercises?.find(
+                            (rex: any) => Number(rex.exerciseId) === Number(exercise.id),
+                          );
+
+                          // The submission for this exercise is correct if any server source confirms it
+                          const questionIsCorrect = Boolean(
+                            optionResult?.isCorrect ??
+                            sub?.isCorrect ??
+                            reportEx?.isCorrect ??
+                            (sub?.score && sub.score > 0) ??
+                            (reportEx?.score && reportEx.score > 0)
+                          );
+
                           const knownCorrectAnswer = quizSubmitted
-                            ? (optionResult?.correctAnswer || exercise.mySubmission?.correctAnswer)
+                            ? (optionResult?.correctAnswer || sub?.correctAnswer || exercise.correctAnswer)
                             : undefined;
-                          const isCorrect = quizSubmitted
-                            ? (optionResult?.isCorrect ?? (knownCorrectAnswer ? knownCorrectAnswer === option : false))
-                            : false;
-                          const isWrong =
-                            quizSubmitted && isSelected && !isCorrect;
+
+                          // Option is marked correct if:
+                          // 1) knownCorrectAnswer is provided and matches this option, OR
+                          // 2) question was graded correct and this is the option the student selected
+                          const isCorrect = quizSubmitted && (
+                            knownCorrectAnswer
+                              ? knownCorrectAnswer === option
+                              : (questionIsCorrect && isSelected)
+                          );
+
+                          // Option is marked wrong if the student selected it but the question is wrong
+                          const isWrong = quizSubmitted && isSelected && !questionIsCorrect;
 
                           let cls =
                             "border-[var(--lovable-border)] bg-white hover:bg-[var(--lovable-muted)]";
@@ -1101,12 +1229,20 @@ const LmsLearn = () => {
                                   exerciseId: ex.id,
                                   answer: selectedAnswers[ex.id],
                                 });
+                              const isCorrect = Boolean(
+                                result?.isCorrect ?? (result?.score > 0),
+                              );
                               submitResults[ex.id] = {
-                                isCorrect:
-                                  result?.isCorrect ?? (result?.score > 0),
-                                correctAnswer:
-                                  result?.correctAnswer,
+                                isCorrect,
+                                correctAnswer: result?.correctAnswer,
                               };
+                              if (ex) {
+                                ex.mySubmission = {
+                                  ...ex.mySubmission,
+                                  ...result,
+                                  isCorrect,
+                                };
+                              }
                               if (Number(idx) < exercisesList.length - 1) {
                                 await delay(500);
                               }
@@ -1211,7 +1347,35 @@ const LmsLearn = () => {
                 controls
                 controlsList="nodownload"
                 className="absolute inset-0 w-full h-full object-contain z-10 bg-slate-950"
+                onEnded={() => handleMarkContentComplete(activeItem)}
               />
+            )}
+          </div>
+
+          {/* Video completion action bar */}
+          <div className="flex items-center justify-between p-3.5 bg-white border border-[var(--lovable-border)] rounded-lg mb-6 max-w-4xl shadow-2xs">
+            <div className="flex items-center gap-2">
+              {isContentCompleted(activeItem?.id) ? (
+                <div className="flex items-center gap-1.5 text-emerald-700 font-semibold text-xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Video completed</span>
+                </div>
+              ) : (
+                <span className="text-xs text-slate-500 font-medium">
+                  Watch video to complete or click to record completion
+                </span>
+              )}
+            </div>
+            {!isContentCompleted(activeItem?.id) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleMarkContentComplete(activeItem)}
+                disabled={updateContentMutation.isPending}
+                className="h-8 text-xs font-semibold gap-1.5 bg-white hover:bg-slate-50 text-slate-800 border-slate-200"
+              >
+                <Check className="w-3.5 h-3.5 text-emerald-600" /> Mark as Completed
+              </Button>
             )}
           </div>
 
@@ -1348,8 +1512,8 @@ const LmsLearn = () => {
                 onPageChange={(current, total) => {
                   setPdfCurrentPage(current);
                   setPdfTotalPages(total);
-                  if (current === total && total > 1 && !isLessonCompleted) {
-                    handleMarkComplete();
+                  if (current === total && total > 1) {
+                    handleMarkContentComplete(activeItem);
                   }
                 }}
                 onDocumentLoad={(total) => setPdfTotalPages(total)}
@@ -1376,6 +1540,33 @@ const LmsLearn = () => {
               </button>
             </div>
           )}
+
+          {/* Reading completion action bar */}
+          <div className="flex items-center justify-between p-3.5 bg-white border border-[var(--lovable-border)] rounded-lg mb-6 shadow-2xs">
+            <div className="flex items-center gap-2">
+              {isContentCompleted(activeItem?.id) ? (
+                <div className="flex items-center gap-1.5 text-emerald-700 font-semibold text-xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Reading completed</span>
+                </div>
+              ) : (
+                <span className="text-xs text-slate-500 font-medium">
+                  Review material to complete or click to record completion
+                </span>
+              )}
+            </div>
+            {!isContentCompleted(activeItem?.id) && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleMarkContentComplete(activeItem)}
+                disabled={updateContentMutation.isPending}
+                className="h-8 text-xs font-semibold gap-1.5 bg-white hover:bg-slate-50 text-slate-800 border-slate-200"
+              >
+                <Check className="w-3.5 h-3.5 text-emerald-600" /> Mark as Read
+              </Button>
+            )}
+          </div>
 
           {/* Unit Discussion Callout (WAC 246-841A-440) */}
           <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/40 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
@@ -1534,15 +1725,29 @@ const LmsLearn = () => {
       <div className="course-body">
         {/* Sidebar */}
         <aside className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
-          <div className="progress-block">
-            <div className="progress-label">
-              <span>Course progress</span>
-              <strong>{progress}%</strong>
-            </div>
-            <div className="progress-track">
-              <span style={{ width: `${progress}%` }} />
-            </div>
-          </div>
+          {(() => {
+            const totalCourseLessons = flatLessons.length;
+            const completedLessonsCount = flatLessons.filter((l) =>
+              checkLessonCompleted(l.id),
+            ).length;
+            const dynamicCourseProgress =
+              totalCourseLessons > 0
+                ? Math.round((completedLessonsCount / totalCourseLessons) * 100)
+                : 0;
+            const effectiveProgress = Math.max(progress, dynamicCourseProgress);
+
+            return (
+              <div className="progress-block">
+                <div className="progress-label">
+                  <span>Course progress</span>
+                  <strong>{effectiveProgress}%</strong>
+                </div>
+                <div className="progress-track">
+                  <span style={{ width: `${effectiveProgress}%` }} />
+                </div>
+              </div>
+            );
+          })()}
 
           {/* WABON Theory Seat-Time Progress Indicator */}
           <div className="px-4 py-3 mx-3 my-2 rounded-xl bg-blue-50/70 border border-blue-100/90 text-xs space-y-1.5">
@@ -1550,12 +1755,23 @@ const LmsLearn = () => {
               <span className="flex items-center gap-1">
                 <Clock size={12} className="text-blue-600" /> Theory Seat-Time
               </span>
-              <span>{(((progress || 0) / 100) * 50).toFixed(1)} / 50.0 hrs</span>
+              <span>
+                {((seatTimeSummary?.totalActiveTimeSeconds ?? 0) / 3600).toFixed(1)} hrs ({seatTimeSummary?.totalActiveTimeMinutes ?? Math.round((seatTimeSummary?.totalActiveTimeSeconds ?? 0) / 60)}m) / 50.0 hrs
+              </span>
             </div>
             <div className="h-1.5 rounded-full bg-blue-200/60 overflow-hidden">
               <div
                 className="h-full rounded-full bg-blue-600 transition-all duration-500"
-                style={{ width: `${Math.min(100, Math.round(((progress || 0) / 100) * 50 / 50 * 100))}%` }}
+                style={{
+                  width: `${Math.min(
+                    100,
+                    Math.round(
+                      ((seatTimeSummary?.totalActiveTimeSeconds ?? 0) /
+                        (50 * 3600)) *
+                        100
+                    )
+                  )}%`,
+                }}
               />
             </div>
             <div className="flex items-center justify-between text-[10px] text-blue-700">
@@ -1568,9 +1784,42 @@ const LmsLearn = () => {
           </div>
 
           <nav className="lesson-nav pb-10" aria-label="Course lessons">
-            {course.modules?.map((module) => (
+            {course.modules?.map((module) => {
+              const moduleLessons = module.lessons || [];
+              const completedInMod = moduleLessons.filter((l) =>
+                checkLessonCompleted(l.id),
+              ).length;
+              const totalInMod = moduleLessons.length;
+              const moduleStatus =
+                totalInMod > 0 && completedInMod === totalInMod
+                  ? "COMPLETED"
+                  : completedInMod > 0
+                    ? "IN_PROGRESS"
+                    : "NOT_STARTED";
+
+              return (
               <div key={module.id} className="mb-4">
-                <p>{module.title}</p>
+                <div className="flex items-center justify-between mb-1.5 px-1">
+                  <p className="text-xs font-bold text-slate-800 uppercase tracking-wider truncate m-0">
+                    {module.title}
+                  </p>
+                  <span
+                    className={cn(
+                      "text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0",
+                      moduleStatus === "COMPLETED"
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                        : moduleStatus === "IN_PROGRESS"
+                          ? "bg-blue-100 text-blue-800 border border-blue-200"
+                          : "bg-slate-100 text-slate-500",
+                    )}
+                  >
+                    {moduleStatus === "COMPLETED"
+                      ? "Completed"
+                      : moduleStatus === "IN_PROGRESS"
+                        ? `${completedInMod}/${totalInMod}`
+                        : "Not Started"}
+                  </span>
+                </div>
                 {module.lessons?.map((lesson) => {
                   const isActiveLesson = activeLessonId === lesson.id;
                   const isFinished = checkLessonCompleted(lesson.id);
@@ -1603,6 +1852,7 @@ const LmsLearn = () => {
                         <div className="flex flex-col gap-1 mt-1">
                           {lesson.contents?.map((content) => {
                             const isActiveItem = activeItemId === content.id;
+                            const isContentDone = isContentCompleted(content.id);
                             return (
                               <button
                                 key={content.id}
@@ -1618,7 +1868,11 @@ const LmsLearn = () => {
                                     setIsSidebarOpen(false);
                                 }}
                               >
-                                <FileText size={15} strokeWidth={1.7} />
+                                {isContentDone ? (
+                                  <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />
+                                ) : (
+                                  <FileText size={15} strokeWidth={1.7} />
+                                )}
                                 <span className="truncate">
                                   {content.title}
                                 </span>
@@ -1634,6 +1888,16 @@ const LmsLearn = () => {
                             )
                             .map((quizItem) => {
                               const isActiveQuiz = activeItemId === quizItem.id;
+                              const isQuizDone =
+                                checkLessonCompleted(lesson.id) ||
+                                (quizItem.exercises &&
+                                  quizItem.exercises.length > 0 &&
+                                  quizItem.exercises.every(
+                                    (ex: any) =>
+                                      quizResults[ex.id] ||
+                                      ex.mySubmission?.isCorrect !== undefined ||
+                                      detailedExercisesMap[ex.id]?.mySubmission,
+                                  ));
                               return (
                                 <button
                                   key={quizItem.id}
@@ -1645,7 +1909,11 @@ const LmsLearn = () => {
                                       setIsSidebarOpen(false);
                                   }}
                                 >
-                                  <HelpCircle size={15} strokeWidth={1.7} />
+                                  {isQuizDone ? (
+                                    <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />
+                                  ) : (
+                                    <HelpCircle size={15} strokeWidth={1.7} />
+                                  )}
                                   <span className="truncate">
                                     {quizItem.title}
                                   </span>
@@ -1682,7 +1950,8 @@ const LmsLearn = () => {
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </nav>
 
           {/* Sidebar Scroll Cue */}

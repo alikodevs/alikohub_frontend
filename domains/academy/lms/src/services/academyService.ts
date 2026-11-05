@@ -243,24 +243,37 @@ export const academyService = {
     return response.data;
   },
 
-  markLessonComplete: async (courseId: string, lessonId: string) => {
+  markLessonComplete: async (courseId: string | number, lessonId: string | number) => {
     const response = await api.post(
       `/progress/course/${courseId}/lesson/${lessonId}/complete`,
     );
     return response.data;
   },
 
-  checkLessonComplete: async (courseId: string, lessonId: string) => {
+  updateContentProgress: async (data: {
+    courseId: number;
+    moduleId: number;
+    lessonId: number;
+    contentId: number;
+    status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "FAILED";
+    score?: number | null;
+  }) => {
+    const response = await api.post("/progress/content", data);
+    return response.data;
+  },
+
+  checkLessonComplete: async (courseId: string | number, lessonId: string | number) => {
     const response = await api.get(
       `/progress/course/${courseId}/lesson/${lessonId}/complete`,
     );
     return response.data;
   },
 
-  submitExercise: async (exerciseId: string, answer: string) => {
+  submitExercise: async (exerciseId: string | number, answer: any) => {
     const response = await api.post(`/exercises/${exerciseId}/submit`, {
+      answer,
       answers: [{ questionId: "q1", value: answer }],
-      submissionText: answer,
+      submissionText: typeof answer === "string" ? answer : JSON.stringify(answer),
     });
     return response.data;
   },
