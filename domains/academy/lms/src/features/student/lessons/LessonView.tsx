@@ -376,6 +376,26 @@ const LmsLearn = () => {
     };
   }, [course?.id]);
 
+  // Hydrate completed contents from course report
+  useEffect(() => {
+    if (!reportData || !Array.isArray(reportData)) return;
+    const cSet = new Set<string>();
+    reportData.forEach((m: any) => {
+      m.lessons?.forEach((l: any) => {
+        l.contents?.forEach((c: any) => {
+          if (c.status === "COMPLETED") {
+            cSet.add(String(c.contentId || c.id));
+          }
+        });
+      });
+    });
+    setCompletedContents((prev) => {
+      const next = new Set(prev);
+      cSet.forEach((cId) => next.add(cId));
+      return next;
+    });
+  }, [reportData]);
+
   // Auto-select first item
   useEffect(() => {
     if (course && allItems.length > 0 && !activeItemId) {
@@ -679,26 +699,6 @@ const LmsLearn = () => {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-
-  // Hydrate completed contents from course report
-  useEffect(() => {
-    if (!reportData || !Array.isArray(reportData)) return;
-    const cSet = new Set<string>();
-    reportData.forEach((m: any) => {
-      m.lessons?.forEach((l: any) => {
-        l.contents?.forEach((c: any) => {
-          if (c.status === "COMPLETED") {
-            cSet.add(String(c.contentId || c.id));
-          }
-        });
-      });
-    });
-    setCompletedContents((prev) => {
-      const next = new Set(prev);
-      cSet.forEach((cId) => next.add(cId));
-      return next;
-    });
-  }, [reportData]);
 
   const isContentCompleted = (contentId?: string | number) => {
     if (!contentId) return false;
