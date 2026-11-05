@@ -13,6 +13,8 @@ import {
   BellRing,
   Settings,
   Repeat,
+  FileCheck2,
+  CalendarCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +29,8 @@ import { toast } from "sonner";
 const instructorLinks = [
   { label: "Dashboard", to: "/instructor", icon: LayoutDashboard },
   { label: "My Courses", to: "/instructor/courses", icon: BookOpen },
+  { label: "Admissions", to: "/instructor/admissions", icon: FileCheck2 },
+  { label: "Census", to: "/instructor/census", icon: CalendarCheck },
   { label: "Analytics", to: "/instructor/analytics", icon: BarChart2 },
   { label: "Schedules", to: "/instructor/schedules", icon: BellRing },
 ];

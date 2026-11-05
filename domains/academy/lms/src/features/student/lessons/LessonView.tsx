@@ -1053,6 +1053,21 @@ const LmsLearn = () => {
               </div>
             ) : (
               <>
+                {/* First-Week Attendance Gate Notice */}
+                {exercisesList.some((ex: any) => ex.isWeekOneAttendanceGate) && (
+                  <div className="p-4 rounded-xl bg-emerald-50/90 border border-emerald-200/90 text-emerald-900 text-xs flex items-center gap-3 shadow-xs">
+                    <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <div>
+                      <span className="font-bold block text-emerald-950">
+                        First-Week Academic Attendance Verification Gate
+                      </span>
+                      <span className="text-[11px] text-emerald-800">
+                        Submitting this designated exercise confirms your active academic engagement and automatically verifies your present attendance on the cohort enrollment census (WAC 246-841A-440).
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Questions */}
                 {exercisesList.map((exercise: any, index: number) => {
                   const options = parseOptions(exercise.options);
@@ -1067,10 +1082,17 @@ const LmsLearn = () => {
                         }
                       }}
                     >
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-[10px] font-semibold text-[var(--lovable-primary)] uppercase tracking-wider bg-[var(--lovable-active-soft)] px-2.5 py-0.5 rounded">
-                          Question {index + 1}
-                        </span>
+                      <div className="mb-2 flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-semibold text-[var(--lovable-primary)] uppercase tracking-wider bg-[var(--lovable-active-soft)] px-2.5 py-0.5 rounded">
+                            Question {index + 1}
+                          </span>
+                          {exercise.isWeekOneAttendanceGate && (
+                            <Badge className="bg-emerald-50 text-emerald-800 border-emerald-300 text-[10px] font-bold">
+                              Week 1 Attendance Gate
+                            </Badge>
+                          )}
+                        </div>
                         {exercise.rubric && (
                           <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] font-bold">
                             Rubric Assessed ({exercise.points} pts)

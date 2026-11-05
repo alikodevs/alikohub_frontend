@@ -227,6 +227,33 @@ export const OrientationChecklistPage: React.FC = () => {
           )}
         </div>
 
+        {/* Admissions Prerequisite Documents & Agreement Link */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center shrink-0">
+              <FileCheck2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 font-heading">
+                Admissions Prerequisite Documents & Enrollment Agreement
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Submit background check, TB test, immunizations, CPR card, and sign digital enrollment agreement.
+              </p>
+            </div>
+          </div>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="rounded-xl h-9 text-xs font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 shrink-0"
+          >
+            <Link to={`/admissions?cohortId=${selectedCohortId}`}>
+              Admissions Checklist <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+            </Link>
+          </Button>
+        </div>
+
         {/* API Error State */}
         {isError && (
           <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

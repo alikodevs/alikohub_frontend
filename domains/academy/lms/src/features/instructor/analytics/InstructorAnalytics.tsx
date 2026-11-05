@@ -1,6 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
-import { BarChart2, TrendingUp, Users, BookOpen, Clock, AlertCircle, RotateCcw } from "lucide-react";
+import { BarChart2, TrendingUp, Users, BookOpen, Clock, AlertCircle, RotateCcw, FileCheck2, CalendarCheck, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -63,12 +64,34 @@ const InstructorAnalytics = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-heading font-bold text-slate-900 border-none">
-              Performance Analytics
+              Performance Analytics & Compliance
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Detailed insights into your course performance and student
-              engagement.
+              Detailed insights into course performance, WABON theory telemetry, admissions clearance, and attendance census.
             </p>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="rounded-xl text-xs font-bold gap-1.5 h-9 bg-white"
+            >
+              <Link to="/instructor/admissions">
+                <FileCheck2 className="w-4 h-4 text-indigo-600" /> Admissions Clearance
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="rounded-xl text-xs font-bold gap-1.5 h-9 bg-white"
+            >
+              <Link to="/instructor/census">
+                <CalendarCheck className="w-4 h-4 text-emerald-600" /> Attendance Census
+              </Link>
+            </Button>
           </div>
         </div>
 

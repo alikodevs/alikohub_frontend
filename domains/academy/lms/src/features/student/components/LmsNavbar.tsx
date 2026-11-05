@@ -11,6 +11,7 @@ import {
   Clock,
   Sparkles,
   GraduationCap,
+  FileCheck2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -225,6 +226,20 @@ const LmsNavbar = () => {
                     className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                   >
                     <User className="w-4 h-4" /> Profile
+                  </Link>
+                  <Link
+                    to="/admissions"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                  >
+                    <FileCheck2 className="w-4 h-4 text-blue-600" /> Admissions Clearance
+                  </Link>
+                  <Link
+                    to="/orientation"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                  >
+                    <GraduationCap className="w-4 h-4 text-amber-600" /> Orientation Checklist
                   </Link>
                   {/* <Link
                     to="/photo"

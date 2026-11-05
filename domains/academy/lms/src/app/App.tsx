@@ -47,6 +47,9 @@ import RubricsManagementPage from "@/features/rubric/pages/RubricsManagementPage
 import CNACompetencyMatrixPage from "@/features/rubric/pages/CNACompetencyMatrixPage";
 import OrientationChecklistPage from "@/features/orientation/pages/OrientationChecklistPage";
 import { OrientationGate } from "@/features/orientation/components/OrientationGate";
+import AdmissionsClearancePage from "@/features/admissions/pages/AdmissionsClearancePage";
+import InstructorAdmissionsPage from "@/features/instructor/admissions/InstructorAdmissionsPage";
+import CohortCensusPage from "@/features/instructor/census/CohortCensusPage";
 
 // Pages - Instructor/Admin
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
@@ -101,6 +104,7 @@ const AppInner = () => {
         <Route path="/dashboard" element={<StudentDashboard />} />
         <Route path="/courses" element={<CourseExplorer />} />
         <Route path="/courses/:id" element={<CourseDetails />} />
+        <Route path="/admissions" element={<AdmissionsClearancePage />} />
         <Route path="/orientation" element={<OrientationChecklistPage />} />
         <Route path="/learning" element={<StudentProgress />} />
         <Route
@@ -142,6 +146,8 @@ const AppInner = () => {
             path="/instructor/analytics"
             element={<InstructorAnalytics />}
           />
+          <Route path="/instructor/admissions" element={<InstructorAdmissionsPage />} />
+          <Route path="/instructor/census" element={<CohortCensusPage />} />
           <Route path="/instructor/submissions" element={<Submissions />} />
           <Route
             path="/instructor/submissions/:submissionId"

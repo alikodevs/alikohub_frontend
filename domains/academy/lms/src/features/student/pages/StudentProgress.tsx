@@ -372,15 +372,27 @@ const LmsMyLearning = () => {
                 </p>
               </div>
             </div>
-            <Button
-              asChild
-              size="sm"
-              className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl h-9 px-5 shrink-0 shadow-xs"
-            >
-              <Link to={`/orientation?cohortId=${primaryCohortId}`}>
-                Complete Orientation <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="bg-white border-amber-300 text-amber-900 hover:bg-amber-100 font-bold text-xs rounded-xl h-9 px-4 shrink-0 shadow-2xs"
+              >
+                <Link to={`/admissions?cohortId=${primaryCohortId}`}>
+                  Admissions Clearance
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl h-9 px-5 shrink-0 shadow-xs"
+              >
+                <Link to={`/orientation?cohortId=${primaryCohortId}`}>
+                  Complete Orientation <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                </Link>
+              </Button>
+            </div>
           </div>
         )}
 
