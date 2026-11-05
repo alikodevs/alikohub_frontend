@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSeatTimeSummary } from "@/features/rubric/hooks/useSeatTime";
 import { useUser } from "@/features/auth/hooks/useAuth";
 import {
   useEnrollments,
@@ -353,37 +352,6 @@ const StudentDashboard = () => {
     (c: any) => c.isCompleted,
   ).length;
 
-  // Primary WABON CNA cohort course for seat-time telemetry
-  const primaryEnrollment =
-    enrollments?.find(
-      (e: any) =>
-        (e.cohortId || e.cohort?.id) &&
-        (e.status === "ACTIVE" ||
-          completedTxCourseIds.has(Number(e.courseId ?? e.course?.id))),
-    ) ||
-    enrollments?.find(
-      (e: any) =>
-        e.status === "ACTIVE" ||
-        completedTxCourseIds.has(Number(e.courseId ?? e.course?.id)),
-    ) ||
-    enrollments?.[0];
-  const primaryCourseId =
-    primaryEnrollment?.courseId ?? primaryEnrollment?.course?.id;
-  const { data: seatTimeSummary } = useSeatTimeSummary(primaryCourseId);
-
-  const actualActiveSeconds =
-    seatTimeSummary?.totalActiveTimeSeconds ??
-    seatTimeSummary?.totalActiveSeconds ??
-    0;
-  const actualActiveMinutes =
-    seatTimeSummary?.totalActiveTimeMinutes ??
-    Math.round(actualActiveSeconds / 60);
-  const theoryHoursCompleted = Number((actualActiveSeconds / 3600).toFixed(1));
-  const theoryHoursPercentage = Math.min(
-    100,
-    Math.round((actualActiveSeconds / (50 * 3600)) * 100),
-  );
-
   const instructorStatus = user?.instructorStatus?.toUpperCase();
   const isInstructor =
     user?.globalRole === "ADMIN" ||
@@ -668,33 +636,6 @@ const StudentDashboard = () => {
                 {activeEnrollments?.length || 0} enrollments · {completedCount}{" "}
                 completed
               </p>
-            </div>
-
-            {/* WABON Theory Seat-Time Mandate */}
-            <div className="bg-card rounded-xl border p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-heading font-semibold text-foreground text-sm flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-blue-600" /> WABON Theory Hours
-                </h3>
-                <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] font-bold">
-                  WAC 246-841A-440
-                </Badge>
-              </div>
-
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground font-medium">Completed vs 50h Mandate</span>
-                <span className="font-bold text-foreground">
-                  {theoryHoursCompleted} hrs ({actualActiveMinutes}m) / 50.0 hrs ({theoryHoursPercentage}%)
-                </span>
-              </div>
-              <Progress value={theoryHoursPercentage} className="h-2" />
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1 text-emerald-600 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Telemetry Active
-                </span>
-                <span>Auto-pauses on tab switch</span>
-              </div>
             </div>
 
             {/* Instructor CTA */}

@@ -31,6 +31,7 @@ import {
   useGradeDiscussionPostMutation,
 } from "../hooks/useDiscussions";
 import { useRubricDetail } from "../hooks/useRubrics";
+import { useUser } from "@/features/auth/hooks/useAuth";
 import { RubricCriteriaTable } from "./RubricCriteriaTable";
 import { RubricGradingMatrix } from "./RubricGradingMatrix";
 import { RubricSelector } from "./RubricSelector";
@@ -39,6 +40,28 @@ import type { DiscussionTopic, DiscussionPost, Rubric, RubricEvaluationResult } 
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
+
+const isIdString = (val?: string | null): boolean => {
+  if (!val || typeof val !== "string") return false;
+  const s = val.trim();
+  if (!s) return false;
+  if (s.includes(" ")) return false;
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) return true;
+  if (/^c[a-z0-9]{20,32}$/i.test(s)) return true;
+  if (/^\d+$/.test(s)) return true;
+  if (/^[a-zA-Z0-9_-]{20,}$/.test(s)) return true;
+  if (/^(user_|student_|usr_|cand_|author_)/i.test(s)) return true;
+  return false;
+};
+
+const getInitials = (name?: string) => {
+  if (!name) return "";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return parts[0]?.slice(0, 2).toUpperCase() || "";
+};
 
 export interface DiscussionForumViewProps {
   moduleId: string | number;
@@ -53,6 +76,53 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
   canCreateTopic = false,
   className,
 }) => {
+  const { data: currentUser } = useUser();
+
+  const getAuthorDisplayName = (post: DiscussionPost | any): string => {
+    if (!post) return "Participant";
+
+    // 1. Current logged-in user match
+    if (
+      currentUser &&
+      (post.userId === currentUser.id ||
+        post.userId === currentUser.firebaseId ||
+        post.user?.id === currentUser.id ||
+        post.user?.firebaseId === currentUser.firebaseId)
+    ) {
+      const myName = `${currentUser.firstname || ""} ${currentUser.lastname || ""}`.trim();
+      if (myName) return `${myName} (You)`;
+    }
+
+    // 2. Check nested user / author / profile / student objects
+    const u = post.user || post.author || post.profile || post.student;
+    if (u) {
+      const fn = u.firstname || u.firstName || u.first_name || "";
+      const ln = u.lastname || u.lastName || u.last_name || "";
+      const full = `${fn} ${ln}`.trim();
+      if (full) return full;
+      if (u.name && typeof u.name === "string" && !isIdString(u.name)) return u.name;
+      if (u.displayName && typeof u.displayName === "string" && !isIdString(u.displayName)) return u.displayName;
+      if (u.email && typeof u.email === "string") {
+        const emailPrefix = u.email.split("@")[0].replace(/[._-]/g, " ");
+        return emailPrefix
+          .split(" ")
+          .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
+      }
+    }
+
+    // 3. Direct authorName if not an ID string
+    if (post.authorName && typeof post.authorName === "string" && !isIdString(post.authorName)) {
+      return post.authorName;
+    }
+
+    // 4. Role-based fallback
+    if (post.authorRole) {
+      return post.authorRole === "INSTRUCTOR" ? "Course Instructor" : "Nursing Candidate";
+    }
+
+    return isInstructor ? "Nursing Candidate" : "Peer Learner";
+  };
   const {
     data: topics,
     isLoading: topicsLoading,
@@ -217,12 +287,19 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
     if (!text || !activeTopicId) return;
 
     try {
+      const currentUserName = currentUser
+        ? `${currentUser.firstname || ""} ${currentUser.lastname || ""}`.trim() ||
+          currentUser.email?.split("@")[0]
+        : undefined;
+
       await createPostMutation.mutateAsync({
         topicId: activeTopicId,
         body: text,
         content: text,
         parentId: parentId || undefined,
-      });
+        authorName: currentUserName,
+        authorRole: isInstructor ? "INSTRUCTOR" : "STUDENT",
+      } as any);
       setReplyText("");
       setReplyingTo(null);
     } catch {
@@ -588,13 +665,13 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
                 {/* Main Post Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-700 shrink-0">
-                      <User className="w-4 h-4 text-slate-500" />
+                    <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-bold shrink-0">
+                      {getInitials(getAuthorDisplayName(post)) || <User className="w-4 h-4 text-blue-500" />}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-900">
-                          {post.authorName || "Nursing Candidate"}
+                          {getAuthorDisplayName(post)}
                         </span>
                         {post.authorRole && (
                           <Badge variant="outline" className="text-[9px] py-0 px-1 font-semibold text-slate-500">
@@ -684,8 +761,11 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <CornerDownRight className="w-3 h-3 text-blue-400" />
+                            <div className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center text-[9px] font-bold shrink-0">
+                              {getInitials(getAuthorDisplayName(reply)) || <User className="w-3 h-3 text-slate-400" />}
+                            </div>
                             <span className="text-[11px] font-bold text-slate-800">
-                              {reply.authorName || "Peer Response"}
+                              {getAuthorDisplayName(reply)}
                             </span>
                             <span className="text-[10px] text-slate-400">
                               {reply.createdAt ? format(new Date(reply.createdAt), "MMM d, h:mm a") : "Recent"}
@@ -758,7 +838,7 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
           <div className="flex items-center justify-between p-2 rounded-lg bg-blue-50/80 border border-blue-200 text-xs text-blue-800">
             <span className="flex items-center gap-1.5 font-medium">
               <Reply className="w-3.5 h-3.5 text-blue-600" />
-              Replying to <strong>{replyingTo.authorName || "Peer"}</strong>: "{((replyingTo.body || replyingTo.content) ?? "").slice(0, 50)}..."
+              Replying to <strong>{getAuthorDisplayName(replyingTo)}</strong>: "{((replyingTo.body || replyingTo.content) ?? "").slice(0, 50)}..."
             </span>
             <button
               onClick={() => setReplyingTo(null)}
@@ -847,7 +927,7 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
           <div className="p-6 overflow-y-auto space-y-4">
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
               <span className="font-bold text-slate-700">
-                Student Contribution by {gradingPost?.authorName || "Student"}:
+                Student Contribution by {getAuthorDisplayName(gradingPost)}:
               </span>
               <p className="text-slate-700 italic bg-white p-2.5 rounded-lg border border-slate-100">
                 "{gradingPost?.body || gradingPost?.content || ""}"

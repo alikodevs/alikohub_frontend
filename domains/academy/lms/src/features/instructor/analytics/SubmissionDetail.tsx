@@ -570,9 +570,17 @@ const SubmissionDetail = () => {
           quizId,
           quizTitle:
             sub.exercise?.lesson?.title || cleanTitle(sub.exercise?.title),
-          courseTitle: sub.exercise?.module?.course?.title,
-          courseId: sub.exercise?.module?.course?.id,
+          courseTitle:
+            sub.exercise?.module?.course?.title ||
+            sub.exercise?.course?.title ||
+            sub.course?.title ||
+            sub.courseTitle,
+          courseId:
+            sub.exercise?.module?.course?.id ||
+            sub.exercise?.course?.id ||
+            sub.courseId,
           moduleTitle: sub.exercise?.module?.title,
+          lessonTitle: sub.exercise?.lesson?.title,
           submissions: [],
           totalScore: 0,
           maxPoints: 0,
@@ -599,7 +607,36 @@ const SubmissionDetail = () => {
       }
     });
 
-    return groups[submissionId ?? ""] ?? null;
+    if (passedGroup) {
+      const fallbackCourse =
+        passedGroup.courseTitle ||
+        passedGroup.submissions?.[0]?.exercise?.module?.course?.title ||
+        passedGroup.submissions?.[0]?.exercise?.course?.title;
+      return {
+        ...passedGroup,
+        courseTitle: fallbackCourse,
+      };
+    }
+
+    if (submissionId) {
+      if (groups[submissionId]) return groups[submissionId];
+
+      // Match by individual submission ID (e.g. /instructor/submissions/85)
+      const foundBySubId = Object.values(groups).find((g: any) =>
+        g.submissions.some((s: any) => String(s.id) === String(submissionId))
+      );
+      if (foundBySubId) return foundBySubId;
+
+      // Match by quizId or userId
+      const foundByQuizOrUser = Object.values(groups).find(
+        (g: any) =>
+          String(g.quizId) === String(submissionId) ||
+          String(g.userId) === String(submissionId)
+      );
+      if (foundByQuizOrUser) return foundByQuizOrUser;
+    }
+
+    return null;
   }, [passedGroup, rawSubmissions, submissionId]);
 
   // Local state for optimistic updates
@@ -611,6 +648,13 @@ const SubmissionDetail = () => {
   const [isSavingOverall, setIsSavingOverall] = useState(false);
 
   // Recompute Performance Breakdown
+  const headerCourseTitle =
+    group?.courseTitle ||
+    submissions[0]?.exercise?.module?.course?.title ||
+    submissions[0]?.exercise?.course?.title ||
+    submissions[0]?.course?.title ||
+    "Course Attempt Review";
+
   const totalScore = submissions.reduce(
     (acc: number, s: any) => acc + (s.score ?? 0),
     0
@@ -715,11 +759,11 @@ const SubmissionDetail = () => {
                 Back to All Submissions
               </Button>
               <h1 className="text-2xl font-black text-slate-900 font-heading tracking-tight">
-                {group?.quizTitle || "Instructor Attempt Review"}
+                {headerCourseTitle}
               </h1>
               <p className="text-xs text-slate-500 mt-1">
-                Candidate attempt evaluation &bull; {group?.courseTitle || "Course"} &bull;{" "}
-                {group?.moduleTitle || "Theory Module"}
+                Candidate attempt evaluation &bull; {group?.moduleTitle || "Theory Module"}
+                {group?.lessonTitle ? ` • ${group.lessonTitle}` : ""}
               </p>
             </div>
 
@@ -945,7 +989,7 @@ const SubmissionDetail = () => {
 
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 leading-relaxed">
                 <span className="font-bold text-slate-800">WABON WAC 246-841A Standard: </span>
-                Grades entered for this candidate are atomically committed to the cohort gradebook (<code className="text-blue-700 font-mono">GET /gradebook/cohort/:cohortId</code>) and student transcript (<code className="text-blue-700 font-mono">GET /gradebook/student/:cohortId</code>). Scores below 80% automatically trigger remediation tracking.
+                Grades entered for this candidate are atomically committed to the cohort gradebook. Scores below 80% automatically trigger remediation tracking.
               </div>
 
               <div className="space-y-2">

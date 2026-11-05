@@ -8,6 +8,59 @@ import type {
   GradeDiscussionPostDto,
 } from "../types";
 
+const isIdString = (val?: string | null): boolean => {
+  if (!val || typeof val !== "string") return false;
+  const s = val.trim();
+  if (!s) return false;
+  // Has space? Likely a genuine name like "John Doe" or "Sarah Jenkins"
+  if (s.includes(" ")) return false;
+  // UUID pattern (8-4-4-4-12 hex)
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)) return true;
+  // Prisma CUID / CUID2 (e.g. clx..., cly...)
+  if (/^c[a-z0-9]{20,32}$/i.test(s)) return true;
+  // Pure integer / numeric ID (e.g. "14", "85")
+  if (/^\d+$/.test(s)) return true;
+  // Firebase UID or hash with no spaces and >= 20 characters
+  if (/^[a-zA-Z0-9_-]{20,}$/.test(s)) return true;
+  // Prefixes like user_, student_, usr_, cand_, author_
+  if (/^(user_|student_|usr_|cand_|author_)/i.test(s)) return true;
+  return false;
+};
+
+const extractAuthorName = (p: any): string => {
+  if (!p) return "Nursing Candidate";
+
+  // 1. Check nested user / author / profile / student objects
+  const u = p.user || p.author || p.profile || p.student;
+  if (u) {
+    const fn = u.firstname || u.firstName || u.first_name || "";
+    const ln = u.lastname || u.lastName || u.last_name || "";
+    const full = `${fn} ${ln}`.trim();
+    if (full) return full;
+    if (u.name && typeof u.name === "string" && !isIdString(u.name)) return u.name;
+    if (u.displayName && typeof u.displayName === "string" && !isIdString(u.displayName)) return u.displayName;
+    if (u.email && typeof u.email === "string") {
+      const emailPrefix = u.email.split("@")[0].replace(/[._-]/g, " ");
+      return emailPrefix
+        .split(" ")
+        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+    }
+  }
+
+  // 2. Direct authorName if not an ID string
+  if (p.authorName && typeof p.authorName === "string" && !isIdString(p.authorName)) {
+    return p.authorName;
+  }
+
+  // 3. Fallback based on role
+  if (p.authorRole) {
+    return p.authorRole === "INSTRUCTOR" ? "Course Instructor" : "Nursing Candidate";
+  }
+
+  return "Nursing Candidate";
+};
+
 const normalizePost = (p: any): DiscussionPost => {
   if (!p) return p;
   const gradeObj =
@@ -50,12 +103,7 @@ const normalizePost = (p: any): DiscussionPost => {
     feedback: feedbackText,
     rubricScores: rubricScoresData,
     gradeDetails: gradeObj || undefined,
-    authorName:
-      p.authorName ||
-      p.user?.name ||
-      p.author?.name ||
-      p.profile?.userId ||
-      "Participant",
+    authorName: extractAuthorName(p),
     authorRole: p.authorRole || p.profile?.role || undefined,
     isSubstantive:
       p.isSubstantive ?? (numericScore != null ? numericScore > 0 : undefined),
@@ -278,8 +326,7 @@ export const discussionService = {
       topicId: raw.topicId ?? topicIdVal,
       content: raw.content || raw.body || text,
       body: raw.body || raw.content || text,
-      authorName:
-        raw.authorName || raw.user?.name || raw.author?.name || "Student",
+      authorName: extractAuthorName(raw),
       createdAt: raw.createdAt || new Date().toISOString(),
     });
   },
