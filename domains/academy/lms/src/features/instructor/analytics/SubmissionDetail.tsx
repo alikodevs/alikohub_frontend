@@ -18,12 +18,19 @@ import {
   Check,
   Edit3,
   HelpCircle,
+  Camera,
+  ShieldAlert,
+  FileText,
 } from "lucide-react";
 import {
   useInstructorSubmissions,
   useGradeSubmission,
 } from "@/hooks/useAcademy";
 import { useRubricDetail } from "@/features/rubric/hooks/useRubrics";
+import {
+  useExerciseExamSessions,
+  useAuditExamSessionMutation,
+} from "@/features/rubric/hooks/useComplianceDossier";
 import { RubricGradingMatrix } from "@/features/rubric/components/RubricGradingMatrix";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -688,6 +695,21 @@ const SubmissionDetail = () => {
     return Math.max(...counts);
   }, [submissions]);
 
+  // Exam Security Proctor Session Query
+  const targetExerciseId =
+    submissions[0]?.exerciseId || submissions[0]?.exercise?.id;
+  const { data: examSessions } = useExerciseExamSessions(targetExerciseId);
+  const auditSessionMutation = useAuditExamSessionMutation();
+
+  const userExamSession = useMemo(() => {
+    if (!examSessions || !group) return null;
+    return (
+      examSessions.find((s) => s.studentUserId === group.userId) ||
+      examSessions[0] ||
+      null
+    );
+  }, [examSessions, group]);
+
   // Handler for saving a grade
   const handleGradeSubmit = async (
     submissionId: number,
@@ -913,6 +935,130 @@ const SubmissionDetail = () => {
                 <span className="text-[10px] text-amber-600 font-medium block">
                   {pendingCount > 0 ? "Needs instructor grade" : "All graded"}
                 </span>
+              </div>
+            </div>
+          )}
+
+          {/* ── Exam Security & Proctoring Telemetry Card ── */}
+          {userExamSession && (
+            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      Proctored Exam Security Telemetry
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-[10px] font-bold",
+                          userExamSession.isFlagged
+                            ? "bg-rose-50 text-rose-700 border-rose-300"
+                            : "bg-emerald-50 text-emerald-700 border-emerald-300"
+                        )}
+                      >
+                        {userExamSession.isFlagged ? "FLAGGED FOR REVIEW" : "SESSION AUDITED / APPROVED"}
+                      </Badge>
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Identity attestation and anti-cheating window tracking per WAC 246-841A standards.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      auditSessionMutation.mutate({
+                        sessionId: userExamSession.id,
+                        isFlagged: true,
+                        auditNotes: "Flagged during instructor submission review.",
+                      })
+                    }
+                    disabled={auditSessionMutation.isPending}
+                    className="h-8 text-xs font-bold text-rose-600 border-rose-200 hover:bg-rose-50"
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5 mr-1" /> Flag Anomaly
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      auditSessionMutation.mutate({
+                        sessionId: userExamSession.id,
+                        isFlagged: false,
+                        auditNotes: "Verified and approved by instructor.",
+                      })
+                    }
+                    disabled={auditSessionMutation.isPending}
+                    className="h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Approve Proctor Session
+                  </Button>
+                </div>
+              </div>
+
+              {/* Proctoring telemetry grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs pt-1">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Window Blur / Tab Switches
+                  </span>
+                  <span className="text-base font-black text-slate-900 block">
+                    {userExamSession.tabBlurCount} Incidents
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    Duration: {userExamSession.totalBlurDurationSeconds}s out of focus
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Webcam Identity Snapshot
+                  </span>
+                  {userExamSession.webcamSnapshotUrl ? (
+                    <a
+                      href={userExamSession.webcamSnapshotUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary font-bold hover:underline flex items-center gap-1 mt-1"
+                    >
+                      <Camera className="w-3.5 h-3.5" /> View Photo Snapshot
+                    </a>
+                  ) : (
+                    <span className="text-xs text-slate-500 font-medium block mt-1">Verified on Webcam</span>
+                  )}
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Government Photo ID
+                  </span>
+                  {userExamSession.photoIdSnapshotUrl ? (
+                    <a
+                      href={userExamSession.photoIdSnapshotUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary font-bold hover:underline flex items-center gap-1 mt-1"
+                    >
+                      <FileText className="w-3.5 h-3.5" /> View Photo ID
+                    </a>
+                  ) : (
+                    <span className="text-xs text-slate-500 font-medium block mt-1">ID Verified</span>
+                  )}
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Proctor Audit Notes
+                  </span>
+                  <p className="text-xs text-slate-700 italic mt-0.5 line-clamp-2">
+                    {userExamSession.auditNotes || "No audit notes recorded yet."}
+                  </p>
+                </div>
               </div>
             </div>
           )}

@@ -20,6 +20,9 @@ const InstructorRoute = () => {
   const isInstructor =
     user?.globalRole === "ADMIN" ||
     user?.academyUser?.role === "INSTRUCTOR" ||
+    user?.academyUser?.role === "COMMISSION_AUDITOR" ||
+    user?.academyRole === "COMMISSION_AUDITOR" ||
+    user?.academyRole === "INSTRUCTOR" ||
     instructorStatus === "ACCEPTED" ||
     instructorStatus === "APPROVED" ||
     instructorStatus === "ACTIVE" ||
@@ -33,7 +36,11 @@ const InstructorRoute = () => {
   ).toLowerCase();
 
   const isActiveInstructor =
-    user?.globalRole === "ADMIN" || activeRole === "instructor";
+    user?.globalRole === "ADMIN" ||
+    user?.academyUser?.role === "COMMISSION_AUDITOR" ||
+    user?.academyRole === "COMMISSION_AUDITOR" ||
+    activeRole === "instructor" ||
+    activeRole === "commission_auditor";
 
   if (!isInstructor) {
     return <Navigate to="/instructor/apply" replace />;

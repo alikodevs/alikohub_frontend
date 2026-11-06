@@ -13,6 +13,11 @@ import {
   ChevronDown,
   GraduationCap,
   FileCheck2,
+  Stethoscope,
+  Building2,
+  FileSpreadsheet,
+  Users,
+  LifeBuoy,
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
 import { cn } from "@/lib/utils";
@@ -67,6 +72,11 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
       icon: BookOpen,
       badge: activeEnrollmentsCount,
     },
+    { label: "Skills Lab", to: "/skills-lab", icon: Stethoscope },
+    { label: "Clinical Training", to: "/clinical", icon: Building2 },
+    { label: "Curriculum Crosswalk", to: "/curriculum", icon: FileSpreadsheet },
+    { label: "Study Groups", to: "/study-groups", icon: Users },
+    { label: "Support Desk", to: "/support", icon: LifeBuoy },
     { label: "My Schedule", to: "/schedules", icon: CalendarDays },
     { label: "Explore", to: "/courses", icon: Compass },
     { label: "Peer Grading", to: "/peer-grading", icon: MessageSquareText },

@@ -50,6 +50,12 @@ import { OrientationGate } from "@/features/orientation/components/OrientationGa
 import AdmissionsClearancePage from "@/features/admissions/pages/AdmissionsClearancePage";
 import InstructorAdmissionsPage from "@/features/instructor/admissions/InstructorAdmissionsPage";
 import CohortCensusPage from "@/features/instructor/census/CohortCensusPage";
+import ClinicalTrainingPage from "@/features/clinical/ClinicalTrainingPage";
+import CurriculumCompliancePage from "@/features/curriculum/CurriculumCompliancePage";
+import InstructorGradebookPage from "@/features/instructor/gradebook/InstructorGradebookPage";
+import StudyGroupsPage from "@/features/study-groups/StudyGroupsPage";
+import SupportDeskPage from "@/features/support/SupportDeskPage";
+import ComplianceAuditPage from "@/features/audit/ComplianceAuditPage";
 
 // Pages - Instructor/Admin
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
@@ -135,6 +141,11 @@ const AppInner = () => {
         <Route path="/peer-grading/:courseId" element={<PeerGradingDetail />} />
         <Route path="/rubrics" element={<RubricsManagementPage />} />
         <Route path="/skills-lab" element={<CNACompetencyMatrixPage />} />
+        <Route path="/clinical" element={<ClinicalTrainingPage />} />
+        <Route path="/curriculum" element={<CurriculumCompliancePage />} />
+        <Route path="/study-groups" element={<StudyGroupsPage />} />
+        <Route path="/support" element={<SupportDeskPage />} />
+        <Route path="/audit" element={<ComplianceAuditPage />} />
 
         {/* Instructor Routes */}
         <Route element={<InstructorRoute />}>
@@ -146,6 +157,7 @@ const AppInner = () => {
             path="/instructor/analytics"
             element={<InstructorAnalytics />}
           />
+          <Route path="/instructor/gradebook" element={<InstructorGradebookPage />} />
           <Route path="/instructor/admissions" element={<InstructorAdmissionsPage />} />
           <Route path="/instructor/census" element={<CohortCensusPage />} />
           <Route path="/instructor/submissions" element={<Submissions />} />
@@ -155,6 +167,11 @@ const AppInner = () => {
           />
           <Route path="/instructor/rubrics" element={<RubricsManagementPage />} />
           <Route path="/instructor/skills-lab" element={<CNACompetencyMatrixPage />} />
+          <Route path="/instructor/clinical" element={<ClinicalTrainingPage />} />
+          <Route path="/instructor/curriculum" element={<CurriculumCompliancePage />} />
+          <Route path="/instructor/study-groups" element={<StudyGroupsPage />} />
+          <Route path="/instructor/support" element={<SupportDeskPage />} />
+          <Route path="/instructor/audit" element={<ComplianceAuditPage />} />
           <Route path="/instructor/schedules" element={<Schedules />} />
           <Route path="/instructor/settings" element={<InstructorSettings />} />
           <Route path="/instructor/chat" element={<InstructorChat />} />

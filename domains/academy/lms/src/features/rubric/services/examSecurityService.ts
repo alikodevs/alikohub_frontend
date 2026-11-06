@@ -58,6 +58,19 @@ export const examSecurityService = {
   },
 
   /**
+   * Get all exam sessions for an exercise (Instructor / Admin / Auditor)
+   * Backend: GET /exam-security/sessions/exercise/:exerciseId
+   */
+  getSessionsByExercise: async (
+    exerciseId: string | number
+  ): Promise<ExamSession[]> => {
+    const response = await api.get<ExamSession[]>(
+      `/exam-security/sessions/exercise/${exerciseId}`
+    );
+    return response.data;
+  },
+
+  /**
    * Instructor / Auditor verification of exam session
    * Postman 4.15: POST {{baseUrl}}/exam-security/sessions/audit
    */

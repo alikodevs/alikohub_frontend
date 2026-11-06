@@ -44,27 +44,31 @@ export const skillsLabService = {
 
   /**
    * Record skill checkoff evaluation attempt with critical step verification
-   * Postman 3.5.2: POST {{baseUrl}}/skills-lab/checkoffs
+   * Backend: POST /skills-lab/checkoffs
    */
   recordCheckoff: async (
-    dto: Partial<SkillCheckoff>
+    dto: Partial<SkillCheckoff> & { passed?: boolean; attempts?: number; comments?: string }
   ): Promise<SkillCheckoff> => {
-    const notesText =
+    const isPassed =
+      dto.passed !== undefined
+        ? Boolean(dto.passed)
+        : dto.status === "PASSED" || dto.status === "SATISFACTORY";
+
+    const commentsText =
+      dto.comments ||
       dto.evaluatorNotes ||
       dto.notes ||
-      (dto.status === "PASSED"
+      (isPassed
         ? "Demonstrated clinical competency."
         : "Needs practice on sequential steps.");
+
     const payload = {
       skillId: Number(dto.skillId) || dto.skillId,
       studentUserId: dto.studentUserId || "student-uid-1001",
       cohortId: Number(dto.cohortId) || 1,
-      status: dto.status || "PASSED",
-      attemptNumber: Number(dto.attemptNumber) || 1,
-      evaluatorNotes: notesText,
-      notes: notesText,
-      criticalStepsCompleted: dto.criticalStepsCompleted || [],
-      signatureUrl: dto.signatureUrl,
+      passed: isPassed,
+      attempts: Number(dto.attempts || dto.attemptNumber || 1),
+      comments: commentsText,
     };
     const response = await api.post<SkillCheckoff>(
       "/skills-lab/checkoffs",
@@ -75,17 +79,27 @@ export const skillsLabService = {
 
   /**
    * Update skill checkoff record (retake / verification)
-   * Postman 3.5.3: PATCH {{baseUrl}}/skills-lab/checkoffs/:checkoffId
+   * Backend: PATCH /skills-lab/checkoffs/:checkoffId
    */
   updateCheckoff: async (
     checkoffId: string | number,
-    dto: { status?: string; evaluatorNotes?: string; notes?: string }
+    dto: { passed?: boolean; status?: string; attempts?: number; comments?: string; evaluatorNotes?: string; notes?: string }
   ): Promise<SkillCheckoff> => {
-    const notesText = dto.evaluatorNotes || dto.notes || "Checkoff verified during retake";
-    const payload = {
-      status: dto.status || "PASSED",
-      evaluatorNotes: notesText,
-    };
+    const isPassed =
+      dto.passed !== undefined
+        ? Boolean(dto.passed)
+        : dto.status ? (dto.status === "PASSED" || dto.status === "SATISFACTORY") : undefined;
+
+    const commentsText =
+      dto.comments ||
+      dto.evaluatorNotes ||
+      dto.notes;
+
+    const payload: Record<string, any> = {};
+    if (isPassed !== undefined) payload.passed = isPassed;
+    if (dto.attempts !== undefined) payload.attempts = Number(dto.attempts);
+    if (commentsText !== undefined) payload.comments = commentsText;
+
     const response = await api.patch<SkillCheckoff>(
       `/skills-lab/checkoffs/${checkoffId}`,
       payload
@@ -94,14 +108,23 @@ export const skillsLabService = {
   },
 
   /**
+   * Get core skill by ID
+   * Backend: GET /skills-lab/skills/:skillId
+   */
+  getSkill: async (skillId: string | number): Promise<Skill> => {
+    const response = await api.get<Skill>(`/skills-lab/skills/${skillId}`);
+    return response.data;
+  },
+
+  /**
    * Get student skills lab matrix
-   * Postman 2.5.6 / 3.5.4: GET {{baseUrl}}/skills-lab/matrix/student/:studentUserId/cohort/:cohortId
+   * Backend: GET /skills-lab/matrix/student/:studentUserId/cohort/:cohortId
    */
   getStudentMatrix: async (
     studentUserId: string,
     cohortId: string | number
-  ): Promise<SkillsLabMatrix> => {
-    const response = await api.get<SkillsLabMatrix>(
+  ): Promise<any> => {
+    const response = await api.get(
       `/skills-lab/matrix/student/${studentUserId}/cohort/${cohortId}`
     );
     return response.data;

@@ -12,6 +12,12 @@ import {
   Stethoscope,
   FileCheck2,
   CalendarCheck,
+  GraduationCap,
+  Building2,
+  FileSpreadsheet,
+  Users,
+  LifeBuoy,
+  ShieldCheck,
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
 import { cn } from "@/lib/utils";
@@ -24,11 +30,17 @@ const mainNav = [
 ];
 
 const manageNav = [
+  { label: "Gradebook", to: "/instructor/gradebook", icon: GraduationCap },
   { label: "Admissions", to: "/instructor/admissions", icon: FileCheck2 },
   { label: "Attendance Census", to: "/instructor/census", icon: CalendarCheck },
   { label: "Submissions", to: "/instructor/submissions", icon: ClipboardList },
-  { label: "Rubrics", to: "/instructor/rubrics", icon: Award },
   { label: "Skills Lab", to: "/instructor/skills-lab", icon: Stethoscope },
+  { label: "Clinical Training", to: "/instructor/clinical", icon: Building2 },
+  { label: "Curriculum Crosswalk", to: "/instructor/curriculum", icon: FileSpreadsheet },
+  { label: "Study Groups", to: "/instructor/study-groups", icon: Users },
+  { label: "Support Desk", to: "/instructor/support", icon: LifeBuoy },
+  { label: "Compliance Audit", to: "/instructor/audit", icon: ShieldCheck },
+  { label: "Rubrics", to: "/instructor/rubrics", icon: Award },
   { label: "Schedules", to: "/instructor/schedules", icon: CalendarDays },
   { label: "Settings", to: "/instructor/settings", icon: Settings },
 ];
