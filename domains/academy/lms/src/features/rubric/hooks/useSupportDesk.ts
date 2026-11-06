@@ -86,3 +86,4 @@ export const useSystemRequirements = () => {
     staleTime: 60 * 60 * 1000,
   });
 };
+

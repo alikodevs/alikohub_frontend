@@ -700,3 +700,4 @@ export const CurriculumCompliancePage: React.FC = () => {
 };
 
 export default CurriculumCompliancePage;
+
