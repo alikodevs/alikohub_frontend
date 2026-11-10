@@ -8,11 +8,12 @@ import {
   CreditCard,
   Megaphone,
   MessageCircle,
-  Shield,
-  Settings,
-  HelpCircle,
-  FileCheck2,
-  CalendarCheck,
+  Award,
+  Layers,
+  UserCheck,
+  FileText,
+  ShieldCheck,
+  LifeBuoy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
@@ -40,16 +41,6 @@ const sections: { title: string; items: NavItem[] }[] = [
     title: "ACADEMY",
     items: [
       {
-        label: "Admissions Clearance",
-        href: "/instructor/admissions",
-        icon: <FileCheck2 className="w-5 h-5" />,
-      },
-      {
-        label: "Attendance Census",
-        href: "/instructor/census",
-        icon: <CalendarCheck className="w-5 h-5" />,
-      },
-      {
         label: "Course Reviews",
         href: "/admin/courses",
         icon: <BookOpen className="w-5 h-5" />,
@@ -60,6 +51,26 @@ const sections: { title: string; items: NavItem[] }[] = [
         icon: <Users className="w-5 h-5" />,
       },
       {
+        label: "Faculty & Credentials",
+        href: "/admin/faculty",
+        icon: <Award className="w-5 h-5" />,
+      },
+      {
+        label: "Enrollments & Cohorts",
+        href: "/admin/enrollments",
+        icon: <Layers className="w-5 h-5" />,
+      },
+      {
+        label: "Users Directory",
+        href: "/admin/users",
+        icon: <UserCheck className="w-5 h-5" />,
+      },
+      {
+        label: "Content Library",
+        href: "/admin/content",
+        icon: <FileText className="w-5 h-5" />,
+      },
+      {
         label: "Announcements",
         href: "/admin/announcements",
         icon: <Megaphone className="w-5 h-5" />,
@@ -68,6 +79,21 @@ const sections: { title: string; items: NavItem[] }[] = [
         label: "Platform Analytics",
         href: "/admin/analytics",
         icon: <BarChart3 className="w-5 h-5" />,
+      },
+    ],
+  },
+  {
+    title: "OVERSIGHT & SUPPORT",
+    items: [
+      {
+        label: "Compliance & Audits",
+        href: "/admin/compliance",
+        icon: <ShieldCheck className="w-5 h-5" />,
+      },
+      {
+        label: "Support Tickets",
+        href: "/admin/support",
+        icon: <LifeBuoy className="w-5 h-5" />,
       },
     ],
   },

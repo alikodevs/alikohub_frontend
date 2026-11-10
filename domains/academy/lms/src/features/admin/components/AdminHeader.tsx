@@ -1,13 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
   Menu,
   LogOut,
   ChevronDown,
-  ShieldCheck,
   Search,
-  Bell,
-  Phone,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser, useLogout } from "@/features/auth/hooks/useAuth";
@@ -23,7 +19,6 @@ export function AdminHeader({ title, onMenuClick }: AdminHeaderProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const { data: user } = useUser();
-  const isAdmin = user?.globalRole === "ADMIN";
   const logout = useLogout();
 
   const userInitials = user
@@ -108,18 +103,6 @@ export function AdminHeader({ title, onMenuClick }: AdminHeaderProps) {
               </div>
 
               <div className="py-1">
-                {!isAdmin && (
-                  <Link
-                    to="/dashboard"
-                    className="flex items-center gap-3 px-4 py-2 text-sm transition-colors hover:bg-[#EAF4FB] text-slate-700"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-slate-500" />
-                    Switch to Student
-                  </Link>
-                )}
-              </div>
-
-              <div className="border-t border-[#E1EAF2] py-1">
                 <button
                   onClick={() => logout()}
                   className="flex items-center gap-3 px-4 py-2 text-sm transition-colors w-full text-left font-medium text-red-600 hover:bg-red-50"

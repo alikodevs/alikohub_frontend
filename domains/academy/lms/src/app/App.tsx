@@ -186,6 +186,12 @@ const AppInner = () => {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/applications" element={<AdminDashboard />} />
           <Route path="/admin/courses" element={<AdminDashboard />} />
+          <Route path="/admin/faculty" element={<AdminDashboard />} />
+          <Route path="/admin/enrollments" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminDashboard />} />
+          <Route path="/admin/content" element={<AdminDashboard />} />
+          <Route path="/admin/compliance" element={<AdminDashboard />} />
+          <Route path="/admin/support" element={<AdminDashboard />} />
           <Route path="/admin/analytics" element={<AdminDashboard />} />
           <Route path="/admin/transactions" element={<AdminDashboard />} />
           <Route path="/admin/announcements" element={<AdminDashboard />} />

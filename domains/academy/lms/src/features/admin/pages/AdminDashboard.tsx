@@ -45,6 +45,13 @@ import {
 import ReviewApplicationModal from "@/features/admin/components/ReviewApplicationModal";
 import ReviewCourseModal from "@/features/admin/components/ReviewCourseModal";
 import TransactionDetailModal from "@/features/admin/components/TransactionDetailModal";
+import { AdminCourseManageModal } from "@/features/admin/components/AdminCourseManageModal";
+import { AdminFacultyTab } from "@/features/admin/components/AdminFacultyTab";
+import { AdminEnrollmentsCohortsTab } from "@/features/admin/components/AdminEnrollmentsCohortsTab";
+import { AdminUsersTab } from "@/features/admin/components/AdminUsersTab";
+import { AdminContentLibraryTab } from "@/features/admin/components/AdminContentLibraryTab";
+import { AdminComplianceTab } from "@/features/admin/components/AdminComplianceTab";
+import { AdminSupportTab } from "@/features/admin/components/AdminSupportTab";
 import type { TeacherApplication, Course } from "@/types/academy";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -117,6 +124,12 @@ const AdminDashboard = () => {
   const getActiveTab = () => {
     const path = location.pathname;
     if (path === "/admin/applications") return "applications";
+    if (path === "/admin/faculty") return "faculty";
+    if (path === "/admin/enrollments") return "enrollments";
+    if (path === "/admin/users") return "users";
+    if (path === "/admin/content") return "content";
+    if (path === "/admin/compliance") return "compliance";
+    if (path === "/admin/support") return "support";
     if (path === "/admin/analytics") return "analytics";
     if (path === "/admin/transactions") return "transactions";
     if (path === "/admin/announcements") return "announcements";
@@ -156,10 +169,17 @@ const AdminDashboard = () => {
   // Build firebaseId → display name map
   const userMap = React.useMemo(() => {
     const map: Record<string, string> = {};
-    if (allUsers) {
-      for (const u of allUsers as any[]) {
-        const name = [u.firstname, u.lastname].filter(Boolean).join(" ").trim();
-        map[u.firebaseId] = name || u.email || u.firebaseId;
+    const list = Array.isArray(allUsers)
+      ? allUsers
+      : (allUsers as any)?.users ||
+        (allUsers as any)?.items ||
+        (allUsers as any)?.data ||
+        [];
+    for (const u of list as any[]) {
+      const uid = u.firebaseId || u.userId || u.id;
+      const name = [u.firstname, u.lastname].filter(Boolean).join(" ").trim();
+      if (uid) {
+        map[uid] = name || u.email || String(uid);
       }
     }
     return map;
@@ -253,6 +273,7 @@ const AdminDashboard = () => {
     null,
   );
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [manageCourse, setManageCourse] = useState<Course | null>(null);
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     txId: number | string;
     newStatus: string;
@@ -347,11 +368,23 @@ const AdminDashboard = () => {
               ? "Course Reviews"
               : activeTab === "applications"
                 ? "Teacher Applications"
-                : activeTab === "transactions"
-                  ? "Platform payments"
-                  : activeTab === "announcements"
-                    ? "Announcements Manager"
-                    : "Platform Analytics"
+                : activeTab === "faculty"
+                  ? "Faculty & Credentials"
+                  : activeTab === "enrollments"
+                    ? "Enrollments & Cohorts"
+                    : activeTab === "users"
+                      ? "Users Directory"
+                      : activeTab === "content"
+                        ? "Content Library"
+                        : activeTab === "compliance"
+                          ? "Compliance & Audits"
+                          : activeTab === "support"
+                            ? "Support Tickets"
+                            : activeTab === "transactions"
+                              ? "Platform payments"
+                              : activeTab === "announcements"
+                                ? "Announcements Manager"
+                                : "Platform Analytics"
           }
           darkTheme={false}
         />
@@ -619,6 +652,13 @@ const AdminDashboard = () => {
                                     View details
                                   </button>
                                 )}
+
+                                <button
+                                  className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-medium rounded-lg transition-colors"
+                                  onClick={() => setManageCourse(course)}
+                                >
+                                  Manage
+                                </button>
 
                                 <button
                                   className="h-8 w-8 flex items-center justify-center text-red-500  hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg transition-colors disabled:opacity-40"
@@ -1119,7 +1159,23 @@ const AdminDashboard = () => {
           )}
 
           {activeTab === "announcements" && <AdminAnnouncements />}
+          {activeTab === "faculty" && <AdminFacultyTab userMap={userMap} />}
+          {activeTab === "enrollments" && (
+            <AdminEnrollmentsCohortsTab userMap={userMap} />
+          )}
+          {activeTab === "users" && <AdminUsersTab />}
+          {activeTab === "content" && <AdminContentLibraryTab />}
+          {activeTab === "compliance" && <AdminComplianceTab />}
+          {activeTab === "support" && <AdminSupportTab userMap={userMap} />}
         </main>
+
+        {manageCourse && (
+          <AdminCourseManageModal
+            course={manageCourse}
+            userMap={userMap}
+            onClose={() => setManageCourse(null)}
+          />
+        )}
 
         {selectedApp && (
           <ReviewApplicationModal

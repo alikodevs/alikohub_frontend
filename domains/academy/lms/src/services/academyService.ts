@@ -713,5 +713,63 @@ export const academyService = {
       });
       return response.data;
     },
+
+    assignInstructor: async (
+      courseId: string | number,
+      instructorId: string,
+    ) => {
+      const response = await api.post(
+        `/courses/${courseId}/assign-instructor`,
+        { instructorId },
+      );
+      return response.data;
+    },
+
+    deleteModule: async (moduleId: string | number) => {
+      const response = await api.delete(`/modules/${moduleId}`);
+      return response.data;
+    },
+
+    deleteLesson: async (lessonId: string | number) => {
+      const response = await api.delete(`/lessons/${lessonId}`);
+      return response.data;
+    },
+
+    getAllCohorts: async () => {
+      const response = await api.get("/cohorts");
+      return response.data;
+    },
+
+    deleteCohort: async (cohortId: string | number) => {
+      const response = await api.delete(`/cohorts/${cohortId}`);
+      return response.data;
+    },
+
+    getAllEnrollments: async () => {
+      const response = await api.get("/enrollments");
+      return response.data;
+    },
+
+    cancelEnrollment: async (enrollmentId: string | number) => {
+      const response = await api.delete(`/enrollments/${enrollmentId}`);
+      return response.data;
+    },
+
+    getAllInstructors: async () => {
+      const response = await api.get("/instructors/all");
+      return response.data;
+    },
+
+    approveInstructorCredentials: async (instructorUserId: string) => {
+      const response = await api.post("/instructors/approve", {
+        instructorUserId,
+      });
+      return response.data;
+    },
+
+    getAllContent: async () => {
+      const response = await api.get("/content");
+      return response.data;
+    },
   },
 };

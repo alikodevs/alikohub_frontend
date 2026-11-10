@@ -970,6 +970,7 @@ export const useApproveCourse = () => {
       academyService.admin.approveCourse(courseId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-courses"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
       toast.success("Course approved successfully!");
     },
   });
@@ -982,7 +983,147 @@ export const useRejectCourse = () => {
       academyService.admin.rejectCourse(courseId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-courses"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
       toast.success("Course rejected");
     },
+  });
+};
+
+export const useAssignCourseInstructor = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseId,
+      instructorId,
+    }: {
+      courseId: string | number;
+      instructorId: string;
+    }) => academyService.admin.assignInstructor(courseId, instructorId),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+      queryClient.invalidateQueries({
+        queryKey: ["course-structure", String(vars.courseId)],
+      });
+      toast.success("Instructor assigned to course");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to assign instructor");
+    },
+  });
+};
+
+export const useAdminCourseStructure = (courseId?: string | number | null) => {
+  return useQuery({
+    queryKey: ["admin-course-structure", courseId],
+    queryFn: () =>
+      academyService.instructor.getCourseStructure(String(courseId!)),
+    enabled: Boolean(courseId),
+  });
+};
+
+export const useAdminDeleteModule = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (moduleId: string | number) =>
+      academyService.admin.deleteModule(moduleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-course-structure"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+      toast.success("Module deleted successfully");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to delete module");
+    },
+  });
+};
+
+export const useAdminDeleteLesson = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (lessonId: string | number) =>
+      academyService.admin.deleteLesson(lessonId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-course-structure"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-courses"] });
+      toast.success("Lesson deleted successfully");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to delete lesson");
+    },
+  });
+};
+
+export const useAdminCohorts = () => {
+  return useQuery({
+    queryKey: ["admin-cohorts"],
+    queryFn: () => academyService.admin.getAllCohorts(),
+  });
+};
+
+export const useAdminDeleteCohort = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (cohortId: string | number) =>
+      academyService.admin.deleteCohort(cohortId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-cohorts"] });
+      toast.success("Cohort deleted successfully");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to delete cohort");
+    },
+  });
+};
+
+export const useAdminEnrollments = () => {
+  return useQuery({
+    queryKey: ["admin-enrollments"],
+    queryFn: () => academyService.admin.getAllEnrollments(),
+  });
+};
+
+export const useAdminDropEnrollment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (enrollmentId: string | number) =>
+      academyService.admin.cancelEnrollment(enrollmentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-enrollments"] });
+      toast.success("Enrollment cancelled/dropped");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to drop enrollment");
+    },
+  });
+};
+
+export const useAdminInstructors = () => {
+  return useQuery({
+    queryKey: ["admin-instructors"],
+    queryFn: () => academyService.admin.getAllInstructors(),
+  });
+};
+
+export const useApproveInstructorCredentials = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (instructorUserId: string) =>
+      academyService.admin.approveInstructorCredentials(instructorUserId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-instructors"] });
+      toast.success("Faculty credentials approved");
+    },
+    onError: (err: any) => {
+      toast.error(
+        err.response?.data?.message || "Failed to approve instructor credentials",
+      );
+    },
+  });
+};
+
+export const useAdminContentLibrary = () => {
+  return useQuery({
+    queryKey: ["admin-content-library"],
+    queryFn: () => academyService.admin.getAllContent(),
   });
 };

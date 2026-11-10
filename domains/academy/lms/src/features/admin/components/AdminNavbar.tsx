@@ -10,7 +10,6 @@ import {
   Users,
   BookOpen,
   Settings,
-  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,7 +22,6 @@ const AdminNavbar = () => {
   const location = useLocation();
   const profileRef = useRef<HTMLDivElement>(null);
   const { data: user } = useUser();
-  const isAdmin = user?.globalRole === "ADMIN";
   const logout = useLogout();
 
   const userInitials = user
@@ -91,14 +89,6 @@ const AdminNavbar = () => {
                   >
                     <User className="w-4 h-4" /> Go to Website
                   </Link>
-                  {!isAdmin && (
-                    <Link
-                      to="/dashboard"
-                      className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition-colors"
-                    >
-                      <ShieldCheck className="w-4 h-4" /> Switch to Student
-                    </Link>
-                  )}
                 </div>
 
                 <div className="border-t border-slate-100 py-1">
