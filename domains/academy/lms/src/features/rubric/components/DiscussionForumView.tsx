@@ -418,7 +418,7 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
         <div className="space-y-1">
           <h4 className="text-sm font-bold text-slate-800">No Unit Discussion Topics Yet</h4>
           <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-            WAC 246-841A-440 requires at least one rubric-evaluated asynchronous discussion per unit
+            Each unit includes at least one rubric-evaluated asynchronous discussion
             encouraging substantive clinical engagement and peer responses.
           </p>
         </div>
@@ -451,7 +451,7 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
                       Create Unit Discussion Topic
                     </DialogTitle>
                     <DialogDescription className="text-xs text-slate-500">
-                      Postman 5.1 &bull; WAC 246-841A-440 Asynchronous Unit Discussion
+                      Asynchronous Unit Discussion
                     </DialogDescription>
                   </div>
                 </div>
@@ -643,7 +643,7 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
           <div className="w-full p-3.5 rounded-xl bg-blue-50/70 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-blue-900">
             <span className="flex items-center gap-2 font-medium">
               <Sparkles className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-              WAC 246-841A-440(4): Requires at least 1 substantive original post & 2 constructive peer responses.
+              Requires at least 1 substantive original post &amp; 2 constructive peer responses.
             </span>
             {(activeTopic.dueDate || activeTopic.dueAt) && (
               <span className="text-[11px] font-bold text-blue-700 shrink-0">
@@ -1097,7 +1097,7 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
                     Create Unit Discussion Topic
                   </DialogTitle>
                   <DialogDescription className="text-xs text-slate-500">
-                    Postman 5.1 &bull; WAC 246-841A-440 Asynchronous Unit Discussion
+                    Asynchronous Unit Discussion
                   </DialogDescription>
                 </div>
               </div>

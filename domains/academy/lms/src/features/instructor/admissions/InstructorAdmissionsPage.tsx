@@ -326,11 +326,6 @@ export const InstructorAdmissionsPage: React.FC = () => {
         {/* ── Header Bar ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 text-[11px] font-bold py-0.5 px-2">
-                Admissions Clearance
-              </Badge>
-            </div>
             <h1 className="text-xl font-bold text-slate-900 font-heading tracking-tight">
               Admissions & Document Review
             </h1>

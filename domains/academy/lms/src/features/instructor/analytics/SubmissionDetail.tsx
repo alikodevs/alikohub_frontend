@@ -214,7 +214,7 @@ const ResponseCard: React.FC<ResponseCardProps> = ({
       if (isEssay) {
         return (
           <p className="text-xs text-slate-500 italic">
-            Open-ended evaluation: Evaluate student's understanding against accredited WAC 246-841A clinical standards and rubric criteria.
+            Open-ended evaluation: Evaluate student's understanding against accredited clinical standards and rubric criteria.
           </p>
         );
       }
@@ -963,7 +963,7 @@ const SubmissionDetail = () => {
                       </Badge>
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Identity attestation and anti-cheating window tracking per WAC 246-841A standards.
+                      Identity attestation and anti-cheating window tracking.
                     </p>
                   </div>
                 </div>
@@ -1134,7 +1134,7 @@ const SubmissionDetail = () => {
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 leading-relaxed">
-                <span className="font-bold text-slate-800">WABON WAC 246-841A Standard: </span>
+                <span className="font-bold text-slate-800">Grading Policy: </span>
                 Grades entered for this candidate are atomically committed to the cohort gradebook. Scores below 80% automatically trigger remediation tracking.
               </div>
 

@@ -549,7 +549,7 @@ const LmsLearn = () => {
         setTabSwitchViolations((prev) => {
           const updated = prev + 1;
           toast.error(
-            `Security Notice: Window focus lost. Incident #${updated} recorded for faculty review (WAC 246-841A-440).`,
+            `Security Notice: Window focus lost. Incident #${updated} recorded for faculty review.`,
           );
           if (examSessionId) {
             examSecurityService
@@ -975,7 +975,7 @@ const LmsLearn = () => {
                       Academic Integrity & Identity Verification
                     </h3>
                     <p className="text-xs text-slate-500 m-0">
-                      WAC 246-841A-440 Examination Security Protocol
+                      Examination Security Protocol
                     </p>
                   </div>
                 </div>
@@ -1007,7 +1007,7 @@ const LmsLearn = () => {
                     Student Examination Attestation
                   </div>
                   <p className="leading-relaxed">
-                    By beginning this assessment, I certify that I am the enrolled student listed above. I attest that I will complete this examination independently without unauthorized aids, browser extensions, secondary monitors, or external assistance, in compliance with Washington State nursing assistant training regulations (WAC 246-841A-440).
+                    By beginning this assessment, I certify that I am the enrolled student listed above. I attest that I will complete this examination independently without unauthorized aids, browser extensions, secondary monitors, or external assistance, in compliance with academy assessment policies.
                   </p>
                 </div>
 
@@ -1062,7 +1062,7 @@ const LmsLearn = () => {
                         First-Week Academic Attendance Verification Gate
                       </span>
                       <span className="text-[11px] text-emerald-800">
-                        Submitting this designated exercise confirms your active academic engagement and automatically verifies your present attendance on the cohort enrollment census (WAC 246-841A-440).
+                        Submitting this designated exercise confirms your active academic engagement and automatically verifies your present attendance on the cohort enrollment census.
                       </span>
                     </div>
                   </div>
@@ -1636,7 +1636,7 @@ const LmsLearn = () => {
         <main className="lesson-content w-full max-w-full">
           <div className="content-head">
             <span className="material-badge flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200">
-              <MessageSquare size={13} /> Unit Asynchronous Discussion (WAC 246-841A-440)
+              <MessageSquare size={13} /> Unit Asynchronous Discussion
             </span>
           </div>
 
@@ -1771,31 +1771,35 @@ const LmsLearn = () => {
             );
           })()}
 
-          {/* WABON Theory Seat-Time Progress Indicator */}
+          {/* Theory Seat-Time Progress Indicator */}
           <div className="px-4 py-3 mx-3 my-2 rounded-xl bg-blue-50/70 border border-blue-100/90 text-xs space-y-1.5">
             <div className="flex items-center justify-between text-[11px] font-bold text-blue-900">
               <span className="flex items-center gap-1">
                 <Clock size={12} className="text-blue-600" /> Theory Seat-Time
               </span>
               <span>
-                {((seatTimeSummary?.totalActiveTimeSeconds ?? 0) / 3600).toFixed(1)} hrs ({seatTimeSummary?.totalActiveTimeMinutes ?? Math.round((seatTimeSummary?.totalActiveTimeSeconds ?? 0) / 60)}m) / 50.0 hrs
+                {((seatTimeSummary?.totalActiveTimeSeconds ?? 0) / 3600).toFixed(1)} hrs ({seatTimeSummary?.totalActiveTimeMinutes ?? Math.round((seatTimeSummary?.totalActiveTimeSeconds ?? 0) / 60)}m)
+                {(seatTimeSummary?.totalRequiredSeconds ?? 0) > 0 &&
+                  ` / ${((seatTimeSummary!.totalRequiredSeconds!) / 3600).toFixed(1)} hrs`}
               </span>
             </div>
-            <div className="h-1.5 rounded-full bg-blue-200/60 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-blue-600 transition-all duration-500"
-                style={{
-                  width: `${Math.min(
-                    100,
-                    Math.round(
-                      ((seatTimeSummary?.totalActiveTimeSeconds ?? 0) /
-                        (50 * 3600)) *
-                        100
-                    )
-                  )}%`,
-                }}
-              />
-            </div>
+            {(seatTimeSummary?.totalRequiredSeconds ?? 0) > 0 && (
+              <div className="h-1.5 rounded-full bg-blue-200/60 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.round(
+                        ((seatTimeSummary?.totalActiveTimeSeconds ?? 0) /
+                          seatTimeSummary!.totalRequiredSeconds!) *
+                          100
+                      )
+                    )}%`,
+                  }}
+                />
+              </div>
+            )}
             <div className="flex items-center justify-between text-[10px] text-blue-700">
               <span className="flex items-center gap-1 font-semibold text-emerald-600">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>

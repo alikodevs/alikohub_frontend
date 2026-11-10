@@ -39,7 +39,7 @@ const TEMPLATES: Record<
   infectionControl: {
     name: "Clinical Judgment & Infection Control Rubric",
     description:
-      "Assesses critical thinking, communication, and adherence to CDC/OSHA infection control protocols (WABON WAC 246-841A-440).",
+      "Assesses critical thinking, communication, and adherence to CDC/OSHA infection control protocols.",
     type: "DISCUSSION",
     criteria: [
       {

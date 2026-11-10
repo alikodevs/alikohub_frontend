@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
 import {
   ShieldCheck,
@@ -41,30 +42,23 @@ import {
 import { useComplianceDossier } from "@/features/rubric/hooks/useComplianceDossier";
 import { useExportGradebookCsvMutation } from "@/features/rubric/hooks/useGradebook";
 import { useInstructorCohortsList } from "@/features/rubric/hooks/useSeatTime";
-import { useUser } from "@/features/auth/hooks/useAuth";
+import { usePortalMode } from "@/features/auth/hooks/useAuth";
 import type { ComplianceDossier } from "@/features/rubric/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const ComplianceAuditPage: React.FC = () => {
-  const { data: user } = useUser();
-  const role = (
-    user?.academyUser?.role ||
-    user?.globalRole ||
-    ""
-  ).toUpperCase();
+  const { isAuditor, hasInstructorAccess, activeRole, isFetched } = usePortalMode();
 
-  const isAuditor = role === "COMMISSION_AUDITOR";
-
-  const { data: cohortsData } = useInstructorCohortsList();
+  const { data: cohortsData, isLoading: isCohortsLoading } = useInstructorCohortsList();
   const cohorts = cohortsData || [];
   const [selectedCohortId, setSelectedCohortId] = useState<string>("");
   const activeCohort = cohorts.find(
-    (c: any) => String(c.id) === (selectedCohortId || (cohorts[0] ? String(cohorts[0].id) : "1"))
+    (c: any) => String(c.id) === selectedCohortId
   ) || cohorts[0];
 
-  const courseId = activeCohort?.courseId || 1;
-  const cohortId = activeCohort?.id || 1;
+  const courseId = activeCohort?.courseId;
+  const cohortId = activeCohort?.id;
 
   const {
     data: dossier,
@@ -90,6 +84,10 @@ export const ComplianceAuditPage: React.FC = () => {
     toast.success("Regulatory compliance dossier downloaded");
   };
 
+  if (isFetched && (!hasInstructorAccess || (activeRole === "STUDENT" && !isAuditor))) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <InstructorLayout>
       <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
@@ -101,16 +99,11 @@ export const ComplianceAuditPage: React.FC = () => {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                    WABON Regulatory Compliance Dossier
-                  </h1>
-                  <Badge className="bg-emerald-600 text-white font-bold text-[10px]">
-                    {isAuditor ? "COMMISSION AUDITOR ACCESS" : "REGULATORY AUDIT VIEW"}
-                  </Badge>
-                </div>
+                <h1 className="text-2xl font-black tracking-tight text-slate-900">
+                  WABON Regulatory Compliance Dossier
+                </h1>
                 <p className="text-xs text-slate-500">
-                  Washington State Board of Nursing (WABON) Accreditation Audit Standards — WAC 246-841A-440.
+                  Accreditation &amp; Program Compliance Audit Dossier.
                 </p>
               </div>
             </div>
@@ -150,7 +143,7 @@ export const ComplianceAuditPage: React.FC = () => {
             </div>
           </div>
           <span className="text-[11px] text-slate-400 font-mono">
-            Auth: WAC 246-841A-440
+            Immutable Audit Record
           </span>
         </div>
 
@@ -161,11 +154,11 @@ export const ComplianceAuditPage: React.FC = () => {
               Select Audit Cohort
             </label>
             <Select
-              value={selectedCohortId || (cohorts[0] ? String(cohorts[0].id) : "1")}
+              value={cohortId ? String(cohortId) : undefined}
               onValueChange={setSelectedCohortId}
             >
               <SelectTrigger className="bg-slate-50 border-slate-200 text-xs font-semibold h-9">
-                <SelectValue placeholder="Select Cohort" />
+                <SelectValue placeholder={cohorts.length > 0 ? "Select Cohort" : "No cohorts found"} />
               </SelectTrigger>
               <SelectContent>
                 {cohorts.map((c: any) => (
@@ -174,7 +167,9 @@ export const ComplianceAuditPage: React.FC = () => {
                   </SelectItem>
                 ))}
                 {cohorts.length === 0 && (
-                  <SelectItem value="1">Cohort 1 (Default)</SelectItem>
+                  <div className="p-3 text-center text-xs text-slate-500">
+                    No cohorts found
+                  </div>
                 )}
               </SelectContent>
             </Select>
@@ -184,13 +179,13 @@ export const ComplianceAuditPage: React.FC = () => {
             <div>
               <span className="text-slate-400 block text-[10px] uppercase font-bold">Generated Timestamp</span>
               <span className="font-mono font-medium text-slate-700">
-                {dossier ? new Date(dossier.generatedAt).toLocaleString() : "..."}
+                {dossier ? new Date(dossier.generatedAt).toLocaleString() : "—"}
               </span>
             </div>
             <div>
               <span className="text-slate-400 block text-[10px] uppercase font-bold">Authority</span>
               <span className="font-bold text-slate-900">
-                {dossier?.submissionAuthority || "WABON"}
+                {dossier?.submissionAuthority || "—"}
               </span>
             </div>
           </div>
@@ -199,11 +194,11 @@ export const ComplianceAuditPage: React.FC = () => {
         {/* Audit Tabs */}
         <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl overflow-x-auto">
           {[
-            { id: "OVERVIEW", label: "Statutory Standards & Ratios" },
+            { id: "OVERVIEW", label: "Standards & Ratios" },
             { id: "CURRICULUM", label: "Master Crosswalk Matrix" },
-            { id: "SKILLS", label: "22 Skills Lab Checkoff Curriculum" },
+            { id: "SKILLS", label: "Skills Lab Checkoff Curriculum" },
             { id: "FACULTY", label: "Faculty Roster & RN Licenses" },
-            { id: "QUALITY", label: "Quality Matters (QM) Review & Pass Rates" },
+            { id: "QUALITY", label: "Quality Review & Pass Rates" },
             { id: "SECURITY", label: "Exam Security & Seat-Time Protocols" },
           ].map((tab) => (
             <button
@@ -221,10 +216,10 @@ export const ComplianceAuditPage: React.FC = () => {
           ))}
         </div>
 
-        {isDossierLoading ? (
+        {isCohortsLoading || isDossierLoading ? (
           <div className="p-16 text-center text-slate-400">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-primary" />
-            <p className="text-xs">Compiling state regulatory dossier from database...</p>
+            <p className="text-xs">Compiling audit dossier from backend...</p>
           </div>
         ) : !dossier ? (
           <div className="p-12 text-center bg-white border border-slate-200 rounded-2xl text-xs text-slate-500">
@@ -242,22 +237,27 @@ export const ComplianceAuditPage: React.FC = () => {
                       Faculty Theory Ratio Standard
                     </span>
                     <span className="text-xl font-black text-slate-900 block">
-                      {dossier.statutoryStandards?.maximumTheoryRatio || "30:1"}
+                      {dossier.statutoryStandards?.maximumTheoryRatio ?? "—"}
                     </span>
                     <p className="text-xs text-slate-500">
-                      Enrolled: {dossier.cohortVerification?.totalEnrolledStudents ?? 0} students (Compliant)
+                      Enrolled: {dossier.cohortVerification?.totalEnrolledStudents ?? 0} students
+                      {dossier.cohortVerification?.statutoryTheoryRatioCompliant !== undefined
+                        ? dossier.cohortVerification.statutoryTheoryRatioCompliant
+                          ? " (Compliant)"
+                          : " (Over Cap)"
+                        : ""}
                     </p>
                   </div>
 
                   <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                      Clinical & Skills Lab Ratio Standard
+                      Clinical &amp; Skills Lab Ratio Standard
                     </span>
                     <span className="text-xl font-black text-slate-900 block">
-                      {dossier.statutoryStandards?.maximumLabAndClinicalRatio || "10:1"}
+                      {dossier.statutoryStandards?.maximumLabAndClinicalRatio ?? "—"}
                     </span>
                     <p className="text-xs text-slate-500">
-                      Max 10 students per supervising RN instructor
+                      {dossier.statutoryStandards?.statuteCitation || "Supervising RN ratio limit"}
                     </p>
                   </div>
 
@@ -266,61 +266,109 @@ export const ComplianceAuditPage: React.FC = () => {
                       Cohort Duration Cap
                     </span>
                     <span className="text-xl font-black text-slate-900 block">
-                      {dossier.statutoryStandards?.maximumCohortDurationCalendarDays || 90} Days Max
+                      {dossier.statutoryStandards?.maximumCohortDurationCalendarDays != null
+                        ? `${dossier.statutoryStandards.maximumCohortDurationCalendarDays} Days Max`
+                        : "—"}
                     </span>
                     <p className="text-xs text-slate-500">
-                      Cohort calendar duration: {dossier.cohortVerification?.calendarDurationDays ?? 90} days (Compliant)
+                      {dossier.cohortVerification?.calendarDurationDays != null
+                        ? `Cohort calendar duration: ${dossier.cohortVerification.calendarDurationDays} days${
+                            dossier.cohortVerification.isWithinStatutory90DayCap !== undefined
+                              ? dossier.cohortVerification.isWithinStatutory90DayCap
+                                ? " (Compliant)"
+                                : " (Exceeded)"
+                              : ""
+                          }`
+                        : "Cohort duration reported by backend"}
                     </p>
                   </div>
                 </div>
 
-                {/* Tri-Track Program Structure */}
-                <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-                  <h3 className="text-base font-black text-slate-900">
-                    Tri-Track Hybrid Nursing Assistant Curriculum Structure
-                  </h3>
+                {/* Tri-Track Program Structure from Backend */}
+                {dossier.triTrackMasterCurriculum && (
+                  <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                    <h3 className="text-base font-black text-slate-900">
+                      Program Curriculum Structure
+                    </h3>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                      <span className="text-[11px] font-bold text-primary uppercase">
-                        Track 1: Theory (Online Asynchronous)
-                      </span>
-                      <p className="text-xs text-slate-600">
-                        Total Hours: <strong>66.0 Hours</strong>
-                        <br />
-                        Seat-Time: 60s heartbeats with 120s server-side idle timeout.
-                        <br />
-                        Passing Score: Minimum 80.0%.
-                      </p>
-                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                      {dossier.triTrackMasterCurriculum.trackOneTheoryAsync && (
+                        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                          <span className="text-[11px] font-bold text-primary uppercase">
+                            {dossier.triTrackMasterCurriculum.trackOneTheoryAsync.track}
+                          </span>
+                          <p className="text-xs text-slate-600">
+                            Total Hours:{" "}
+                            <strong>
+                              {dossier.triTrackMasterCurriculum.trackOneTheoryAsync.totalRequiredHours} Hours
+                            </strong>
+                            <br />
+                            {dossier.triTrackMasterCurriculum.trackOneTheoryAsync.seatTimeTracking && (
+                              <>
+                                Seat-Time: {dossier.triTrackMasterCurriculum.trackOneTheoryAsync.seatTimeTracking}
+                                <br />
+                              </>
+                            )}
+                            {dossier.triTrackMasterCurriculum.trackOneTheoryAsync.minimumPassingScorePercent != null && (
+                              <>
+                                Passing Score: Minimum{" "}
+                                {dossier.triTrackMasterCurriculum.trackOneTheoryAsync.minimumPassingScorePercent}%
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      )}
 
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                      <span className="text-[11px] font-bold text-emerald-700 uppercase">
-                        Track 2: Skills Lab (In-Person)
-                      </span>
-                      <p className="text-xs text-slate-600">
-                        Total Hours: <strong>32.0 Hours</strong>
-                        <br />
-                        Requirement: 100% pass on all 22 core skills.
-                        <br />
-                        Evaluation: In-person RN instructor observation.
-                      </p>
-                    </div>
+                      {dossier.triTrackMasterCurriculum.trackTwoSkillsLab && (
+                        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                          <span className="text-[11px] font-bold text-emerald-700 uppercase">
+                            {dossier.triTrackMasterCurriculum.trackTwoSkillsLab.track}
+                          </span>
+                          <p className="text-xs text-slate-600">
+                            Total Hours:{" "}
+                            <strong>
+                              {dossier.triTrackMasterCurriculum.trackTwoSkillsLab.totalRequiredHours} Hours
+                            </strong>
+                            <br />
+                            {dossier.triTrackMasterCurriculum.trackTwoSkillsLab.competencyRequirement && (
+                              <>
+                                Requirement: {dossier.triTrackMasterCurriculum.trackTwoSkillsLab.competencyRequirement}
+                                <br />
+                              </>
+                            )}
+                            {dossier.triTrackMasterCurriculum.trackTwoSkillsLab.ratioLimit && (
+                              <>Ratio Limit: {dossier.triTrackMasterCurriculum.trackTwoSkillsLab.ratioLimit}</>
+                            )}
+                          </p>
+                        </div>
+                      )}
 
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                      <span className="text-[11px] font-bold text-blue-700 uppercase">
-                        Track 3: Clinical (In-Person Direct Care)
-                      </span>
-                      <p className="text-xs text-slate-600">
-                        Total Hours: <strong>40.0 Hours</strong>
-                        <br />
-                        Prerequisite: 100% Skills Lab completion.
-                        <br />
-                        Supervision: On-site RN preceptor (10:1 ratio).
-                      </p>
+                      {dossier.triTrackMasterCurriculum.trackThreeClinical && (
+                        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                          <span className="text-[11px] font-bold text-blue-700 uppercase">
+                            {dossier.triTrackMasterCurriculum.trackThreeClinical.track}
+                          </span>
+                          <p className="text-xs text-slate-600">
+                            Total Hours:{" "}
+                            <strong>
+                              {dossier.triTrackMasterCurriculum.trackThreeClinical.totalRequiredHours} Hours
+                            </strong>
+                            <br />
+                            {dossier.triTrackMasterCurriculum.trackThreeClinical.entryPrerequisite && (
+                              <>
+                                Prerequisite: {dossier.triTrackMasterCurriculum.trackThreeClinical.entryPrerequisite}
+                                <br />
+                              </>
+                            )}
+                            {dossier.triTrackMasterCurriculum.trackThreeClinical.ratioLimit && (
+                              <>Ratio Limit: {dossier.triTrackMasterCurriculum.trackThreeClinical.ratioLimit}</>
+                            )}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -329,13 +377,13 @@ export const ComplianceAuditPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="p-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Master Crosswalk Units & Lessons</h3>
+                    <h3 className="text-sm font-bold text-slate-900">Master Crosswalk Units &amp; Lessons</h3>
                     <p className="text-xs text-slate-500">
-                      Total Modules: {dossier.curriculumCrosswalk?.totalModules} • Total Lessons: {dossier.curriculumCrosswalk?.totalLessons}
+                      Total Modules: {dossier.curriculumCrosswalk?.totalModules ?? 0} • Total Lessons: {dossier.curriculumCrosswalk?.totalLessons ?? 0}
                     </p>
                   </div>
                   <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
-                    WAC 246-841A-440 Syllabus Certified
+                    Certified Curriculum Syllabus
                   </Badge>
                 </div>
 
@@ -377,14 +425,14 @@ export const ComplianceAuditPage: React.FC = () => {
                 <div className="p-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">
-                      Mandatory Core Skills Curriculum ({dossier.skillsLabCurriculum?.totalCoreSkills || 22} Skills)
+                      Core Skills Curriculum ({dossier.skillsLabCurriculum?.totalCoreSkills ?? dossier.skillsLabCurriculum?.skillsChecklist?.length ?? 0} Skills)
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Evaluated on 100% Satisfactory / Unsatisfactory in-person RN observation.
+                      Evaluated on Satisfactory / Unsatisfactory in-person RN observation.
                     </p>
                   </div>
                   <Badge className="bg-emerald-600 text-white text-xs">
-                    All 22 Skills Required for Graduation
+                    {dossier.skillsLabCurriculum?.totalCoreSkills ?? dossier.skillsLabCurriculum?.skillsChecklist?.length ?? 0} Registered Skills
                   </Badge>
                 </div>
 
@@ -412,10 +460,10 @@ export const ComplianceAuditPage: React.FC = () => {
                 <div className="p-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">
-                      Approved Faculty Roster & RN Licenses (WAC Req 9)
+                      Approved Faculty Roster &amp; RN Licenses
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Instructors must maintain active RN license, 1+ years LTC experience, and Train-the-Trainer certification.
+                      Registered instructor credentials from backend verification records.
                     </p>
                   </div>
                   <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs font-bold">
@@ -469,22 +517,28 @@ export const ComplianceAuditPage: React.FC = () => {
                       Quality Matters Review Score
                     </span>
                     <span className="text-2xl font-black text-slate-900 block">
-                      {dossier.qualityAssuranceAndQM?.qmReviewScore || "96/100"}
+                      {dossier.qualityAssuranceAndQM?.qmReviewScore ?? "—"}
                     </span>
                     <p className="text-xs text-emerald-700 font-bold">
-                      Certified Exceeds Standards
+                      {dossier.qualityAssuranceAndQM?.qmCertificationLevel ||
+                        dossier.qualityAssuranceAndQM?.accreditationStatus ||
+                        "—"}
                     </p>
                   </div>
 
                   <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
                     <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                      NNAAP State Exam Historical Pass Rate
+                      State Exam Historical Pass Rate
                     </span>
                     <span className="text-2xl font-black text-slate-900 block">
-                      {dossier.qualityAssuranceAndQM?.historicalPassRates?.nnaapStateExamPassRatePercent || 94.2}%
+                      {dossier.qualityAssuranceAndQM?.historicalPassRates?.nnaapStateExamPassRatePercent != null
+                        ? `${dossier.qualityAssuranceAndQM.historicalPassRates.nnaapStateExamPassRatePercent}%`
+                        : "—"}
                     </span>
                     <p className="text-xs text-slate-500">
-                      State Minimum Benchmark: 80.0%
+                      {dossier.qualityAssuranceAndQM?.historicalPassRates?.stateMinimumPassRateBenchmarkPercent != null
+                        ? `Benchmark: ${dossier.qualityAssuranceAndQM.historicalPassRates.stateMinimumPassRateBenchmarkPercent}%`
+                        : "Reported by backend"}
                     </p>
                   </div>
 
@@ -493,10 +547,13 @@ export const ComplianceAuditPage: React.FC = () => {
                       Cohort Completion Rate
                     </span>
                     <span className="text-2xl font-black text-slate-900 block">
-                      {dossier.qualityAssuranceAndQM?.historicalPassRates?.cohortCompletionRatePercent || 91.8}%
+                      {dossier.qualityAssuranceAndQM?.historicalPassRates?.cohortCompletionRatePercent != null
+                        ? `${dossier.qualityAssuranceAndQM.historicalPassRates.cohortCompletionRatePercent}%`
+                        : "—"}
                     </span>
                     <p className="text-xs text-slate-500">
-                      Continuous Quality Improvement Committee
+                      {dossier.qualityAssuranceAndQM?.continuousQualityImprovement?.evaluationCadence ||
+                        "Continuous Quality Improvement"}
                     </p>
                   </div>
                 </div>
@@ -507,36 +564,56 @@ export const ComplianceAuditPage: React.FC = () => {
             {activeTab === "SECURITY" && (
               <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
                 <h3 className="text-base font-black text-slate-900">
-                  Regulatory Protocols & Security Framework
+                  Regulatory Protocols &amp; Security Framework
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
-                    <span className="font-bold text-slate-900 block">Exam Proctoring & Identity Verification</span>
-                    <p className="text-slate-600">
-                      • Government photo ID snapshot attestation required before examination start.
-                      <br />
-                      • Periodic webcam snapshot capture during active quiz sessions.
-                      <br />
-                      • Window blur & tab switch telemetry logged with threshold violation alerts.
-                      <br />
-                      • Client IP address and browser user-agent attestation recorded.
-                    </p>
-                  </div>
+                {dossier.regulatoryProtocols ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
+                      <span className="font-bold text-slate-900 block">Exam Proctoring &amp; Identity Verification</span>
+                      <p className="text-slate-600">
+                        • Photo ID verification required:{" "}
+                        <strong>{dossier.regulatoryProtocols.examSecurity?.photoIdVerificationRequired ? "Yes" : "No"}</strong>
+                        <br />
+                        • Webcam snapshot required:{" "}
+                        <strong>{dossier.regulatoryProtocols.examSecurity?.webcamSnapshotRequired ? "Yes" : "No"}</strong>
+                        <br />
+                        • Honor code required:{" "}
+                        <strong>{dossier.regulatoryProtocols.examSecurity?.studentHonorCodeRequired ? "Yes" : "No"}</strong>
+                        <br />
+                        • Window blur threshold:{" "}
+                        <strong>{dossier.regulatoryProtocols.examSecurity?.windowBlurTrackingThreshold ?? "—"}</strong>
+                        <br />
+                        • Client IP logging:{" "}
+                        <strong>{dossier.regulatoryProtocols.examSecurity?.ipLoggingEnabled ? "Enabled" : "Disabled"}</strong>
+                      </p>
+                    </div>
 
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
-                    <span className="font-bold text-slate-900 block">Active Seat-Time Verification Engine</span>
-                    <p className="text-slate-600">
-                      • 60-second telemetry client heartbeat.
-                      <br />
-                      • 120-second server-side idle timeout clamping.
-                      <br />
-                      • Window focus detection pauses seat-time timer on backgrounding.
-                      <br />
-                      • Theory credits strictly tied to verified active minutes (66.0h minimum).
-                    </p>
+                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
+                      <span className="font-bold text-slate-900 block">Active Seat-Time Verification Engine</span>
+                      <p className="text-slate-600">
+                        • Heartbeat interval:{" "}
+                        <strong>
+                          {dossier.regulatoryProtocols.activeSeatTime?.heartbeatIntervalSeconds != null
+                            ? `${dossier.regulatoryProtocols.activeSeatTime.heartbeatIntervalSeconds}s`
+                            : "—"}
+                        </strong>
+                        <br />
+                        • Server idle timeout:{" "}
+                        <strong>
+                          {dossier.regulatoryProtocols.activeSeatTime?.idleTimeoutSeconds != null
+                            ? `${dossier.regulatoryProtocols.activeSeatTime.idleTimeoutSeconds}s`
+                            : "—"}
+                        </strong>
+                        <br />
+                        • Active engagement enforcement:{" "}
+                        <strong>{dossier.regulatoryProtocols.activeSeatTime?.enforceActiveEngagement ? "Enabled" : "Disabled"}</strong>
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <p className="text-xs text-slate-500">No regulatory protocol metadata returned by backend.</p>
+                )}
               </div>
             )}
           </div>

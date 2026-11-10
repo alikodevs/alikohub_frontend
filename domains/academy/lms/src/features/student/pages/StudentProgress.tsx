@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import StudentLayout from "@/features/student/components/StudentLayout";
 import {
@@ -183,7 +182,7 @@ const LmsMyLearning = () => {
                 Learning Journey
               </p>
               <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0b1a40] leading-tight">
-                Keep going, {user?.firstname || "Bezawit"}!
+                Keep going, {user?.firstname || "Student"}!
               </h1>
               <p className="text-slate-600 text-sm max-w-md leading-relaxed">
                 You're making great progress. Complete your current courses to
@@ -358,17 +357,12 @@ const LmsMyLearning = () => {
                 <GraduationCap className="w-6 h-6" />
               </div>
               <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="text-sm font-bold text-slate-900">
-                    Mandatory Student Orientation Required
-                  </h4>
-                  <Badge variant="outline" className="bg-amber-100 text-amber-900 border-amber-300 text-[10px] font-bold">
-                    WABON WAC 246-841A-440(2)
-                  </Badge>
-                </div>
+                <h4 className="text-sm font-bold text-slate-900">
+                  Mandatory Student Orientation Required
+                </h4>
                 <p className="text-xs text-slate-600 mt-0.5">
                   Complete the orientation checklist, LMS tutorial, and netiquette pledge to unlock your lessons.
-                  Orientation hours are non-credited (0 theory hours) per Req 11.
+                  Orientation is a non-credited onboarding step.
                 </p>
               </div>
             </div>

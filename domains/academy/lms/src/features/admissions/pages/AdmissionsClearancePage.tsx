@@ -58,7 +58,7 @@ export const AdmissionsClearancePage: React.FC = () => {
         map.set(cId, {
           cohortId: cId,
           name: e.cohort?.name || `Cohort #${cId}`,
-          courseTitle: e.course?.title || "CNA Training Program",
+          courseTitle: e.course?.title || e.cohort?.name || "Course",
         });
       }
     });
@@ -70,7 +70,7 @@ export const AdmissionsClearancePage: React.FC = () => {
     if (paramCohort && !isNaN(Number(paramCohort))) {
       return Number(paramCohort);
     }
-    return 1;
+    return 0;
   });
 
   useEffect(() => {
@@ -254,14 +254,6 @@ export const AdmissionsClearancePage: React.FC = () => {
         {/* ── Top Header ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs font-bold">
-                WABON WAC 246-841A-440 Compliance
-              </Badge>
-              <Badge variant="outline" className="text-xs text-slate-500">
-                Non-Credit Entry Gate
-              </Badge>
-            </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-heading tracking-tight">
               Admissions Clearance & Onboarding Checklist
             </h1>
@@ -413,7 +405,7 @@ export const AdmissionsClearancePage: React.FC = () => {
               )}
             </div>
             <p className="text-[11px] text-slate-500">
-              WAC 246-841A-440(2) Mandatory
+              Mandatory Prerequisite
             </p>
           </div>
         </div>
@@ -885,7 +877,7 @@ export const AdmissionsClearancePage: React.FC = () => {
                 3. Mandatory Student Orientation
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Complete the WAC 246-841A-440(2) non-credit student orientation session, LMS digital literacy tutorial, and online netiquette code of conduct.
+                Complete the non-credit student orientation session, LMS digital literacy tutorial, and online netiquette code of conduct.
               </p>
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-0.5">
                 <div className="font-semibold text-slate-800">
@@ -963,7 +955,7 @@ export const AdmissionsClearancePage: React.FC = () => {
                 ALIKOHUB ACADEMY — NURSING ASSISTANT CERTIFIED (CNA) PROGRAM
               </p>
               <p>
-                1. Program Structure: Students must complete a minimum of 50 verified active theory hours, skills lab, and clinical externship in compliance with WAC 246-841A-440.
+                1. Program Structure: Students must complete verified active theory hours, skills lab, and clinical externship according to curriculum requirements.
               </p>
               <p>
                 2. Academic Engagement & Attendance: Active participation is verified via automated telemetry heartbeats. Tab switching or inactivity exceeding threshold pauses seat-time accrual. Week 1 attendance verification requires submission of designated gate exercise.
@@ -972,7 +964,7 @@ export const AdmissionsClearancePage: React.FC = () => {
                 3. Criminal Background & Disqualifications: Candidates acknowledge that clinical sites enforce strict background checks pursuant to DSHS and Department of Health standards.
               </p>
               <p>
-                4. Non-Credit Orientation: Orientation is a non-credit prerequisite and does not count toward the 50 theory hours mandate.
+                4. Non-Credit Orientation: Orientation is a non-credit prerequisite and does not count toward required theory hours.
               </p>
             </div>
 
@@ -992,7 +984,7 @@ export const AdmissionsClearancePage: React.FC = () => {
                   className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-xs text-slate-700">
-                  I acknowledge the Washington State Board of Nursing (WABON) 50-hour theory and clinical completion mandates.
+                  I acknowledge the program's theory, skills lab, and clinical completion requirements.
                 </span>
               </label>
 

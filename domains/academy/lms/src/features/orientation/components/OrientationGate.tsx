@@ -158,7 +158,7 @@ export const OrientationGate: React.FC<OrientationGateProps> = ({ children }) =>
           <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-left text-xs text-slate-300 space-y-2 leading-relaxed">
             <div className="flex items-center gap-2 font-bold text-amber-400">
               <GraduationCap className="w-4 h-4" />
-              <span>WABON WAC 246-841A-440(2) Compliance Rule</span>
+              <span>Mandatory Program Prerequisite</span>
             </div>
             <p>
               Access to course curriculum and lessons is locked until you complete the

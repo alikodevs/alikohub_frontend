@@ -39,14 +39,14 @@ export const OrientationChecklistPage: React.FC = () => {
         map.set(cId, {
           cohortId: cId,
           name: e.cohort?.name || `Cohort #${cId}`,
-          courseTitle: e.course?.title || "CNA Training Program",
+          courseTitle: e.course?.title || e.cohort?.name || "Course",
         });
       }
     });
     return Array.from(map.values());
   }, [enrollments]);
 
-  // Determine active cohort ID: url param -> first enrolled cohort -> default 1
+  // Determine active cohort ID: url param -> first enrolled cohort
   const paramCohort = searchParams.get("cohortId");
   const redirectTarget = searchParams.get("redirect") || "/learning";
 
@@ -54,7 +54,7 @@ export const OrientationChecklistPage: React.FC = () => {
     if (paramCohort && !isNaN(Number(paramCohort))) {
       return Number(paramCohort);
     }
-    return 1;
+    return 0;
   });
 
   useEffect(() => {
@@ -145,17 +145,9 @@ export const OrientationChecklistPage: React.FC = () => {
                 )}
               </div>
               <div>
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-                    Mandatory Student Orientation
-                  </h1>
-                  <Badge
-                    variant="outline"
-                    className="bg-amber-50 text-amber-800 border-amber-200 text-[11px] font-bold py-0.5"
-                  >
-                    WABON WAC 246-841A-440(2)
-                  </Badge>
-                </div>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                  Mandatory Student Orientation
+                </h1>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
                   Required prerequisite verification before accessing curriculum lessons.
                 </p>
@@ -188,11 +180,11 @@ export const OrientationChecklistPage: React.FC = () => {
             <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <span className="font-bold text-amber-950 block">
-                WABON Regulation Notice — Non-Credited Orientation (Req 11)
+                Program Orientation Notice — Non-Credited Prerequisite
               </span>
               <p className="text-amber-800">
                 Orientation hours are an administrative prerequisite and attendance census.
-                Per WAC 246-841A-440 regulations, orientation time is{" "}
+                Under program policy, orientation time is{" "}
                 <span className="font-semibold underline">
                   strictly non-credited (0 credited hours)
                 </span>{" "}
@@ -364,8 +356,7 @@ export const OrientationChecklistPage: React.FC = () => {
                     methods, and clinical facility prerequisites.
                   </p>
                   <p className="text-[11px] text-slate-400 italic">
-                    Note: Orientation hours are non-credited (0 theory hours) per WAC 246-841A-440
-                    Req 11.
+                    Note: Orientation is a non-credited onboarding prerequisite and does not count toward theory hours.
                   </p>
                 </div>
               </label>
@@ -398,7 +389,7 @@ export const OrientationChecklistPage: React.FC = () => {
                     </Badge>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    I have completed the LMS system walkthrough. I understand how the 60-second
+                    I have completed the LMS system walkthrough. I understand how the seat-time
                     heartbeat tracks active engagement, how to navigate curriculum modules, submit
                     assignments, and access technical support.
                   </p>

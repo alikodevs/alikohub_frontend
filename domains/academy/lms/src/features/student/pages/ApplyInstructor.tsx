@@ -261,9 +261,6 @@ const ApplyInstructor = () => {
           <div className="absolute top-4 right-4 text-blue-500/5">
             <Sparkles size={120} className="opacity-30" />
           </div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold uppercase tracking-wider mb-3 border border-blue-100">
-            Instructor Program
-          </div>
           <h1 className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-slate-900 mb-2">
             {user?.instructorStatus?.toUpperCase() === "REJECTED"
               ? "Re-apply to Teach on AlikoHub"

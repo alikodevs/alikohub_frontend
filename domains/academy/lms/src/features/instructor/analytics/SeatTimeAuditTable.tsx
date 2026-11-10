@@ -219,14 +219,19 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
             <Clock className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="text-2xl font-black text-slate-900">
-            {report?.averageActiveHours || 0} <span className="text-sm font-semibold text-slate-400">/ 50.0 hrs</span>
+            {report?.averageActiveHours || 0}{" "}
+            <span className="text-sm font-semibold text-slate-400">
+              {(report?.students?.[0]?.requiredSeconds ?? 0) > 0
+                ? `/ ${(report!.students[0].requiredSeconds / 3600).toFixed(1)} hrs`
+                : "hrs"}
+            </span>
           </div>
-          <p className="text-[11px] text-emerald-600 font-bold">WAC 246-841A-440 mandate metric</p>
+          <p className="text-[11px] text-emerald-600 font-bold">Required theory hours metric</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold text-slate-600">50-Hr Clearance Rate</span>
+            <span className="text-xs font-bold text-slate-600">Theory Clearance Rate</span>
             <ShieldCheck className="w-4 h-4 text-blue-600" />
           </div>
           <div className="text-2xl font-black text-slate-900">
@@ -252,16 +257,11 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
         {/* Table Header Bar */}
         <div className="p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-slate-900">
-                Verified Student Participation &amp; Seat-Time Records
-              </h3>
-              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] font-bold">
-                WAC 246-841A-440(6)
-              </Badge>
-            </div>
+            <h3 className="text-base font-bold text-slate-900">
+              Verified Student Participation &amp; Seat-Time Records
+            </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Live telemetry ledger recorded per student against the 50-hour theory standard.
+              Live telemetry ledger recorded per student from backend heartbeat records.
             </p>
           </div>
 
@@ -272,7 +272,7 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
               onClick={handleExportCSV}
               className="h-9 text-xs font-bold rounded-xl border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 shadow-2xs"
             >
-              <Download className="w-3.5 h-3.5 text-slate-600" /> Export WABON CSV
+              <Download className="w-3.5 h-3.5 text-slate-600" /> Export Seat-Time CSV
             </Button>
           </div>
         </div>
@@ -282,8 +282,8 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
           <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-full sm:w-auto overflow-x-auto">
             {[
               { id: "ALL", label: "All Candidates" },
-              { id: "COMPLIANT", label: "Compliant (50+ hrs)" },
-              { id: "IN_PROGRESS", label: "In Progress (< 50 hrs)" },
+              { id: "COMPLIANT", label: "Compliant" },
+              { id: "IN_PROGRESS", label: "In Progress" },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -318,8 +318,8 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
               <tr>
                 <th className="py-3 px-5">Student / Candidate</th>
                 <th className="py-3 px-4">Active Theory Seat-Time</th>
-                <th className="py-3 px-4">Mandate Progress (50h)</th>
-                <th className="py-3 px-4">WABON 50h Status</th>
+                <th className="py-3 px-4">Mandate Progress</th>
+                <th className="py-3 px-4">Compliance Status</th>
                 <th className="py-3 px-4">Enrollment Status</th>
                 <th className="py-3 px-5 text-right">Actions</th>
               </tr>
@@ -328,6 +328,7 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
               {filteredRecords.length > 0 ? (
                 filteredRecords.map((rec) => {
                   const activeHours = rec.totalActiveTimeSeconds / 3600;
+                  const requiredHours = rec.requiredSeconds > 0 ? rec.requiredSeconds / 3600 : 0;
                   const progressPct = rec.progressPct;
 
                   return (
@@ -361,26 +362,34 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
                         </div>
                       </td>
 
-                      {/* Progress towards 50h Mandate */}
+                      {/* Progress towards Mandate */}
                       <td className="py-3.5 px-4 min-w-[150px]">
                         <div className="space-y-1">
                           <div className="flex items-center justify-between font-bold text-slate-900">
                             <span className="text-[11px]">{progressPct}%</span>
-                            <span className="text-[10px] text-slate-400">of 50.0 hrs</span>
+                            {requiredHours > 0 && (
+                              <span className="text-[10px] text-slate-400">
+                                of {requiredHours.toFixed(1)} hrs
+                              </span>
+                            )}
                           </div>
                           <Progress value={progressPct} className="h-1.5 bg-slate-100" />
                         </div>
                       </td>
 
-                      {/* WABON Status */}
+                      {/* Compliance Status */}
                       <td className="py-3.5 px-4">
                         {rec.isCompliant ? (
                           <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-[10px] font-bold shadow-2xs">
-                            <CheckCircle2 className="w-3 h-3 mr-1" /> 50h Mandate Cleared
+                            <CheckCircle2 className="w-3 h-3 mr-1" /> Cleared
+                          </Badge>
+                        ) : requiredHours > 0 ? (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-300 text-[10px] font-bold">
+                            <Clock className="w-3 h-3 mr-1" /> {Math.max(0, requiredHours - activeHours).toFixed(1)} hrs remaining
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-300 text-[10px] font-bold">
-                            <Clock className="w-3 h-3 mr-1" /> {(50 - activeHours).toFixed(1)} hrs remaining
+                            <Clock className="w-3 h-3 mr-1" /> In Progress
                           </Badge>
                         )}
                       </td>
@@ -453,7 +462,7 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
             </div>
             {selectedRecordForDetail?.isCompliant ? (
               <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-bold py-1 px-2.5">
-                <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" /> 50h Certified
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Certified
               </Badge>
             ) : (
               <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-300 text-xs font-bold py-1 px-2.5">
@@ -468,40 +477,50 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-blue-600" />
-                  WAC 246-841A-440 Theory Hours Clearance
+                  Theory Hours Clearance
                 </span>
                 <span className="text-xs font-bold text-slate-500">
                   {selectedRecordForDetail?.progressPct || 0}% Cleared
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-                <div className="p-2 space-y-0.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Required Standard</span>
-                  <span className="text-lg font-black text-slate-900 block">50.0 hrs</span>
-                  <span className="text-[11px] text-slate-500">3,000 minutes mandate</span>
-                </div>
-                <div className="p-2 space-y-0.5 border-y sm:border-y-0 sm:border-x border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Earned Theory Hours</span>
-                  <span className="text-lg font-black text-emerald-600 block">
-                    {selectedRecordForDetail ? formatHours(selectedRecordForDetail.totalActiveTimeSeconds) : "0.0 hrs"}
-                  </span>
-                  <span className="text-[11px] text-slate-500">
-                    {selectedRecordForDetail?.totalActiveTimeMinutes || 0} min verified
-                  </span>
-                </div>
-                <div className="p-2 space-y-0.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Remaining Deficit</span>
-                  <span className="text-lg font-black text-amber-600 block">
-                    {selectedRecordForDetail
-                      ? `${Math.max(0, 50 - selectedRecordForDetail.totalActiveTimeSeconds / 3600).toFixed(1)} hrs`
-                      : "50.0 hrs"}
-                  </span>
-                  <span className="text-[11px] text-slate-500">
-                    {selectedRecordForDetail?.isCompliant ? "Requirement satisfied" : "Seat-time pending"}
-                  </span>
-                </div>
-              </div>
+              {(() => {
+                const reqSecs = selectedRecordForDetail?.requiredSeconds ?? 0;
+                const reqHrs = reqSecs / 3600;
+                const earnedSecs = selectedRecordForDetail?.totalActiveTimeSeconds ?? 0;
+                const remainingHrs = Math.max(0, reqHrs - earnedSecs / 3600);
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                    <div className="p-2 space-y-0.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Required Standard</span>
+                      <span className="text-lg font-black text-slate-900 block">
+                        {reqSecs > 0 ? `${reqHrs.toFixed(1)} hrs` : "—"}
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        {reqSecs > 0 ? `${Math.round(reqSecs / 60).toLocaleString()} minutes target` : "From backend target"}
+                      </span>
+                    </div>
+                    <div className="p-2 space-y-0.5 border-y sm:border-y-0 sm:border-x border-slate-200">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Earned Theory Hours</span>
+                      <span className="text-lg font-black text-emerald-600 block">
+                        {selectedRecordForDetail ? formatHours(earnedSecs) : "0.0 hrs"}
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        {selectedRecordForDetail?.totalActiveTimeMinutes || 0} min verified
+                      </span>
+                    </div>
+                    <div className="p-2 space-y-0.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Remaining Deficit</span>
+                      <span className="text-lg font-black text-amber-600 block">
+                        {reqSecs > 0 ? `${remainingHrs.toFixed(1)} hrs` : "—"}
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        {selectedRecordForDetail?.isCompliant ? "Requirement satisfied" : "Seat-time pending"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <Progress value={selectedRecordForDetail?.progressPct || 0} className="h-2 bg-slate-100" />
             </div>
