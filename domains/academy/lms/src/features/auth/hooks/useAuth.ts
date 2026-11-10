@@ -7,12 +7,38 @@ import type {
   AuthResponse,
   InstructorApplicationRequest,
 } from "@/features/auth/types/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import type { ApiError } from "@/features/auth/types/auth";
 import { disconnectChatSocket } from "@/features/chat/chatSocket";
+
+const resolvePostLoginRoute = (user: any): string => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const redirect = searchParams.get("redirect");
+  if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+    return redirect;
+  }
+
+  const activeRole = (
+    user?.academyUser?.activeRole ||
+    user?.academyActiveRole ||
+    ""
+  ).toLowerCase();
+  const baseRole = (
+    user?.academyUser?.role ||
+    user?.academyRole ||
+    ""
+  ).toLowerCase();
+
+  if (user?.globalRole === "ADMIN") return "/admin";
+  if (activeRole === "commission_auditor" || baseRole === "commission_auditor") {
+    return "/instructor/audit";
+  }
+  if (activeRole === "instructor") return "/instructor";
+  return "/dashboard";
+};
 
 export const useLogin = () => {
   const queryClient = useQueryClient();
@@ -26,27 +52,7 @@ export const useLogin = () => {
       queryClient.setQueryData(["user"], data.user);
       queryClient.invalidateQueries({ queryKey: ["user"] });
       toast.success("Successfully logged in!");
-
-      const searchParams = new URLSearchParams(window.location.search);
-      const redirect = searchParams.get("redirect");
-
-      // Determine active role, prefer academyUser.activeRole as it's the most accurate
-      const activeRole = (
-        data.user.academyUser?.activeRole ||
-        data.user.academyActiveRole ||
-        ""
-      ).toLowerCase();
-
-      // If user had a saved return path prior to session expiry, honor it
-      if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
-        navigate(redirect);
-      } else if (data.user.globalRole === "ADMIN") {
-        navigate("/admin");
-      } else if (activeRole === "instructor") {
-        navigate("/instructor");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate(resolvePostLoginRoute(data.user));
     },
     onError: (error: ApiError) => {
       const message =
@@ -73,25 +79,7 @@ export const useGoogleLogin = () => {
         toast.info("Welcome to Aliko Academy! Please complete your profile.");
       }
 
-      const searchParams = new URLSearchParams(window.location.search);
-      const redirect = searchParams.get("redirect");
-
-      // Determine active role
-      const activeRole = (
-        data.user.academyUser?.activeRole ||
-        data.user.academyActiveRole ||
-        ""
-      ).toLowerCase();
-
-      if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
-        navigate(redirect);
-      } else if (data.user.globalRole === "ADMIN") {
-        navigate("/admin");
-      } else if (activeRole === "instructor") {
-        navigate("/instructor");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate(resolvePostLoginRoute(data.user));
     },
     onError: (error: ApiError) => {
       const message =
@@ -371,4 +359,62 @@ export const useResetPassword = () => {
       toast.error(message);
     },
   });
+};
+
+/**
+ * Resolves the active UI portal mode based on route prefix, active switched role,
+ * and permanent staff/auditor capabilities. Shared student routes stay strictly
+ * inside StudentLayout even when viewed by dual-role instructors or admins.
+ */
+export const usePortalMode = () => {
+  const { data: user, isLoading, isFetched } = useUser();
+  const location = useLocation();
+
+  const isInstructorRoute = location.pathname.startsWith("/instructor");
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
+  const baseRole = (
+    user?.academyUser?.role ||
+    user?.academyRole ||
+    user?.globalRole ||
+    ""
+  ).toUpperCase();
+
+  const activeRole = (
+    user?.academyUser?.activeRole ||
+    user?.academyActiveRole ||
+    ""
+  ).toUpperCase();
+
+  const instructorStatus = user?.instructorStatus?.toUpperCase();
+  const hasInstructorAccess =
+    user?.globalRole === "ADMIN" ||
+    baseRole === "INSTRUCTOR" ||
+    baseRole === "ADMIN" ||
+    baseRole === "COURSE_MANAGER" ||
+    baseRole === "COMMISSION_AUDITOR" ||
+    instructorStatus === "ACCEPTED" ||
+    instructorStatus === "APPROVED" ||
+    instructorStatus === "ACTIVE" ||
+    user?.roleStatus?.instructor?.toUpperCase() === "ACTIVE";
+
+  const isAuditor =
+    baseRole === "COMMISSION_AUDITOR" || activeRole === "COMMISSION_AUDITOR";
+
+  const isInstructorView = isInstructorRoute && hasInstructorAccess;
+  const canManageStaffActions = isInstructorView && !isAuditor;
+
+  return {
+    user,
+    isLoading,
+    isFetched,
+    baseRole,
+    activeRole,
+    isInstructorRoute,
+    isAdminRoute,
+    isAuditor,
+    hasInstructorAccess,
+    isInstructorView,
+    canManageStaffActions,
+  };
 };

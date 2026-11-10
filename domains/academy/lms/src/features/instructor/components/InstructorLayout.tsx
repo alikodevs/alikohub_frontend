@@ -16,6 +16,7 @@ import {
   useUser,
   useSwitchAcademyRole,
   useLogout,
+  usePortalMode,
 } from "@/features/auth/hooks/useAuth";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -28,6 +29,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isChatRoute = location.pathname === "/instructor/chat";
   const { data: user } = useUser();
+  const { isAuditor } = usePortalMode();
   const { mutate: switchRole, isPending: isSwitching } = useSwitchAcademyRole();
   const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -138,16 +140,18 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
 
           <div className="flex items-center gap-2 ml-auto">
             {/* Student view switch */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSwitchRole}
-              disabled={isSwitching}
-              className="gap-2 text-accent border-accent/20 hover:bg-accent/10 hover:text-accent text-xs h-9 hidden sm:flex transition-colors"
-            >
-              <Repeat className="w-3.5 h-3.5" />
-              Switch to Student
-            </Button>
+            {!isAuditor && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSwitchRole}
+                disabled={isSwitching}
+                className="gap-2 text-accent border-accent/20 hover:bg-accent/10 hover:text-accent text-xs h-9 hidden sm:flex transition-colors"
+              >
+                <Repeat className="w-3.5 h-3.5" />
+                Switch to Student
+              </Button>
+            )}
 
             {/* Notification Bell */}
             <div className="relative" ref={notificationRef}>

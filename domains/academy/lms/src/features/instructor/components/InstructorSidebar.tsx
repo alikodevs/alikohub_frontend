@@ -21,28 +21,65 @@ import {
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
 import { cn } from "@/lib/utils";
+import { usePortalMode } from "@/features/auth/hooks/useAuth";
 
-const mainNav = [
-  { label: "Dashboard", to: "/instructor", icon: LayoutDashboard },
-  { label: "My Courses", to: "/instructor/courses", icon: BookOpen },
-  { label: "Analytics", to: "/instructor/analytics", icon: BarChart },
-  { label: "Chat", to: "/instructor/chat", icon: MessageCircle },
-];
+type InstructorNavItem = {
+  label: string;
+  to: string;
+  icon: React.ElementType;
+  badge?: number;
+  external?: boolean;
+  hideForAuditor?: boolean;
+};
 
-const manageNav = [
-  { label: "Gradebook", to: "/instructor/gradebook", icon: GraduationCap },
-  { label: "Admissions", to: "/instructor/admissions", icon: FileCheck2 },
-  { label: "Attendance Census", to: "/instructor/census", icon: CalendarCheck },
-  { label: "Submissions", to: "/instructor/submissions", icon: ClipboardList },
-  { label: "Skills Lab", to: "/instructor/skills-lab", icon: Stethoscope },
-  { label: "Clinical Training", to: "/instructor/clinical", icon: Building2 },
-  { label: "Curriculum Crosswalk", to: "/instructor/curriculum", icon: FileSpreadsheet },
-  { label: "Study Groups", to: "/instructor/study-groups", icon: Users },
-  { label: "Support Desk", to: "/instructor/support", icon: LifeBuoy },
-  { label: "Compliance Audit", to: "/instructor/audit", icon: ShieldCheck },
-  { label: "Rubrics", to: "/instructor/rubrics", icon: Award },
-  { label: "Schedules", to: "/instructor/schedules", icon: CalendarDays },
-  { label: "Settings", to: "/instructor/settings", icon: Settings },
+type NavSection = {
+  title: string;
+  items: InstructorNavItem[];
+};
+
+const navSections: NavSection[] = [
+  {
+    title: "Main Menu",
+    items: [
+      { label: "Dashboard", to: "/instructor", icon: LayoutDashboard },
+      { label: "My Courses", to: "/instructor/courses", icon: BookOpen, hideForAuditor: true },
+      { label: "Analytics", to: "/instructor/analytics", icon: BarChart },
+      { label: "Schedules", to: "/instructor/schedules", icon: CalendarDays, hideForAuditor: true },
+      { label: "Chat", to: "/instructor/chat", icon: MessageCircle, hideForAuditor: true },
+    ],
+  },
+  {
+    title: "Students & Grading",
+    items: [
+      { label: "Admissions", to: "/instructor/admissions", icon: FileCheck2 },
+      { label: "Attendance Census", to: "/instructor/census", icon: CalendarCheck },
+      { label: "Gradebook", to: "/instructor/gradebook", icon: GraduationCap },
+      { label: "Submissions", to: "/instructor/submissions", icon: ClipboardList },
+      { label: "Rubrics", to: "/instructor/rubrics", icon: Award },
+    ],
+  },
+  {
+    title: "Clinical & Compliance",
+    items: [
+      { label: "Skills Lab", to: "/instructor/skills-lab", icon: Stethoscope },
+      { label: "Clinical Training", to: "/instructor/clinical", icon: Building2 },
+      { label: "Curriculum Crosswalk", to: "/instructor/curriculum", icon: FileSpreadsheet },
+      { label: "Compliance Audit", to: "/instructor/audit", icon: ShieldCheck },
+    ],
+  },
+  {
+    title: "Community & Support",
+    items: [
+      { label: "Study Groups", to: "/instructor/study-groups", icon: Users },
+      { label: "Support Desk", to: "/instructor/support", icon: LifeBuoy },
+    ],
+  },
+  {
+    title: "Account",
+    items: [
+      { label: "Settings", to: "/instructor/settings", icon: Settings, hideForAuditor: true },
+    ],
+  },
 ];
 
 interface InstructorSidebarProps {
@@ -55,6 +92,16 @@ const InstructorSidebar = ({
   onClose,
 }: InstructorSidebarProps) => {
   const location = useLocation();
+  const { isAuditor } = usePortalMode();
+
+  const visibleSections = navSections
+    .map((section) => ({
+      ...section,
+      items: isAuditor
+        ? section.items.filter((item) => !item.hideForAuditor)
+        : section.items,
+    }))
+    .filter((section) => section.items.length > 0);
 
   const isActive = (to: string) => {
     if (to === "/instructor") return location.pathname === "/instructor";
@@ -161,28 +208,19 @@ const InstructorSidebar = ({
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto sidebar-scroll py-6 px-4 space-y-7">
-          <div>
-            <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2.5">
-              Main Menu
-            </p>
-            <div className="space-y-1.5">
-              {mainNav.map((item) => (
-                <NavItem key={item.to} item={item} />
-              ))}
+        <nav className="flex-1 overflow-y-auto sidebar-scroll py-6 px-4 space-y-6">
+          {visibleSections.map((section) => (
+            <div key={section.title}>
+              <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2">
+                {section.title}
+              </p>
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <NavItem key={item.to} item={item} />
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div>
-            <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2.5">
-              Manage
-            </p>
-            <div className="space-y-1.5">
-              {manageNav.map((item) => (
-                <NavItem key={item.to} item={item} />
-              ))}
-            </div>
-          </div>
+          ))}
         </nav>
       </aside>
     </>

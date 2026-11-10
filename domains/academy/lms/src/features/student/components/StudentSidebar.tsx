@@ -62,25 +62,47 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
         completedTxCourseIds.has(e.courseId ?? e.course?.id),
     ).length || 0;
 
-  const mainNav = [
-    { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-    { label: "Admissions", to: "/admissions", icon: FileCheck2 },
-    { label: "Orientation", to: "/orientation", icon: GraduationCap },
+  const sections = [
     {
-      label: "My Learning",
-      to: "/learning",
-      icon: BookOpen,
-      badge: activeEnrollmentsCount,
+      title: "Main",
+      items: [
+        { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+        { label: "Explore", to: "/courses", icon: Compass },
+        {
+          label: "My Learning",
+          to: "/learning",
+          icon: BookOpen,
+          badge: activeEnrollmentsCount,
+        },
+        { label: "My Schedule", to: "/schedules", icon: CalendarDays },
+        { label: "Chat", to: "/chat", icon: MessageCircle },
+      ],
     },
-    { label: "Skills Lab", to: "/skills-lab", icon: Stethoscope },
-    { label: "Clinical Training", to: "/clinical", icon: Building2 },
-    { label: "Curriculum Crosswalk", to: "/curriculum", icon: FileSpreadsheet },
-    { label: "Study Groups", to: "/study-groups", icon: Users },
-    { label: "Support Desk", to: "/support", icon: LifeBuoy },
-    { label: "My Schedule", to: "/schedules", icon: CalendarDays },
-    { label: "Explore", to: "/courses", icon: Compass },
-    { label: "Peer Grading", to: "/peer-grading", icon: MessageSquareText },
-    { label: "Chat", to: "/chat", icon: MessageCircle },
+    {
+      title: "Admissions & Onboarding",
+      items: [
+        { label: "Admissions", to: "/admissions", icon: FileCheck2 },
+        { label: "Orientation", to: "/orientation", icon: GraduationCap },
+      ],
+    },
+    {
+      title: "Training & Curriculum",
+      items: [
+        { label: "Curriculum Crosswalk", to: "/curriculum", icon: FileSpreadsheet },
+        { label: "Skills Lab", to: "/skills-lab", icon: Stethoscope },
+        { label: "Clinical Training", to: "/clinical", icon: Building2 },
+      ],
+    },
+    {
+      title: "Community & Support",
+      items: [
+        { label: "Study Groups", to: "/study-groups", icon: Users },
+        { label: "Peer Grading", to: "/peer-grading", icon: MessageSquareText },
+        { label: "Support Desk", to: "/support", icon: LifeBuoy },
+      ],
+    },
+    { title: "Achieve", items: achieveNav },
+    { title: "Account", items: accountNav },
   ];
 
   const isActive = (to: string) => location.pathname === to;
@@ -185,39 +207,19 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto sidebar-scroll py-6 px-4 space-y-7 pb-10">
-          <div>
-            <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2.5">
-              Main
-            </p>
-            <div className="space-y-1.5">
-              {mainNav.map((item) => (
-                <NavItem key={item.to} item={item} />
-              ))}
+        <nav className="flex-1 overflow-y-auto sidebar-scroll py-6 px-4 space-y-6 pb-10">
+          {sections.map((section) => (
+            <div key={section.title}>
+              <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2">
+                {section.title}
+              </p>
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <NavItem key={item.to} item={item} />
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div>
-            <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2.5">
-              Achieve
-            </p>
-            <div className="space-y-1.5">
-              {achieveNav.map((item) => (
-                <NavItem key={item.to} item={item} />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2.5">
-              Account
-            </p>
-            <div className="space-y-1.5">
-              {accountNav.map((item) => (
-                <NavItem key={item.to} item={item} />
-              ))}
-            </div>
-          </div>
+          ))}
         </nav>
 
         {/* Floating Circular Down Arrow Scroll Cue */}

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { Navigate } from "react-router-dom";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
 import {
   Award,
@@ -19,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useRubricsList, useCloneRubricMutation } from "../hooks/useRubrics";
+import { usePortalMode } from "@/features/auth/hooks/useAuth";
 import { RubricCriteriaTable } from "../components/RubricCriteriaTable";
 import { RubricBuilderModal } from "../components/RubricBuilderModal";
 import type { Rubric, RubricType } from "../types";
@@ -26,6 +28,9 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
 export const RubricsManagementPage: React.FC = () => {
+  const { hasInstructorAccess, isInstructorRoute, activeRole, isAuditor, isFetched } = usePortalMode();
+  const canManageRubrics = !isAuditor;
+
   const [activeTab, setActiveTab] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRubricForPreview, setSelectedRubricForPreview] =
@@ -64,6 +69,10 @@ export const RubricsManagementPage: React.FC = () => {
     });
   }, [rubrics, searchQuery, activeTab]);
 
+  if (isFetched && (!hasInstructorAccess || (!isInstructorRoute && activeRole === "STUDENT"))) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <InstructorLayout>
       <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
@@ -83,14 +92,16 @@ export const RubricsManagementPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setIsBuilderOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-md shadow-blue-500/20"
-            >
-              <Plus className="w-4 h-4 mr-2" /> Create Rubric
-            </Button>
-          </div>
+          {canManageRubrics && (
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setIsBuilderOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-md shadow-blue-500/20"
+              >
+                <Plus className="w-4 h-4 mr-2" /> Create Rubric
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Filters and Search Bar */}
@@ -225,21 +236,23 @@ export const RubricsManagementPage: React.FC = () => {
                       <Eye className="w-3.5 h-3.5" /> Preview Matrix
                     </Button>
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleClone(rubric)}
-                      disabled={isCloningThis}
-                      className="text-xs font-bold text-slate-600 hover:bg-slate-50 h-8 px-3 rounded-lg border-slate-200 flex items-center gap-1.5"
-                    >
-                      {isCloningThis ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
-                      Clone
-                    </Button>
+                    {canManageRubrics && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleClone(rubric)}
+                        disabled={isCloningThis}
+                        className="text-xs font-bold text-slate-600 hover:bg-slate-50 h-8 px-3 rounded-lg border-slate-200 flex items-center gap-1.5"
+                      >
+                        {isCloningThis ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                        Clone
+                      </Button>
+                    )}
                   </div>
                 </div>
               );

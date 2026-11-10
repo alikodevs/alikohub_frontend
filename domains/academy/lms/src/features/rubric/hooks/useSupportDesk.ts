@@ -7,10 +7,11 @@ import type {
 } from "../types";
 import { toast } from "sonner";
 
-export const useMySupportTickets = () => {
+export const useMySupportTickets = (enabled: boolean = true) => {
   return useQuery<SupportTicket[]>({
     queryKey: ["support-desk", "tickets", "me"],
     queryFn: () => wabonComplianceService.getMySupportTickets(),
+    enabled,
   });
 };
 
@@ -22,13 +23,16 @@ export const useSupportTicket = (ticketId?: string | number) => {
   });
 };
 
-export const useAllSupportTickets = (params?: {
-  category?: string;
-  status?: string;
-  priority?: string;
-  page?: number;
-  limit?: number;
-}) => {
+export const useAllSupportTickets = (
+  params?: {
+    category?: string;
+    status?: string;
+    priority?: string;
+    page?: number;
+    limit?: number;
+  },
+  enabled: boolean = true
+) => {
   return useQuery<{
     tickets: SupportTicket[];
     total: number;
@@ -37,6 +41,7 @@ export const useAllSupportTickets = (params?: {
   }>({
     queryKey: ["support-desk", "tickets", "all", params],
     queryFn: () => wabonComplianceService.listAllSupportTickets(params),
+    enabled,
   });
 };
 
