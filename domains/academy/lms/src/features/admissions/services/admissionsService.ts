@@ -182,17 +182,24 @@ export const admissionsService = {
   getCohortCensus: async (
     cohortId: number
   ): Promise<CohortCensusEnrollment[]> => {
+    const extractItems = (data: any) => {
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.items)) return data.items;
+      if (Array.isArray(data?.enrollments)) return data.enrollments;
+      return [];
+    };
+
     try {
-      const response = await api.get<CohortCensusEnrollment[]>(
+      const response = await api.get<CohortCensusEnrollment[] | any>(
         `/enrollments/cohort/${cohortId}`
       );
-      return Array.isArray(response.data) ? response.data : (response.data as any)?.enrollments || [];
+      return extractItems(response.data);
     } catch (err: any) {
       if (err?.response?.status === 404) {
-        const fallback = await api.get<CohortCensusEnrollment[]>(
+        const fallback = await api.get<CohortCensusEnrollment[] | any>(
           `/academy/enrollments/cohort/${cohortId}`
         );
-        return Array.isArray(fallback.data) ? fallback.data : (fallback.data as any)?.enrollments || [];
+        return extractItems(fallback.data);
       }
       throw err;
     }

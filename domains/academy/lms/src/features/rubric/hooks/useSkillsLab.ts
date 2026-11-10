@@ -42,3 +42,33 @@ export const useRecordCheckoffMutation = () => {
     },
   });
 };
+
+export const useInstructorCredentials = (instructorUserId?: string) => {
+  return useQuery({
+    queryKey: ["instructor-credentials", instructorUserId],
+    queryFn: () => skillsLabService.getInstructorCredentials(instructorUserId!),
+    enabled: Boolean(instructorUserId),
+  });
+};
+
+export const useRegisterCredentialsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: {
+      rnLicenseNumber: string;
+      rnLicenseExpiration: string;
+      yearsLongTermCareExp: number;
+      trainTheTrainerCertUrl?: string;
+      wabonApprovalLetterUrl?: string;
+    }) => skillsLabService.registerInstructorCredentials(dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["instructor-credentials"] });
+      toast.success("WABON RN Instructor Credentials verified and active!");
+    },
+    onError: (err: any) => {
+      toast.error(
+        err.response?.data?.message || "Failed to register RN credentials."
+      );
+    },
+  });
+};

@@ -7,7 +7,7 @@ export const wabonComplianceService = {
     const payload = {
       courseId: Number(dto.courseId),
       lessonId: Number(dto.lessonId),
-      cohortId: Number(dto.cohortId) || 1,
+      ...(dto.cohortId ? { cohortId: Number(dto.cohortId) } : {}),
       activeSeconds: dto.activeSeconds ?? dto.intervalSeconds ?? 60,
       idleSeconds: dto.idleSeconds ?? 0,
       tabFocused: dto.tabFocused !== undefined ? dto.tabFocused : true,

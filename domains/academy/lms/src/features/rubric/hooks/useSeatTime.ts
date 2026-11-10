@@ -1,19 +1,84 @@
 import { useQuery } from "@tanstack/react-query";
 import { wabonComplianceService } from "../services/wabonComplianceService";
+import api from "@/lib/api";
 import type { SeatTimeSummary, CohortSeatTimeReport, StudentSeatTimeRecord } from "../types";
 
-export const DEFAULT_REQUIRED_THEORY_SECONDS = 50 * 3600; // 50 hours per WAC 246-841A-440
-
-export const useInstructorCohortsList = () => {
+export const useInstructorCohortsList = (isStaffMode: boolean = true) => {
   return useQuery({
-    queryKey: ["instructor-cohorts-list"],
+    queryKey: ["instructor-cohorts-list", isStaffMode ? "staff" : "student"],
     queryFn: async () => {
+      if (!isStaffMode) {
+        try {
+          const [enrollRes, cohortsRes] = await Promise.allSettled([
+            api.get("/enrollment/me"),
+            api.get("/cohorts"),
+          ]);
+          const allCohorts =
+            cohortsRes.status === "fulfilled"
+              ? cohortsRes.value.data?.items ||
+                (Array.isArray(cohortsRes.value.data) ? cohortsRes.value.data : [])
+              : [];
+          const enrollments =
+            enrollRes.status === "fulfilled"
+              ? enrollRes.value.data?.items ||
+                (Array.isArray(enrollRes.value.data) ? enrollRes.value.data : [])
+              : [];
+
+          const seenKeys = new Set<string>();
+          const merged: any[] = [];
+
+          enrollments.forEach((e: any) => {
+            const cid = Number(e.cohortId || e.cohort?.id);
+            const courseId = Number(e.courseId || e.course?.id);
+            const matched = cid
+              ? allCohorts.find((c: any) => Number(c.id) === cid)
+              : courseId
+              ? allCohorts.find((c: any) => Number(c.courseId) === courseId)
+              : undefined;
+
+            if (matched && !seenKeys.has(`cohort:${matched.id}`)) {
+              seenKeys.add(`cohort:${matched.id}`);
+              merged.push(matched);
+            } else if (cid && !seenKeys.has(`cohort:${cid}`)) {
+              seenKeys.add(`cohort:${cid}`);
+              merged.push(
+                e.cohort || {
+                  id: cid,
+                  courseId: courseId || undefined,
+                  name: e.course?.title ? `Cohort #${cid} — ${e.course.title}` : `Cohort #${cid}`,
+                }
+              );
+            } else if (courseId && !seenKeys.has(`course:${courseId}`)) {
+              seenKeys.add(`course:${courseId}`);
+              merged.push({
+                id: `course-${courseId}`,
+                courseId,
+                name: e.course?.title || `Course #${courseId}`,
+              });
+            }
+          });
+
+          if (merged.length > 0) return merged;
+          return allCohorts;
+        } catch {
+          return [];
+        }
+      }
+
       try {
         const res = await wabonComplianceService.getInstructorCohorts();
-        return res?.items || (Array.isArray(res) ? res : []);
+        const list = res?.items || (Array.isArray(res) ? res : []);
+        if (list.length > 0) return list;
+        const allRes = await api.get("/cohorts");
+        return allRes.data?.items || (Array.isArray(allRes.data) ? allRes.data : []);
       } catch (err) {
-        console.warn("[useInstructorCohortsList] Error fetching instructor cohorts:", err);
-        return [];
+        console.warn("[useInstructorCohortsList] Error fetching instructor cohorts, trying /cohorts:", err);
+        try {
+          const allRes = await api.get("/cohorts");
+          return allRes.data?.items || (Array.isArray(allRes.data) ? allRes.data : []);
+        } catch {
+          return [];
+        }
       }
     },
     staleTime: 60 * 1000,
@@ -30,7 +95,7 @@ export const useSeatTimeSummary = (courseId?: string | number) => {
           totalActiveTimeSeconds: 0,
           totalActiveTimeMinutes: 0,
           totalActiveSeconds: 0,
-          totalRequiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
+          totalRequiredSeconds: 0,
           progressPercentage: 0,
           lessons: [],
           lessonsBreakdown: [],
@@ -41,16 +106,20 @@ export const useSeatTimeSummary = (courseId?: string | number) => {
         if (data) {
           const totalSecs = data.totalActiveTimeSeconds ?? data.totalActiveSeconds ?? 0;
           const totalMins = data.totalActiveTimeMinutes ?? Math.round(totalSecs / 60);
+          const requiredSecs = data.totalRequiredSeconds ?? (data as any).requiredSeconds ?? 0;
+          const computedPct =
+            data.progressPercentage !== undefined
+              ? data.progressPercentage
+              : requiredSecs > 0
+              ? Math.min(100, Math.round((totalSecs / requiredSecs) * 100))
+              : 0;
           return {
             ...data,
             totalActiveTimeSeconds: totalSecs,
             totalActiveTimeMinutes: totalMins,
             totalActiveSeconds: totalSecs,
-            totalRequiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
-            progressPercentage: Math.min(
-              100,
-              Math.round((totalSecs / DEFAULT_REQUIRED_THEORY_SECONDS) * 100)
-            ),
+            totalRequiredSeconds: requiredSecs,
+            progressPercentage: computedPct,
             lessons: data.lessons || [],
           };
         }
@@ -63,7 +132,7 @@ export const useSeatTimeSummary = (courseId?: string | number) => {
         totalActiveTimeSeconds: 0,
         totalActiveTimeMinutes: 0,
         totalActiveSeconds: 0,
-        totalRequiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
+        totalRequiredSeconds: 0,
         progressPercentage: 0,
         lessons: [],
         lessonsBreakdown: [],
@@ -201,6 +270,19 @@ export const useCohortSeatTimeReport = (
         const totalSecs = s.totalActiveTimeSeconds ?? s.activeSeconds ?? 0;
         const totalMins = s.totalActiveTimeMinutes ?? Math.round(totalSecs / 60);
         const activeHrs = Number((totalSecs / 3600).toFixed(1));
+        const requiredSecs = s.requiredSeconds ?? s.totalRequiredSeconds ?? rawReport?.requiredSeconds ?? 0;
+        const isCompliant =
+          s.isCompliant !== undefined
+            ? Boolean(s.isCompliant)
+            : requiredSecs > 0
+            ? totalSecs >= requiredSecs
+            : false;
+        const progressPct =
+          s.progressPct !== undefined
+            ? s.progressPct
+            : requiredSecs > 0
+            ? Math.min(100, Math.round((totalSecs / requiredSecs) * 100))
+            : 0;
 
         mergedList.push({
           id: s.userId,
@@ -216,9 +298,9 @@ export const useCohortSeatTimeReport = (
           totalActiveTimeSeconds: totalSecs,
           totalActiveTimeMinutes: totalMins,
           activeHours: activeHrs,
-          requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
-          isCompliant: totalSecs >= DEFAULT_REQUIRED_THEORY_SECONDS,
-          progressPct: Math.min(100, Math.round((totalSecs / DEFAULT_REQUIRED_THEORY_SECONDS) * 100)),
+          requiredSeconds: requiredSecs,
+          isCompliant,
+          progressPct,
           enrolledAt: enrollment?.enrolledAt,
           enrollmentStatus: enrollment?.status || "ACTIVE",
         });
@@ -230,6 +312,7 @@ export const useCohortSeatTimeReport = (
           const name = e.user
             ? `${e.user.firstname || ""} ${e.user.lastname || ""}`.trim() || e.user.email || e.userId
             : e.userId;
+          const defaultRequiredSecs = rawReport?.requiredSeconds ?? 0;
           mergedList.push({
             id: e.userId,
             userId: e.userId,
@@ -244,7 +327,7 @@ export const useCohortSeatTimeReport = (
             totalActiveTimeSeconds: 0,
             totalActiveTimeMinutes: 0,
             activeHours: 0,
-            requiredSeconds: DEFAULT_REQUIRED_THEORY_SECONDS,
+            requiredSeconds: defaultRequiredSecs,
             isCompliant: false,
             progressPct: 0,
             enrolledAt: e.enrolledAt,

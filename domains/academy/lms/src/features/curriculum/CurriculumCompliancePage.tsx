@@ -1,25 +1,15 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
 import StudentLayout from "@/features/student/components/StudentLayout";
 import {
   FileSpreadsheet,
   BookOpen,
-  Clock,
-  Calendar,
   Layers,
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
   Plus,
   Search,
   BookMarked,
-  Brain,
-  HeartHandshake,
-  Users,
   Timer,
-  Info,
   Loader2,
-  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,33 +34,22 @@ import {
   useAddTextbookMutation,
 } from "@/features/rubric/hooks/useCurriculumCrosswalk";
 import { useInstructorCohortsList } from "@/features/rubric/hooks/useSeatTime";
-import { useUser } from "@/features/auth/hooks/useAuth";
-import type { CurriculumCrosswalk } from "@/features/rubric/types";
-import { cn } from "@/lib/utils";
+import { usePortalMode } from "@/features/auth/hooks/useAuth";
 import { toast } from "sonner";
 
 export const CurriculumCompliancePage: React.FC = () => {
-  const { data: user } = useUser();
-  const role = (
-    user?.academyUser?.role ||
-    user?.globalRole ||
-    ""
-  ).toUpperCase();
-  const isInstructorOrAuditor =
-    role === "INSTRUCTOR" ||
-    role === "ADMIN" ||
-    role === "COURSE_MANAGER" ||
-    role === "COMMISSION_AUDITOR";
+  const { isInstructorView, canManageStaffActions } = usePortalMode();
+  const isInstructorOrAuditor = isInstructorView;
 
   // Cohorts query
-  const { data: cohortsData } = useInstructorCohortsList();
+  const { data: cohortsData, isLoading: isCohortsLoading } = useInstructorCohortsList(isInstructorView);
   const cohorts = cohortsData || [];
   const [selectedCohortId, setSelectedCohortId] = useState<string>("");
   const activeCohort = cohorts.find(
-    (c: any) => String(c.id) === (selectedCohortId || (cohorts[0] ? String(cohorts[0].id) : "1"))
+    (c: any) => String(c.id) === selectedCohortId
   ) || cohorts[0];
 
-  const courseId = activeCohort?.courseId || 1;
+  const courseId = activeCohort?.courseId;
 
   // Crosswalk data query
   const {
@@ -123,14 +102,12 @@ export const CurriculumCompliancePage: React.FC = () => {
     }
   };
 
-  // ── 90-Day Cohort Window Calculations ──
+  // ── Cohort Schedule Window Calculations (only from real cohort dates) ──
   const cohortDates = useMemo(() => {
-    if (!activeCohort) return null;
-    const start = new Date(activeCohort.startDate || Date.now());
-    const end = new Date(
-      activeCohort.endDate ||
-        new Date(start.getTime() + 90 * 24 * 60 * 60 * 1000)
-    );
+    if (!activeCohort?.startDate || !activeCohort?.endDate) return null;
+    const start = new Date(activeCohort.startDate);
+    const end = new Date(activeCohort.endDate);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
     const now = new Date();
 
     const totalDays = Math.max(
@@ -139,10 +116,12 @@ export const CurriculumCompliancePage: React.FC = () => {
     );
     const elapsedDays = Math.max(
       0,
-      Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+      Math.min(
+        totalDays,
+        Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+      )
     );
     const daysRemaining = Math.max(0, totalDays - elapsedDays);
-    const isWithinCap = totalDays <= 90;
 
     return {
       startDate: start.toLocaleDateString(),
@@ -150,12 +129,39 @@ export const CurriculumCompliancePage: React.FC = () => {
       totalDays,
       elapsedDays,
       daysRemaining,
-      isWithinCap,
     };
   }, [activeCohort]);
 
-  // Modules filtered
+  // Modules & API metrics
   const modules = crosswalkData?.curriculumMatrix || [];
+  const totalUnitsCount = useMemo(
+    () => modules.reduce((sum, m) => sum + (m.units?.length || 0), 0),
+    [modules]
+  );
+  const linkedReadingsCount = useMemo(
+    () =>
+      modules.reduce(
+        (sum, m) =>
+          sum +
+          (m.units?.filter(
+            (u) => u.assignedTextbookReadings && u.assignedTextbookReadings.length > 0
+          ).length || 0),
+        0
+      ),
+    [modules]
+  );
+
+  const availableTracks = useMemo(
+    () => Array.from(new Set(modules.map((m) => m.track).filter(Boolean))),
+    [modules]
+  );
+
+  useEffect(() => {
+    if (selectedTrack !== "ALL" && !availableTracks.includes(selectedTrack)) {
+      setSelectedTrack("ALL");
+    }
+  }, [availableTracks, selectedTrack]);
+
   const filteredModules = useMemo(() => {
     return modules.filter((mod) => {
       const matchTrack =
@@ -180,239 +186,130 @@ export const CurriculumCompliancePage: React.FC = () => {
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                Curriculum Alignment & Program Scheduling
+                Curriculum Alignment & Program Crosswalk
               </h1>
               <p className="text-xs text-slate-500">
-                WAC 246-841A-440 Syllabus Crosswalk | 138 Total Core Program Hours | 90-Day Statutory Cap.
+                {crosswalkData?.courseTitle || activeCohort?.name || "Course modules, textbook readings, and unit assessments."}
               </p>
             </div>
           </div>
         </div>
 
-        {isInstructorOrAuditor && (
-          <Button
-            onClick={() => setIsAddTextbookOpen(true)}
-            className="bg-primary hover:bg-primary/90 text-white font-bold text-xs h-10 rounded-xl shadow-xs"
-          >
-            <Plus className="w-4 h-4 mr-1.5" /> Register Course Textbook
-          </Button>
-        )}
-      </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          {cohorts.length > 1 && (
+            <Select value={String(activeCohort?.id || "")} onValueChange={setSelectedCohortId}>
+              <SelectTrigger className="w-56 bg-white border-slate-200 text-xs font-semibold h-10">
+                <SelectValue placeholder="Select Cohort" />
+              </SelectTrigger>
+              <SelectContent>
+                {cohorts.map((c: any) => (
+                  <SelectItem key={c.id} value={String(c.id)}>
+                    {c.name || `Cohort #${c.id}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
-      {/* 138-Hour Core Allocation Cards */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-primary" />
-            Master 138-Hour Curriculum Breakdown
-          </h2>
-          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 font-bold text-xs">
-            WAC 246-841A Mandated Total: 138.0 Hours
-          </Badge>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Theory Track */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Theory (Online Seat-Time)
-              </span>
-              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] font-bold">
-                Ratio 30:1
-              </Badge>
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-900">66.0</span>
-              <span className="text-xs text-slate-400 font-bold">Hours</span>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              Active telemetry heartbeats with 120s server-side idle timeout clamping.
-            </p>
-          </div>
-
-          {/* Skills Lab Track */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Skills Lab (In-Person)
-              </span>
-              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-bold">
-                Ratio 10:1
-              </Badge>
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-900">32.0</span>
-              <span className="text-xs text-slate-400 font-bold">Hours</span>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              In-person RN demonstration, guided practice, and 22 competency checkoffs.
-            </p>
-          </div>
-
-          {/* Clinical Track */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Clinical Direct Care
-              </span>
-              <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-bold">
-                Ratio 10:1
-              </Badge>
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-900">40.0</span>
-              <span className="text-xs text-slate-400 font-bold">Hours</span>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              Direct patient care in contracted healthcare facilities under RN supervision.
-            </p>
-          </div>
-
-          {/* Orientation Exclusion Banner */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                Orientation & Admissions
-              </span>
-              <Badge variant="outline" className="bg-white text-slate-600 border-slate-300 text-[10px] font-bold">
-                Separately Tracked
-              </Badge>
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-xl font-black text-slate-600">Excluded</span>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              Per statutory regulations, orientation hours are <strong>excluded</strong> from the 138-hour core instructional requirement.
-            </p>
-          </div>
+          {canManageStaffActions && (
+            <Button
+              onClick={() => setIsAddTextbookOpen(true)}
+              className="bg-primary hover:bg-primary/90 text-white font-bold text-xs h-10 rounded-xl shadow-xs"
+            >
+              <Plus className="w-4 h-4 mr-1.5" /> Register Course Textbook
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Specialty Sub-Hours & 90-Day Pacing Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Specialty Hours Card */}
+      {/* Live API Curriculum Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Curriculum Modules
+            </span>
+            <Layers className="w-4 h-4 text-primary" />
+          </div>
+          <div className="text-2xl font-black text-slate-900">{modules.length}</div>
+          <p className="text-[11px] text-slate-500">Active course modules loaded from syllabus</p>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Units & Readings
+            </span>
+            <BookOpen className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div className="text-2xl font-black text-slate-900">{totalUnitsCount}</div>
+          <p className="text-[11px] text-slate-500">
+            {linkedReadingsCount} unit(s) with linked textbook readings
+          </p>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Course Textbooks
+            </span>
+            <BookMarked className="w-4 h-4 text-purple-600" />
+          </div>
+          <div className="text-2xl font-black text-slate-900">{textbooks.length}</div>
+          <p className="text-[11px] text-slate-500">Registered textbook references</p>
+        </div>
+      </div>
+
+      {/* Real Cohort Schedule Window (only shown when cohort start/end dates exist) */}
+      {cohortDates && (
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-slate-900">
-                Washington Specialty Curriculum Allocations
+                Cohort Schedule Window
               </h3>
               <p className="text-xs text-slate-500">
-                Integrated into the 66 Theory & 32 Lab hours.
-              </p>
-            </div>
-            <Brain className="w-5 h-5 text-primary" />
-          </div>
-
-          <div className="space-y-3 pt-1">
-            {/* Developmental Disabilities */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs font-semibold text-slate-700">
-                <span>Developmental Disabilities</span>
-                <span className="font-bold text-slate-900">16.0 / 16.0 Hours Required</span>
-              </div>
-              <Progress value={100} className="h-2 bg-slate-100" />
-            </div>
-
-            {/* Mental Health */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs font-semibold text-slate-700">
-                <span>Mental Health Specialty</span>
-                <span className="font-bold text-slate-900">8.0 / 8.0 Hours Required</span>
-              </div>
-              <Progress value={100} className="h-2 bg-slate-100" />
-            </div>
-
-            {/* Dementia & Alzheimer's */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs font-semibold text-slate-700">
-                <span>Dementia & Alzheimer's Care</span>
-                <span className="font-bold text-slate-900">8.0 / 8.0 Hours Required</span>
-              </div>
-              <Progress value={100} className="h-2 bg-slate-100" />
-            </div>
-          </div>
-        </div>
-
-        {/* 90-Day Program Window Card */}
-        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">
-                90-Day Cohort Program Completion Window
-              </h3>
-              <p className="text-xs text-slate-500">
-                Statutory maximum duration per WAC 246-841A.
+                {activeCohort?.name || `Cohort #${activeCohort?.id}`}
               </p>
             </div>
             <Timer className="w-5 h-5 text-amber-600" />
           </div>
 
-          {cohortDates ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60 text-xs">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Cohort Duration Window
-                  </span>
-                  <span className="font-bold text-slate-900">
-                    {cohortDates.startDate} — {cohortDates.endDate}
-                  </span>
-                </div>
-                <Badge
-                  className={cn(
-                    "text-[10px] font-bold px-2 py-0.5",
-                    cohortDates.isWithinCap
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                      : "bg-rose-50 text-rose-700 border-rose-300"
-                  )}
-                  variant="outline"
-                >
-                  {cohortDates.isWithinCap ? `${cohortDates.totalDays} Days (Compliant <= 90)` : `${cohortDates.totalDays} Days (Exceeds 90-day Cap)`}
-                </Badge>
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-semibold text-slate-700">
-                  <span>Elapsed Calendar Pacing</span>
-                  <span className="font-bold text-slate-900">
-                    {cohortDates.elapsedDays} / {cohortDates.totalDays} Days ({cohortDates.daysRemaining} days remaining)
-                  </span>
-                </div>
-                <Progress
-                  value={Math.min(100, (cohortDates.elapsedDays / cohortDates.totalDays) * 100)}
-                  className="h-2 bg-slate-100"
-                />
-              </div>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60 text-xs">
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                Cohort Dates
+              </span>
+              <span className="font-bold text-slate-900">
+                {cohortDates.startDate} — {cohortDates.endDate}
+              </span>
             </div>
-          ) : (
-            <p className="text-xs text-slate-400">Loading cohort scheduling data...</p>
-          )}
-        </div>
-      </div>
+            <Badge variant="outline" className="bg-white text-slate-700 border-slate-200 text-[10px] font-bold px-2 py-0.5">
+              {cohortDates.totalDays} Days Total
+            </Badge>
+          </div>
 
-      {/* Learning Environment Faculty-to-Student Ratios Notice */}
-      <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Users className="w-6 h-6 text-blue-600 shrink-0" />
-          <div className="text-xs text-blue-950">
-            <p className="font-bold">Statutory Faculty-to-Student Ratio Standards:</p>
-            <p className="text-blue-800">
-              • <strong>30:1</strong> Online Asynchronous Theory & Seat-Time
-              {"  "}|{"  "}• <strong>20:1</strong> Live Interactive Sessions
-              {"  "}|{"  "}• <strong>10:1</strong> In-Person Skills Lab & Clinical Direct Care
-            </p>
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs font-semibold text-slate-700">
+              <span>Elapsed Calendar Pacing</span>
+              <span className="font-bold text-slate-900">
+                {cohortDates.elapsedDays} / {cohortDates.totalDays} Days ({cohortDates.daysRemaining} days remaining)
+              </span>
+            </div>
+            <Progress
+              value={Math.min(100, (cohortDates.elapsedDays / cohortDates.totalDays) * 100)}
+              className="h-2 bg-slate-100"
+            />
           </div>
         </div>
-      </div>
+      )}
 
       {/* Registered Course Textbooks */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
             <BookMarked className="w-5 h-5 text-primary" />
-            Accredited Course Textbooks & Reading References
+            Course Textbooks & Reading References
           </h2>
           <span className="text-xs text-slate-500">
             {textbooks.length} Books Registered
@@ -421,7 +318,7 @@ export const CurriculumCompliancePage: React.FC = () => {
 
         {textbooks.length === 0 ? (
           <div className="p-6 text-center bg-white border border-slate-200 rounded-xl text-xs text-slate-500">
-            No textbooks registered yet for this course. Click "Register Course Textbook" above to add the WABON approved nursing assistant textbook.
+            No textbooks registered yet for this course.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -472,9 +369,11 @@ export const CurriculumCompliancePage: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Tracks</SelectItem>
-                <SelectItem value="THEORY_ASYNC">Theory (Async)</SelectItem>
-                <SelectItem value="SKILLS_LAB_IN_PERSON">Skills Lab</SelectItem>
-                <SelectItem value="CLINICAL_IN_PERSON">Clinical</SelectItem>
+                {availableTracks.map((track) => (
+                  <SelectItem key={track} value={track}>
+                    {track.replace(/_/g, " ")}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -490,10 +389,14 @@ export const CurriculumCompliancePage: React.FC = () => {
           </div>
         </div>
 
-        {isCrosswalkLoading ? (
+        {isCohortsLoading || isCrosswalkLoading ? (
           <div className="p-12 text-center text-slate-400">
             <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-            <p className="text-xs">Generating WAC curriculum crosswalk matrix...</p>
+            <p className="text-xs">Loading curriculum crosswalk...</p>
+          </div>
+        ) : !courseId ? (
+          <div className="p-8 text-center bg-white border border-slate-200 rounded-2xl text-xs text-slate-500">
+            No active cohort or course found.
           </div>
         ) : filteredModules.length === 0 ? (
           <div className="p-8 text-center bg-white border border-slate-200 rounded-2xl text-xs text-slate-500">
@@ -512,9 +415,11 @@ export const CurriculumCompliancePage: React.FC = () => {
                     <span className="text-xs font-black text-slate-900">
                       Module {mod.moduleId}: {mod.moduleTitle}
                     </span>
-                    <Badge variant="outline" className="text-[10px] font-bold uppercase bg-white border-slate-200 text-slate-600">
-                      {mod.track?.replace(/_/g, " ") || "THEORY"}
-                    </Badge>
+                    {mod.track && (
+                      <Badge variant="outline" className="text-[10px] font-bold uppercase bg-white border-slate-200 text-slate-600">
+                        {mod.track.replace(/_/g, " ")}
+                      </Badge>
+                    )}
                     {mod.isOrientationModule && (
                       <Badge className="bg-amber-100 text-amber-800 border-0 text-[10px] font-bold">
                         Orientation Module (Non-Credit)

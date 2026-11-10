@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
 import StudentLayout from "@/features/student/components/StudentLayout";
 import {
@@ -47,450 +48,54 @@ import {
   useSkillsList,
   useStudentSkillsMatrix,
   useRecordCheckoffMutation,
+  useInstructorCredentials,
+  useRegisterCredentialsMutation,
 } from "../hooks/useSkillsLab";
 import { useInstructorCohortsList } from "../hooks/useSeatTime";
-import { useUser } from "@/features/auth/hooks/useAuth";
-import { useEnrollments } from "@/hooks/useAcademy";
-import type { Skill, SkillCheckoff } from "../types";
+import { useCohortStudents } from "../hooks/useCohortStudents";
+import { usePortalMode } from "@/features/auth/hooks/useAuth";
+import type { Skill } from "../types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import api from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
-
-// ── Washington State Board of Nursing (WABON) 22 Required Core Skills ──
-const WABON_22_CORE_SKILLS: Skill[] = [
-  {
-    id: 1,
-    skillNumber: "SKILL-01",
-    title: "Hand Hygiene (Medical Asepsis)",
-    category: "INFECTION_CONTROL",
-    description:
-      "Decontaminates hands using soap and warm water with proper friction, wrist coverage, and clean paper towel technique.",
-    criticalSteps: [
-      "Wet hands and wrists thoroughly under running water, keeping hands lower than elbows.",
-      "Apply soap and lather all surfaces including wrists, backs of hands, and between fingers for at least 20 seconds.",
-      "Clean under fingernails against palm of opposite hand.",
-      "Rinse hands thoroughly with fingertips pointing downward.",
-      "Dry hands with clean paper towel and discard.",
-      "Turn off faucet with a separate clean, dry paper towel without touching clean hands to faucet handle.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 2,
-    skillNumber: "SKILL-02",
-    title: "Donning & Doffing Full PPE (Gown & Gloves)",
-    category: "INFECTION_CONTROL",
-    description:
-      "Properly sequences PPE donning and doffing to prevent self-contamination and environmental transmission.",
-    criticalSteps: [
-      "Select correct size gown and unroll completely.",
-      "Fasten ties at neck securely and overlap back of gown completely.",
-      "Fasten waist ties at back or side.",
-      "Put on clean gloves and pull cuffs over the gown wrists.",
-      "Doff gloves first by turning inside out without touching outer contaminated surface.",
-      "Unfasten neck and waist ties, peel gown downward and outward away from body.",
-      "Dispose in biohazard/linen receptacle and perform immediate hand hygiene.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 3,
-    skillNumber: "SKILL-03",
-    title: "Measuring & Recording Radial Pulse and Respirations",
-    category: "VITAL_SIGNS",
-    description:
-      "Accurately counts radial pulse for 60 seconds and covertly measures respiration rate.",
-    criticalSteps: [
-      "Locate radial pulse using tips of first two or three fingers (never thumb).",
-      "Count pulse for 60 seconds (or 30 seconds x 2 if regular).",
-      "Count respirations immediately without letting resident know.",
-      "Record pulse rate within +/- 4 beats of RN evaluator.",
-      "Record respiration rate within +/- 2 breaths of RN evaluator.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 4,
-    skillNumber: "SKILL-04",
-    title: "Measuring & Recording Blood Pressure (Manual)",
-    category: "VITAL_SIGNS",
-    description:
-      "Measures systolic and diastolic blood pressure using aneroid sphygmomanometer and stethoscope with dual bell.",
-    criticalSteps: [
-      "Clean stethoscope earpieces and diaphragm with alcohol wipe.",
-      "Position resident's arm palm up, supported at heart level.",
-      "Wrap cuff smoothly 1 inch above antecubital space with artery marker aligned.",
-      "Inflate cuff 30 mmHg above estimated systolic pressure.",
-      "Deflate cuff slowly at 2-3 mmHg per second while listening for Korotkoff sounds.",
-      "Record systolic and diastolic reading within +/- 4 mmHg of RN evaluator.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 5,
-    skillNumber: "SKILL-05",
-    title: "Measuring & Recording Body Temperature & Weight",
-    category: "VITAL_SIGNS",
-    description:
-      "Safely operates digital/tympanic thermometer and upright balance scale with zero calibration.",
-    criticalSteps: [
-      "Ensure resident is wearing non-skid footwear before standing.",
-      "Zero/calibrate scale balance beam prior to resident stepping on.",
-      "Assist resident onto center of scale facing weights.",
-      "Read balance indicator accurately and record within +/- 2 lbs of RN evaluator.",
-      "Measure temperature following aseptic probe cover protocol.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 6,
-    skillNumber: "SKILL-06",
-    title: "Transfer Resident from Bed to Wheelchair Using Gait Belt",
-    category: "MOBILITY",
-    description:
-      "Safely transfers a partially weight-bearing resident using a transfer belt with locked bed and wheelchair wheels.",
-    criticalSteps: [
-      "Explain procedure and position wheelchair at head or foot of bed with brakes locked.",
-      "Ensure bed is in lowest position and bed brakes are locked.",
-      "Assist resident to seated position on edge of bed with non-skid footwear on flat floor.",
-      "Apply gait belt securely around natural waistline over clothing (two-finger fit).",
-      "Grasp belt with upward underhand grip on both sides.",
-      "On count of three, brace resident knees/feet and assist to standing position.",
-      "Pivot toward wheelchair and back resident until legs touch seat.",
-      "Lower resident gently into wheelchair, remove belt, and position footrests.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 7,
-    skillNumber: "SKILL-07",
-    title: "Ambulate Resident with a Transfer/Gait Belt",
-    category: "MOBILITY",
-    description:
-      "Assists resident with standing and ambulating safely while maintaining slight posterior-lateral positioning.",
-    criticalSteps: [
-      "Apply gait belt over clothing with buckle off-center.",
-      "Ensure non-skid footwear is on resident before standing.",
-      "Stand slightly behind and to the side (affected side if applicable).",
-      "Maintain upward underhand grip on belt during ambulation.",
-      "Walk 15 feet smoothly, monitoring resident for dizziness or gait instability.",
-      "Assist resident safely back to chair/bed and remove gait belt.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 8,
-    skillNumber: "SKILL-08",
-    title: "Positioning Resident in Bed (Lateral Side-Lying)",
-    category: "MOBILITY",
-    description:
-      "Reposition resident into side-lying lateral position with 4 support pillows to relieve pressure points.",
-    criticalSteps: [
-      "Lower head of bed to flat or comfortable level, raising bed to working height.",
-      "Gently roll resident onto side facing away from caregiver.",
-      "Place support pillow folded behind back to maintain 30-degree tilt.",
-      "Place pillow under upper arm and hand supported.",
-      "Place pillow between knees and ankles ensuring bony prominences do not touch.",
-      "Ensure resident body alignment and call light within reach.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 9,
-    skillNumber: "SKILL-09",
-    title: "Passive Range of Motion (PROM) for Shoulder, Elbow, & Wrist",
-    category: "MOBILITY",
-    description:
-      "Performs gentle, slow flexion, extension, abduction, and rotation exercises supporting joints with pain monitoring.",
-    criticalSteps: [
-      "Instruct resident to inform caregiver immediately if any pain or resistance occurs.",
-      "Support joint above and below (wrist and elbow) throughout movement.",
-      "Perform flexion and extension of shoulder gently 3 times.",
-      "Perform abduction and adduction of shoulder smoothly 3 times.",
-      "Stop immediately if resident reports discomfort or resistance is felt.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 10,
-    skillNumber: "SKILL-10",
-    title: "Passive Range of Motion (PROM) for Hip, Knee, & Ankle",
-    category: "MOBILITY",
-    description:
-      "Supports lower extremity joints through 3 repetitions of flexion, extension, dorsiflexion, and plantarflexion.",
-    criticalSteps: [
-      "Support lower extremity joint at knee and ankle throughout movement.",
-      "Flex and extend hip and knee smoothly through comfortable range 3 times.",
-      "Support foot and move ankle in dorsiflexion and plantarflexion 3 times.",
-      "Never force a joint beyond normal range or resident comfort level.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 11,
-    skillNumber: "SKILL-11",
-    title: "Application of Anti-Embolic Elastic Stocking (TED Hose)",
-    category: "MOBILITY",
-    description:
-      "Applies knee-high compression stocking smoothly without wrinkles to prevent DVT.",
-    criticalSteps: [
-      "Ensure resident is in supine position with leg elevated.",
-      "Turn stocking inside out to heel pocket.",
-      "Slip stocking over toes and heel, ensuring heel is properly seated.",
-      "Smooth stocking up over calf to 1-2 inches below knee.",
-      "Ensure stocking is completely smooth with no twists, wrinkles, or rolling bands.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 12,
-    skillNumber: "SKILL-12",
-    title: "Making an Occupied Bed",
-    category: "PERSONAL_CARE",
-    description:
-      "Replaces bottom and top linens while resident remains safely turned in bed maintaining comfort and modesty.",
-    criticalSteps: [
-      "Raise side rail opposite turning side if applicable or maintain resident safety.",
-      "Loosen bottom linens and roll soiled sheets close to resident back.",
-      "Apply clean fitted bottom sheet and tuck cleanly toward center roll.",
-      "Turn resident over center hump onto clean side.",
-      "Remove soiled linens without shaking and pull clean sheets taut.",
-      "Apply clean top sheet and blanket with toe pleat to prevent pressure sores.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 13,
-    skillNumber: "SKILL-13",
-    title: "Partial Bed Bath (Face, Neck, Arms, Hands, & Axilla)",
-    category: "PERSONAL_CARE",
-    description:
-      "Performs gentle cleansing with warm water and soap using mitt technique and patting dry.",
-    criticalSteps: [
-      "Test water temperature and have resident verify comfort.",
-      "Wash eyes with warm water only from inner canthus to outer canthus using clean section of cloth.",
-      "Wash face, neck, and ears without soap (or per preference) and pat dry.",
-      "Expose only one arm at a time, washing with soap from wrist to axilla.",
-      "Rinse and pat dry thoroughly, including axillary fold.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 14,
-    skillNumber: "SKILL-14",
-    title: "Perineal Care for Incontinent Resident (Female/Male)",
-    category: "PERSONAL_CARE",
-    description:
-      "Aseptic cleansing of perineum from front to back (urethra to rectum) to prevent infection.",
-    criticalSteps: [
-      "Wear clean gloves and check water temperature with resident.",
-      "Separate labia and wash front to back with clean surface of washcloth for each wipe.",
-      "Cleanse rectal area from front to back with separate clean strokes.",
-      "Rinse thoroughly and pat dry completely.",
-      "Remove gloves and perform immediate hand hygiene before touching clean linens.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 15,
-    skillNumber: "SKILL-15",
-    title: "Catheter Care for Resident with Indwelling Urinary Catheter",
-    category: "PERSONAL_CARE",
-    description:
-      "Cleanses catheter tubing downward away from meatus while stabilizing tubing to prevent pulling.",
-    criticalSteps: [
-      "Check water temperature and wear clean gloves.",
-      "Hold catheter tubing at urinary meatus to prevent tugging on balloon inside bladder.",
-      "With soapy washcloth, clean at least 4 inches down tubing away from body in one stroke.",
-      "Use clean area of washcloth for rinse stroke down tubing away from body.",
-      "Ensure tubing has no kinks and drainage bag is hung below bladder level on bed frame.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 16,
-    skillNumber: "SKILL-16",
-    title: "Assisting Resident with Bedpan & Output Measurement",
-    category: "PERSONAL_CARE",
-    description:
-      "Places standard or fracture bedpan correctly and accurately reads urinary output in graduate container.",
-    criticalSteps: [
-      "Position bedpan under buttocks with wide end toward head (fracture pan handle toward feet).",
-      "Raise head of bed to sitting position and place toilet paper/call light within reach.",
-      "Wear gloves to remove bedpan gently and empty into graduated container.",
-      "Place graduate on flat surface at eye level to read volume in milliliters (mL/cc).",
-      "Record output measurement within +/- 25 mL of RN evaluator.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 17,
-    skillNumber: "SKILL-17",
-    title: "Measuring & Recording Urinary Drainage Bag Output",
-    category: "PERSONAL_CARE",
-    description:
-      "Empties catheter drainage bag into graduate without contaminating drain port and records volume.",
-    criticalSteps: [
-      "Place barrier on floor underneath drainage bag and graduate.",
-      "Open drain clamp and empty urine into graduate without touching drain spout to container.",
-      "Wipe drain spout with alcohol wipe and clamp securely.",
-      "Read graduate at eye level on flat surface.",
-      "Record output in mL/cc within +/- 25 mL of RN evaluator.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 18,
-    skillNumber: "SKILL-18",
-    title: "Mouth Care / Denture Care for Dependent Resident",
-    category: "PERSONAL_CARE",
-    description:
-      "Cleanses resident teeth, gums, and tongue or brushes dentures with cool water and padded sink barrier.",
-    criticalSteps: [
-      "Line bottom of sink with paper towel or fill with cool water to prevent denture fracture.",
-      "Brush all surfaces of dentures with cool water and denture cleanser.",
-      "Brush resident teeth and gums gently using 45-degree angle stroke.",
-      "Assist resident to rinse mouth into emesis basin and pat mouth dry.",
-      "Store dentures in cool water or denture cup labeled with resident name.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 19,
-    skillNumber: "SKILL-19",
-    title: "Feeding Dependent Resident & Fluid Intake Recording",
-    category: "PERSONAL_CARE",
-    description:
-      "Assists resident in upright position with meals, offering fluids, pacing bites, and recording percentage consumed.",
-    criticalSteps: [
-      "Sit resident upright at 75-90 degrees (High Fowler's).",
-      "Sit facing resident at eye level to provide unhurried feeding.",
-      "Offer fluids frequently between bites of food.",
-      "Ensure resident mouth is swallowed completely before offering next bite.",
-      "Calculate and record food consumption percentage within +/- 15% and fluids in mL.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 20,
-    skillNumber: "SKILL-20",
-    title: "Dressing Resident with an Affected (Weak) Upper Extremity",
-    category: "PERSONAL_CARE",
-    description:
-      "Removes clothing starting with unaffected side; dresses starting with affected (weak) side.",
-    criticalSteps: [
-      "Offer resident choice between two clothing options.",
-      "Undress unaffected (strong) arm first.",
-      "Dress affected (weak) arm first, supporting joints gently.",
-      "Pull garment smoothly across back and insert strong arm.",
-      "Fasten buttons/snaps and adjust garment for comfort and dignity.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 21,
-    skillNumber: "SKILL-21",
-    title: "Foot Care on One Foot (Washing, Drying, & Lotion)",
-    category: "PERSONAL_CARE",
-    description:
-      "Soaks, washes, and thoroughly dries foot and between toes; applies lotion avoiding interdigital spaces.",
-    criticalSteps: [
-      "Test water temperature and confirm with resident.",
-      "Submerge foot in basin of warm water to soak.",
-      "Wash foot with soap, including heel and sole.",
-      "Dry foot thoroughly, especially between toes to prevent fungal infection.",
-      "Apply lotion to top and bottom of foot; NEVER apply lotion between toes.",
-    ],
-    passingScore: 100,
-  },
-  {
-    id: 22,
-    skillNumber: "SKILL-22",
-    title: "Nail Care on One Hand (Soaking, Cleaning, & Filing)",
-    category: "PERSONAL_CARE",
-    description:
-      "Soaks fingernails, cleans under nails with orangewood stick, and files smooth in one direction.",
-    criticalSteps: [
-      "Soak resident hand in basin of warm water for 5 minutes.",
-      "Clean gently under each nail using blunt end of orangewood stick wiped on towel between nails.",
-      "File fingernails gently in one direction with emery board to smooth rough edges.",
-      "Apply lotion to hand and fingers and pat off excess.",
-    ],
-    passingScore: 100,
-  },
-];
 
 export const CNACompetencyMatrixPage: React.FC = () => {
-  const { data: user } = useUser();
-  const role = (
-    user?.academyUser?.role ||
-    user?.globalRole ||
-    ""
-  ).toUpperCase();
-  const isInstructorOrAuditor =
-    role === "INSTRUCTOR" ||
-    role === "ADMIN" ||
-    role === "COURSE_MANAGER" ||
-    role === "COMMISSION_AUDITOR";
+  const { user, isInstructorView, canManageStaffActions } = usePortalMode();
+  const isInstructorOrAuditor = isInstructorView;
+
+  const [searchParams] = useSearchParams();
+  const paramCohort = searchParams.get("cohortId") || searchParams.get("cohort");
 
   // Cohort & Enrollment queries
-  const { data: cohortsData } = useInstructorCohortsList();
+  const { data: cohortsData } = useInstructorCohortsList(isInstructorView);
   const cohorts = cohortsData || [];
 
   const [selectedCohortId, setSelectedCohortId] = useState<string>("");
-  const activeCohortId =
-    selectedCohortId || (cohorts.length > 0 ? String(cohorts[0].id) : "1");
+  const activeCohortId = useMemo(() => {
+    if (selectedCohortId) return selectedCohortId;
+    if (paramCohort && !isNaN(Number(paramCohort))) return String(paramCohort);
+    if (cohorts.length > 0) return String(cohorts[0].id);
+    return "";
+  }, [selectedCohortId, paramCohort, cohorts]);
 
-  // Fetch cohort enrollments for instructor student-picker
-  const { data: enrollmentsData } = useQuery({
-    queryKey: ["cohort-enrollments", activeCohortId],
-    queryFn: async () => {
-      const res = await api.get(`/enrollments/cohort/${activeCohortId}`);
-      return res.data;
-    },
-    enabled: Boolean(isInstructorOrAuditor && activeCohortId),
-  });
-
-  const studentList = useMemo(() => {
-    const list = Array.isArray(enrollmentsData)
-      ? enrollmentsData
-      : enrollmentsData?.enrollments || [];
-    return list.map((e: any) => ({
-      userId: e.userId || e.profile?.userId || String(e.id),
-      name:
-        e.user
-          ? `${e.user.firstname || ""} ${e.user.lastname || ""}`.trim() || e.user.email
-          : e.profile
-          ? `${e.profile.user?.firstname || ""} ${e.profile.user?.lastname || ""}`.trim() || e.userId
-          : `Student ${e.userId?.slice?.(0, 8) || e.id}`,
-    }));
-  }, [enrollmentsData]);
+  const { studentList } = useCohortStudents(activeCohortId, isInstructorOrAuditor);
 
   const [selectedStudentUserId, setSelectedStudentUserId] =
+    useState<string>("");
+  const [checkoffStudentUserId, setCheckoffStudentUserId] =
     useState<string>("");
 
   const effectiveStudentUserId = useMemo(() => {
     if (!isInstructorOrAuditor) return user?.firebaseId || "";
-    if (selectedStudentUserId) return selectedStudentUserId;
+    if (selectedStudentUserId && studentList.some((s) => s.userId === selectedStudentUserId)) {
+      return selectedStudentUserId;
+    }
     if (studentList.length > 0) return studentList[0].userId;
     return "";
   }, [isInstructorOrAuditor, user, selectedStudentUserId, studentList]);
 
   // Skills List from Backend
-  const { data: apiSkills } = useSkillsList();
-  const allSkills: Skill[] = useMemo(() => {
-    if (apiSkills && apiSkills.length >= 22) return apiSkills;
-    if (apiSkills && apiSkills.length > 0) {
-      // Merge with default 22 to guarantee full 22-skill compliance
-      const existingNumbers = new Set(apiSkills.map((s) => s.skillNumber));
-      const missing = WABON_22_CORE_SKILLS.filter(
-        (s) => !existingNumbers.has(s.skillNumber)
-      );
-      return [...apiSkills, ...missing];
-    }
-    return WABON_22_CORE_SKILLS;
-  }, [apiSkills]);
+  const { data: apiSkills, isLoading: isSkillsLoading } = useSkillsList();
+  const allSkills: Skill[] = useMemo(() => apiSkills || [], [apiSkills]);
 
   // Student Matrix from Backend
   const { data: matrixData } = useStudentSkillsMatrix(
@@ -520,18 +125,50 @@ export const CNACompetencyMatrixPage: React.FC = () => {
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [evaluatorNotes, setEvaluatorNotes] = useState<string>("");
   const [attemptCount, setAttemptCount] = useState<number>(1);
-  const [evaluatorSignature, setEvaluatorSignature] = useState<string>(
-    "RN Evaluator Verified"
-  );
+  const [evaluatorSignature, setEvaluatorSignature] = useState<string>("");
 
   const recordCheckoffMutation = useRecordCheckoffMutation();
 
+  // Instructor WABON RN Credential State
+  const { data: instructorCredential, refetch: refetchCredential } = useInstructorCredentials(
+    canManageStaffActions ? user?.firebaseId : undefined
+  );
+  const registerCredentialMutation = useRegisterCredentialsMutation();
+  const [isRegisterCredentialOpen, setIsRegisterCredentialOpen] = useState(false);
+  const [rnLicenseNumber, setRnLicenseNumber] = useState("");
+  const [rnLicenseExpiration, setRnLicenseExpiration] = useState("");
+  const [yearsExperience, setYearsExperience] = useState(0);
+
+  const handleRegisterCredential = async () => {
+    if (!rnLicenseNumber.trim() || !rnLicenseExpiration) {
+      toast.error("Please enter your RN license number and expiration date.");
+      return;
+    }
+    try {
+      await registerCredentialMutation.mutateAsync({
+        rnLicenseNumber: rnLicenseNumber.trim(),
+        rnLicenseExpiration: new Date(rnLicenseExpiration).toISOString(),
+        yearsLongTermCareExp: Number(yearsExperience) || 0,
+      });
+      await refetchCredential();
+      setIsRegisterCredentialOpen(false);
+    } catch {
+      // Error handled by mutation
+    }
+  };
+
   const handleOpenCheckoff = (skill: Skill) => {
+    const targetStudentId = selectedStudentUserId || effectiveStudentUserId || (studentList[0]?.userId || "");
+    setCheckoffStudentUserId(targetStudentId);
     const existing = matrixMap.get(Number(skill.id));
     setSelectedSkillForCheckoff(skill);
     setCompletedSteps(skill.criticalSteps ? [...skill.criticalSteps] : []);
-    setEvaluatorNotes(existing?.comments || "");
-    setAttemptCount(existing ? (existing.attempts || 1) + 1 : 1);
+    setEvaluatorNotes(
+      existing?.comments ||
+      existing?.evaluatorNotes ||
+      ""
+    );
+    setAttemptCount(existing ? (existing.attempts || existing.attemptNumber || 1) + 1 : 1);
   };
 
   const toggleStep = (stepText: string) => {
@@ -550,34 +187,38 @@ export const CNACompetencyMatrixPage: React.FC = () => {
 
   const handleSubmitEvaluation = async (passed: boolean) => {
     if (!selectedSkillForCheckoff) return;
-    if (!effectiveStudentUserId) {
-      toast.error("Please select a student first.");
+    const targetStudentId = checkoffStudentUserId || effectiveStudentUserId;
+    if (!targetStudentId) {
+      toast.error("Please select an enrolled student first.");
+      return;
+    }
+    if (!activeCohortId) {
+      toast.error("Please select an active cohort first.");
       return;
     }
 
-    const notesText =
-      evaluatorNotes.trim() ||
-      (passed
-        ? "Demonstrated clinical competency in accordance with WAC 246-841A."
-        : "Failed critical steps. Requires additional lab practice and reassessment.");
+    const notesText = evaluatorNotes.trim();
 
     try {
       await recordCheckoffMutation.mutateAsync({
         skillId: Number(selectedSkillForCheckoff.id),
-        studentUserId: effectiveStudentUserId,
+        studentUserId: targetStudentId,
         cohortId: Number(activeCohortId),
-        passed,
         status: passed ? "PASSED" : "FAILED",
         attemptNumber: attemptCount,
+        evaluatorNotes: notesText,
+        passed,
         attempts: attemptCount,
         comments: notesText,
-        evaluatorNotes: notesText,
         criticalStepsCompleted: completedSteps,
-        signatureUrl: evaluatorSignature,
+        signatureUrl: evaluatorSignature.trim() || undefined,
       });
       setSelectedSkillForCheckoff(null);
-    } catch {
-      // Handled by mutation toast
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "";
+      if (msg.toLowerCase().includes("credential") || msg.toLowerCase().includes("rn license")) {
+        setIsRegisterCredentialOpen(true);
+      }
     }
   };
 
@@ -607,8 +248,8 @@ export const CNACompetencyMatrixPage: React.FC = () => {
     });
   }, [allSkills, activeCategory, searchQuery, statusFilter, matrixMap]);
 
-  // Hours and statistics calculation
-  const totalCoreSkillsCount = allSkills.length;
+  // Statistics directly from backend
+  const totalCoreSkillsCount = matrixData?.totalSkills ?? allSkills.length;
   const passedSkillsCount = matrixData?.passedSkills ?? 0;
   const failedSkillsCount = useMemo(() => {
     let count = 0;
@@ -618,22 +259,29 @@ export const CNACompetencyMatrixPage: React.FC = () => {
     return count;
   }, [matrixMap]);
 
-  // Statutory 32 Skills Lab Hours calculation
-  // 32.0 hours minimum per WAC 246-841A
-  const REQUIRED_LAB_HOURS = 32.0;
-  const calculatedLabHours = useMemo(() => {
-    if (totalCoreSkillsCount === 0) return 0;
-    return parseFloat(
-      Math.min(
-        REQUIRED_LAB_HOURS,
-        (passedSkillsCount / totalCoreSkillsCount) * REQUIRED_LAB_HOURS
-      ).toFixed(1)
+  const categoryTabs = useMemo(() => {
+    const categories = Array.from(
+      new Set(allSkills.map((s) => s.category).filter(Boolean))
     );
-  }, [passedSkillsCount, totalCoreSkillsCount]);
+    return [
+      { id: "ALL", label: `All Skills (${allSkills.length})` },
+      ...categories.map((cat) => ({
+        id: cat,
+        label: cat
+          .toLowerCase()
+          .split("_")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" "),
+      })),
+    ];
+  }, [allSkills]);
 
-  const completionPercent = totalCoreSkillsCount > 0
-    ? Math.round((passedSkillsCount / totalCoreSkillsCount) * 100)
-    : 0;
+  const completionPercent =
+    matrixData?.completionPercentage !== undefined
+      ? Math.round(matrixData.completionPercentage)
+      : totalCoreSkillsCount > 0
+      ? Math.round((passedSkillsCount / totalCoreSkillsCount) * 100)
+      : 0;
 
   // Selected student name display
   const currentStudentName = useMemo(() => {
@@ -641,8 +289,14 @@ export const CNACompetencyMatrixPage: React.FC = () => {
       return `${user?.firstname || ""} ${user?.lastname || ""}`.trim() || "Student";
     }
     const found = studentList.find((s: any) => s.userId === effectiveStudentUserId);
-    return found ? found.name : effectiveStudentUserId || "Select a Student";
+    return found ? found.name : "Select a Student";
   }, [isInstructorOrAuditor, user, studentList, effectiveStudentUserId]);
+
+  const checkoffStudentName = useMemo(() => {
+    const targetId = checkoffStudentUserId || effectiveStudentUserId;
+    const found = studentList.find((s: any) => s.userId === targetId);
+    return found ? found.name : "Select a Student";
+  }, [studentList, checkoffStudentUserId, effectiveStudentUserId]);
 
   const content = (
     <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
@@ -658,28 +312,28 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                 In-Person Skills Lab & Competency Matrix
               </h1>
               <p className="text-xs text-slate-500">
-                Washington WAC 246-841A Requirement: 32 In-Person Lab Hours & 22 Mandatory RN-Observed Competencies.
+                In-Person Lab Hours &amp; Mandatory RN-Observed Competencies.
               </p>
             </div>
           </div>
         </div>
 
-        {/* 32 Lab Hours & 22 Skills Cards */}
+        {/* Skills Competency Summary Cards */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-xs flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-              <Clock className="w-5 h-5" />
+              <Layers className="w-5 h-5" />
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                Skills Lab Hours
+                Core Competencies
               </span>
               <div className="flex items-baseline gap-1">
                 <span className="text-lg font-black text-slate-900">
-                  {calculatedLabHours}
+                  {totalCoreSkillsCount}
                 </span>
                 <span className="text-xs text-slate-400 font-bold">
-                  / 32.0 hrs
+                  Skills
                 </span>
               </div>
             </div>
@@ -698,7 +352,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                   {passedSkillsCount}
                 </span>
                 <span className="text-xs text-slate-400 font-bold">
-                  / 22 Skills ({completionPercent}%)
+                  / {totalCoreSkillsCount} Skills ({completionPercent}%)
                 </span>
               </div>
             </div>
@@ -715,14 +369,14 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                 Active Cohort
               </label>
               <Select
-                value={activeCohortId}
+                value={activeCohortId || undefined}
                 onValueChange={(val) => {
                   setSelectedCohortId(val);
                   setSelectedStudentUserId("");
                 }}
               >
                 <SelectTrigger className="bg-white border-slate-200 text-xs font-semibold h-9">
-                  <SelectValue placeholder="Select Cohort" />
+                  <SelectValue placeholder={cohorts.length > 0 ? "Select Cohort" : "No cohorts found"} />
                 </SelectTrigger>
                 <SelectContent>
                   {cohorts.map((c: any) => (
@@ -731,33 +385,40 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                     </SelectItem>
                   ))}
                   {cohorts.length === 0 && (
-                    <SelectItem value="1">Cohort 1 (Default)</SelectItem>
+                    <div className="p-3 text-center text-xs text-slate-500 font-medium">
+                      No cohorts available
+                    </div>
                   )}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="w-full sm:w-72">
+            <div className="w-full sm:w-80">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                Select Student for Checkoff Review
+                Select Student for Checkoff Review ({studentList.length} Enrolled)
               </label>
               <Select
-                value={effectiveStudentUserId}
-                onValueChange={(val) => setSelectedStudentUserId(val)}
+                value={effectiveStudentUserId || undefined}
+                onValueChange={(val) => {
+                  if (val && val !== "_no_students") {
+                    setSelectedStudentUserId(val);
+                    setCheckoffStudentUserId(val);
+                  }
+                }}
               >
                 <SelectTrigger className="bg-white border-slate-200 text-xs font-semibold h-9">
-                  <SelectValue placeholder="Select Student" />
+                  <SelectValue placeholder={studentList.length > 0 ? "Select Student" : "No students enrolled"} />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-60">
                   {studentList.map((s: any) => (
                     <SelectItem key={s.userId} value={s.userId}>
-                      {s.name}
+                      <span className="font-semibold text-slate-900">{s.name}</span>
                     </SelectItem>
                   ))}
                   {studentList.length === 0 && (
-                    <SelectItem value={effectiveStudentUserId || "student-1"}>
-                      {effectiveStudentUserId ? `User: ${effectiveStudentUserId.slice(0, 10)}...` : "No enrolled students found"}
-                    </SelectItem>
+                    <div className="p-3 text-center text-xs text-slate-500 font-medium">
+                      No enrolled students found{activeCohortId ? ` in Cohort #${activeCohortId}` : ""}
+                    </div>
                   )}
                 </SelectContent>
               </Select>
@@ -784,16 +445,20 @@ export const CNACompetencyMatrixPage: React.FC = () => {
             <ShieldCheck className="w-6 h-6 text-emerald-600 shrink-0" />
             <div>
               <h3 className="text-sm font-bold text-emerald-950">
-                Your Official Washington CNA Competency Record
+                Your Official Skills Lab Competency Record
               </h3>
               <p className="text-xs text-emerald-700">
-                Skills must be observed and checked off in-person by an approved RN instructor. Online self-reporting is not permitted under WAC 246-841A.
+                Skills must be observed and checked off in-person by an approved RN instructor. Online self-reporting is not permitted.
               </p>
             </div>
           </div>
-          <Badge className="bg-emerald-600 text-white border-0 text-xs px-3 py-1 font-bold">
-            {passedSkillsCount === 22 ? "ALL 22 PASSED" : `${22 - passedSkillsCount} Remaining`}
-          </Badge>
+          {totalCoreSkillsCount > 0 && (
+            <Badge className="bg-emerald-600 text-white border-0 text-xs px-3 py-1 font-bold">
+              {passedSkillsCount >= totalCoreSkillsCount
+                ? `ALL ${totalCoreSkillsCount} PASSED`
+                : `${Math.max(0, totalCoreSkillsCount - passedSkillsCount)} Remaining`}
+            </Badge>
+          )}
         </div>
       )}
 
@@ -802,13 +467,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Category Tabs */}
           <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-full md:w-auto overflow-x-auto">
-            {[
-              { id: "ALL", label: "All Skills (22)" },
-              { id: "INFECTION_CONTROL", label: "Infection Control" },
-              { id: "VITAL_SIGNS", label: "Vital Signs" },
-              { id: "MOBILITY", label: "Mobility & Transfers" },
-              { id: "PERSONAL_CARE", label: "Personal Care" },
-            ].map((tab) => (
+            {categoryTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveCategory(tab.id)}
@@ -854,8 +513,20 @@ export const CNACompetencyMatrixPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 22 Skills Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {/* Skills Cards Grid */}
+      {isSkillsLoading ? (
+        <div className="p-12 text-center text-slate-400">
+          <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
+          <p className="text-xs">Loading skills lab competencies from backend...</p>
+        </div>
+      ) : filteredSkills.length === 0 ? (
+        <div className="p-10 text-center bg-white border border-slate-200 rounded-2xl text-xs text-slate-500">
+          {allSkills.length === 0
+            ? "No skills registered in the backend skills catalog yet."
+            : "No skills matched the current filter."}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {filteredSkills.map((skill) => {
           const checkoff = matrixMap.get(Number(skill.id));
           const isPassed = checkoff?.status === "PASSED";
@@ -965,7 +636,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                   {isPassed ? "Criteria 100% Met" : "Mandatory 100% Pass Required"}
                 </span>
 
-                {isInstructorOrAuditor && (
+                {canManageStaffActions && (
                   <Button
                     onClick={() => handleOpenCheckoff(skill)}
                     size="sm"
@@ -979,7 +650,8 @@ export const CNACompetencyMatrixPage: React.FC = () => {
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {/* Checkoff Evaluation Dialog (Instructor Mode) */}
       <Dialog
@@ -994,10 +666,67 @@ export const CNACompetencyMatrixPage: React.FC = () => {
             {selectedSkillForCheckoff?.skillNumber}: {selectedSkillForCheckoff?.title}
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
-            Evaluating student: <strong>{currentStudentName}</strong> for in-person skills lab competency.
+            Evaluating student: <strong>{checkoffStudentName}</strong> for in-person skills lab competency.
           </DialogDescription>
 
           <div className="space-y-4 pt-2">
+            {/* WABON RN Credential Notice */}
+            {!instructorCredential && isInstructorOrAuditor && (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Instructor WABON RN License not registered on file.</span>
+                </div>
+                <Button
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsRegisterCredentialOpen(true)}
+                  className="h-7 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white"
+                >
+                  Register RN License
+                </Button>
+              </div>
+            )}
+
+            {/* Student Selection for Checkoff */}
+            <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <User className="w-4 h-4 text-emerald-600" />
+                  <span>Select Enrolled Student for Checkoff</span>
+                </label>
+                <Badge variant="outline" className="text-[10px] font-semibold bg-white border-slate-200 text-slate-600">
+                  {studentList.length} Enrolled in Cohort #{activeCohortId}
+                </Badge>
+              </div>
+
+              <Select
+                value={checkoffStudentUserId || effectiveStudentUserId || undefined}
+                onValueChange={(val) => {
+                  if (val && val !== "_no_students") {
+                    setCheckoffStudentUserId(val);
+                    setSelectedStudentUserId(val);
+                  }
+                }}
+              >
+                <SelectTrigger className="bg-white border-slate-200 text-xs font-semibold h-9">
+                  <SelectValue placeholder={studentList.length > 0 ? "Select enrolled student..." : "No enrolled students found"} />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {studentList.map((s) => (
+                    <SelectItem key={s.userId} value={s.userId}>
+                      <span className="font-semibold text-slate-900">{s.name}</span>
+                    </SelectItem>
+                  ))}
+                  {studentList.length === 0 && (
+                    <div className="p-3 text-center text-xs text-slate-500 font-medium">
+                      No enrolled students found in Cohort #{activeCohortId}
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Protocol Steps Checklist */}
             <div className="space-y-2 border border-slate-200 rounded-xl p-3 bg-slate-50">
               <div className="flex items-center justify-between">
@@ -1050,7 +779,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
               <Textarea
                 value={evaluatorNotes}
                 onChange={(e) => setEvaluatorNotes(e.target.value)}
-                placeholder="Document student's technique, safety considerations, areas needing practice, or specific remediation instructions..."
+                placeholder="Enter instructor observation feedback and critical notes..."
                 rows={3}
                 className="text-xs"
               />
@@ -1118,6 +847,86 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                   <CheckCircle2 className="w-4 h-4 mr-1.5" />
                 )}
                 Satisfactory (Competency Passed)
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Register Instructor WABON RN Credential Dialog */}
+      <Dialog
+        open={isRegisterCredentialOpen}
+        onOpenChange={setIsRegisterCredentialOpen}
+      >
+        <DialogContent className="max-w-md">
+          <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-emerald-600" />
+            Register Instructor WABON RN License
+          </DialogTitle>
+          <DialogDescription className="text-xs text-slate-500">
+            RN instructors must have verified credentials on file before evaluating skills lab competencies.
+          </DialogDescription>
+
+          <div className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700">
+                Washington RN License Number
+              </label>
+              <Input
+                value={rnLicenseNumber}
+                onChange={(e) => setRnLicenseNumber(e.target.value)}
+                placeholder="Enter RN license number"
+                className="h-9 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700">
+                License Expiration Date
+              </label>
+              <Input
+                type="date"
+                value={rnLicenseExpiration}
+                onChange={(e) => setRnLicenseExpiration(e.target.value)}
+                className="h-9 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700">
+                Years of Long-Term Care Experience
+              </label>
+              <Input
+                type="number"
+                min={0}
+                max={50}
+                value={yearsExperience}
+                onChange={(e) => setYearsExperience(Number(e.target.value) || 0)}
+                className="h-9 text-xs"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsRegisterCredentialOpen(false)}
+                className="h-8 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                disabled={registerCredentialMutation.isPending}
+                onClick={handleRegisterCredential}
+                className="h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {registerCredentialMutation.isPending ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                Register & Verify Credentials
               </Button>
             </div>
           </div>

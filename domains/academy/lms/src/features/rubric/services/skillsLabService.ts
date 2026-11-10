@@ -9,9 +9,9 @@ export const skillsLabService = {
   createSkill: async (dto: Partial<Skill>): Promise<Skill> => {
     const payload = {
       ...dto,
-      skillNumber: dto.skillNumber || "SKILL-01",
+      skillNumber: dto.skillNumber,
       name: (dto as any).name || dto.title,
-      category: dto.category || "INFECTION_CONTROL",
+      category: dto.category,
       description: dto.description || "",
     };
     const response = await api.post<Skill>("/skills-lab/skills", payload);
@@ -19,8 +19,8 @@ export const skillsLabService = {
   },
 
   /**
-   * List all core nursing assistant skills (22 WABON Core Skills)
-   * Postman 2.5.4: GET {{baseUrl}}/skills-lab/skills
+   * List all core nursing assistant skills
+   * GET /skills-lab/skills
    */
   getSkills: async (): Promise<Skill[]> => {
     const response = await api.get<Skill[] | { skills: Skill[] }>(
@@ -34,11 +34,11 @@ export const skillsLabService = {
       : [];
     return rawList.map((s: any) => ({
       ...s,
-      title: s.title || s.name || `Core Skill ${s.skillNumber || s.id}`,
-      name: s.name || s.title,
-      category: s.category || "INFECTION_CONTROL",
-      criticalSteps: s.criticalSteps || [],
-      passingScore: s.passingScore || 100,
+      title: s.title || s.name || "",
+      name: s.name || s.title || "",
+      category: s.category || "",
+      criticalSteps: Array.isArray(s.criticalSteps) ? s.criticalSteps : [],
+      passingScore: s.passingScore ?? 0,
     }));
   },
 
@@ -54,21 +54,23 @@ export const skillsLabService = {
         ? Boolean(dto.passed)
         : dto.status === "PASSED" || dto.status === "SATISFACTORY";
 
-    const commentsText =
-      dto.comments ||
+    const notesText =
       dto.evaluatorNotes ||
+      dto.comments ||
       dto.notes ||
-      (isPassed
-        ? "Demonstrated clinical competency."
-        : "Needs practice on sequential steps.");
+      "";
 
     const payload = {
-      skillId: Number(dto.skillId) || dto.skillId,
-      studentUserId: dto.studentUserId || "student-uid-1001",
-      cohortId: Number(dto.cohortId) || 1,
+      skillId: Number(dto.skillId),
+      studentUserId: dto.studentUserId || "",
+      cohortId: Number(dto.cohortId),
+      status: dto.status || (isPassed ? "PASSED" : "FAILED"),
+      attemptNumber: Number(dto.attemptNumber || dto.attempts || 1),
+      evaluatorNotes: notesText,
+      // Compatibility fields for backend Joi validation:
       passed: isPassed,
       attempts: Number(dto.attempts || dto.attemptNumber || 1),
-      comments: commentsText,
+      comments: notesText,
     };
     const response = await api.post<SkillCheckoff>(
       "/skills-lab/checkoffs",
@@ -128,5 +130,34 @@ export const skillsLabService = {
       `/skills-lab/matrix/student/${studentUserId}/cohort/${cohortId}`
     );
     return response.data;
+  },
+
+  /**
+   * Register Instructor WABON RN Credentials
+   * Backend: POST /instructors/credentials
+   */
+  registerInstructorCredentials: async (dto: {
+    rnLicenseNumber: string;
+    rnLicenseExpiration: string;
+    yearsLongTermCareExp: number;
+    trainTheTrainerCertUrl?: string;
+    wabonApprovalLetterUrl?: string;
+  }): Promise<any> => {
+    const response = await api.post("/instructors/credentials", dto);
+    return response.data;
+  },
+
+  /**
+   * Get Instructor WABON Credential
+   * Backend: GET /instructors/credentials/:instructorUserId
+   */
+  getInstructorCredentials: async (instructorUserId: string): Promise<any> => {
+    try {
+      const response = await api.get(`/instructors/credentials/${instructorUserId}`);
+      return response.data;
+    } catch (err: any) {
+      if (err.response?.status === 404) return null;
+      throw err;
+    }
   },
 };

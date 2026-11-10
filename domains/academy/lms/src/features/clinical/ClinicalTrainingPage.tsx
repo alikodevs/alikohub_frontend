@@ -44,32 +44,22 @@ import {
   useRecordClinicalAttendanceMutation,
 } from "@/features/rubric/hooks/useClinical";
 import { useInstructorCohortsList } from "@/features/rubric/hooks/useSeatTime";
-import { useUser } from "@/features/auth/hooks/useAuth";
+import { useCohortStudents } from "@/features/rubric/hooks/useCohortStudents";
+import { usePortalMode } from "@/features/auth/hooks/useAuth";
 import type { ClinicalShift, CreateClinicalShiftDto } from "@/features/rubric/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import api from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
 
 export const ClinicalTrainingPage: React.FC = () => {
-  const { data: user } = useUser();
-  const role = (
-    user?.academyUser?.role ||
-    user?.globalRole ||
-    ""
-  ).toUpperCase();
-  const isInstructorOrAuditor =
-    role === "INSTRUCTOR" ||
-    role === "ADMIN" ||
-    role === "COURSE_MANAGER" ||
-    role === "COMMISSION_AUDITOR";
+  const { user, isInstructorView, canManageStaffActions } = usePortalMode();
+  const isInstructorOrAuditor = isInstructorView;
 
   // Cohort list
-  const { data: cohortsData } = useInstructorCohortsList();
+  const { data: cohortsData } = useInstructorCohortsList(isInstructorView);
   const cohorts = cohortsData || [];
   const [selectedCohortId, setSelectedCohortId] = useState<string>("");
   const activeCohortId =
-    selectedCohortId || (cohorts.length > 0 ? String(cohorts[0].id) : "1");
+    selectedCohortId || (cohorts.length > 0 ? String(cohorts[0].id) : "");
 
   // Fetch shifts for selected cohort
   const {
@@ -78,30 +68,10 @@ export const ClinicalTrainingPage: React.FC = () => {
   } = useCohortClinicalShifts(activeCohortId);
   const shifts: ClinicalShift[] = shiftsData || [];
 
-  // Fetch cohort enrollments for instructor roster picker
-  const { data: enrollmentsData } = useQuery({
-    queryKey: ["cohort-enrollments", activeCohortId],
-    queryFn: async () => {
-      const res = await api.get(`/enrollments/cohort/${activeCohortId}`);
-      return res.data;
-    },
-    enabled: Boolean(isInstructorOrAuditor && activeCohortId),
-  });
-
-  const studentList = useMemo(() => {
-    const list = Array.isArray(enrollmentsData)
-      ? enrollmentsData
-      : enrollmentsData?.enrollments || [];
-    return list.map((e: any) => ({
-      userId: e.userId || e.profile?.userId || String(e.id),
-      name:
-        e.user
-          ? `${e.user.firstname || ""} ${e.user.lastname || ""}`.trim() || e.user.email
-          : e.profile
-          ? `${e.profile.user?.firstname || ""} ${e.profile.user?.lastname || ""}`.trim() || e.userId
-          : `Student ${e.userId?.slice?.(0, 8) || e.id}`,
-    }));
-  }, [enrollmentsData]);
+  const { studentList, studentNameMap } = useCohortStudents(
+    activeCohortId,
+    isInstructorOrAuditor
+  );
 
   // Student specific hours
   const studentTargetUserId = isInstructorOrAuditor
@@ -138,7 +108,7 @@ export const ClinicalTrainingPage: React.FC = () => {
 
   const handleCreateShift = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!facilityName.trim() || !shiftDate || !startTime || !endTime) {
+    if (!facilityName.trim() || !shiftDate || !startTime || !endTime || !activeCohortId) {
       toast.error("Please fill in all clinical shift schedule fields.");
       return;
     }
@@ -153,7 +123,7 @@ export const ClinicalTrainingPage: React.FC = () => {
       shiftDate: new Date(shiftDate).toISOString(),
       startTime: startIso,
       endTime: endIso,
-      hoursCredited: Number(hoursCredited) || 8,
+      hoursCredited: Number(hoursCredited) || 0,
     };
 
     try {
@@ -171,7 +141,7 @@ export const ClinicalTrainingPage: React.FC = () => {
   const handleOpenRecordAttendance = (shift: ClinicalShift, studentId?: string) => {
     setSelectedShift(shift);
     setAttendanceStudentUserId(studentId || (studentList[0]?.userId ?? ""));
-    setAttendanceHours(shift.hoursCredited || 8);
+    setAttendanceHours(shift.hoursCredited || 0);
     setAttendancePassed(true);
     setAttendanceNotes("");
     setIsAttendanceDialogOpen(true);
@@ -189,7 +159,7 @@ export const ClinicalTrainingPage: React.FC = () => {
         shiftId: selectedShift.id,
         studentUserId: attendanceStudentUserId,
         hoursCompleted: Number(attendanceHours) || 0,
-        competencyNotes: attendanceNotes.trim() || "Demonstrated clinical competency in direct resident care.",
+        competencyNotes: attendanceNotes.trim() || undefined,
         passed: attendancePassed,
       });
       setIsAttendanceDialogOpen(false);
@@ -198,13 +168,18 @@ export const ClinicalTrainingPage: React.FC = () => {
     }
   };
 
-  // 40 Required Hours calculation
-  const MIN_REQUIRED_HOURS = 40.0;
+  const minRequiredHours = studentHoursData?.minimumRequired ?? 0;
   const completedHours = studentHoursData?.totalHoursCompleted ?? 0;
-  const progressPercent = Math.min(
-    100,
-    Math.round((completedHours / MIN_REQUIRED_HOURS) * 100)
+  const totalScheduledShiftHours = shifts.reduce(
+    (sum, sh) => sum + (Number(sh.hoursCredited) || 0),
+    0
   );
+  const progressPercent =
+    studentHoursData?.completionPercent !== undefined
+      ? Math.min(100, Math.round(studentHoursData.completionPercent))
+      : minRequiredHours > 0
+      ? Math.min(100, Math.round((completedHours / minRequiredHours) * 100))
+      : 0;
 
   const content = (
     <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
@@ -217,16 +192,16 @@ export const ClinicalTrainingPage: React.FC = () => {
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                Clinical Training, Attendance & Supervision
+                Clinical Training, Attendance &amp; Supervision
               </h1>
               <p className="text-xs text-slate-500">
-                WAC 246-841A Mandate: 40.0 In-Person Clinical Patient Care Hours | Strict 10:1 Student-to-Instructor Ratio.
+                In-Person Clinical Patient Care Attendance, Site Assignments &amp; Supervision.
               </p>
             </div>
           </div>
         </div>
 
-        {/* 40 Clinical Hours Card */}
+        {/* Clinical Hours Summary Card */}
         <div className="flex items-center gap-3">
           <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-xs flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
@@ -234,20 +209,24 @@ export const ClinicalTrainingPage: React.FC = () => {
             </div>
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                Clinical Hours Minimum
+                {isInstructorOrAuditor ? "Scheduled Shift Hours" : "Verified Clinical Hours"}
               </span>
               <div className="flex items-baseline gap-1">
                 <span className="text-lg font-black text-slate-900">
-                  {isInstructorOrAuditor ? "40.0" : completedHours}
+                  {isInstructorOrAuditor ? totalScheduledShiftHours : completedHours}
                 </span>
                 <span className="text-xs text-slate-400 font-bold">
-                  / 40.0 hrs
+                  {isInstructorOrAuditor
+                    ? `hrs (${shifts.length} shifts)`
+                    : minRequiredHours > 0
+                    ? `/ ${minRequiredHours} hrs`
+                    : "hrs"}
                 </span>
               </div>
             </div>
           </div>
 
-          {isInstructorOrAuditor && (
+          {canManageStaffActions && (
             <Button
               onClick={() => setIsCreateShiftOpen(true)}
               className="bg-primary hover:bg-primary/90 text-white font-bold text-xs h-10 rounded-xl shadow-xs"
@@ -258,19 +237,15 @@ export const ClinicalTrainingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Statutory Regulatory Notice */}
+      {/* Prerequisite Gate Notice */}
       <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
         <Info className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
         <div className="space-y-1 text-xs text-amber-900">
           <p className="font-bold">
-            WAC 246-841A Clinical Standards & Prerequisite Gate:
+            Clinical Standards &amp; Prerequisite Gate:
           </p>
           <p className="text-amber-800 leading-relaxed">
-            1. All 22 Skills Lab checkoffs must be passed with RN sign-off prior to entering clinical direct patient care.
-            <br />
-            2. Faculty ratio is capped at a strict maximum of <strong>10 students per 1 RN clinical instructor</strong>.
-            <br />
-            3. Online seat-time does <strong>not</strong> count towards clinical training. All 40 hours must be completed in-person at an approved healthcare facility.
+            In-person clinical shifts require skills lab clearance and supervising RN verification at approved healthcare facilities.
           </p>
         </div>
       </div>
@@ -290,23 +265,29 @@ export const ClinicalTrainingPage: React.FC = () => {
             <Badge
               className={cn(
                 "text-xs px-3 py-1 font-bold",
-                completedHours >= MIN_REQUIRED_HOURS
+                studentHoursData?.meetsMinimum
                   ? "bg-emerald-600 text-white"
                   : "bg-blue-600 text-white"
               )}
             >
-              {completedHours >= MIN_REQUIRED_HOURS
-                ? "40 HOURS COMPLETED"
-                : `${(MIN_REQUIRED_HOURS - completedHours).toFixed(1)} Hours Needed`}
+              {studentHoursData?.meetsMinimum
+                ? "REQUIREMENT COMPLETED"
+                : minRequiredHours > 0
+                ? `${Math.max(0, minRequiredHours - completedHours).toFixed(1)} Hours Remaining`
+                : `${completedHours} Hours Logged`}
             </Badge>
           </div>
 
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs font-bold text-slate-600">
               <span>{completedHours} verified hours completed</span>
-              <span>{progressPercent}% of 40h standard</span>
+              {minRequiredHours > 0 && (
+                <span>{progressPercent}% of {minRequiredHours}h required</span>
+              )}
             </div>
-            <Progress value={progressPercent} className="h-2.5 bg-slate-100" />
+            {minRequiredHours > 0 && (
+              <Progress value={progressPercent} className="h-2.5 bg-slate-100" />
+            )}
           </div>
 
           {/* Student Shifts Table */}
@@ -351,9 +332,9 @@ export const ClinicalTrainingPage: React.FC = () => {
             <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
               Select Cohort
             </label>
-            <Select value={activeCohortId} onValueChange={setSelectedCohortId}>
+            <Select value={activeCohortId || undefined} onValueChange={setSelectedCohortId}>
               <SelectTrigger className="bg-white border-slate-200 text-xs font-semibold h-9">
-                <SelectValue placeholder="Select Cohort" />
+                <SelectValue placeholder={cohorts.length > 0 ? "Select Cohort" : "No cohorts found"} />
               </SelectTrigger>
               <SelectContent>
                 {cohorts.map((c: any) => (
@@ -362,7 +343,9 @@ export const ClinicalTrainingPage: React.FC = () => {
                   </SelectItem>
                 ))}
                 {cohorts.length === 0 && (
-                  <SelectItem value="1">Cohort 1 (Default)</SelectItem>
+                  <div className="p-3 text-center text-xs text-slate-500">
+                    No cohorts found
+                  </div>
                 )}
               </SelectContent>
             </Select>
@@ -375,14 +358,14 @@ export const ClinicalTrainingPage: React.FC = () => {
         </div>
       )}
 
-      {/* Clinical Shifts Roster & Ratio Cards */}
+      {/* Clinical Shifts Roster */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-black text-slate-900">
-            Approved Healthcare Facility Shifts & Supervision Roster
+            Approved Healthcare Facility Shifts &amp; Supervision Roster
           </h2>
           <span className="text-xs text-slate-500">
-            Ratio Cap: Max 10 Students per Supervising RN
+            {shifts.length} Shift(s) Scheduled
           </span>
         </div>
 
@@ -396,14 +379,13 @@ export const ClinicalTrainingPage: React.FC = () => {
             <Building2 className="w-8 h-8 text-slate-400 mx-auto" />
             <p className="text-sm font-bold text-slate-700">No Clinical Shifts Scheduled</p>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Schedule clinical shifts at contracted long-term care and healthcare facilities to begin tracking the required 40.0 clinical hours.
+              Schedule clinical shifts at contracted long-term care and healthcare facilities to begin tracking verified clinical hours.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {shifts.map((shift) => {
               const enrolledCount = shift.studentRoster?.length || shift._count?.studentRoster || 0;
-              const isAtCapacity = enrolledCount >= 10;
 
               return (
                 <div
@@ -417,14 +399,9 @@ export const ClinicalTrainingPage: React.FC = () => {
                       </span>
                       <Badge
                         variant="outline"
-                        className={cn(
-                          "text-[10px] font-bold px-2 py-0.5",
-                          isAtCapacity
-                            ? "bg-rose-50 text-rose-700 border-rose-300"
-                            : "bg-emerald-50 text-emerald-700 border-emerald-300"
-                        )}
+                        className="text-[10px] font-bold px-2 py-0.5 bg-slate-50 text-slate-700 border-slate-200"
                       >
-                        {enrolledCount}/10 Students ({isAtCapacity ? "AT CAPACITY" : "OPEN"})
+                        {enrolledCount} Enrolled
                       </Badge>
                     </div>
 
@@ -451,16 +428,20 @@ export const ClinicalTrainingPage: React.FC = () => {
                       </span>
                       {shift.studentRoster && shift.studentRoster.length > 0 ? (
                         <div className="space-y-1 max-h-24 overflow-y-auto">
-                          {shift.studentRoster.map((att) => (
-                            <div key={att.id} className="flex items-center justify-between text-[11px]">
-                              <span className="truncate max-w-[140px] text-slate-700 font-medium">
-                                {att.student?.userId || att.userId}
-                              </span>
-                              <Badge variant="outline" className="text-[9px] bg-white border-slate-200">
-                                {att.hoursCompleted}h • {att.passed ? "Passed" : "Incomplete"}
-                              </Badge>
-                            </div>
-                          ))}
+                          {shift.studentRoster.map((att) => {
+                            const uid = String(att.student?.userId || att.userId || "");
+                            const displayName = studentNameMap.get(uid) || "Enrolled Student";
+                            return (
+                              <div key={att.id} className="flex items-center justify-between text-[11px]">
+                                <span className="truncate max-w-[140px] text-slate-700 font-medium">
+                                  {displayName}
+                                </span>
+                                <Badge variant="outline" className="text-[9px] bg-white border-slate-200">
+                                  {att.hoursCompleted}h • {att.passed ? "Passed" : "Incomplete"}
+                                </Badge>
+                              </div>
+                            );
+                          })}
                         </div>
                       ) : (
                         <span className="text-[11px] text-slate-400 italic">No attendance recorded yet</span>
@@ -469,7 +450,7 @@ export const ClinicalTrainingPage: React.FC = () => {
                   </div>
 
                   {/* Instructor Action */}
-                  {isInstructorOrAuditor && (
+                  {canManageStaffActions && (
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                       <span className="text-[10px] text-slate-400 font-medium">
                         RN Supervision Sign-off
@@ -499,7 +480,7 @@ export const ClinicalTrainingPage: React.FC = () => {
             Schedule Clinical Training Shift
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
-            Schedule a direct patient care rotation at an approved healthcare facility. Max 10 students per instructor.
+            Schedule a direct patient care rotation at an approved healthcare facility.
           </DialogDescription>
 
           <form onSubmit={handleCreateShift} className="space-y-4 pt-2">
@@ -617,11 +598,11 @@ export const ClinicalTrainingPage: React.FC = () => {
                 Student to Verify
               </label>
               <Select
-                value={attendanceStudentUserId}
+                value={attendanceStudentUserId || undefined}
                 onValueChange={setAttendanceStudentUserId}
               >
                 <SelectTrigger className="bg-white border-slate-200 text-xs font-semibold h-9">
-                  <SelectValue placeholder="Select Student" />
+                  <SelectValue placeholder={studentList.length > 0 ? "Select Student" : "No enrolled students found"} />
                 </SelectTrigger>
                 <SelectContent>
                   {studentList.map((s: any) => (
@@ -630,7 +611,9 @@ export const ClinicalTrainingPage: React.FC = () => {
                     </SelectItem>
                   ))}
                   {studentList.length === 0 && (
-                    <SelectItem value="student-1">Default Student</SelectItem>
+                    <div className="p-3 text-center text-xs text-slate-500">
+                      No enrolled students found
+                    </div>
                   )}
                 </SelectContent>
               </Select>

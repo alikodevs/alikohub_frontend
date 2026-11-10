@@ -39,29 +39,20 @@ import {
   useDeleteStudyGroupMutation,
 } from "@/features/rubric/hooks/useStudyGroups";
 import { useInstructorCohortsList } from "@/features/rubric/hooks/useSeatTime";
-import { useUser } from "@/features/auth/hooks/useAuth";
+import { usePortalMode } from "@/features/auth/hooks/useAuth";
 import type { StudyGroup, CreateStudyGroupDto } from "@/features/rubric/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const StudyGroupsPage: React.FC = () => {
-  const { data: user } = useUser();
-  const role = (
-    user?.academyUser?.role ||
-    user?.globalRole ||
-    ""
-  ).toUpperCase();
-  const isInstructorOrAuditor =
-    role === "INSTRUCTOR" ||
-    role === "ADMIN" ||
-    role === "COURSE_MANAGER" ||
-    role === "COMMISSION_AUDITOR";
+  const { user, isInstructorView, canManageStaffActions } = usePortalMode();
+  const isInstructorOrAuditor = isInstructorView;
 
-  const { data: cohortsData } = useInstructorCohortsList();
+  const { data: cohortsData, isLoading: isCohortsLoading } = useInstructorCohortsList(isInstructorView);
   const cohorts = cohortsData || [];
   const [selectedCohortId, setSelectedCohortId] = useState<string>("");
   const activeCohortId =
-    selectedCohortId || (cohorts.length > 0 ? String(cohorts[0].id) : "1");
+    selectedCohortId || (cohorts.length > 0 ? String(cohorts[0].id) : "");
 
   const { data: groups, isLoading } = useCohortStudyGroups(activeCohortId);
 
@@ -150,9 +141,9 @@ export const StudyGroupsPage: React.FC = () => {
       {/* Cohort Selector & Search Controls */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="w-full sm:w-64">
-          <Select value={activeCohortId} onValueChange={setSelectedCohortId}>
+          <Select value={activeCohortId || undefined} onValueChange={setSelectedCohortId}>
             <SelectTrigger className="bg-white border-slate-200 text-xs font-semibold h-10">
-              <SelectValue placeholder="Select Cohort" />
+              <SelectValue placeholder={cohorts.length > 0 ? "Select Cohort" : "No cohorts available"} />
             </SelectTrigger>
             <SelectContent>
               {cohorts.map((c: any) => (
@@ -161,7 +152,9 @@ export const StudyGroupsPage: React.FC = () => {
                 </SelectItem>
               ))}
               {cohorts.length === 0 && (
-                <SelectItem value="1">Cohort 1 (Default)</SelectItem>
+                <div className="p-3 text-center text-xs text-slate-500">
+                  No cohorts available
+                </div>
               )}
             </SelectContent>
           </Select>
@@ -211,7 +204,7 @@ export const StudyGroupsPage: React.FC = () => {
                     <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 font-bold text-[10px]">
                       {memberCount} Active Members
                     </Badge>
-                    {isInstructorOrAuditor && (
+                    {canManageStaffActions && (
                       <Button
                         variant="ghost"
                         size="sm"

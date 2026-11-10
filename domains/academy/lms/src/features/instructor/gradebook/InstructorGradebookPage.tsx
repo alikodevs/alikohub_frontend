@@ -43,11 +43,8 @@ import {
   useExportGradebookCsvMutation,
 } from "@/features/rubric/hooks/useGradebook";
 import { useInstructorCohortsList } from "@/features/rubric/hooks/useSeatTime";
-import { useUser } from "@/features/auth/hooks/useAuth";
+import { useCohortStudents } from "@/features/rubric/hooks/useCohortStudents";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import api from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
 
 export const InstructorGradebookPage: React.FC = () => {
   const { data: cohortsData } = useInstructorCohortsList();
@@ -55,37 +52,22 @@ export const InstructorGradebookPage: React.FC = () => {
 
   const [selectedCohortId, setSelectedCohortId] = useState<string>("");
   const activeCohortId =
-    selectedCohortId || (cohorts.length > 0 ? String(cohorts[0].id) : "1");
+    selectedCohortId || (cohorts.length > 0 ? String(cohorts[0].id) : "");
 
-  // Fetch cohort enrollments to map student names
-  const { data: enrollmentsData } = useQuery({
-    queryKey: ["cohort-enrollments", activeCohortId],
-    queryFn: async () => {
-      const res = await api.get(`/enrollments/cohort/${activeCohortId}`);
-      return res.data;
-    },
-    enabled: Boolean(activeCohortId),
-  });
+  // Resolve enrolled student full names across enrollments, admissions, and submissions
+  const { studentNameMap } = useCohortStudents(activeCohortId, Boolean(activeCohortId));
 
-  const studentNameMap = useMemo(() => {
-    const map = new Map<string, string>();
-    const list = Array.isArray(enrollmentsData)
-      ? enrollmentsData
-      : enrollmentsData?.enrollments || [];
-    list.forEach((e: any) => {
-      const uid = e.userId || e.profile?.userId;
-      if (uid) {
-        const name =
-          e.user
-            ? `${e.user.firstname || ""} ${e.user.lastname || ""}`.trim() || e.user.email
-            : e.profile
-            ? `${e.profile.user?.firstname || ""} ${e.profile.user?.lastname || ""}`.trim()
-            : "";
-        if (name) map.set(uid, name);
-      }
-    });
-    return map;
-  }, [enrollmentsData]);
+  const getStudentDisplayName = (item: any) => {
+    const uid = String(item.userId || "");
+    const mapped = studentNameMap.get(uid);
+    if (mapped) return mapped;
+    const fromItem =
+      item.studentName ||
+      item.name ||
+      `${item.user?.firstname || ""} ${item.user?.lastname || ""}`.trim() ||
+      item.user?.email;
+    return fromItem || "Enrolled Student";
+  };
 
   // Fetch gradebook data
   const {
@@ -101,20 +83,25 @@ export const InstructorGradebookPage: React.FC = () => {
 
   const students = gradebook?.students || [];
 
+  const isStudentPassingTheory = (summary: any) => {
+    if (summary?.isTheoryPassed !== undefined) return Boolean(summary.isTheoryPassed);
+    return (summary?.overallTheoryPercent ?? 0) >= 80;
+  };
+
   const filteredStudents = useMemo(() => {
     return students.filter((s) => {
-      const name = studentNameMap.get(s.userId) || s.userId;
+      const name = getStudentDisplayName(s);
       const matchSearch =
         name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.userId.toLowerCase().includes(searchQuery.toLowerCase());
 
       const summary = s.summary || {};
-      const theoryScore = summary.overallTheoryPercent ?? 0;
+      const passing = isStudentPassingTheory(summary);
       const pacing = summary.pacing?.status;
 
       let matchFilter = true;
-      if (statusFilter === "PASSING") matchFilter = theoryScore >= 80;
-      if (statusFilter === "REMEDIATION") matchFilter = theoryScore < 80;
+      if (statusFilter === "PASSING") matchFilter = passing;
+      if (statusFilter === "REMEDIATION") matchFilter = !passing;
       if (statusFilter === "BEHIND")
         matchFilter = pacing === "BEHIND_SCHEDULE" || pacing === "AT_RISK";
       if (statusFilter === "COMPLIANT")
@@ -132,8 +119,7 @@ export const InstructorGradebookPage: React.FC = () => {
   const graduatingCount = gradebook?.graduatingCount ?? 0;
 
   const remediationNeededCount = useMemo(() => {
-    return students.filter((s) => (s.summary?.overallTheoryPercent ?? 0) < 80)
-      .length;
+    return students.filter((s) => !isStudentPassingTheory(s.summary)).length;
   }, [students]);
 
   const atRiskCount = useMemo(() => {
@@ -145,6 +131,7 @@ export const InstructorGradebookPage: React.FC = () => {
   }, [students]);
 
   const handleExportCsv = () => {
+    if (!activeCohortId) return;
     exportCsvMutation.mutate(activeCohortId);
   };
 
@@ -160,10 +147,10 @@ export const InstructorGradebookPage: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                  Instructor Master Gradebook & Pacing
+                  Instructor Master Gradebook &amp; Pacing
                 </h1>
                 <p className="text-xs text-slate-500">
-                  Consolidated Theory Scores (80% passing threshold), Skills Lab (22/22), and Clinical Hours (40.0h).
+                  Consolidated Theory Scores, Skills Lab Checkoffs, and Verified Clinical Hours.
                 </p>
               </div>
             </div>
@@ -172,7 +159,7 @@ export const InstructorGradebookPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <Button
               onClick={handleExportCsv}
-              disabled={exportCsvMutation.isPending}
+              disabled={exportCsvMutation.isPending || !activeCohortId}
               variant="outline"
               className="bg-white border-slate-200 text-xs font-bold h-10 rounded-xl shadow-xs"
             >
@@ -192,9 +179,9 @@ export const InstructorGradebookPage: React.FC = () => {
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Active Cohort
             </span>
-            <Select value={activeCohortId} onValueChange={setSelectedCohortId}>
+            <Select value={activeCohortId || undefined} onValueChange={setSelectedCohortId}>
               <SelectTrigger className="bg-slate-50 border-slate-200 text-xs font-semibold h-9">
-                <SelectValue placeholder="Select Cohort" />
+                <SelectValue placeholder={cohorts.length > 0 ? "Select Cohort" : "No cohorts found"} />
               </SelectTrigger>
               <SelectContent>
                 {cohorts.map((c: any) => (
@@ -203,7 +190,9 @@ export const InstructorGradebookPage: React.FC = () => {
                   </SelectItem>
                 ))}
                 {cohorts.length === 0 && (
-                  <SelectItem value="1">Cohort 1 (Default)</SelectItem>
+                  <div className="p-3 text-center text-xs text-slate-500">
+                    No cohorts found
+                  </div>
                 )}
               </SelectContent>
             </Select>
@@ -252,7 +241,7 @@ export const InstructorGradebookPage: React.FC = () => {
               <span className="text-xs text-amber-600 font-bold">Students</span>
             </div>
             <p className="text-[11px] text-slate-500">
-              Behind 90-day cohort schedule
+              Behind cohort pacing schedule
             </p>
           </div>
         </div>
@@ -262,7 +251,7 @@ export const InstructorGradebookPage: React.FC = () => {
           <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-full sm:w-auto overflow-x-auto">
             {[
               { id: "ALL", label: `All Students (${totalStudents})` },
-              { id: "PASSING", label: "Theory Passing (>= 80%)" },
+              { id: "PASSING", label: "Theory Passing" },
               { id: "REMEDIATION", label: `Remediation Required (${remediationNeededCount})` },
               { id: "BEHIND", label: `Pacing Alerts (${atRiskCount})` },
               { id: "COMPLIANT", label: "Fully Certified" },
@@ -287,7 +276,7 @@ export const InstructorGradebookPage: React.FC = () => {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search student by name or ID..."
+              placeholder="Search student by name..."
               className="pl-9 h-10 rounded-xl bg-white border-slate-200 text-xs"
             />
           </div>
@@ -309,7 +298,7 @@ export const InstructorGradebookPage: React.FC = () => {
               <TableHeader className="bg-slate-50/75 border-b border-slate-200">
                 <TableRow>
                   <TableHead className="text-xs font-bold text-slate-700">
-                    Student Information
+                    Student Name
                   </TableHead>
                   <TableHead className="text-xs font-bold text-slate-700">
                     Overall Theory %
@@ -321,16 +310,16 @@ export const InstructorGradebookPage: React.FC = () => {
                     Discussion Avg
                   </TableHead>
                   <TableHead className="text-xs font-bold text-slate-700">
-                    Skills Lab (22)
+                    Skills Lab
                   </TableHead>
                   <TableHead className="text-xs font-bold text-slate-700">
-                    Clinical (40h)
+                    Clinical Hours
                   </TableHead>
                   <TableHead className="text-xs font-bold text-slate-700">
                     Pacing Status
                   </TableHead>
                   <TableHead className="text-xs font-bold text-slate-700">
-                    WABON Compliance
+                    Compliance Status
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -338,14 +327,22 @@ export const InstructorGradebookPage: React.FC = () => {
                 {filteredStudents.map((item) => {
                   const summary = item.summary || {};
                   const theoryScore = summary.overallTheoryPercent ?? 0;
-                  const isPassing = theoryScore >= 80;
+                  const isPassing = isStudentPassingTheory(summary);
                   const letterGrade = summary.letterGrade || "N/A";
-                  const studentName =
-                    studentNameMap.get(item.userId) || item.userId;
+                  const studentName = getStudentDisplayName(item);
+                  const initials = studentName
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((n: string) => n[0]?.toUpperCase() || "")
+                    .join("") || "S";
                   const pacing = summary.pacing?.status || "ON_TRACK";
                   const skillsPassed = summary.skillsLab?.passedCount ?? 0;
+                  const skillsTotalRequired = summary.skillsLab?.totalRequired ?? 0;
                   const clinicalHours =
                     summary.clinicalHours?.totalCompleted ?? 0;
+                  const clinicalMinRequired =
+                    summary.clinicalHours?.minimumRequired ?? 0;
                   const isClinicalMet =
                     summary.clinicalHours?.isClinicalHoursMet;
                   const isSkillsComplete =
@@ -353,14 +350,14 @@ export const InstructorGradebookPage: React.FC = () => {
 
                   return (
                     <TableRow key={item.userId} className="hover:bg-slate-50/50">
-                      {/* Student Info */}
+                      {/* Student Name */}
                       <TableCell className="py-3.5">
-                        <div>
-                          <span className="font-bold text-slate-900 block text-xs">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-primary/10 text-primary font-bold text-[11px] flex items-center justify-center shrink-0">
+                            {initials}
+                          </div>
+                          <span className="font-bold text-slate-900 text-xs">
                             {studentName}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            ID: {item.userId.slice(0, 14)}...
                           </span>
                         </div>
                       </TableCell>
@@ -417,15 +414,17 @@ export const InstructorGradebookPage: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs font-bold text-slate-900">
-                            {skillsPassed}/22
+                            {skillsTotalRequired > 0
+                              ? `${skillsPassed}/${skillsTotalRequired}`
+                              : skillsPassed}
                           </span>
                           {isSkillsComplete ? (
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          ) : (
+                          ) : skillsTotalRequired > 0 ? (
                             <span className="text-[10px] text-slate-400 font-medium">
-                              ({22 - skillsPassed} left)
+                              ({Math.max(0, skillsTotalRequired - skillsPassed)} left)
                             </span>
-                          )}
+                          ) : null}
                         </div>
                       </TableCell>
 
@@ -433,15 +432,17 @@ export const InstructorGradebookPage: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs font-bold text-slate-900">
-                            {clinicalHours}/40h
+                            {clinicalMinRequired > 0
+                              ? `${clinicalHours}/${clinicalMinRequired}h`
+                              : `${clinicalHours}h`}
                           </span>
                           {isClinicalMet ? (
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                          ) : (
+                          ) : clinicalMinRequired > 0 ? (
                             <span className="text-[10px] text-slate-400 font-medium">
-                              ({(40 - clinicalHours).toFixed(1)}h left)
+                              ({Math.max(0, clinicalMinRequired - clinicalHours).toFixed(1)}h left)
                             </span>
-                          )}
+                          ) : null}
                         </div>
                       </TableCell>
 

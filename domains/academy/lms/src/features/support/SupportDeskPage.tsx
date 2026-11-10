@@ -42,7 +42,7 @@ import {
   useUpdateSupportTicketMutation,
   useSystemRequirements,
 } from "@/features/rubric/hooks/useSupportDesk";
-import { useUser } from "@/features/auth/hooks/useAuth";
+import { usePortalMode } from "@/features/auth/hooks/useAuth";
 import type {
   SupportTicket,
   SupportCategory,
@@ -54,23 +54,14 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const SupportDeskPage: React.FC = () => {
-  const { data: user } = useUser();
-  const role = (
-    user?.academyUser?.role ||
-    user?.globalRole ||
-    ""
-  ).toUpperCase();
-  const isInstructorOrAuditor =
-    role === "INSTRUCTOR" ||
-    role === "ADMIN" ||
-    role === "COURSE_MANAGER" ||
-    role === "COMMISSION_AUDITOR";
+  const { isInstructorView, canManageStaffActions } = usePortalMode();
+  const isInstructorOrAuditor = isInstructorView;
 
   // Data queries
   const {
     data: myTickets,
     isLoading: isMyTicketsLoading,
-  } = useMySupportTickets();
+  } = useMySupportTickets(!isInstructorView);
 
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
@@ -78,10 +69,13 @@ export const SupportDeskPage: React.FC = () => {
   const {
     data: allTicketsData,
     isLoading: isAllTicketsLoading,
-  } = useAllSupportTickets({
-    status: statusFilter === "ALL" ? undefined : statusFilter,
-    category: categoryFilter === "ALL" ? undefined : categoryFilter,
-  });
+  } = useAllSupportTickets(
+    {
+      status: statusFilter === "ALL" ? undefined : statusFilter,
+      category: categoryFilter === "ALL" ? undefined : categoryFilter,
+    },
+    isInstructorView
+  );
 
   const { data: systemRequirements } = useSystemRequirements();
 
@@ -184,7 +178,7 @@ export const SupportDeskPage: React.FC = () => {
                 Academic & Technical Support Desk
               </h1>
               <p className="text-xs text-slate-500">
-                WAC 246-841A-440(18) Rapid Student Support | 2h Urgent SLA | System Diagnostics.
+                Student Technical &amp; Academic Support | Priority Ticket Queue &amp; System Diagnostics.
               </p>
             </div>
           </div>
@@ -199,52 +193,66 @@ export const SupportDeskPage: React.FC = () => {
       </div>
 
       {/* SLA & System Requirements Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
-          <Clock className="w-8 h-8 text-primary shrink-0" />
-          <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-              Service Level Commitment
-            </span>
-            <p className="text-xs font-bold text-slate-900">
-              Urgent issues: 2-hour response
-            </p>
-            <p className="text-[11px] text-slate-500">
-              Standard inquiries: 24-hour SLA
-            </p>
+      {systemRequirements && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+            <Clock className="w-8 h-8 text-primary shrink-0" />
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                Service Level Commitment
+              </span>
+              <p className="text-xs font-bold text-slate-900">
+                {systemRequirements.slaUrgent ||
+                  systemRequirements.urgentSla ||
+                  (systemRequirements.urgentSlaHours != null
+                    ? `Urgent issues: ${systemRequirements.urgentSlaHours}-hour response`
+                    : "Priority queue active")}
+              </p>
+              <p className="text-[11px] text-slate-500">
+                {systemRequirements.slaStandard ||
+                  systemRequirements.generalSla ||
+                  (systemRequirements.generalSlaHours != null
+                    ? `Standard inquiries: ${systemRequirements.generalSlaHours}-hour SLA`
+                    : "Tracked in support queue")}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
-          <Laptop className="w-8 h-8 text-emerald-600 shrink-0" />
-          <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-              System Compatibility
-            </span>
-            <p className="text-xs font-bold text-slate-900">
-              Chrome, Edge, Firefox, Safari
-            </p>
-            <p className="text-[11px] text-slate-500">
-              Webcam & microphone enabled
-            </p>
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+            <Laptop className="w-8 h-8 text-emerald-600 shrink-0" />
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                System Compatibility
+              </span>
+              <p className="text-xs font-bold text-slate-900">
+                {Array.isArray(systemRequirements.supportedBrowsers)
+                  ? systemRequirements.supportedBrowsers.join(", ")
+                  : systemRequirements.browsers || "Modern Web Browsers"}
+              </p>
+              <p className="text-[11px] text-slate-500">
+                {systemRequirements.hardwareRequirements ||
+                  systemRequirements.minimumHardware ||
+                  "Audio / video support verified via client diagnostics"}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
-          <CheckCircle2 className="w-8 h-8 text-blue-600 shrink-0" />
-          <div>
-            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-              Diagnostic Capture
-            </span>
-            <p className="text-xs font-bold text-slate-900">
-              Automated client telemetry
-            </p>
-            <p className="text-[11px] text-slate-500">
-              Browser, resolution, WebRTC check
-            </p>
+          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
+            <CheckCircle2 className="w-8 h-8 text-blue-600 shrink-0" />
+            <div>
+              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                Diagnostic Capture
+              </span>
+              <p className="text-xs font-bold text-slate-900">
+                Automated client telemetry
+              </p>
+              <p className="text-[11px] text-slate-500">
+                Browser, resolution, WebRTC check
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Instructor Filters */}
       {isInstructorOrAuditor && (
@@ -291,7 +299,7 @@ export const SupportDeskPage: React.FC = () => {
           {isInstructorOrAuditor ? "Student Support Ticket Queue" : "Your Submitted Support Requests"}
         </h2>
 
-        {isMyTicketsLoading || isAllTicketsLoading ? (
+        {(isInstructorOrAuditor ? isAllTicketsLoading : isMyTicketsLoading) ? (
           <div className="p-12 text-center text-slate-400">
             <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
             <p className="text-xs">Loading support tickets...</p>
@@ -376,11 +384,8 @@ export const SupportDeskPage: React.FC = () => {
                   )}
 
                   {/* Instructor Action */}
-                  {isInstructorOrAuditor && (
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-400">
-                        Student ID: {ticket.userId}
-                      </span>
+                  {canManageStaffActions && (
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-end">
                       <Button
                         size="sm"
                         onClick={() => handleOpenResolve(ticket)}

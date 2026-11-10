@@ -285,8 +285,9 @@ export interface EndExamSessionDto {
 
 export interface AuditExamSessionDto {
   sessionId: string | number;
-  isFlagged: boolean;
-  auditNotes: string;
+  isAudited?: boolean;
+  isFlagged?: boolean;
+  auditNotes?: string;
 }
 
 // ── Active Seat-Time Heartbeat Engine (WABON WAC 246-841A-440(6)) ──
