@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Award,
   CheckCircle2,
@@ -8,50 +8,50 @@ import {
   MessageCircle,
   BookOpen,
   GraduationCap,
+  Clock,
+  Search,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import StudentLayout from "@/features/student/components/StudentLayout";
 import {
   useEnrollments,
   useStudentDashboard,
-  useStudentAnalytics,
   useMyTransactions,
 } from "@/hooks/useAcademy";
 import { useOrientationStatus } from "@/features/orientation/hooks/useOrientation";
 import { useUser } from "@/features/auth/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
 
-const tabs = ["In Progress", "Completed"];
+const tabs = ["In Progress", "Completed"] as const;
 
 const LmsMyLearning = () => {
-  const [activeTab, setActiveTab] = useState("In Progress");
+  const [activeTab, setActiveTab] =
+    useState<(typeof tabs)[number]>("In Progress");
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: user } = useUser();
   const { data: enrollments, isLoading: isEnrollmentsLoading } =
     useEnrollments();
   const { data: myTransactions } = useMyTransactions();
-  const { data: analytics, isLoading: isAnalyticsLoading } =
-    useStudentAnalytics();
   const { data: dashboard, isLoading: isDashboardLoading } =
     useStudentDashboard();
 
-  const isLoading =
-    isEnrollmentsLoading || isAnalyticsLoading || isDashboardLoading;
+  const isLoading = isEnrollmentsLoading || isDashboardLoading;
 
   const primaryCohortId = Number(
     enrollments?.find((e: any) => e.cohortId || e.cohort?.id)?.cohortId ||
-    enrollments?.find((e: any) => e.cohortId || e.cohort?.id)?.cohort?.id ||
-    1
+      enrollments?.find((e: any) => e.cohortId || e.cohort?.id)?.cohort?.id ||
+      1,
   );
   const { data: orientationStatus, isLoading: isOrientationLoading } =
     useOrientationStatus(primaryCohortId);
-  const isOrientationComplete = Boolean(orientationStatus?.orientationCompleted);
+  const isOrientationComplete = Boolean(
+    orientationStatus?.orientationCompleted,
+  );
 
-
-
-  // Cross-check: courses with COMPLETED transactions count as enrolled even if enrollment is still PENDING
+  // Courses with COMPLETED transactions count as enrolled even while status catches up
   const completedTxCourseIds = new Set(
     myTransactions
       ?.filter((tx: any) => tx.status === "COMPLETED")
@@ -59,7 +59,6 @@ const LmsMyLearning = () => {
       .filter(Boolean) || [],
   );
 
-  // Active/Enrolled courses
   const activeEnrollments =
     enrollments?.filter((enrollment: any) => {
       const courseId = Number(enrollment.courseId ?? enrollment.course?.id);
@@ -71,7 +70,6 @@ const LmsMyLearning = () => {
       );
     }) || [];
 
-  // Map each enrolled course with backend dashboard progress as source of truth
   const enrolledCoursesProgress = activeEnrollments.map((enrollment: any) => {
     const courseId = Number(enrollment.courseId ?? enrollment.course?.id);
     const pData =
@@ -116,13 +114,21 @@ const LmsMyLearning = () => {
     (c: any) => !c.isCompleted || c.enrollment.status === "ACTIVE",
   );
 
-  const tabCounts: Record<string, number> = {
+  const tabCounts: Record<(typeof tabs)[number], number> = {
     "In Progress": inProgressCoursesList.length,
     Completed: completedCoursesList.length,
   };
 
-  const filteredCoursesProgress =
+  const tabCourses =
     activeTab === "Completed" ? completedCoursesList : inProgressCoursesList;
+
+  const filteredCoursesProgress = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return tabCourses;
+    return tabCourses.filter((c: any) =>
+      (c.enrollment?.course?.title || "").toLowerCase().includes(q),
+    );
+  }, [tabCourses, searchQuery]);
 
   const totalCompletedLessons = enrolledCoursesProgress.reduce(
     (sum: number, c: any) => sum + c.completedLessons,
@@ -139,492 +145,501 @@ const LmsMyLearning = () => {
   const overallProgress =
     coursesWithLessons.length > 0
       ? Math.round(
-          coursesWithLessons.reduce((sum: number, c: any) => sum + c.percentage, 0) /
-            coursesWithLessons.length,
+          coursesWithLessons.reduce(
+            (sum: number, c: any) => sum + c.percentage,
+            0,
+          ) / coursesWithLessons.length,
         )
       : 0;
 
   const totalCourses = activeEnrollments.length;
   const completedCourses = completedCoursesList.length;
-
-  // SVG circular progress
-  const circleSize = 100;
-  const strokeWidth = 8;
-  const radius = (circleSize - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const progressOffset =
-    circumference - (overallProgress / 100) * circumference;
+  const notStartedCount = inProgressCoursesList.filter(
+    (c: any) => c.percentage === 0,
+  ).length;
+  const resumeTarget =
+    inProgressCoursesList[0] ?? enrolledCoursesProgress[0] ?? null;
 
   return (
     <StudentLayout>
-      <div className="w-full max-w-7xl px-6 sm:px-8 lg:px-10 py-6 sm:py-8 space-y-6">
-        {/* ── Hero Banner ── */}
-        <div
-          className="relative overflow-hidden rounded-2xl border border-blue-100/80 shadow-sm"
-          style={{
-            background:
-              "linear-gradient(135deg, #eef5ff 0%, #f4f8ff 55%, #fff7ed 100%)",
-          }}
+      <div className="w-full max-w-7xl px-6 sm:px-8 lg:px-10 py-6 sm:py-8 space-y-5">
+        {/* ── Page Header (matches inspo .head) ── */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-heading font-extrabold text-[#0f1b2d] tracking-tight">
+              My Learning
+            </h1>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Keep going, {user?.firstname || "Student"}. Complete your current
+              courses to unlock your certificate and next learning path.
+            </p>
+          </div>
+          {resumeTarget ? (
+            <Button
+              asChild
+              className="gap-2 bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-9 px-4 rounded-lg border-0 shrink-0"
+            >
+              <Link to={`/learn/${resumeTarget.courseId}`}>
+                <PlayCircle className="w-4 h-4" />
+                Resume last course
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              asChild
+              className="gap-2 bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-9 px-4 rounded-lg border-0 shrink-0"
+            >
+              <Link to="/courses">
+                <BookOpen className="w-4 h-4" />
+                Explore courses
+              </Link>
+            </Button>
+          )}
+        </div>
+
+        {/* ── 4-Card KPI Strip (matches inspo .kpis) ── */}
+        <section
+          aria-label="Summary"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          {/* Soft warm glow top-right */}
-          <div
-            className="absolute top-0 right-0 w-80 h-80 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse at top right, rgba(254,215,170,0.45) 0%, rgba(253,230,138,0.2) 35%, transparent 70%)",
-            }}
-          />
-
-          <div className="relative flex flex-col lg:flex-row lg:items-center gap-6 p-6 sm:p-8">
-            {/* Left: text */}
-            <div className="flex-1 space-y-3">
-              <p className="text-[#5a6e8c] text-[11px] font-bold uppercase tracking-widest">
-                Learning Journey
-              </p>
-              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0b1a40] leading-tight">
-                Keep going, {user?.firstname || "Student"}!
-              </h1>
-              <p className="text-slate-600 text-sm max-w-md leading-relaxed">
-                You're making great progress. Complete your current courses to
-                unlock your certificate and next learning path.
-              </p>
+          <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 text-slate-500 font-semibold text-[13px]">
+              <span className="w-7 h-7 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center shrink-0">
+                <Award className="w-4 h-4" />
+              </span>
+              Overall progress
             </div>
-
-            {/* Vertical Divider */}
-            <div className="hidden lg:block w-[1px] h-20 bg-blue-100 shrink-0 mx-2" />
-
-            {/* Right: circular progress + stats + 3D Graduation Cap illustration */}
-            <div className="flex items-center gap-6 lg:gap-8 shrink-0">
-              {/* Circular progress */}
-              <div className="relative">
-                <svg
-                  width={circleSize}
-                  height={circleSize}
-                  className="transform -rotate-90"
-                >
-                  {/* Background circle */}
-                  <circle
-                    cx={circleSize / 2}
-                    cy={circleSize / 2}
-                    r={radius}
-                    fill="none"
-                    stroke="#dbeafe"
-                    strokeWidth={strokeWidth}
-                  />
-                  {/* Progress arc */}
-                  <circle
-                    cx={circleSize / 2}
-                    cy={circleSize / 2}
-                    r={radius}
-                    fill="none"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={strokeWidth}
-                    strokeLinecap="round"
-                    strokeDasharray={circumference}
-                    strokeDashoffset={progressOffset}
-                    style={{ transition: "stroke-dashoffset 0.8s ease" }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[#0f172a] font-heading font-bold text-lg">
-                    {overallProgress}%
-                  </span>
-                </div>
-              </div>
-
-              {/* Stats text */}
-              <div className="space-y-2">
-                <div>
-                  <p className="text-[#0f172a] font-heading font-bold text-sm">
-                    Overall Progress
-                  </p>
-                  <p className="text-slate-500 text-xs">
-                    {completedCourses} of {totalCourses} courses completed
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-32">
-                    <Progress
-                      value={overallProgress}
-                      className="h-1.5 bg-[#e2e8f0]"
-                    />
-                  </div>
-                  <span className="text-slate-500 text-xs font-semibold">
-                    {overallProgress}%
-                  </span>
-                </div>
-              </div>
-
-              {/* 3D Graduation Cap + Stacked Books Illustration */}
-              <div className="relative w-32 h-28 shrink-0 hidden md:flex items-center justify-center pointer-events-none">
-                {/* Warm radial background glow */}
-                <div
-                  className="absolute inset-0 rounded-full blur-md transform scale-110"
-                  style={{
-                    background:
-                      "radial-gradient(circle, rgba(253,186,116,0.5) 0%, rgba(254,215,170,0.2) 50%, transparent 75%)",
-                  }}
-                />
-
-                <svg
-                  viewBox="0 0 160 140"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-full h-full relative z-10"
-                >
-                  {/* Bottom Book */}
-                  <path
-                    d="M20 100 L135 100 L145 112 L30 112 Z"
-                    fill="#1e3a8a"
-                  />
-                  <path
-                    d="M30 112 L145 112 L140 120 L25 120 Z"
-                    fill="#2563eb"
-                  />
-                  <path d="M20 100 L25 120 L30 112 Z" fill="#1d4ed8" />
-                  <rect
-                    x="35"
-                    y="112"
-                    width="105"
-                    height="4"
-                    fill="#ffffff"
-                    opacity="0.9"
-                  />
-
-                  {/* Middle Book */}
-                  <path d="M25 85 L130 85 L140 96 L35 96 Z" fill="#2563eb" />
-                  <path d="M35 96 L140 96 L135 104 L20 104 Z" fill="#3b82f6" />
-                  <path d="M25 85 L20 104 L35 96 Z" fill="#1d4ed8" />
-                  <rect
-                    x="38"
-                    y="96"
-                    width="97"
-                    height="4"
-                    fill="#ffffff"
-                    opacity="0.9"
-                  />
-
-                  {/* Top Book */}
-                  <path d="M30 70 L125 70 L135 80 L40 80 Z" fill="#1d4ed8" />
-                  <path d="M40 80 L135 80 L130 88 L15 88 Z" fill="#60a5fa" />
-                  <rect
-                    x="42"
-                    y="80"
-                    width="88"
-                    height="4"
-                    fill="#ffffff"
-                    opacity="0.9"
-                  />
-
-                  {/* Graduation Cap Base */}
-                  <path
-                    d="M50 48 C50 42, 100 42, 100 48 L100 62 C100 68, 50 68, 50 62 Z"
-                    fill="#0f172a"
-                  />
-                  <path
-                    d="M52 50 C52 56, 98 56, 98 50 L98 60 C98 66, 52 66, 52 60 Z"
-                    fill="#1e293b"
-                  />
-
-                  {/* Graduation Cap Diamond Top */}
-                  <polygon points="75,20 135,38 75,56 15,38" fill="#0f172a" />
-                  <polygon points="75,22 131,38 75,54 19,38" fill="#1e293b" />
-                  <polygon points="75,25 125,38 75,51 25,38" fill="#334155" />
-
-                  {/* Tassel Button */}
-                  <circle cx="75" cy="38" r="4" fill="#ff5e14" />
-
-                  {/* Tassel String */}
-                  <path
-                    d="M75 38 Q105 40 115 58 Q118 68 116 80"
-                    stroke="#ff5e14"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                  <polygon points="113,80 119,80 116,92" fill="#ff5e14" />
-                </svg>
-              </div>
+            <div className="text-[28px] font-heading font-extrabold text-[#0f1b2d] leading-tight tracking-tight">
+              {isLoading ? "—" : `${overallProgress}%`}
+            </div>
+            <div className="h-1.5 rounded-full bg-[#e5e9f0] overflow-hidden mt-1">
+              <div
+                className="h-full rounded-full bg-[#2b5f9e] transition-all duration-500"
+                style={{ width: `${overallProgress}%` }}
+              />
             </div>
           </div>
-        </div>
+
+          <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 text-slate-500 font-semibold text-[13px]">
+              <span className="w-7 h-7 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center shrink-0">
+                <BookOpen className="w-4 h-4" />
+              </span>
+              In progress
+            </div>
+            <div className="text-[28px] font-heading font-extrabold text-[#0f1b2d] leading-tight tracking-tight">
+              {isLoading ? "—" : inProgressCoursesList.length}
+              <small className="text-sm font-semibold text-slate-500 ml-1.5">
+                courses
+              </small>
+            </div>
+            <p className="text-xs text-slate-500">
+              {notStartedCount > 0
+                ? `${notStartedCount} not started yet`
+                : "Active enrollment"}
+            </p>
+          </div>
+
+          <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 text-slate-500 font-semibold text-[13px]">
+              <span className="w-7 h-7 rounded-lg bg-[#e3f5ea] text-[#15803d] flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-4 h-4" />
+              </span>
+              Completed
+            </div>
+            <div className="text-[28px] font-heading font-extrabold text-[#0f1b2d] leading-tight tracking-tight">
+              {isLoading ? "—" : completedCourses}
+              <small className="text-sm font-semibold text-slate-500 ml-1.5">
+                of {totalCourses}
+              </small>
+            </div>
+            <p className="text-xs text-slate-500">
+              Certificate unlocked on completion
+            </p>
+          </div>
+
+          <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 text-slate-500 font-semibold text-[13px]">
+              <span className="w-7 h-7 rounded-lg bg-[#fff1e6] text-[#f26b21] flex items-center justify-center shrink-0">
+                <Clock className="w-4 h-4" />
+              </span>
+              Lessons done
+            </div>
+            <div className="text-[28px] font-heading font-extrabold text-[#0f1b2d] leading-tight tracking-tight">
+              {isLoading ? "—" : totalCompletedLessons}
+              <small className="text-sm font-semibold text-slate-500 ml-1.5">
+                of {totalLessonsAll}
+              </small>
+            </div>
+            <p className="text-xs text-slate-500">Across active courses</p>
+          </div>
+        </section>
 
         {/* ── Mandatory Orientation Prerequisite Banner ── */}
-        {!isOrientationLoading && !isOrientationComplete && (
-          <div className="rounded-2xl p-5 bg-gradient-to-r from-amber-50 via-orange-50 to-white border border-amber-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-500/25 text-amber-800 flex items-center justify-center shrink-0">
-                <GraduationCap className="w-6 h-6" />
+        {!isOrientationLoading &&
+          activeEnrollments.length > 0 &&
+          !isOrientationComplete && (
+            <div className="rounded-xl p-4 bg-[#fff8f3] border border-[#f26b21]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-lg bg-[#fff1e6] border border-[#f26b21]/25 text-[#c2540a] flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#0f1b2d]">
+                    Mandatory Student Orientation Required
+                  </h4>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Complete the orientation checklist, LMS tutorial, and
+                    netiquette pledge to unlock your lessons. Orientation is a
+                    non-credited onboarding step.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">
-                  Mandatory Student Orientation Required
-                </h4>
-                <p className="text-xs text-slate-600 mt-0.5">
-                  Complete the orientation checklist, LMS tutorial, and netiquette pledge to unlock your lessons.
-                  Orientation is a non-credited onboarding step.
-                </p>
+              <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="bg-white border-[#e5e9f0] text-[#0f1b2d] hover:bg-[#f8fafc] font-semibold text-xs rounded-lg h-9 px-4 shrink-0"
+                >
+                  <Link to={`/admissions?cohortId=${primaryCohortId}`}>
+                    Admissions Clearance
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-[#f26b21] hover:bg-[#d95812] text-white font-semibold text-xs rounded-lg h-9 px-5 shrink-0 border-0"
+                >
+                  <Link to={`/orientation?cohortId=${primaryCohortId}`}>
+                    Complete Orientation{" "}
+                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                  </Link>
+                </Button>
               </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="bg-white border-amber-300 text-amber-900 hover:bg-amber-100 font-bold text-xs rounded-xl h-9 px-4 shrink-0 shadow-2xs"
-              >
-                <Link to={`/admissions?cohortId=${primaryCohortId}`}>
-                  Admissions Clearance
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl h-9 px-5 shrink-0 shadow-xs"
-              >
-                <Link to={`/orientation?cohortId=${primaryCohortId}`}>
-                  Complete Orientation <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Tabs ── */}
-        <div className="flex gap-3">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold transition-all duration-200 ${
-                activeTab === tab
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "bg-white text-slate-600 border border-slate-200 hover:border-primary/40 hover:text-primary"
-              }`}
-            >
-              {tab}
-              <span
-                className={`text-[11px] font-bold min-w-[20px] h-5 flex items-center justify-center rounded-full px-1.5 leading-none ${
-                  activeTab === tab
-                    ? "bg-primary-foreground/20 text-primary-foreground"
-                    : "bg-slate-100 text-slate-500"
-                }`}
-              >
-                {tabCounts[tab]}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* ── Loading ── */}
-        {isLoading && (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-36 w-full rounded-2xl" />
-            ))}
-          </div>
-        )}
-
-        {/* ── Empty State ── */}
-        {!isLoading && filteredCoursesProgress.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="w-7 h-7 text-primary" />
-            </div>
-            <p className="text-muted-foreground mb-4">
-              {activeTab === "In Progress" &&
-                "You don't have any active courses yet."}
-              {activeTab === "Completed" &&
-                "You haven't completed any courses yet."}
-            </p>
-            <Button asChild variant="outline">
-              <Link to="/courses">Browse Courses</Link>
-            </Button>
-          </div>
-        )}
-
-        {/* ── Course Cards ── */}
-        {!isLoading &&
-          filteredCoursesProgress &&
-          filteredCoursesProgress.length > 0 && (
-            <div className="space-y-4">
-              {filteredCoursesProgress.map(
-                (
-                  {
-                    enrollment,
-                    courseId,
-                    totalLessons,
-                    completedLessons,
-                    percentage,
-                    isCompleted,
-                  }: any,
-                  index: number,
-                ) => {
-                  return (
-                    <div
-                      key={enrollment.id}
-                      className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 hover:shadow-lg hover:border-primary/30 transition-all duration-300 group"
-                    >
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        {/* Thumbnail */}
-                        <div className="w-full sm:w-36 h-28 sm:h-24 rounded-xl bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center shrink-0 overflow-hidden border border-slate-100">
-                          {enrollment.course?.thumbnail ? (
-                            <img
-                              src={enrollment.course.thumbnail}
-                              alt={enrollment.course.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <BookOpen className="w-8 h-8 text-primary/40" />
-                          )}
-                        </div>
-
-                        {/* Course info */}
-                        <div className="flex-1 min-w-0 flex flex-col justify-between">
-                          <div>
-                            {/* Status badge */}
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 ${
-                                isCompleted
-                                  ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                                  : "bg-primary/10 text-primary border border-primary/20"
-                              }`}
-                            >
-                              {isCompleted ? "Completed" : "In Progress"}
-                            </span>
-
-                            <h3 className="text-[15px] font-heading font-bold text-slate-900 leading-snug group-hover:text-primary transition-colors">
-                              {enrollment.course?.title}
-                            </h3>
-
-                            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500">
-                              <span className="flex items-center gap-1">
-                                <CalendarDays className="w-3.5 h-3.5 text-slate-400" />
-                                Course {index + 1} of {filteredCoursesProgress.length}
-                              </span>
-                              <span className="text-slate-300">·</span>
-                              <span>
-                                {percentage >= 100
-                                  ? "All lessons completed · 100% complete"
-                                  : totalLessons > 0
-                                    ? `${completedLessons} of ${totalLessons} lessons · ${percentage}% complete`
-                                    : `${percentage}% complete`}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Progress bar + View details */}
-                          <div className="mt-3 space-y-2">
-                            <div className="flex items-center gap-3">
-                              <div className="flex-1 max-w-xs">
-                                <Progress
-                                  value={percentage}
-                                  className="h-1.5 bg-slate-100"
-                                />
-                              </div>
-                              <span className="text-xs text-slate-400 font-medium shrink-0">
-                                {percentage}%
-                              </span>
-                            </div>
-
-                            {isCompleted ? (
-                              <Link
-                                to="/certifications"
-                                className="text-[13px] font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
-                              >
-                                View certificate{" "}
-                                <ArrowRight className="w-3.5 h-3.5" />
-                              </Link>
-                            ) : (
-                              <Link
-                                to={`/courses/${courseId}`}
-                                className="text-[13px] font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
-                              >
-                                View details{" "}
-                                <ArrowRight className="w-3.5 h-3.5" />
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Right actions */}
-                        <div className="flex sm:flex-col items-center gap-2 sm:justify-center shrink-0">
-                          {!isCompleted ? (
-                            <Button
-                              size="sm"
-                              asChild
-                              className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 rounded-xl font-bold text-sm shadow-md shadow-primary/15 transition-all border-0"
-                            >
-                              <Link to={`/learn/${courseId}`}>
-                                <PlayCircle className="w-4 h-4" />
-                                Resume
-                              </Link>
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              asChild
-                              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 rounded-xl font-bold text-sm border-0"
-                            >
-                              <Link to={`/learn/${courseId}`}>
-                                <CheckCircle2 className="w-4 h-4" />
-                                Review
-                              </Link>
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                },
-              )}
             </div>
           )}
 
+        {/* ── Courses Table Panel (matches inspo .card.panel) ── */}
+        <section className="bg-white border border-[#e5e9f0] rounded-xl overflow-hidden">
+          {/* Toolbar: Tabs + Inline Filter Search */}
+          <div className="flex flex-wrap items-center justify-between gap-3 px-5 border-b border-[#e5e9f0]">
+            <div className="flex items-center gap-1" role="tablist">
+              {tabs.map((tab) => {
+                const selected = activeTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setActiveTab(tab)}
+                    className={`inline-flex items-center gap-2 px-3 py-3.5 text-sm font-bold border-b-2 transition-colors -mb-px ${
+                      selected
+                        ? "border-[#2b5f9e] text-[#2b5f9e]"
+                        : "border-transparent text-slate-500 hover:text-[#0f1b2d]"
+                    }`}
+                  >
+                    {tab}
+                    <span
+                      className={`text-xs font-bold min-w-[22px] h-5 flex items-center justify-center rounded-full px-2 leading-none ${
+                        selected
+                          ? "bg-[#e8f0fa] text-[#2b5f9e]"
+                          : "bg-[#f8fafc] border border-[#e5e9f0] text-slate-500"
+                      }`}
+                    >
+                      {tabCounts[tab]}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="relative w-full sm:w-64 py-2 sm:py-0">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Filter courses..."
+                aria-label="Filter courses"
+                className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#f8fafc] border border-[#e5e9f0] text-xs text-[#0f1b2d] placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#2b5f9e]"
+              />
+            </div>
+          </div>
+
+          {/* Table Content */}
+          {isLoading ? (
+            <div className="p-5 space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-14 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : filteredCoursesProgress.length === 0 ? (
+            <div className="text-center py-14 px-4">
+              <div className="w-12 h-12 rounded-xl bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center mx-auto mb-3">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <p className="text-sm font-semibold text-[#0f1b2d]">
+                {searchQuery.trim()
+                  ? "No matching courses found"
+                  : activeTab === "Completed"
+                    ? "You haven't completed any courses yet."
+                    : "You don't have any active courses yet."}
+              </p>
+              <p className="text-xs text-slate-500 mt-1 mb-4">
+                {searchQuery.trim()
+                  ? "Try clearing your filter query."
+                  : "Browse available programs to start your learning journey."}
+              </p>
+              {!searchQuery.trim() && (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/courses">Browse Courses</Link>
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse min-w-[780px]">
+                <thead>
+                  <tr className="bg-[#f8fafc] border-b border-[#e5e9f0]">
+                    <th className="text-left text-xs font-bold text-slate-500 px-5 py-2.5 whitespace-nowrap">
+                      Course
+                    </th>
+                    <th className="text-left text-xs font-bold text-slate-500 px-4 py-2.5 whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="text-left text-xs font-bold text-slate-500 px-4 py-2.5 whitespace-nowrap">
+                      Lessons
+                    </th>
+                    <th className="text-left text-xs font-bold text-slate-500 px-4 py-2.5 whitespace-nowrap">
+                      Progress
+                    </th>
+                    <th className="text-left text-xs font-bold text-slate-500 px-4 py-2.5 whitespace-nowrap">
+                      Updated
+                    </th>
+                    <th className="text-right text-xs font-bold text-slate-500 px-5 py-2.5 whitespace-nowrap">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#e5e9f0]">
+                  {filteredCoursesProgress.map(
+                    (
+                      {
+                        enrollment,
+                        courseId,
+                        totalLessons,
+                        completedLessons,
+                        percentage,
+                        isCompleted,
+                      }: any,
+                      index: number,
+                    ) => {
+                      const updatedAtLabel = enrollment?.updatedAt
+                        ? (() => {
+                            try {
+                              return format(
+                                new Date(enrollment.updatedAt),
+                                "MMM d, yyyy",
+                              );
+                            } catch {
+                              return "—";
+                            }
+                          })()
+                        : completedLessons === 0
+                          ? "Not started"
+                          : "Active";
+
+                      return (
+                        <tr
+                          key={enrollment.id}
+                          className="hover:bg-[#f8fafc] transition-colors"
+                        >
+                          {/* Course Thumbnail + Title */}
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3 min-w-[240px]">
+                              <div className="w-11 h-11 rounded-[10px] bg-[#e8f0fa] border border-[#e5e9f0] flex items-center justify-center shrink-0 overflow-hidden">
+                                {enrollment.course?.thumbnail ? (
+                                  <img
+                                    src={enrollment.course.thumbnail}
+                                    alt={enrollment.course.title}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <BookOpen className="w-5 h-5 text-[#2b5f9e]" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <Link
+                                  to={`/courses/${courseId}`}
+                                  className="font-bold text-sm text-[#0f1b2d] hover:text-[#2b5f9e] transition-colors line-clamp-1 block"
+                                >
+                                  {enrollment.course?.title}
+                                </Link>
+                                <span className="text-xs text-slate-500 block">
+                                  Course {index + 1} of{" "}
+                                  {filteredCoursesProgress.length}
+                                  {enrollment.cohort?.name
+                                    ? ` · ${enrollment.cohort.name}`
+                                    : ""}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Status Badge */}
+                          <td className="px-4 py-3.5 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                                isCompleted
+                                  ? "bg-[#e3f5ea] text-[#15803d]"
+                                  : "bg-[#fff1e6] text-[#c2540a]"
+                              }`}
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                              {isCompleted ? "Completed" : "In progress"}
+                            </span>
+                          </td>
+
+                          {/* Lessons Count */}
+                          <td className="px-4 py-3.5 text-sm text-[#0f1b2d] font-medium whitespace-nowrap">
+                            {completedLessons} / {totalLessons}
+                          </td>
+
+                          {/* Progress Bar + Percent */}
+                          <td className="px-4 py-3.5 whitespace-nowrap">
+                            <div className="flex items-center gap-2.5 min-w-[140px]">
+                              <Progress
+                                value={percentage}
+                                className="h-1.5 flex-1 bg-[#e5e9f0]"
+                              />
+                              <span className="text-xs font-bold text-[#0f1b2d] w-9 text-right">
+                                {percentage}%
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Updated / Activity */}
+                          <td className="px-4 py-3.5 text-xs text-slate-500 whitespace-nowrap">
+                            {updatedAtLabel}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center gap-2">
+                              {isCompleted ? (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    asChild
+                                    className="h-8 px-3 rounded-lg border-[#e5e9f0] bg-white hover:bg-[#f8fafc] text-[#0f1b2d] font-semibold text-xs"
+                                  >
+                                    <Link to="/certifications">
+                                      View certificate
+                                    </Link>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    asChild
+                                    className="h-8 px-2.5 rounded-lg text-[#2b5f9e] hover:bg-[#e8f0fa] font-semibold text-xs"
+                                  >
+                                    <Link to={`/learn/${courseId}`}>Review</Link>
+                                  </Button>
+                                </>
+                              ) : (
+                                <>
+                                  <Link
+                                    to={`/courses/${courseId}`}
+                                    className="text-xs font-semibold text-[#2b5f9e] hover:underline px-2 py-1"
+                                  >
+                                    Details
+                                  </Link>
+                                  <Button
+                                    size="sm"
+                                    asChild
+                                    className="h-8 px-3.5 rounded-lg bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold text-xs gap-1.5 border-0"
+                                  >
+                                    <Link to={`/learn/${courseId}`}>
+                                      <PlayCircle className="w-3.5 h-3.5" />
+                                      Resume
+                                    </Link>
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    },
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Table Footer */}
+          <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#e5e9f0] text-xs text-slate-500">
+            <span>
+              Showing {filteredCoursesProgress.length}{" "}
+              {filteredCoursesProgress.length === 1 ? "course" : "courses"}
+            </span>
+            <Link
+              to="/grades"
+              className="font-semibold text-[#2b5f9e] hover:underline"
+            >
+              Open Electronic Gradebook &rarr;
+            </Link>
+          </div>
+        </section>
+
         {/* ── Quick Action Cards ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Link
             to="/schedules"
-            className="group flex items-center gap-4 bg-white rounded-2xl border border-slate-200 p-4 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+            className="group flex items-center gap-4 bg-white rounded-xl border border-[#e5e9f0] p-4 hover:border-[#2b5f9e]/30 transition-all"
           >
-            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-              <CalendarDays className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-lg bg-[#e8f0fa] flex items-center justify-center shrink-0">
+              <CalendarDays className="w-5 h-5 text-[#2b5f9e]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900">My Schedule</p>
+              <p className="text-sm font-bold text-[#0f1b2d]">My Schedule</p>
               <p className="text-xs text-slate-500">
-                View upcoming classes & events
+                View upcoming classes &amp; clinical shifts
               </p>
             </div>
-            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors shrink-0" />
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#2b5f9e] transition-colors shrink-0" />
           </Link>
 
           <Link
             to="/certifications"
-            className="group flex items-center gap-4 bg-white rounded-2xl border border-slate-200 p-4 hover:shadow-lg hover:border-blue-200/60 transition-all duration-300"
+            className="group flex items-center gap-4 bg-white rounded-xl border border-[#e5e9f0] p-4 hover:border-[#f26b21]/30 transition-all"
           >
-            <div className="w-11 h-11 rounded-xl bg-orange-50 flex items-center justify-center shrink-0 group-hover:bg-orange-100 transition-colors">
-              <Award className="w-5 h-5 text-orange-600" />
+            <div className="w-10 h-10 rounded-lg bg-[#fff1e6] flex items-center justify-center shrink-0">
+              <Award className="w-5 h-5 text-[#f26b21]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900">Certifications</p>
-              <p className="text-xs text-slate-500">Track your achievements</p>
+              <p className="text-sm font-bold text-[#0f1b2d]">Certifications</p>
+              <p className="text-xs text-slate-500">
+                Generate &amp; verify achievements
+              </p>
             </div>
-            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-orange-500 transition-colors shrink-0" />
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#f26b21] transition-colors shrink-0" />
           </Link>
 
           <Link
             to="/chat"
-            className="group flex items-center gap-4 bg-white rounded-2xl border border-slate-200 p-4 hover:shadow-lg hover:border-blue-200/60 transition-all duration-300"
+            className="group flex items-center gap-4 bg-white rounded-xl border border-[#e5e9f0] p-4 hover:border-[#2b5f9e]/30 transition-all"
           >
-            <div className="w-11 h-11 rounded-xl bg-teal-50 flex items-center justify-center shrink-0 group-hover:bg-teal-100 transition-colors">
-              <MessageCircle className="w-5 h-5 text-teal-600" />
+            <div className="w-10 h-10 rounded-lg bg-[#e3f5ea] flex items-center justify-center shrink-0">
+              <MessageCircle className="w-5 h-5 text-[#15803d]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900">Need Help?</p>
-              <p className="text-xs text-slate-500">Chat with support</p>
+              <p className="text-sm font-bold text-[#0f1b2d]">Need Help?</p>
+              <p className="text-xs text-slate-500">Chat with instructors</p>
             </div>
-            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-teal-500 transition-colors shrink-0" />
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#15803d] transition-colors shrink-0" />
           </Link>
         </div>
       </div>
