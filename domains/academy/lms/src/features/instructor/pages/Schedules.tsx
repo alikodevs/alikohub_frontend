@@ -199,7 +199,7 @@ const InstructorSchedules = () => {
                 setIsAdding(true);
               }
             }}
-            className="bg-accent hover:bg-amber-light text-slate-900 font-bold gap-2 shadow-sm transition-all"
+            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold gap-2 shadow-sm transition-all border-0"
           >
             {isAdding ? (
               "Cancel"
@@ -219,7 +219,7 @@ const InstructorSchedules = () => {
             {isAdding && (
               <Card className="border-none shadow-xl bg-slate-50 ring-1 ring-slate-200/50 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
                 <CardHeader className="bg-white border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-2">
-                  <Calendar className="w-5 h-5 text-accent" />
+                  <Calendar className="w-5 h-5 text-[#2b5f9e]" />
                   <div>
                     <CardTitle className="text-lg font-bold">
                       {editingScheduleId ? "Update Scheduled Session" : "New Cohort Scheduling"}
@@ -245,7 +245,7 @@ const InstructorSchedules = () => {
                           id="courseId"
                           value={formData.courseId}
                           onChange={handleCourseChange}
-                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent h-11"
+                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11"
                           required
                           disabled={coursesLoading}
                         >
@@ -279,7 +279,7 @@ const InstructorSchedules = () => {
                               cohortId: e.target.value,
                             }))
                           }
-                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent h-11 disabled:bg-slate-100/80 disabled:text-slate-400"
+                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11 disabled:bg-slate-100/80 disabled:text-slate-400"
                           required
                           disabled={!formData.courseId || cohortsLoading}
                         >
@@ -329,7 +329,7 @@ const InstructorSchedules = () => {
                               title: e.target.value,
                             }))
                           }
-                          className="bg-white border-slate-200 focus:ring-accent h-11"
+                          className="bg-white border-slate-200 focus:ring-[#2b5f9e] h-11"
                           required
                         />
                       </div>
@@ -351,7 +351,7 @@ const InstructorSchedules = () => {
                               type: e.target.value,
                             }))
                           }
-                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent h-11"
+                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11"
                           required
                         >
                           <option value="WORKSHOP">Workshop</option>
@@ -381,7 +381,7 @@ const InstructorSchedules = () => {
                             description: e.target.value,
                           }))
                         }
-                        className="bg-white border-slate-200 focus:ring-accent min-h-[80px]"
+                        className="bg-white border-slate-200 focus:ring-[#2b5f9e] min-h-[80px]"
                       />
                     </div>
 
@@ -445,7 +445,7 @@ const InstructorSchedules = () => {
                             isRecurring: e.target.checked,
                           }))
                         }
-                        className="h-4 w-4 rounded border-slate-300 text-accent focus:ring-accent"
+                        className="h-4 w-4 rounded border-slate-300 text-[#2b5f9e] focus:ring-[#2b5f9e]"
                       />
                       <label
                         htmlFor="isRecurring"
@@ -470,7 +470,7 @@ const InstructorSchedules = () => {
                       <Button
                         type="submit"
                         disabled={createScheduleMutation.isPending || updateScheduleMutation.isPending}
-                        className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 px-8 rounded-lg shadow-md transition-all active:scale-95 disabled:opacity-50"
+                        className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-11 px-8 rounded-lg transition-all disabled:opacity-50"
                       >
                         {(createScheduleMutation.isPending || updateScheduleMutation.isPending)
                           ? "Saving..."
@@ -561,7 +561,7 @@ const InstructorSchedules = () => {
                             </div>
 
                             <div>
-                              <h4 className="text-base font-bold text-slate-800 leading-snug group-hover:text-accent transition-colors">
+                              <h4 className="text-base font-bold text-slate-800 leading-snug group-hover:text-[#2b5f9e] transition-colors">
                                 {session.title}
                               </h4>
                               {session.description && (
@@ -594,7 +594,7 @@ const InstructorSchedules = () => {
                           <div className="shrink-0 flex items-center md:flex-col md:items-end justify-between border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-5 gap-3">
                             <div className="flex flex-col text-left md:text-right gap-0.5">
                               <div className="flex items-center gap-1 md:justify-end text-slate-700 font-bold text-xs">
-                                <Calendar className="w-3.5 h-3.5 text-accent" />
+                                <Calendar className="w-3.5 h-3.5 text-[#2b5f9e]" />
                                 {formattedDate}
                               </div>
                               <div className="text-[10px] text-slate-400 font-medium">
@@ -669,13 +669,13 @@ const InstructorSchedules = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-900 text-white border-none">
+            <Card className="bg-white border border-[#e5e9f0] text-[#0f1b2d]">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Clock className="w-5 h-5 text-accent" />
+                  <Clock className="w-5 h-5 text-[#2b5f9e]" />
                   <span className="font-bold">Pro Tip</span>
                 </div>
-                <p className="text-sm text-slate-400 leading-relaxed">
+                <p className="text-sm text-slate-500 leading-relaxed">
                   Scheduling regular live sessions increases student engagement
                   by up to 40%!
                 </p>

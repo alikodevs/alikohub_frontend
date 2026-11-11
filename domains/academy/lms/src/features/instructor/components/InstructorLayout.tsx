@@ -103,7 +103,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f4f7fc]">
+    <div className="flex min-h-screen bg-[#f6f8fb]">
       {/* Sidebar */}
       <InstructorSidebar
         isOpen={sidebarOpen}
@@ -113,7 +113,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Header Bar */}
-        <header className="h-16 shrink-0 z-20 bg-white border-b border-slate-200/80 flex items-center gap-3 px-6 sm:px-8 lg:px-10">
+        <header className="h-[60px] shrink-0 z-20 bg-white border-b border-[#e5e9f0] flex items-center gap-3 px-6 sm:px-8 lg:px-10">
           {/* Hamburger - mobile only */}
           <button
             onClick={() => setSidebarOpen(true)}
@@ -127,7 +127,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             <Input
               placeholder="Search courses, students..."
-              className="pl-9 h-9.5 bg-[#f0f4f9] border-0 focus-visible:ring-1 text-sm rounded-xl text-slate-800 placeholder:text-slate-400"
+              className="pl-9 h-9 bg-[#f8fafc] border border-[#e5e9f0] focus-visible:ring-1 focus-visible:ring-[#2b5f9e] text-sm rounded-lg text-[#0f1b2d] placeholder:text-slate-400"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.currentTarget.value.trim()) {
                   navigate(
@@ -145,7 +145,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/dashboard")}
-                className="gap-2 text-primary border-primary/20 hover:bg-primary/10 hover:text-primary text-xs h-9 hidden sm:flex transition-colors"
+                className="gap-2 bg-white text-[#2b5f9e] border-[#e5e9f0] hover:bg-[#e8f0fa] hover:border-[#2b5f9e]/30 hover:text-[#2b5f9e] text-xs font-semibold h-9 rounded-lg hidden sm:flex transition-colors"
               >
                 <Repeat className="w-3.5 h-3.5" />
                 Preview Student View
@@ -156,7 +156,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
                 size="sm"
                 onClick={handleSwitchRole}
                 disabled={isSwitching}
-                className="gap-2 text-accent border-accent/20 hover:bg-accent/10 hover:text-accent text-xs h-9 hidden sm:flex transition-colors"
+                className="gap-2 bg-white text-[#0f1b2d] border-[#e5e9f0] hover:bg-[#f8fafc] hover:border-[#2b5f9e]/40 hover:text-[#2b5f9e] text-xs font-semibold h-9 rounded-lg hidden sm:flex transition-colors"
               >
                 <Repeat className="w-3.5 h-3.5" />
                 Switch to Student
@@ -170,12 +170,12 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
                   setNotificationOpen(!notificationOpen);
                   setProfileOpen(false);
                 }}
-                className="relative p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors mr-1"
+                className="relative w-9 h-9 rounded-lg border border-[#e5e9f0] bg-white hover:bg-[#f8fafc] text-slate-600 hover:text-[#0f1b2d] flex items-center justify-center transition-colors"
                 aria-label="Notifications"
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-background">
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#f26b21] text-[10px] font-bold text-white ring-2 ring-white">
                     {unreadCount}
                   </span>
                 )}
@@ -261,7 +261,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
                     src={user?.profilePicture || undefined}
                     alt={user?.firstname}
                   />
-                  <AvatarFallback className="bg-accent/10 text-accent text-xs font-bold">
+                  <AvatarFallback className="bg-[#2b5f9e] text-white text-xs font-bold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
@@ -280,7 +280,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
                           src={user?.profilePicture || undefined}
                           alt={user?.firstname}
                         />
-                        <AvatarFallback className="bg-accent/10 text-accent font-bold">
+                        <AvatarFallback className="bg-[#2b5f9e] text-white font-bold">
                           {userInitials}
                         </AvatarFallback>
                       </Avatar>
@@ -304,7 +304,7 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
                         handleSwitchRole();
                         setProfileOpen(false);
                       }}
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-accent/10 hover:text-accent transition-colors w-full text-left"
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-[#e8f0fa] hover:text-[#2b5f9e] transition-colors w-full text-left"
                     >
                       <Repeat className="w-4 h-4" /> Switch to Student
                     </button>

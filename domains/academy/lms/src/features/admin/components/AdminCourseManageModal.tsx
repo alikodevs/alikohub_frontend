@@ -124,7 +124,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
           <div className="px-6 py-5 border-b border-[#E1EAF2] bg-slate-50/70">
             <DialogHeader>
               <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[#0095DA]" />
+                <BookOpen className="w-5 h-5 text-[#2b5f9e]" />
                 Manage Course: {course.title}
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500">
@@ -141,7 +141,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <UserPlus className="w-4 h-4 text-[#0095DA]" />
+                  <UserPlus className="w-4 h-4 text-[#2b5f9e]" />
                   Assign Instructor to Course
                 </span>
                 {course.instructor && (
@@ -158,7 +158,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
                 <select
                   value={selectedInstructorId}
                   onChange={(e) => setSelectedInstructorId(e.target.value)}
-                  className="flex-1 h-9 px-3 rounded-lg border border-[#E1EAF2] bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#0095DA]"
+                  className="flex-1 h-9 px-3 rounded-lg border border-[#E1EAF2] bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#2b5f9e]"
                 >
                   <option value="">Select instructor...</option>
                   {instructorOptions.map((opt) => (
@@ -171,7 +171,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
                   type="submit"
                   size="sm"
                   disabled={!selectedInstructorId || assignMutation.isPending}
-                  className="h-9 px-4 bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold rounded-lg"
+                  className="h-9 px-4 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold rounded-lg"
                 >
                   {assignMutation.isPending ? (
                     <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />

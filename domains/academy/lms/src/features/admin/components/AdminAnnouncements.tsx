@@ -106,7 +106,7 @@ export function AdminAnnouncements() {
 
         <Button
           onClick={() => setShowCreate(true)}
-          className="gap-2 bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
+          className="gap-2 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
         >
           Create Announcement
           <Plus size={14} />
@@ -172,7 +172,7 @@ export function AdminAnnouncements() {
           /* Empty State */
           <div className="p-16 text-center">
             <div className="w-16 h-16 rounded-full bg-[#EAF4FB] flex items-center justify-center mx-auto mb-4">
-              <Inbox className="w-8 h-8 text-[#0095DA]/30" />
+              <Inbox className="w-8 h-8 text-[#2b5f9e]/30" />
             </div>
             <h4 className="text-sm font-bold text-slate-800">
               No announcements broadcasted yet
@@ -183,7 +183,7 @@ export function AdminAnnouncements() {
             </p>
             <Button
               onClick={() => setShowCreate(true)}
-              className="mt-4 gap-1 bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold rounded-xl"
+              className="mt-4 gap-1 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold rounded-xl"
             >
               Create Announcement
             </Button>
@@ -360,7 +360,7 @@ export function AdminAnnouncements() {
                   !newContent.trim() ||
                   createMutation.isPending
                 }
-                className="bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all"
+                className="bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all"
               >
                 {createMutation.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -438,7 +438,7 @@ export function AdminAnnouncements() {
                   !editContent.trim() ||
                   updateMutation.isPending
                 }
-                className="bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all"
+                className="bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all"
               >
                 {updateMutation.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />

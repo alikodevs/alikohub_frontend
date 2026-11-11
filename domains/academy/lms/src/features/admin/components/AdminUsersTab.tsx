@@ -53,7 +53,7 @@ export const AdminUsersTab: React.FC = () => {
       <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#0095DA]" />
+            <Users className="w-5 h-5 text-[#2b5f9e]" />
             Platform Users Directory ({filteredUsers.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">

@@ -134,7 +134,7 @@ export const ContentModal = ({
                   onClick={() => setType(t.id as any)}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-2 ${
                     type === t.id
-                      ? "border-accent bg-accent/5 text-accent"
+                      ? "border-[#2b5f9e] bg-[#e8f0fa] text-[#2b5f9e]"
                       : "border-slate-100 hover:border-slate-200 text-slate-500"
                   }`}
                 >
@@ -167,7 +167,7 @@ export const ContentModal = ({
               </TabsTrigger>
             </TabsList>
             <TabsContent value="upload" className="space-y-4 pt-4">
-              <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-accent/50 transition-colors cursor-pointer relative bg-slate-50/50">
+              <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-[#2b5f9e]/50 transition-colors cursor-pointer relative bg-slate-50/50">
                 <input
                   type="file"
                   className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
@@ -186,13 +186,13 @@ export const ContentModal = ({
                         <div className="w-full mt-3 space-y-1.5">
                           <div className="flex justify-between text-xs text-slate-600 font-medium">
                             <span>Uploading asset...</span>
-                            <span className="font-bold text-accent">
+                            <span className="font-bold text-[#2b5f9e]">
                               {uploadProgress}%
                             </span>
                           </div>
                           <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                             <div
-                              className="bg-accent h-full transition-all duration-300 rounded-full"
+                              className="bg-[#2b5f9e] h-full transition-all duration-300 rounded-full"
                               style={{ width: `${uploadProgress}%` }}
                             />
                           </div>
@@ -210,7 +210,7 @@ export const ContentModal = ({
                       </div>
                       <p className="text-sm text-slate-500 font-medium">
                         Click or drag to{" "}
-                        <span className="text-accent font-bold">
+                        <span className="text-[#2b5f9e] font-bold">
                           upload file
                         </span>
                       </p>
@@ -251,7 +251,7 @@ export const ContentModal = ({
           <Button
             onClick={handleAdd}
             disabled={isAdding || !title || (!file && !url)}
-            className="bg-accent hover:bg-amber-light text-slate-900 font-bold px-8 shadow-lg shadow-accent/20"
+            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold px-8 border-0"
           >
             {isAdding ? "Adding..." : "Add Content"}
           </Button>

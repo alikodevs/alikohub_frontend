@@ -133,7 +133,7 @@ export const PreviewModal = ({
         return (
           <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 min-h-[200px]">
             <div className="flex items-center gap-3 mb-4 text-slate-900 font-bold">
-              <LinkIcon className="w-5 h-5 text-accent" />
+              <LinkIcon className="w-5 h-5 text-[#2b5f9e]" />
               <span>External Resource</span>
             </div>
             <p className="text-slate-600 mb-6">

@@ -640,24 +640,21 @@ const StudentDashboard = () => {
 
             {/* Instructor CTA */}
             {!isInstructor && (
-              <div
-                className="rounded-xl p-5 text-white text-center"
-                style={{
-                  backgroundColor: "#081830",
-                }}
-              >
-                <Sparkles className="w-7 h-7 text-white/80 mx-auto mb-3" />
-                <h3 className="text-sm font-heading font-bold mb-1.5">
+              <div className="rounded-xl p-5 bg-white border border-[#e5e9f0] text-center">
+                <div className="w-10 h-10 rounded-xl bg-[#fff1e6] text-[#f26b21] flex items-center justify-center mx-auto mb-3">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-heading font-bold text-[#0f1b2d] mb-1.5">
                   {isPending ? "Application Pending" : "Share your Knowledge"}
                 </h3>
-                <p className="text-white/60 text-xs mb-4 leading-relaxed">
+                <p className="text-slate-500 text-xs mb-4 leading-relaxed">
                   {isPending
                     ? "Our team is reviewing your instructor profile. We'll be in touch soon!"
                     : "Become an instructor and share your expertise with thousands of students globally."}
                 </p>
                 <Button
                   asChild
-                  className="w-full bg-white text-slate-900 hover:bg-white/90 font-bold text-xs"
+                  className="w-full bg-[#2b5f9e] text-white hover:bg-[#234e83] font-semibold text-xs rounded-lg"
                   size="sm"
                 >
                   <Link to="/instructor/apply">

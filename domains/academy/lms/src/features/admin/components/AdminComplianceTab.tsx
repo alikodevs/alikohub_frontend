@@ -222,7 +222,7 @@ export const AdminComplianceTab: React.FC = () => {
         <div className="px-6 py-4 border-b border-[#E1EAF2] flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#0095DA]" />
+              <Clock className="w-4 h-4 text-[#2b5f9e]" />
               Cohort Seat-Time Regulatory Report
             </h3>
             <p className="text-xs text-slate-500">
@@ -335,7 +335,7 @@ export const AdminComplianceTab: React.FC = () => {
                 size="sm"
                 disabled={!directSessionId.trim() || auditSessionMutation.isPending}
                 onClick={() => handleAuditSession(directSessionId.trim())}
-                className="h-9 text-xs font-bold bg-[#0095DA] hover:bg-[#007BB8] text-white"
+                className="h-9 text-xs font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
               >
                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Audit Session
               </Button>
@@ -389,7 +389,7 @@ export const AdminComplianceTab: React.FC = () => {
                           size="sm"
                           disabled={auditSessionMutation.isPending}
                           onClick={() => handleAuditSession(sess.id)}
-                          className="h-7 px-3 text-[11px] font-bold bg-[#0095DA] hover:bg-[#007BB8] text-white"
+                          className="h-7 px-3 text-[11px] font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
                         >
                           Mark Audited
                         </Button>

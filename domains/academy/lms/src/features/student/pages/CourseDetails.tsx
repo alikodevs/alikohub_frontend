@@ -358,7 +358,7 @@ const CourseDetails = () => {
                         </p>
                         <Button
                           size="sm"
-                          className="w-full bg-[#1C2840] hover:bg-[#141d2e] text-white font-bold gap-2 rounded-lg"
+                          className="w-full bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold gap-2 rounded-lg"
                           onClick={handleEnrollCourse}
                           disabled={
                             enrollMutation.isPending || enrollmentsLoading
@@ -372,12 +372,12 @@ const CourseDetails = () => {
                       </div>
 
                       {/* Instructor-Led Cohort Option Card */}
-                      <div className="p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50/50 hover:border-amber-300 transition-all">
+                      <div className="p-3.5 rounded-xl border border-[#f26b21]/30 bg-[#fff8f3] hover:border-[#f26b21]/50 transition-all">
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-black uppercase text-amber-800 bg-amber-200 px-2 py-0.5 rounded">
+                          <span className="text-xs font-bold uppercase text-[#c2540a] bg-[#fff1e6] px-2 py-0.5 rounded">
                             Instructor-Led Cohort
                           </span>
-                          <span className="text-xs font-bold text-amber-900">
+                          <span className="text-xs font-bold text-[#c2540a]">
                             {cohorts.length} Open
                           </span>
                         </div>
@@ -387,7 +387,7 @@ const CourseDetails = () => {
                         </p>
                         <Button
                           size="sm"
-                          className="w-full bg-[#E6A337] hover:bg-amber-light text-slate-900 font-bold gap-2 rounded-lg"
+                          className="w-full bg-[#f26b21] hover:bg-[#d95812] text-white font-semibold gap-2 rounded-lg"
                           onClick={() => setShowEnrollModal(true)}
                         >
                           <Users className="h-3.5 w-3.5" />
@@ -421,7 +421,7 @@ const CourseDetails = () => {
                       ) : (
                         <Button
                           size="lg"
-                          className="w-full bg-[#1C2840] hover:bg-[#141d2e] text-white font-bold gap-2 h-12 rounded-xl"
+                          className="w-full bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold gap-2 h-12 rounded-xl"
                           onClick={handleEnrollCourse}
                           disabled={
                             enrollMutation.isPending || enrollmentsLoading
@@ -488,7 +488,7 @@ const CourseDetails = () => {
                       ]
                 ).map((item: string, i: number) => (
                   <div key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#E6A337] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-5 h-5 text-[#f26b21] shrink-0 mt-0.5" />
                     <span className="text-sm text-slate-700 font-bold leading-tight">
                       {item}
                     </span>
@@ -512,11 +512,11 @@ const CourseDetails = () => {
                   {cohorts.map((cohort: any) => (
                     <div
                       key={cohort.id}
-                      className="group p-6 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-[#E6A337] hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      className="group p-6 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-[#f26b21] hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-[#E6A337]" />
+                          <Users className="w-4 h-4 text-[#f26b21]" />
                           <h4 className="font-bold text-slate-900 font-roboto">
                             {cohort.name}
                           </h4>
@@ -556,7 +556,7 @@ const CourseDetails = () => {
                                     (e) => e.cohortId === cohort.id,
                                   )
                                 ? "bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100"
-                                : "text-[#1C2840] hover:text-[#E6A337] hover:bg-[#E6A337]/5 border border-slate-200 hover:border-[#E6A337]/40"
+                                : "text-[#1C2840] hover:text-[#f26b21] hover:bg-[#f26b21]/5 border border-slate-200 hover:border-[#f26b21]/40"
                           }`}
                           onClick={() => {
                             if (
@@ -733,10 +733,10 @@ const CourseDetails = () => {
                 }}
                 className={`w-full text-left rounded-xl border-2 p-4 transition-all ${
                   selectedEnrollmentType === "self-paced"
-                    ? "border-[#E6A337] bg-[#E6A337]/5 shadow-sm"
+                    ? "border-[#f26b21] bg-[#f26b21]/5 shadow-sm"
                     : isEnrolledInCourse
                       ? "border-slate-100 bg-slate-50 opacity-60 cursor-default"
-                      : "border-gray-100 bg-white hover:border-[#E6A337]/40"
+                      : "border-gray-100 bg-white hover:border-[#f26b21]/40"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3 mb-2">
@@ -753,12 +753,12 @@ const CourseDetails = () => {
                   <div
                     className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                       selectedEnrollmentType === "self-paced"
-                        ? "border-[#E6A337]"
+                        ? "border-[#f26b21]"
                         : "border-gray-300"
                     }`}
                   >
                     {selectedEnrollmentType === "self-paced" && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#E6A337]" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#f26b21]" />
                     )}
                   </div>
                 </div>
@@ -787,12 +787,12 @@ const CourseDetails = () => {
                     }}
                     className={`w-full text-left rounded-xl border-2 p-4 transition-all ${
                       selectedEnrollmentType === cohort.id
-                        ? "border-[#E6A337] bg-[#E6A337]/5 shadow-sm"
+                        ? "border-[#f26b21] bg-[#f26b21]/5 shadow-sm"
                         : isEnrolled
                           ? "border-slate-100 bg-slate-50 opacity-60 cursor-default"
                           : isPending
                             ? "border-amber-200 bg-amber-50"
-                            : "border-gray-100 bg-white hover:border-[#E6A337]/40"
+                            : "border-gray-100 bg-white hover:border-[#f26b21]/40"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3 mb-3">
@@ -811,14 +811,14 @@ const CourseDetails = () => {
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                           selectedEnrollmentType === cohort.id
-                            ? "border-[#E6A337]"
+                            ? "border-[#f26b21]"
                             : isPending
                               ? "border-amber-400"
                               : "border-gray-300"
                         }`}
                       >
                         {selectedEnrollmentType === cohort.id && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#E6A337]" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#f26b21]" />
                         )}
                       </div>
                     </div>
@@ -869,7 +869,7 @@ const CourseDetails = () => {
             </div>
             <Button
               onClick={handleConfirmEnrollment}
-              className="bg-[#E6A337] hover:bg-[#d4922b] text-white font-bold h-12 px-8 rounded-xl transition-all shadow-lg shadow-[#E6A337]/20 active:scale-95"
+              className="bg-[#f26b21] hover:bg-[#d95812] text-white font-bold h-12 px-8 rounded-xl transition-all shadow-lg shadow-[#f26b21]/20 active:scale-95"
               disabled={
                 enrollMutation.isPending ||
                 enrollInCohortMutation.isPending ||

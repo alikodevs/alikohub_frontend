@@ -147,14 +147,11 @@ const TransactionsPage = () => {
 
             {/* Total badge */}
             {!isLoading && !isError && paidTransactions?.length > 0 && (
-              <div
-                className="rounded-xl px-5 py-3 text-white shrink-0"
-                style={{ backgroundColor: "#081830" }}
-              >
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/60 mb-0.5">
+              <div className="rounded-xl px-5 py-3 bg-[#e8f0fa] border border-[#2b5f9e]/20 text-[#2b5f9e] shrink-0">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#2b5f9e]/75 mb-0.5">
                   Total paid
                 </p>
-                <p className="text-lg font-heading font-bold leading-none">
+                <p className="text-lg font-heading font-bold leading-none text-[#0f1b2d]">
                   {formatCurrency(totalSpent, currency)}
                 </p>
               </div>

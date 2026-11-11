@@ -92,7 +92,7 @@ export const CreateCohortModal = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold font-heading">
-            <Users className="w-5 h-5 text-accent" />
+            <Users className="w-5 h-5 text-[#2b5f9e]" />
             Create New Cohort
           </DialogTitle>
           <DialogDescription>
@@ -116,7 +116,7 @@ export const CreateCohortModal = ({
                 onChange={(e) =>
                   setFormData({ ...formData, courseId: e.target.value })
                 }
-                className="w-full pl-10 h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full pl-10 h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e]"
                 disabled={coursesLoading}
               >
                 <option value="" disabled>
@@ -146,7 +146,7 @@ export const CreateCohortModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="bg-white border-slate-200 focus:ring-accent h-10"
+              className="bg-white border-slate-200 focus:ring-[#2b5f9e] h-10"
             />
           </div>
 
@@ -198,7 +198,7 @@ export const CreateCohortModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, isHighSchoolTenMonth: e.target.checked })
               }
-              className="rounded border-slate-300 text-accent focus:ring-accent"
+              className="rounded border-slate-300 text-[#2b5f9e] focus:ring-[#2b5f9e]"
             />
             <span>10-Month High School Calendar Program (Exempt from 90-day limit)</span>
           </label>
@@ -210,7 +210,7 @@ export const CreateCohortModal = ({
             <Button
               type="submit"
               disabled={createCohortMutation.isPending || !formData.courseId}
-              className="bg-accent hover:bg-amber-light text-slate-900 font-bold"
+              className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold border-0"
             >
               {createCohortMutation.isPending ? "Creating..." : "Create Cohort"}
             </Button>

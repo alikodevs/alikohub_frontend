@@ -185,11 +185,11 @@ const InstructorCourses = () => {
               className="gap-2 bg-white hover:bg-slate-50 text-slate-900 shadow-sm border border-slate-200 font-medium"
               onClick={() => setIsCohortModalOpen(true)}
             >
-              <Users className="w-4 h-4 text-accent" /> Create Cohort
+              <Users className="w-4 h-4 text-[#2b5f9e]" /> Create Cohort
             </Button>
             <Button
               asChild
-              className="gap-2 bg-accent hover:bg-amber-light text-slate-900 shadow-sm font-medium"
+              className="gap-2 bg-[#2b5f9e] hover:bg-[#234e83] text-white shadow-sm font-medium border-0"
             >
               <Link to="/instructor/courses/new">
                 <PlusCircle className="w-4 h-4" /> Create Course
@@ -220,7 +220,7 @@ const InstructorCourses = () => {
                     segments={[
                       { value: publishedCount, color: "#10b981" },
                       { value: pendingCount, color: "#f59e0b" },
-                      { value: draftCount, color: "#7c6ef0" },
+                      { value: draftCount, color: "#f26b21" },
                       { value: rejectedCount, color: "#ef4444" },
                     ]}
                   />
@@ -249,7 +249,7 @@ const InstructorCourses = () => {
                         value: pendingCount,
                         color: "#f59e0b",
                       },
-                      { label: "Draft", value: draftCount, color: "#7c6ef0" },
+                      { label: "Draft", value: draftCount, color: "#f26b21" },
                       ...(rejectedCount > 0
                         ? [
                             {
@@ -529,7 +529,7 @@ const InstructorCourses = () => {
                       size="sm"
                       className={`h-8 w-8 p-0 rounded-lg font-medium ${
                         pageNum === safePage
-                          ? "bg-accent text-slate-900 hover:bg-amber-light border-none"
+                          ? "bg-[#2b5f9e] text-white hover:bg-[#234e83] border-none"
                           : "border-slate-200 text-slate-600"
                       }`}
                       onClick={() => setCurrentPage(pageNum)}

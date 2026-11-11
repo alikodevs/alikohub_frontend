@@ -9,44 +9,48 @@
   --font-sora: "Sora", sans-serif;
   --font-roboto: "Roboto", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;
-  --background: 216 25% 97%;
-  --foreground: 213 30% 20%;
+  --background: 216 33% 97%;
+  --foreground: 216 50% 12%;
 
   --card: 0 0% 100%;
-  --card-foreground: 213 30% 20%;
+  --card-foreground: 216 50% 12%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 213 30% 20%;
+  --popover-foreground: 216 50% 12%;
 
-  --primary: 211 55% 38%;
+  --primary: 213 57% 39%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 211 30% 93%;
-  --secondary-foreground: 213 30% 20%;
+  --secondary: 213 68% 95%;
+  --secondary-foreground: 213 57% 32%;
 
-  --muted: 216 20% 95%;
-  --muted-foreground: 215 20% 40%;
+  --muted: 210 40% 98%;
+  --muted-foreground: 215 16% 47%;
 
-  --accent: 211 55% 38%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 213 68% 95%;
+  --accent-foreground: 213 57% 32%;
 
   --destructive: 0 60% 35%;
   --destructive-foreground: 0 0% 100%;
 
-  --border: 214 18% 88%;
-  --input: 214 18% 88%;
-  --ring: 211 55% 38%;
+  --border: 218 26% 92%;
+  --input: 218 26% 92%;
+  --ring: 213 57% 39%;
+
+  --brand: #2b5f9e;
+  --brand-soft: #e8f0fa;
+  --brand-accent: #f26b21;
 
   --radius: 0.875rem;
 
-  --sidebar-background: 0 0% 98%;
-  --sidebar-foreground: 240 5.3% 26.1%;
-  --sidebar-primary: 240 5.9% 10%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 240 4.8% 95.9%;
-  --sidebar-accent-foreground: 240 5.9% 10%;
-  --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 217.2 91.2% 59.8%;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 215 19% 35%;
+  --sidebar-primary: 213 57% 39%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 213 68% 95%;
+  --sidebar-accent-foreground: 213 57% 39%;
+  --sidebar-border: 218 26% 92%;
+  --sidebar-ring: 213 57% 39%;
 }
 
 .dark {
@@ -91,6 +95,9 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+  --color-brand: #2b5f9e;
+  --color-brand-soft: #e8f0fa;
+  --color-brand-accent: #f26b21;
 
   /* Material Design 3 Colors for User Template */
   --color-surface-container-lowest: #ffffff;
@@ -187,20 +194,23 @@
   scrollbar-width: none; /* Firefox */
 }
 
-/* Sidebar scroll styling to match dark theme sidebars */
+/* Sidebar scroll styling to match crisp light sidebars */
 .sidebar-scroll::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 .sidebar-scroll::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: transparent;
 }
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #1e293b #0f172a;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
 /* Sidebar scroll styling for light theme sidebars */

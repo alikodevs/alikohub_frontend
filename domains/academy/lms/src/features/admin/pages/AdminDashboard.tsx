@@ -491,7 +491,7 @@ const AdminDashboard = () => {
                                 {app.status === "PENDING" ||
                                 app.status === "SUBMITTED" ? (
                                   <button
-                                    className="px-3 py-1.5 bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold rounded-lg transition-colors"
                                     onClick={() => handleReview(app)}
                                   >
                                     Review
@@ -639,7 +639,7 @@ const AdminDashboard = () => {
                                 course.status === "PENDING_APPROVAL" ||
                                 course.status === "DRAFT" ? (
                                   <button
-                                    className="px-3 py-1.5 bg-[#0095DA] hover:bg-[#007BB8] text-white text-xs font-bold rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold rounded-lg transition-colors"
                                     onClick={() => handleReviewCourse(course)}
                                   >
                                     Review
@@ -765,7 +765,7 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 shadow-sm">
                       <h3 className="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <span className="w-2 h-4 bg-[#0095DA] rounded-full"></span>
+                        <span className="w-2 h-4 bg-[#2b5f9e] rounded-full"></span>
                         Overview distribution
                       </h3>
                       <div className="h-[320px]">
@@ -808,7 +808,7 @@ const AdminDashboard = () => {
                             />
                             <Bar
                               dataKey="value"
-                              fill="#0095DA"
+                              fill="#2b5f9e"
                               radius={[6, 6, 0, 0]}
                               barSize={50}
                             />
@@ -860,11 +860,11 @@ const AdminDashboard = () => {
                             <Line
                               type="monotone"
                               dataKey="value"
-                              stroke="#0095DA"
+                              stroke="#2b5f9e"
                               strokeWidth={4}
                               dot={{
                                 r: 6,
-                                fill: "#0095DA",
+                                fill: "#2b5f9e",
                                 strokeWidth: 3,
                                 stroke: chartColors.tooltipBg,
                               }}

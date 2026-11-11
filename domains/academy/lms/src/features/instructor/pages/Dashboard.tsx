@@ -171,7 +171,7 @@ const InstructorDashboard = () => {
               </h2>
               <Link
                 to="/instructor/courses"
-                className="text-sm font-medium text-accent hover:underline"
+                className="text-sm font-semibold text-[#2b5f9e] hover:underline"
               >
                 View all
               </Link>
@@ -235,7 +235,7 @@ const InstructorDashboard = () => {
                             • {course.enrolledCount || 0} students
                           </span>
                         </div>
-                        <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-accent transition-colors">
+                        <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-[#2b5f9e] transition-colors">
                           {course.title}
                         </h3>
                         <div className="flex items-center gap-4 mt-2">

@@ -39,7 +39,7 @@ export function AdminHeader({ title, onMenuClick }: AdminHeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 h-16 px-4 md:px-6 flex items-center justify-between bg-white border-b border-[#E1EAF2]">
+    <header className="sticky top-0 z-40 h-[60px] px-4 md:px-6 flex items-center justify-between bg-white border-b border-[#e5e9f0]">
       <div className="flex items-center gap-4">
         {onMenuClick && (
           <button
@@ -55,7 +55,7 @@ export function AdminHeader({ title, onMenuClick }: AdminHeaderProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <input
             placeholder="Search..."
-            className="w-full pl-9 pr-16 h-9 bg-slate-100 border-0 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#2563eb]"
+            className="w-full pl-9 pr-16 h-9 bg-[#f8fafc] border border-[#e5e9f0] rounded-lg text-sm text-[#0f1b2d] placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#2b5f9e]"
           />
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 bg-slate-200 px-1.5 py-0.5 rounded font-mono">
             Ctrl K
@@ -76,7 +76,7 @@ export function AdminHeader({ title, onMenuClick }: AdminHeaderProps) {
                 src={user?.profilePicture || undefined}
                 alt={user?.firstname}
               />
-              <AvatarFallback className="bg-[#2563eb]/10 text-[#2563eb] font-bold text-xs">
+              <AvatarFallback className="bg-[#2b5f9e] text-white font-bold text-xs">
                 {userInitials}
               </AvatarFallback>
             </Avatar>

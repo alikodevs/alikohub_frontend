@@ -73,7 +73,7 @@ export const ModuleModal = ({
           <Button
             onClick={onCreate}
             disabled={isCreating}
-            className="bg-accent hover:bg-amber-light text-slate-900"
+            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white border-0"
           >
             {isCreating ? "Creating..." : "Create Module"}
           </Button>

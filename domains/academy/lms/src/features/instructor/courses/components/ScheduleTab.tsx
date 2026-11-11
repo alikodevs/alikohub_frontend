@@ -140,7 +140,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
         </div>
         <Button
           onClick={() => (isAdding ? resetForm() : setIsAdding(true))}
-          className="bg-accent hover:bg-amber-light text-slate-900 font-bold gap-2"
+          className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold gap-2 border-0"
         >
           {isAdding ? (
             "Cancel"
@@ -155,7 +155,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
       {isAdding && (
         <Card className="border-none shadow-xl bg-slate-50 ring-1 ring-slate-100 overflow-hidden">
           <CardHeader className="bg-white border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-2">
-            <Calendar className="w-5 h-5 text-accent" />
+            <Calendar className="w-5 h-5 text-[#2b5f9e]" />
             <CardTitle className="text-lg font-bold">
               {editingId ? "Edit Session Details" : "New Session Details"}
             </CardTitle>
@@ -179,7 +179,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  className="bg-white border-slate-200 focus:ring-accent h-11"
+                  className="bg-white border-slate-200 focus:ring-[#2b5f9e] h-11"
                 />
               </div>
 
@@ -196,7 +196,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, type: e.target.value })
                   }
-                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent h-11"
+                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11"
                 >
                   <option value="LIVE">Live Session</option>
                   <option value="RECORDING">Recorded Lecture Release</option>
@@ -219,7 +219,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, cohortId: e.target.value })
                   }
-                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent h-11"
+                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11"
                 >
                   <option value="">All cohorts in this course</option>
                   {cohorts.map((c: any) => (
@@ -244,7 +244,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className="bg-white border-slate-200 focus:ring-accent min-h-[75px]"
+                  className="bg-white border-slate-200 focus:ring-[#2b5f9e] min-h-[75px]"
                 />
               </div>
 
@@ -296,7 +296,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 px-8 rounded-lg transition-all shadow-md active:scale-95"
+                  className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-11 px-8 rounded-lg transition-all"
                 >
                   {isSubmitting
                     ? "Saving..."
@@ -312,7 +312,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
 
       <div className="space-y-4">
         <h3 className="font-bold text-slate-900 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-accent" />
+          <Calendar className="w-5 h-5 text-[#2b5f9e]" />
           Scheduled Sessions
         </h3>
 
@@ -412,7 +412,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
 
                     <div className="mt-auto space-y-3">
                       <div className="flex items-center gap-3 text-sm text-slate-500 bg-slate-50 p-2 rounded-lg">
-                        <Clock className="w-4 h-4 text-accent" />
+                        <Clock className="w-4 h-4 text-[#2b5f9e]" />
                         <div className="flex flex-col">
                           <span className="font-bold text-slate-700 text-xs">
                             {formattedDate}

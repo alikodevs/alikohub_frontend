@@ -59,7 +59,7 @@ export const LessonModal = ({
             <select
               value={lessonType}
               onChange={(e) => onTypeChange(e.target.value)}
-              className="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-accent outline-none appearance-none cursor-pointer"
+              className="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#2b5f9e] outline-none appearance-none cursor-pointer"
             >
               <option value="VIDEO">Video Lesson</option>
               <option value="WEBINAR">Live Webinar</option>
@@ -75,7 +75,7 @@ export const LessonModal = ({
           <Button
             onClick={onCreate}
             disabled={isCreating}
-            className="bg-accent hover:bg-amber-light text-slate-900"
+            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white border-0"
           >
             {isCreating ? "Creating..." : "Create Lesson"}
           </Button>

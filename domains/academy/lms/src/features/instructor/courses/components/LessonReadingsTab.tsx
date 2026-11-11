@@ -108,7 +108,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-[#7c6ef0]" />
+              <BookOpen className="w-4 h-4 text-[#2b5f9e]" />
               Linked Textbook Readings
             </h4>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -156,7 +156,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                   )}
                 </div>
                 <div className="flex items-center gap-2 pl-5 sm:pl-0">
-                  <Badge className="bg-[#7c6ef0]/10 text-[#7c6ef0] border border-[#7c6ef0]/20 text-[11px] font-semibold">
+                  <Badge className="bg-[#2b5f9e]/10 text-[#2b5f9e] border border-[#2b5f9e]/20 text-[11px] font-semibold">
                     {r.chapters}
                   </Badge>
                   <Badge variant="outline" className="text-[11px] font-medium">
@@ -190,7 +190,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 }))
               }
               disabled={isTextbooksLoading || textbooks.length === 0}
-              className="w-full h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#7c6ef0]/30"
+              className="w-full h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#2b5f9e]/30"
             >
               {textbooks.length === 0 ? (
                 <option value="">Register a textbook below first...</option>
@@ -239,7 +239,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
               disabled={
                 assignReadingMutation.isPending || textbooks.length === 0
               }
-              className="h-9 px-4 bg-[#7c6ef0] hover:bg-[#6a5be2] text-white text-xs font-semibold rounded-lg"
+              className="h-9 px-4 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-semibold rounded-lg"
             >
               {assignReadingMutation.isPending ? (
                 <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />

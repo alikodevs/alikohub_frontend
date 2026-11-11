@@ -52,7 +52,7 @@ export const AdminContentLibraryTab: React.FC = () => {
       <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#0095DA]" />
+            <FileText className="w-5 h-5 text-[#2b5f9e]" />
             Platform Content Library ({filtered.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -148,7 +148,7 @@ export const AdminContentLibraryTab: React.FC = () => {
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#0095DA] hover:underline"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#2b5f9e] hover:underline"
                         >
                           Open <ExternalLink className="w-3.5 h-3.5" />
                         </a>

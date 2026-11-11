@@ -65,7 +65,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
       <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <LifeBuoy className="w-5 h-5 text-[#0095DA]" />
+            <LifeBuoy className="w-5 h-5 text-[#2b5f9e]" />
             Platform Support Tickets ({tickets.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -241,7 +241,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
               size="sm"
               disabled={updateMutation.isPending}
               onClick={handleSave}
-              className="bg-[#0095DA] hover:bg-[#007BB8] text-white"
+              className="bg-[#2b5f9e] hover:bg-[#234e83] text-white"
             >
               {updateMutation.isPending ? (
                 <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />

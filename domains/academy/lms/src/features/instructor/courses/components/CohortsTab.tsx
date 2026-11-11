@@ -85,7 +85,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
         </div>
         <Button
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-accent hover:bg-amber-light text-slate-900 font-bold gap-2"
+          className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold gap-2 border-0"
         >
           {isAdding ? (
             "Cancel"
@@ -100,7 +100,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
       {isAdding && (
         <Card className="border-none shadow-xl bg-slate-50 ring-1 ring-slate-100 overflow-hidden">
           <CardHeader className="bg-white border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-2">
-            <Users className="w-5 h-5 text-accent" />
+            <Users className="w-5 h-5 text-[#2b5f9e]" />
             <CardTitle className="text-lg font-bold">
               New Cohort Details
             </CardTitle>
@@ -124,7 +124,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="bg-white border-slate-200 focus:ring-accent h-11"
+                  className="bg-white border-slate-200 focus:ring-[#2b5f9e] h-11"
                 />
               </div>
 
@@ -181,7 +181,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                         isHighSchoolTenMonth: e.target.checked,
                       })
                     }
-                    className="rounded border-slate-300 text-accent focus:ring-accent"
+                    className="rounded border-slate-300 text-[#2b5f9e] focus:ring-[#2b5f9e]"
                   />
                   <span>10-Month High School Calendar Program (90-day exception)</span>
                 </label>
@@ -205,7 +205,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
 
       <div className="space-y-4">
         <h3 className="font-bold text-slate-900 flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-accent" />
+          <BookOpen className="w-5 h-5 text-[#2b5f9e]" />
           Active & Upcoming Cohorts
         </h3>
 
@@ -284,7 +284,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                     <div className="flex items-start justify-between mb-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-accent/20 text-accent">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#e8f0fa] text-[#2b5f9e]">
                             COHORT #{cohort.id}
                           </span>
                           <span

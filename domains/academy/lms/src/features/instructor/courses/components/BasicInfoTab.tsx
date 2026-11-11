@@ -26,7 +26,7 @@ export const BasicInfoTab = ({
       <div className="lg:col-span-2 space-y-6">
         <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
           <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-2">
-            <Layout className="w-5 h-5 text-accent" /> Course Information
+            <Layout className="w-5 h-5 text-[#2b5f9e]" /> Course Information
           </h2>
           <div className="space-y-6">
             <div>
@@ -68,7 +68,7 @@ export const BasicInfoTab = ({
 
         <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
           <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-accent" /> Pricing
+            <DollarSign className="w-5 h-5 text-[#2b5f9e]" /> Pricing
           </h2>
           <div className="space-y-6">
             <div>
@@ -169,7 +169,7 @@ export const BasicInfoTab = ({
               />
             ) : (
               <>
-                <Upload className="w-8 h-8 text-slate-300 group-hover:text-accent transition-colors" />
+                <Upload className="w-8 h-8 text-slate-300 group-hover:text-[#2b5f9e] transition-colors" />
                 <p className="text-[10px] uppercase font-bold text-slate-400 mt-2">
                   Upload Image
                 </p>

@@ -660,15 +660,15 @@ const StudentSchedules = () => {
             )}
 
             {/* Info card */}
-            <div
-              className="rounded-xl p-5 text-white"
-              style={{ backgroundColor: "#081830" }}
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <CalendarDays className="w-5 h-5 text-white/70" />
-                <span className="font-bold text-sm">Stay on Track</span>
+            <div className="rounded-xl p-5 bg-white border border-[#e5e9f0] space-y-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center shrink-0">
+                  <CalendarDays className="w-4 h-4" />
+                </div>
+                <span className="font-bold text-sm text-[#0f1b2d]">Stay on Track</span>
               </div>
-              <p className="text-white/60 text-xs leading-relaxed">
+              <div className="w-7 h-0.5 bg-[#f26b21] rounded-full" />
+              <p className="text-slate-500 text-xs leading-relaxed">
                 Your instructors schedule live workshops, Q&A sessions, and
                 office hours through your enrolled cohorts. Check back regularly
                 so you never miss a session!

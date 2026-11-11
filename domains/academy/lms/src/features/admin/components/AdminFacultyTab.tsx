@@ -69,7 +69,7 @@ export const AdminFacultyTab: React.FC<AdminFacultyTabProps> = ({ userMap }) => 
       <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Award className="w-5 h-5 text-[#0095DA]" />
+            <Award className="w-5 h-5 text-[#2b5f9e]" />
             Qualified Faculty Roster &amp; Credentials
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -182,7 +182,7 @@ export const AdminFacultyTab: React.FC<AdminFacultyTabProps> = ({ userMap }) => 
                             size="sm"
                             disabled={!uid || approveMutation.isPending}
                             onClick={() => handleApprove(uid)}
-                            className="h-8 text-xs font-bold bg-[#0095DA] hover:bg-[#007BB8] text-white"
+                            className="h-8 text-xs font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
                           >
                             {approvingId === uid ? (
                               <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
