@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -91,12 +92,21 @@ interface InstructorSidebarProps {
   onClose?: () => void;
 }
 
+let instructorSidebarScrollTop = 0;
+
 const InstructorSidebar = ({
   isOpen = false,
   onClose,
 }: InstructorSidebarProps) => {
   const location = useLocation();
+  const navRef = useRef<HTMLElement>(null);
   const { isAuditor } = usePortalMode();
+
+  useLayoutEffect(() => {
+    if (navRef.current && instructorSidebarScrollTop > 0) {
+      navRef.current.scrollTop = instructorSidebarScrollTop;
+    }
+  }, []);
 
   const visibleSections = navSections
     .map((section) => ({
@@ -128,18 +138,21 @@ const InstructorSidebar = ({
     const content = (
       <span
         className={cn(
-          "flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] transition-all duration-200 w-full group font-medium",
+          "relative flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] transition-all duration-150 w-full group font-semibold",
           active
-            ? "bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/25"
-            : "text-slate-300/80 hover:bg-white/5 hover:text-white",
+            ? "bg-[#e8f0fa] text-[#2b5f9e]"
+            : "text-slate-600 hover:bg-[#f8fafc] hover:text-[#0f1b2d]",
         )}
       >
+        {active && (
+          <span className="absolute -left-4 top-2 bottom-2 w-[3px] rounded-r bg-[#f26b21]" />
+        )}
         <Icon
           className={cn(
             "w-[18px] h-[18px] shrink-0",
             active
-              ? "text-primary-foreground"
-              : "text-slate-400 group-hover:text-slate-200",
+              ? "text-[#2b5f9e]"
+              : "text-slate-400 group-hover:text-slate-600",
           )}
         />
         <span className="flex-1">{item.label}</span>
@@ -148,8 +161,8 @@ const InstructorSidebar = ({
             className={cn(
               "text-[11px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 leading-none",
               active
-                ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-primary/20 text-primary-foreground/80",
+                ? "bg-white text-[#2b5f9e] border border-[#2b5f9e]/20"
+                : "bg-[#e8f0fa] text-[#2b5f9e]",
             )}
           >
             {item.badge}
@@ -189,7 +202,7 @@ const InstructorSidebar = ({
 
       <aside
         className={cn(
-          "w-[272px] shrink-0 flex flex-col h-screen bg-[#0b1739] border-r border-slate-800/60 z-50 text-slate-300",
+          "w-[272px] shrink-0 flex flex-col h-screen bg-white border-r border-[#e5e9f0] z-50 text-slate-600",
           // Desktop: always visible
           "hidden lg:flex lg:sticky lg:top-0",
           // Mobile: slide-in overlay
@@ -197,7 +210,7 @@ const InstructorSidebar = ({
         )}
       >
         {/* Logo + mobile close */}
-        <div className="relative h-24 shrink-0 flex items-center justify-center px-7 border-b border-slate-800/60">
+        <div className="relative h-20 shrink-0 flex items-center justify-center px-6 border-b border-[#e5e9f0]">
           <img
             src="/Aliko Academy - LMS 2.png"
             alt="Aliko Academy LMS"
@@ -205,20 +218,26 @@ const InstructorSidebar = ({
           />
           <button
             onClick={onClose}
-            className="absolute right-7 lg:hidden p-2 hover:bg-white/10 rounded-md transition-colors"
+            className="absolute right-5 lg:hidden p-2 hover:bg-slate-100 rounded-md transition-colors"
           >
-            <X className="w-5 h-5 text-slate-400" />
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto sidebar-scroll py-6 px-4 space-y-6">
+        <nav
+          ref={navRef}
+          onScroll={(e) => {
+            instructorSidebarScrollTop = e.currentTarget.scrollTop;
+          }}
+          className="flex-1 overflow-y-auto sidebar-scroll py-5 px-4 space-y-5"
+        >
           {visibleSections.map((section) => (
             <div key={section.title}>
-              <p className="text-[10px] font-bold text-slate-400/70 uppercase tracking-[0.14em] px-3 mb-2">
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.08em] px-3 mb-1.5">
                 {section.title}
               </p>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {section.items.map((item) => (
                   <NavItem key={item.to} item={item} />
                 ))}
