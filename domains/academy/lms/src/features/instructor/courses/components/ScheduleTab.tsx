@@ -3,19 +3,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   useCreateTeachingSchedule,
+  useUpdateTeachingSchedule,
+  useDeleteTeachingSchedule,
   useTeachingSchedules,
+  useCohorts,
 } from "@/hooks/useAcademy";
 import {
   Calendar,
   Plus,
   Clock,
   Video,
-  User,
-  CheckCircle,
-  AlertCircle,
+  Edit3,
+  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,42 +27,92 @@ interface ScheduleTabProps {
   courseId: string;
 }
 
+const emptyForm = {
+  title: "",
+  description: "",
+  type: "LIVE",
+  cohortId: "",
+  startTime: "",
+  endTime: "",
+};
+
+const toLocalDatetimeInput = (iso?: string) => {
+  if (!iso) return "";
+  try {
+    return format(new Date(iso), "yyyy-MM-dd'T'HH:mm");
+  } catch {
+    return "";
+  }
+};
+
 export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
   const [isAdding, setIsAdding] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    type: "LIVE",
-    startTime: "",
-    endTime: "",
-  });
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [formData, setFormData] = useState(emptyForm);
 
   const { data: schedulesData, isLoading } = useTeachingSchedules();
+  const { data: cohortsData } = useCohorts(courseId, undefined, {
+    enabled: Boolean(courseId),
+  });
   const createScheduleMutation = useCreateTeachingSchedule();
+  const updateScheduleMutation = useUpdateTeachingSchedule();
+  const deleteScheduleMutation = useDeleteTeachingSchedule();
 
-  const handleCreate = (e: React.FormEvent) => {
+  const cohorts = (cohortsData as any)?.cohorts || [];
+
+  const resetForm = () => {
+    setIsAdding(false);
+    setEditingId(null);
+    setFormData(emptyForm);
+  };
+
+  const handleEditClick = (session: any) => {
+    setEditingId(Number(session.id));
+    setFormData({
+      title: session.title || "",
+      description: session.description || "",
+      type: session.type || "LIVE",
+      cohortId: session.cohortId ? String(session.cohortId) : "",
+      startTime: toLocalDatetimeInput(session.startTime),
+      endTime: toLocalDatetimeInput(session.endTime),
+    });
+    setIsAdding(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.startTime || !formData.endTime) {
-      toast.error("Please fill in all fields");
+    if (!formData.title.trim() || !formData.startTime || !formData.endTime) {
+      toast.error("Please fill in title, start time, and end time.");
       return;
     }
 
-    createScheduleMutation.mutate(
-      {
-        courseId: Number(courseId),
-        ...formData,
-      },
-      {
-        onSuccess: () => {
-          setIsAdding(false);
-          setFormData({
-            title: "",
-            type: "LIVE",
-            startTime: "",
-            endTime: "",
-          });
-        },
-      },
-    );
+    const start = new Date(formData.startTime);
+    const end = new Date(formData.endTime);
+    if (end <= start) {
+      toast.error("End time must be after start time.");
+      return;
+    }
+
+    const payload: any = {
+      courseId: Number(courseId),
+      title: formData.title.trim(),
+      type: formData.type,
+      startTime: start.toISOString(),
+      endTime: end.toISOString(),
+      ...(formData.description.trim()
+        ? { description: formData.description.trim() }
+        : {}),
+      ...(formData.cohortId ? { cohortId: Number(formData.cohortId) } : {}),
+    };
+
+    if (editingId) {
+      updateScheduleMutation.mutate(
+        { scheduleId: editingId, data: payload },
+        { onSuccess: resetForm },
+      );
+    } else {
+      createScheduleMutation.mutate(payload, { onSuccess: resetForm });
+    }
   };
 
   const schedules = Array.isArray(schedulesData)
@@ -71,6 +124,9 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
       (s: any) => s.courseId?.toString() === courseId?.toString(),
     ) || [];
 
+  const isSubmitting =
+    createScheduleMutation.isPending || updateScheduleMutation.isPending;
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-center justify-between">
@@ -79,11 +135,11 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
             Teaching Schedule
           </h2>
           <p className="text-slate-500 text-sm">
-            Create and manage your live sessions or office hours.
+            Create and manage your live sessions, Q&amp;A workshops, or office hours.
           </p>
         </div>
         <Button
-          onClick={() => setIsAdding(!isAdding)}
+          onClick={() => (isAdding ? resetForm() : setIsAdding(true))}
           className="bg-accent hover:bg-amber-light text-slate-900 font-bold gap-2"
         >
           {isAdding ? (
@@ -101,12 +157,12 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
           <CardHeader className="bg-white border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-2">
             <Calendar className="w-5 h-5 text-accent" />
             <CardTitle className="text-lg font-bold">
-              New Session Details
+              {editingId ? "Edit Session Details" : "New Session Details"}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <form
-              onSubmit={handleCreate}
+              onSubmit={handleSubmit}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
               <div className="space-y-2">
@@ -143,9 +199,53 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent h-11"
                 >
                   <option value="LIVE">Live Session</option>
+                  <option value="RECORDING">Recorded Lecture Release</option>
+                  <option value="Q_AND_A">Q &amp; A / Mentorship</option>
                   <option value="OFFICE_HOURS">Office Hours</option>
                   <option value="WORKSHOP">Workshop</option>
                 </select>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label
+                  htmlFor="cohortId"
+                  className="text-sm font-bold text-slate-700"
+                >
+                  Target Cohort (Optional)
+                </Label>
+                <select
+                  id="cohortId"
+                  value={formData.cohortId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, cohortId: e.target.value })
+                  }
+                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent h-11"
+                >
+                  <option value="">All cohorts in this course</option>
+                  {cohorts.map((c: any) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label
+                  htmlFor="description"
+                  className="text-sm font-bold text-slate-700"
+                >
+                  Description / Agenda
+                </Label>
+                <Textarea
+                  id="description"
+                  placeholder="Topics covered or joining instructions..."
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  className="bg-white border-slate-200 focus:ring-accent min-h-[75px]"
+                />
               </div>
 
               <div className="space-y-2">
@@ -184,15 +284,25 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                 />
               </div>
 
-              <div className="md:col-span-2 pt-4 flex justify-end">
+              <div className="md:col-span-2 pt-4 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={resetForm}
+                  className="h-11 px-5"
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="submit"
-                  disabled={createScheduleMutation.isPending}
+                  disabled={isSubmitting}
                   className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 px-8 rounded-lg transition-all shadow-md active:scale-95"
                 >
-                  {createScheduleMutation.isPending
-                    ? "Scheduling..."
-                    : "Create Schedule"}
+                  {isSubmitting
+                    ? "Saving..."
+                    : editingId
+                      ? "Update Schedule"
+                      : "Create Schedule"}
                 </Button>
               </div>
             </form>
@@ -248,9 +358,9 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   className="border-none shadow-sm h-full group hover:shadow-md transition-shadow"
                 >
                   <CardContent className="p-5 flex flex-col h-full">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
+                    <div className="flex items-start justify-between mb-3 gap-2">
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${
                               session.type === "LIVE"
@@ -260,13 +370,43 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                           >
                             {session.type}
                           </span>
-                          <h4 className="font-bold text-slate-800 line-clamp-1">
-                            {session.title}
-                          </h4>
+                          {session.cohort?.name && (
+                            <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold">
+                              {session.cohort.name}
+                            </span>
+                          )}
                         </div>
+                        <h4 className="font-bold text-slate-800 line-clamp-1">
+                          {session.title}
+                        </h4>
+                        {session.description && (
+                          <p className="text-xs text-slate-500 line-clamp-2">
+                            {session.description}
+                          </p>
+                        )}
                       </div>
-                      <div className="p-2 bg-slate-50 rounded text-slate-400 group-hover:text-accent transition-colors">
-                        <Video className="w-4 h-4" />
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditClick(session)}
+                          className="h-8 w-8 text-slate-400 hover:text-slate-900"
+                          title="Edit session"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          disabled={deleteScheduleMutation.isPending}
+                          onClick={() => deleteScheduleMutation.mutate(session.id)}
+                          className="h-8 w-8 text-slate-400 hover:text-rose-600"
+                          title="Delete session"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
                     </div>
 

@@ -147,9 +147,9 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
         className={cn(
           "bg-[#0f172a] border-r border-white/10 transition-all duration-300 flex flex-col min-h-screen sticky top-0 z-50 shrink-0",
           // Desktop: Full width
-          "lg:w-64",
+          "lg:w-[272px]",
           // Mobile: Toggleable full sidebar
-          "w-64 fixed inset-y-0 left-0 lg:sticky -translate-x-full lg:translate-x-0",
+          "w-[272px] fixed inset-y-0 left-0 lg:sticky -translate-x-full lg:translate-x-0",
           isOpen && "translate-x-0",
         )}
       >

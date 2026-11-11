@@ -13,7 +13,7 @@ import {
 import { useMyTransactions } from "@/features/student/hooks/usePayment";
 
 import { academyService } from "@/services/academyService";
-import { useUser, useLogout } from "@/features/auth/hooks/useAuth";
+import { useUser, useLogout, usePortalMode } from "@/features/auth/hooks/useAuth";
 import {
   ChevronLeft,
   ChevronRight,
@@ -58,9 +58,11 @@ import { AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { RubricCriteriaTable } from "@/features/rubric/components/RubricCriteriaTable";
 import { DiscussionForumView } from "@/features/rubric/components/DiscussionForumView";
+import { ExamIdentityVerificationCard } from "@/features/rubric/components/ExamIdentityVerificationCard";
 import { examSecurityService } from "@/features/rubric/services/examSecurityService";
 import { wabonComplianceService } from "@/features/rubric/services/wabonComplianceService";
 import { useSeatTimeSummary } from "@/features/rubric/hooks/useSeatTime";
+import { useLessonReadings } from "@/features/rubric/hooks/useCurriculumCrosswalk";
 
 interface CourseItem {
   id: string;
@@ -437,6 +439,16 @@ const LmsLearn = () => {
     user?.academyRole === "INSTRUCTOR" ||
     user?.academyActiveRole === "INSTRUCTOR" ||
     user?.globalRole === "ADMIN";
+  const { isAuditor } = usePortalMode();
+  const isPrivilegedReviewer =
+    isAuditor ||
+    isInstructor ||
+    user?.academyRole === "COMMISSION_AUDITOR" ||
+    user?.academyActiveRole === "COMMISSION_AUDITOR" ||
+    user?.globalRole === "ADMIN";
+  const isReadOnlyPreview = Boolean(isAuditor || (!isEnrolled && isPrivilegedReviewer));
+
+  const { data: lessonReadings } = useLessonReadings(activeLessonId);
 
   const prevQuizLessonRef = useRef<string | null>(null);
 
@@ -540,9 +552,9 @@ const LmsLearn = () => {
     detailedExercisesLoaded,
   ]);
 
-  // WAC 246-841A-440 Exam Security: Monitor tab switches / window blur during exam
+  // Exam Security: Monitor tab switches / window blur during exam
   useEffect(() => {
-    if (activeItemType !== "quiz" || quizSubmitted || !isExamAttested) return;
+    if (activeItemType !== "quiz" || quizSubmitted || !isExamAttested || isReadOnlyPreview) return;
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -555,7 +567,6 @@ const LmsLearn = () => {
             examSecurityService
               .recordTabBlur({
                 sessionId: examSessionId,
-                blurDurationSeconds: 4,
               })
               .catch((err) => {
                 console.warn("[ExamSecurity] Tab blur event logging failed:", err);
@@ -570,11 +581,11 @@ const LmsLearn = () => {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [activeItemType, quizSubmitted, isExamAttested, examSessionId]);
+  }, [activeItemType, quizSubmitted, isExamAttested, examSessionId, isReadOnlyPreview]);
 
-  // WAC 246-841A-440(6) Active Seat-Time Heartbeat Engine (60s interval / Active engagement rules)
+  // Active Seat-Time Heartbeat Engine (60s interval, skipped in read-only inspection mode)
   useEffect(() => {
-    if (!activeLessonId || !course?.id) return;
+    if (!activeLessonId || !course?.id || isReadOnlyPreview) return;
 
     const pulseInterval = setInterval(() => {
       const isFocused = !document.hidden;
@@ -582,18 +593,11 @@ const LmsLearn = () => {
         .recordSeatTimeHeartbeat({
           lessonId: activeLessonId,
           courseId: course.id,
-          cohortId: (course as any).cohortId || 1,
+          ...(activeItem?.id && !isNaN(Number(activeItem.id))
+            ? { contentId: Number(activeItem.id) }
+            : {}),
           activeSeconds: isFocused ? 60 : 0,
           idleSeconds: isFocused ? 0 : 60,
-          tabFocused: isFocused,
-          intervalSeconds: 60,
-          engagementScore: isFocused ? 1.0 : 0.0,
-          interactionType:
-            activeItemType === "video"
-              ? "VIDEO_PLAYBACK"
-              : activeItemType === "quiz"
-              ? "QUIZ_INTERACTION"
-              : "READING",
         })
         .catch((err: any) => {
           console.warn("[SeatTime] Heartbeat sync failed:", err?.message || err);
@@ -601,7 +605,7 @@ const LmsLearn = () => {
     }, 60000);
 
     return () => clearInterval(pulseInterval);
-  }, [activeLessonId, course?.id, activeItemType]);
+  }, [activeLessonId, course?.id, activeItem?.id, isReadOnlyPreview]);
 
   // WAC 246-841A-440 Exam Security: Timed countdown session
   useEffect(() => {
@@ -663,7 +667,7 @@ const LmsLearn = () => {
     );
   }
 
-  if (!enrollmentsLoading && !isEnrolled) {
+  if (!enrollmentsLoading && !isEnrolled && !isPrivilegedReviewer) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--lms-bg)] p-6 text-center">
         <div className="w-20 h-20 bg-amber-50 rounded-lg flex items-center justify-center mb-6 border border-amber-100 shadow-[var(--lms-shadow-sm)]">
@@ -717,6 +721,7 @@ const LmsLearn = () => {
   };
 
   const handleMarkContentComplete = async (contentItem?: any) => {
+    if (isReadOnlyPreview) return;
     const item = contentItem || activeItem;
     if (!item || !course?.id) return;
     if (item.itemType === "quiz" || item.itemType === "discussion") return;
@@ -786,6 +791,7 @@ const LmsLearn = () => {
   };
 
   const handleMarkComplete = () => {
+    if (isReadOnlyPreview) return;
     if (activeLessonId) {
       const lessonKey = String(activeLessonId);
       if (
@@ -837,6 +843,46 @@ const LmsLearn = () => {
 
   const handleOptionSelect = (exerciseId: string, option: string) => {
     setSelectedAnswers((prev) => ({ ...prev, [exerciseId]: option }));
+  };
+
+  const renderRequiredReadings = (
+    wrapperClassName = "mt-6 bg-white rounded-xl p-5 border border-[var(--lovable-border)] shadow-sm space-y-3",
+  ) => {
+    if (!Array.isArray(lessonReadings) || lessonReadings.length === 0) {
+      return null;
+    }
+    return (
+      <div className={wrapperClassName}>
+        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 m-0">
+          <BookOpen className="w-4 h-4 text-blue-600" />
+          Required Textbook Readings
+        </h3>
+        <div className="space-y-2">
+          {lessonReadings.map((reading: any) => (
+            <div
+              key={reading.id}
+              className="p-3 rounded-lg bg-slate-50 border border-slate-200/80 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+            >
+              <div>
+                <span className="font-bold text-slate-900 block">
+                  {reading.textbook?.title || "Course Textbook"}
+                  {reading.textbook?.edition
+                    ? ` (${reading.textbook.edition})`
+                    : ""}
+                </span>
+                <span className="text-slate-600">{reading.chapters}</span>
+              </div>
+              <Badge
+                variant="outline"
+                className="text-[10px] font-bold bg-white shrink-0"
+              >
+                {reading.pageRange}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   const isYouTube = (url?: string) => {
@@ -963,94 +1009,37 @@ const LmsLearn = () => {
               )}
             </div>
 
-            {/* WAC 246-841A-440: Student Identity Verification & Honor Pledge Gate */}
+            {/* Student Identity Verification, Webcam/ID Capture & Honor Pledge Gate */}
             {!quizSubmitted && !isExamAttested ? (
-              <div className="rounded-xl bg-white border border-slate-200 shadow-sm p-6 md:p-8 space-y-6">
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 m-0">
-                      Academic Integrity & Identity Verification
-                    </h3>
-                    <p className="text-xs text-slate-500 m-0">
-                      Examination Security Protocol
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg text-xs">
-                  <div>
-                    <span className="text-slate-400 font-semibold block uppercase text-[10px] tracking-wider mb-0.5">
-                      Enrolled Student
-                    </span>
-                    <span className="font-bold text-slate-800 text-sm block">
-                      {user ? `${user.firstname} ${user.lastname}` : "Candidate"}
-                    </span>
-                    <span className="text-slate-500 block">{user?.email}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 font-semibold block uppercase text-[10px] tracking-wider mb-0.5">
-                      Monitored Parameters
-                    </span>
-                    <span className="font-bold text-slate-800 text-sm block">
-                      {exercisesList.length} Questions · Timed Assessment
-                    </span>
-                    <span className="text-slate-500 block">Tab navigation & window focus monitored</span>
-                  </div>
-                </div>
-
-                <div className="rounded-lg border border-amber-200 bg-amber-50/60 p-4 text-xs text-amber-900 space-y-2">
-                  <div className="flex items-center gap-2 font-bold text-amber-800">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                    Student Examination Attestation
-                  </div>
-                  <p className="leading-relaxed">
-                    By beginning this assessment, I certify that I am the enrolled student listed above. I attest that I will complete this examination independently without unauthorized aids, browser extensions, secondary monitors, or external assistance, in compliance with academy assessment policies.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
-                  <label className="flex items-center gap-2.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={attestationChecked}
-                      onChange={(e) => setAttestationChecked(e.target.checked)}
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
-                    />
-                    <span>I confirm my identity and agree to the exam integrity pledge</span>
-                  </label>
-
-                  <Button
-                    onClick={() => {
-                      if (!attestationChecked) {
-                        toast.error("Please confirm your identity and check the attestation pledge to begin.");
-                        return;
-                      }
-                      setIsExamAttested(true);
-                      toast.success("Identity verified. Monitored examination session started.");
-                      examSecurityService
-                        .startSession({
-                          exerciseId: exercisesList[0]?.id || 1,
-                          honorCodeAccepted: true,
-                          userAgent: navigator.userAgent,
-                        })
-                        .then((session) => {
-                          if (session?.id) setExamSessionId(session.id);
-                        })
-                        .catch((err) => {
-                          console.warn("[ExamSecurity] Failed to register proctored exam session:", err);
-                        });
-                    }}
-                    disabled={!attestationChecked}
-                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-6 h-10 rounded-lg shadow-sm"
-                  >
-                    <ShieldCheck className="w-4 h-4 mr-2" />
-                    Begin Monitored Assessment
-                  </Button>
-                </div>
-              </div>
+              <ExamIdentityVerificationCard
+                user={user}
+                questionsCount={exercisesList.length}
+                attestationChecked={attestationChecked}
+                onAttestationChange={setAttestationChecked}
+                isReadOnlyPreview={isReadOnlyPreview}
+                onBeginExam={({ idPhotoUrl, webcamSnapUrl }) => {
+                  setIsExamAttested(true);
+                  if (isReadOnlyPreview) return;
+                  toast.success("Identity verified. Monitored examination session started.");
+                  const targetExerciseId = exercisesList[0]?.id;
+                  if (!targetExerciseId) return;
+                  examSecurityService
+                    .startSession({
+                      exerciseId: targetExerciseId,
+                      idPhotoUrl,
+                      webcamSnapUrl,
+                      honorCodeAccepted: true,
+                      userAgent: navigator.userAgent,
+                    })
+                    .then((session) => {
+                      const sid = session?.sessionId ?? session?.id;
+                      if (sid) setExamSessionId(sid);
+                    })
+                    .catch((err) => {
+                      console.warn("[ExamSecurity] Failed to register proctored exam session:", err);
+                    });
+                }}
+              />
             ) : (
               <>
                 {/* First-Week Attendance Gate Notice */}
@@ -1225,7 +1214,7 @@ const LmsLearn = () => {
                 );
                 })}
 
-                {!quizSubmitted && (
+                {!quizSubmitted && !isReadOnlyPreview && (
                   <div className="flex justify-center pt-2">
                     <Button
                       onClick={() => {
@@ -1277,8 +1266,12 @@ const LmsLearn = () => {
                             setQuizSubmitted(true);
 
                             if (examSessionId) {
+                              const percentScore =
+                                exercisesList.length > 0
+                                  ? Math.round((serverScore / exercisesList.length) * 100)
+                                  : 0;
                               examSecurityService
-                                .endSession({ sessionId: examSessionId })
+                                .endSession({ sessionId: examSessionId, score: percentScore })
                                 .catch((err) => {
                                   console.warn("[ExamSecurity] Failed to cleanly end session:", err);
                                 });
@@ -1420,6 +1413,8 @@ const LmsLearn = () => {
               )}
             </div>
           </div>
+
+          {renderRequiredReadings("mt-6 bg-white rounded-xl p-5 border border-[var(--lovable-border)] shadow-sm max-w-4xl space-y-3")}
 
           {/* Unit Discussion Callout (WAC 246-841A-440) */}
           <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/40 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-4xl shadow-2xs">
@@ -1577,7 +1572,7 @@ const LmsLearn = () => {
                 </span>
               )}
             </div>
-            {!isContentCompleted(activeItem?.id) && (
+            {!isContentCompleted(activeItem?.id) && !isReadOnlyPreview && (
               <Button
                 size="sm"
                 variant="outline"
@@ -1589,6 +1584,8 @@ const LmsLearn = () => {
               </Button>
             )}
           </div>
+
+          {renderRequiredReadings()}
 
           {/* Unit Discussion Callout (WAC 246-841A-440) */}
           <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/40 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
@@ -1647,12 +1644,18 @@ const LmsLearn = () => {
           <h2>{activeMod?.title || "Unit"}: Clinical Dialogue & Peer Responses</h2>
 
           <div className="mt-6 w-full max-w-full">
-            <DiscussionForumView
-              moduleId={activeMod?.id || 1}
-              isInstructor={isInstructor}
-              canCreateTopic={false}
-              className="w-full"
-            />
+            {activeMod?.id ? (
+              <DiscussionForumView
+                moduleId={activeMod.id}
+                isInstructor={isInstructor}
+                canCreateTopic={false}
+                className="w-full"
+              />
+            ) : (
+              <div className="p-8 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-500">
+                Select a module lesson to load its unit discussion forum.
+              </div>
+            )}
           </div>
         </main>
       );
@@ -1687,12 +1690,19 @@ const LmsLearn = () => {
           <button
             className="icon-button"
             aria-label="Return to dashboard"
-            onClick={() => navigate("/dashboard")}
+            onClick={() =>
+              navigate(isAuditor ? "/instructor/audit" : "/dashboard")
+            }
           >
             <ArrowLeft size={19} strokeWidth={1.8} />
           </button>
           <span className="header-divider" />
           <h1>{course.title}</h1>
+          {isReadOnlyPreview && (
+            <Badge className="ml-2 bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-bold">
+              Read-Only Inspection
+            </Badge>
+          )}
         </div>
 
         {/* Profile Dropdown */}
@@ -2032,7 +2042,7 @@ const LmsLearn = () => {
                 </button>
               </div>
 
-              {activeItemType !== "quiz" && activeItemType !== "discussion" && (
+              {activeItemType !== "quiz" && activeItemType !== "discussion" && !isReadOnlyPreview && (
                 <button
                   className={`complete-button ${isLessonCompleted ? "completed" : ""}`}
                   onClick={handleMarkComplete}

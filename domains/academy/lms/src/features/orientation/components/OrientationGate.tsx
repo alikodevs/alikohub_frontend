@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import { useUser } from "@/features/auth/hooks/useAuth";
+import { useUser, usePortalMode } from "@/features/auth/hooks/useAuth";
 import { useEnrollments } from "@/hooks/useAcademy";
 import { useOrientationStatus } from "../hooks/useOrientation";
 import { Button } from "@/components/ui/button";
@@ -24,12 +24,16 @@ export const OrientationGate: React.FC<OrientationGateProps> = ({ children }) =>
   const navigate = useNavigate();
   const location = useLocation();
   const { data: user, isLoading: userLoading } = useUser();
+  const { isAuditor } = usePortalMode();
   const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollments();
 
-  // If user is Instructor or Admin, orientation prerequisite is bypassed
+  // Instructor, Admin, and Commission Auditor bypass student orientation gating
   const isPrivileged =
+    isAuditor ||
     user?.academyRole === "INSTRUCTOR" ||
     user?.academyActiveRole === "INSTRUCTOR" ||
+    user?.academyRole === "COMMISSION_AUDITOR" ||
+    user?.academyActiveRole === "COMMISSION_AUDITOR" ||
     user?.globalRole === "ADMIN" ||
     user?.academyRole === "ADMIN";
 
@@ -44,16 +48,16 @@ export const OrientationGate: React.FC<OrientationGateProps> = ({ children }) =>
     );
   }, [enrollments, id]);
 
-  const cohortId = Number(enrollment?.cohortId || enrollment?.cohort?.id || 1);
+  const rawCohortId = enrollment?.cohortId || enrollment?.cohort?.id;
+  const cohortId = rawCohortId ? Number(rawCohortId) : null;
 
-  // Check orientation status for the student's cohort
+  // Check orientation status only when student has an assigned cohort
   const {
     data: status,
     isLoading: statusLoading,
     isError,
-    error,
     refetch,
-  } = useOrientationStatus(isPrivileged ? null : cohortId);
+  } = useOrientationStatus(isPrivileged || !cohortId ? null : cohortId);
 
   if (userLoading || (enrollmentsLoading && !isPrivileged)) {
     return (

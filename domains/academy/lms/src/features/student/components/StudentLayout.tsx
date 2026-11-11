@@ -19,6 +19,7 @@ import {
   useUser,
   useSwitchAcademyRole,
   useLogout,
+  usePortalMode,
 } from "@/features/auth/hooks/useAuth";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isChatRoute = location.pathname === "/chat";
   const { data: user } = useUser();
+  const { isAuditor } = usePortalMode();
   const { mutate: switchRole, isPending: isSwitching } = useSwitchAcademyRole();
   const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -157,8 +159,18 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
-            {/* Role button — three states */}
-            {isInstructor ? (
+            {/* Role button — auditor inspection, approved instructor, pending, or apply */}
+            {isAuditor ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/instructor/audit")}
+                className="gap-2 text-primary border-primary/20 hover:bg-primary/10 hover:text-primary text-xs h-9 hidden sm:flex transition-colors"
+              >
+                <Repeat className="w-3.5 h-3.5" />
+                Back to Audit Portal
+              </Button>
+            ) : isInstructor ? (
               /* Approved instructor: switch to instructor dashboard */
               <Button
                 variant="outline"
@@ -347,7 +359,17 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
 
                   {/* Mobile-only: role button inside dropdown */}
                   <div className="sm:hidden py-1 border-b">
-                    {isInstructor ? (
+                    {isAuditor ? (
+                      <button
+                        onClick={() => {
+                          navigate("/instructor/audit");
+                          setProfileOpen(false);
+                        }}
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors w-full text-left"
+                      >
+                        <Repeat className="w-4 h-4" /> Back to Audit Portal
+                      </button>
+                    ) : isInstructor ? (
                       <button
                         onClick={() => {
                           handleSwitchRole();

@@ -11,6 +11,8 @@ import {
   BookOpen,
   Info,
   CalendarDays,
+  Edit3,
+  Trash2,
 } from "lucide-react";
 import {
   Card,
@@ -25,6 +27,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useCreateTeachingSchedule,
+  useUpdateTeachingSchedule,
+  useDeleteTeachingSchedule,
   useTeachingSchedules,
   useInstructorCourses,
   useCohorts,
@@ -54,6 +58,7 @@ const typeColors: Record<string, string> = {
 
 const InstructorSchedules = () => {
   const [isAdding, setIsAdding] = useState(false);
+  const [editingScheduleId, setEditingScheduleId] = useState<number | null>(null);
   const [formData, setFormData] = useState<FormState>({
     title: "",
     description: "",
@@ -78,6 +83,8 @@ const InstructorSchedules = () => {
   );
 
   const createScheduleMutation = useCreateTeachingSchedule();
+  const updateScheduleMutation = useUpdateTeachingSchedule();
+  const deleteScheduleMutation = useDeleteTeachingSchedule();
 
   const courses = coursesData?.courses || [];
   const cohorts = (cohortsData as any)?.cohorts || [];
@@ -137,21 +144,29 @@ const InstructorSchedules = () => {
       isRecurring: formData.isRecurring,
     };
 
-    createScheduleMutation.mutate(payload, {
-      onSuccess: () => {
-        setIsAdding(false);
-        setFormData({
-          title: "",
-          description: "",
-          type: "WORKSHOP",
-          courseId: "",
-          cohortId: "",
-          startTime: "",
-          endTime: "",
-          isRecurring: false,
-        });
-      },
-    });
+    const onSuccessReset = () => {
+      setIsAdding(false);
+      setEditingScheduleId(null);
+      setFormData({
+        title: "",
+        description: "",
+        type: "WORKSHOP",
+        courseId: "",
+        cohortId: "",
+        startTime: "",
+        endTime: "",
+        isRecurring: false,
+      });
+    };
+
+    if (editingScheduleId) {
+      updateScheduleMutation.mutate(
+        { scheduleId: editingScheduleId, data: payload },
+        { onSuccess: onSuccessReset }
+      );
+    } else {
+      createScheduleMutation.mutate(payload, { onSuccess: onSuccessReset });
+    }
   };
 
   // Helper to look up course title by ID
@@ -175,7 +190,15 @@ const InstructorSchedules = () => {
             </p>
           </div>
           <Button
-            onClick={() => setIsAdding(!isAdding)}
+            onClick={() => {
+              if (isAdding) {
+                setIsAdding(false);
+                setEditingScheduleId(null);
+              } else {
+                setEditingScheduleId(null);
+                setIsAdding(true);
+              }
+            }}
             className="bg-accent hover:bg-amber-light text-slate-900 font-bold gap-2 shadow-sm transition-all"
           >
             {isAdding ? (
@@ -199,7 +222,7 @@ const InstructorSchedules = () => {
                   <Calendar className="w-5 h-5 text-accent" />
                   <div>
                     <CardTitle className="text-lg font-bold">
-                      New Cohort Scheduling
+                      {editingScheduleId ? "Update Scheduled Session" : "New Cohort Scheduling"}
                     </CardTitle>
                     <CardDescription className="text-xs text-slate-500">
                       Determine the date, course context, and exact cohort
@@ -436,19 +459,24 @@ const InstructorSchedules = () => {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setIsAdding(false)}
+                        onClick={() => {
+                          setIsAdding(false);
+                          setEditingScheduleId(null);
+                        }}
                         className="h-11 px-6 rounded-lg transition-all"
                       >
                         Cancel
                       </Button>
                       <Button
                         type="submit"
-                        disabled={createScheduleMutation.isPending}
+                        disabled={createScheduleMutation.isPending || updateScheduleMutation.isPending}
                         className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 px-8 rounded-lg shadow-md transition-all active:scale-95 disabled:opacity-50"
                       >
-                        {createScheduleMutation.isPending
-                          ? "Scheduling..."
-                          : "Create Schedule"}
+                        {(createScheduleMutation.isPending || updateScheduleMutation.isPending)
+                          ? "Saving..."
+                          : editingScheduleId
+                            ? "Update Schedule"
+                            : "Create Schedule"}
                       </Button>
                     </div>
                   </form>
@@ -572,6 +600,41 @@ const InstructorSchedules = () => {
                               <div className="text-[10px] text-slate-400 font-medium">
                                 {formattedTimeRange}
                               </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setEditingScheduleId(Number(session.id));
+                                  setFormData({
+                                    title: session.title || "",
+                                    description: session.description || "",
+                                    type: session.type || "WORKSHOP",
+                                    courseId: session.courseId ? String(session.courseId) : "",
+                                    cohortId: session.cohortId ? String(session.cohortId) : "",
+                                    startTime: session.startTime ? format(new Date(session.startTime), "yyyy-MM-dd'T'HH:mm") : "",
+                                    endTime: session.endTime ? format(new Date(session.endTime), "yyyy-MM-dd'T'HH:mm") : "",
+                                    isRecurring: Boolean(session.isRecurring),
+                                  });
+                                  setIsAdding(true);
+                                  window.scrollTo({ top: 0, behavior: "smooth" });
+                                }}
+                                className="h-8 px-2.5 text-xs gap-1"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" /> Edit
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                disabled={deleteScheduleMutation.isPending}
+                                onClick={() => deleteScheduleMutation.mutate(session.id)}
+                                className="h-8 px-2.5 text-xs text-rose-600 border-rose-200 hover:bg-rose-50"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
                             </div>
                           </div>
                         </div>

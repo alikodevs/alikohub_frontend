@@ -704,9 +704,9 @@ const SubmissionDetail = () => {
   const userExamSession = useMemo(() => {
     if (!examSessions || !group) return null;
     return (
-      examSessions.find((s) => s.studentUserId === group.userId) ||
-      examSessions[0] ||
-      null
+      examSessions.find(
+        (s) => (s.userId ?? s.studentUserId) === group.userId
+      ) || null
     );
   }, [examSessions, group]);
 
@@ -756,12 +756,30 @@ const SubmissionDetail = () => {
     toast.success("Rubric evaluation applied and grade published.");
   };
 
-  const handleSaveOverallFeedback = () => {
+  const handleSaveOverallFeedback = async () => {
+    const trimmed = overallFeedback.trim();
+    if (!trimmed) {
+      toast.error("Please enter overall feedback before saving.");
+      return;
+    }
+    const target = submissions[0];
+    if (!target?.id) {
+      toast.error("No submission record found to persist feedback.");
+      return;
+    }
     setIsSavingOverall(true);
-    setTimeout(() => {
+    try {
+      await handleGradeSubmit(target.id, {
+        isCorrect: Boolean(target.isCorrect),
+        score: Number(target.score ?? 0),
+        feedback: trimmed,
+      });
+      toast.success("Overall assessment feedback saved to student gradebook record.");
+    } catch {
+      toast.error("Failed to persist overall feedback.");
+    } finally {
       setIsSavingOverall(false);
-      toast.success("Overall assessment feedback saved and linked to student grade report.");
-    }, 600);
+    }
   };
 
   return (
@@ -940,7 +958,15 @@ const SubmissionDetail = () => {
           )}
 
           {/* ── Exam Security & Proctoring Telemetry Card ── */}
-          {userExamSession && (
+          {userExamSession && (() => {
+            const sessionId = Number(userExamSession.id ?? userExamSession.sessionId);
+            const blurCount = userExamSession.tabBlurCount ?? 0;
+            const isFlagged = blurCount >= 3 || Boolean(userExamSession.isFlagged);
+            const isAudited = Boolean(userExamSession.isAudited);
+            const webcamUrl = userExamSession.webcamSnapshotUrl ?? userExamSession.webcamSnapUrl;
+            const photoIdUrl = userExamSession.photoIdSnapshotUrl ?? userExamSession.idPhotoUrl;
+
+            return (
             <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
@@ -948,18 +974,24 @@ const SubmissionDetail = () => {
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 flex-wrap">
                       Proctored Exam Security Telemetry
                       <Badge
                         variant="outline"
                         className={cn(
                           "text-[10px] font-bold",
-                          userExamSession.isFlagged
-                            ? "bg-rose-50 text-rose-700 border-rose-300"
-                            : "bg-emerald-50 text-emerald-700 border-emerald-300"
+                          isAudited
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                            : isFlagged
+                              ? "bg-rose-50 text-rose-700 border-rose-300"
+                              : "bg-amber-50 text-amber-700 border-amber-300"
                         )}
                       >
-                        {userExamSession.isFlagged ? "FLAGGED FOR REVIEW" : "SESSION AUDITED / APPROVED"}
+                        {isAudited
+                          ? "AUDITED / APPROVED"
+                          : isFlagged
+                            ? "FLAGGED (3+ BLURS)"
+                            : "PENDING AUDIT"}
                       </Badge>
                     </h3>
                     <p className="text-xs text-slate-500">
@@ -974,26 +1006,24 @@ const SubmissionDetail = () => {
                     variant="outline"
                     onClick={() =>
                       auditSessionMutation.mutate({
-                        sessionId: userExamSession.id,
-                        isFlagged: true,
-                        auditNotes: "Flagged during instructor submission review.",
+                        sessionId,
+                        isAudited: false,
                       })
                     }
-                    disabled={auditSessionMutation.isPending}
+                    disabled={auditSessionMutation.isPending || !sessionId}
                     className="h-8 text-xs font-bold text-rose-600 border-rose-200 hover:bg-rose-50"
                   >
-                    <ShieldAlert className="w-3.5 h-3.5 mr-1" /> Flag Anomaly
+                    <ShieldAlert className="w-3.5 h-3.5 mr-1" /> Mark Unverified
                   </Button>
                   <Button
                     size="sm"
                     onClick={() =>
                       auditSessionMutation.mutate({
-                        sessionId: userExamSession.id,
-                        isFlagged: false,
-                        auditNotes: "Verified and approved by instructor.",
+                        sessionId,
+                        isAudited: true,
                       })
                     }
-                    disabled={auditSessionMutation.isPending}
+                    disabled={auditSessionMutation.isPending || !sessionId}
                     className="h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Approve Proctor Session
@@ -1008,10 +1038,10 @@ const SubmissionDetail = () => {
                     Window Blur / Tab Switches
                   </span>
                   <span className="text-base font-black text-slate-900 block">
-                    {userExamSession.tabBlurCount} Incidents
+                    {blurCount} Incidents
                   </span>
                   <span className="text-[11px] text-slate-500">
-                    Duration: {userExamSession.totalBlurDurationSeconds}s out of focus
+                    {isFlagged ? "Exceeds threshold (>= 3 blurs)" : "Within acceptable range (< 3)"}
                   </span>
                 </div>
 
@@ -1019,9 +1049,9 @@ const SubmissionDetail = () => {
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">
                     Webcam Identity Snapshot
                   </span>
-                  {userExamSession.webcamSnapshotUrl ? (
+                  {webcamUrl ? (
                     <a
-                      href={userExamSession.webcamSnapshotUrl}
+                      href={webcamUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-primary font-bold hover:underline flex items-center gap-1 mt-1"
@@ -1029,7 +1059,7 @@ const SubmissionDetail = () => {
                       <Camera className="w-3.5 h-3.5" /> View Photo Snapshot
                     </a>
                   ) : (
-                    <span className="text-xs text-slate-500 font-medium block mt-1">Verified on Webcam</span>
+                    <span className="text-xs text-slate-400 font-medium block mt-1">Not captured</span>
                   )}
                 </div>
 
@@ -1037,9 +1067,9 @@ const SubmissionDetail = () => {
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">
                     Government Photo ID
                   </span>
-                  {userExamSession.photoIdSnapshotUrl ? (
+                  {photoIdUrl ? (
                     <a
-                      href={userExamSession.photoIdSnapshotUrl}
+                      href={photoIdUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-primary font-bold hover:underline flex items-center gap-1 mt-1"
@@ -1047,21 +1077,25 @@ const SubmissionDetail = () => {
                       <FileText className="w-3.5 h-3.5" /> View Photo ID
                     </a>
                   ) : (
-                    <span className="text-xs text-slate-500 font-medium block mt-1">ID Verified</span>
+                    <span className="text-xs text-slate-400 font-medium block mt-1">Not uploaded</span>
                   )}
                 </div>
 
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Proctor Audit Notes
+                    Session Window &amp; Score
                   </span>
-                  <p className="text-xs text-slate-700 italic mt-0.5 line-clamp-2">
-                    {userExamSession.auditNotes || "No audit notes recorded yet."}
+                  <p className="text-xs text-slate-700 font-medium mt-0.5">
+                    Started: {userExamSession.startTime ? format(new Date(userExamSession.startTime), "MMM d, HH:mm") : "—"}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Score: {userExamSession.score !== null && userExamSession.score !== undefined ? `${userExamSession.score}%` : "Pending end"}
                   </p>
                 </div>
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* ── Question-by-Question Review List ── */}
           <div className="space-y-4">

@@ -41,6 +41,19 @@ const parseOptions = (options: any): string[] => {
   return [];
 };
 
+const normalizeExerciseType = (rawType?: string) => {
+  if (rawType === "SHORT_ANSWER" || rawType === "ESSAY") return "SHORT_TEXT";
+  if (
+    rawType === "MULTIPLE_CHOICE" ||
+    rawType === "TRUE_FALSE" ||
+    rawType === "MATCHING" ||
+    rawType === "SHORT_TEXT"
+  ) {
+    return rawType;
+  }
+  return "MULTIPLE_CHOICE";
+};
+
 export const ExerciseModal = ({
   isOpen,
   onClose,
@@ -71,7 +84,7 @@ export const ExerciseModal = ({
       initialData?.title?.split(" ||| ")[0] ||
       initialTitle?.split(" ||| ")[0] ||
       "",
-    type: initialData?.type || "MULTIPLE_CHOICE",
+    type: normalizeExerciseType(initialData?.type),
     question: initialData?.question || "",
     description: initialData?.description || "",
     options: initialData?.options
@@ -88,7 +101,7 @@ export const ExerciseModal = ({
       if (initialData) {
         setFormData({
           title: initialData.title?.split(" ||| ")[0] || "",
-          type: initialData.type || "MULTIPLE_CHOICE",
+          type: normalizeExerciseType(initialData.type),
           question: initialData.question || "",
           description: initialData.description || "",
           options: parseOptions(initialData.options),
@@ -145,7 +158,7 @@ export const ExerciseModal = ({
         options: ["True", "False"],
         correctAnswer: "",
       });
-    } else if (newType === "SHORT_ANSWER" || newType === "ESSAY") {
+    } else if (newType === "SHORT_TEXT") {
       setFormData({
         ...formData,
         type: newType,
@@ -197,7 +210,7 @@ export const ExerciseModal = ({
 
   const validateForm = () => {
     if (!formData.title) return false;
-    if (formData.type === "SHORT_ANSWER" || formData.type === "ESSAY") {
+    if (formData.type === "SHORT_TEXT") {
       return true;
     }
     return formData.correctAnswer !== "";
@@ -206,12 +219,16 @@ export const ExerciseModal = ({
   const prepareExerciseData = (data: any) => {
     // Suffix with the active batch ID to ensure grouping
     const fullTitle = `${data.title} ||| ${activeBatchId}`;
+    const validType = normalizeExerciseType(data.type);
 
     return {
-      ...data,
       title: fullTitle,
       description: data.title,
       question: data.title,
+      type: validType,
+      options: validType === "SHORT_TEXT" ? [] : data.options,
+      correctAnswer: data.correctAnswer,
+      points: Number(data.points) || 1,
     };
   };
 
@@ -302,8 +319,7 @@ export const ExerciseModal = ({
             {[
               { id: "MULTIPLE_CHOICE", icon: List, label: "Multiple Choice" },
               { id: "TRUE_FALSE", icon: CheckSquare, label: "True / False" },
-              { id: "SHORT_ANSWER", icon: FileText, label: "Short Answer" },
-              { id: "ESSAY", icon: BookOpen, label: "Clinical Essay / Rubric" },
+              { id: "SHORT_TEXT", icon: FileText, label: "Short Answer / Clinical Response" },
             ].map((t) => (
               <button
                 key={t.id}
@@ -323,7 +339,7 @@ export const ExerciseModal = ({
           <div className="flex gap-4">
             <div className="flex-1 space-y-2">
               <label className="text-sm font-bold text-slate-800">
-                {formData.type === "ESSAY" ? "Prompt / Clinical Case Study" : "Question"}
+                {formData.type === "SHORT_TEXT" ? "Prompt / Question" : "Question"}
               </label>
               <Input
                 value={formData.title}
@@ -331,8 +347,8 @@ export const ExerciseModal = ({
                   setFormData({ ...formData, title: e.target.value })
                 }
                 placeholder={
-                  formData.type === "ESSAY"
-                    ? "e.g. Analyze the patient scenario and outline immediate non-pharmacological interventions..."
+                  formData.type === "SHORT_TEXT"
+                    ? "e.g. Analyze the patient scenario and outline immediate interventions..."
                     : "e.g. What is the standard duration for medical asepsis hand hygiene?"
                 }
                 className="bg-white border-slate-200 h-12 rounded-xl focus-visible:ring-[#F5C07A]"
@@ -353,7 +369,7 @@ export const ExerciseModal = ({
             </div>
           </div>
 
-          {formData.type === "SHORT_ANSWER" || formData.type === "ESSAY" ? (
+          {formData.type === "SHORT_TEXT" ? (
             <div className="space-y-4 pb-2">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-800 block">
@@ -382,7 +398,7 @@ export const ExerciseModal = ({
                         : formData.points,
                     });
                   }}
-                  typeFilter={formData.type === "ESSAY" ? "ASSIGNMENT" : undefined}
+                  typeFilter="ASSIGNMENT"
                   label="Attach Standardized Evaluation Rubric"
                 />
               </div>

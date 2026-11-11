@@ -192,63 +192,106 @@ export const SupportDeskPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* SLA & System Requirements Banner */}
+      {/* SLA & System Requirements Banner (aligned to GET /support-desk/system-requirements) */}
       {systemRequirements && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
-            <Clock className="w-8 h-8 text-primary shrink-0" />
-            <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                Service Level Commitment
-              </span>
-              <p className="text-xs font-bold text-slate-900">
-                {systemRequirements.slaUrgent ||
-                  systemRequirements.urgentSla ||
-                  (systemRequirements.urgentSlaHours != null
-                    ? `Urgent issues: ${systemRequirements.urgentSlaHours}-hour response`
-                    : "Priority queue active")}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                {systemRequirements.slaStandard ||
-                  systemRequirements.generalSla ||
-                  (systemRequirements.generalSlaHours != null
-                    ? `Standard inquiries: ${systemRequirements.generalSlaHours}-hour SLA`
-                    : "Tracked in support queue")}
-              </p>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-start gap-3">
+              <Clock className="w-7 h-7 text-primary shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                  Service Level Commitment
+                </span>
+                <p className="text-xs font-bold text-slate-900">
+                  {systemRequirements.helpdeskSla
+                    ? `Urgent: ${systemRequirements.helpdeskSla.urgentPriorityHours}h | High: ${systemRequirements.helpdeskSla.highPriorityHours}h | Standard: ${systemRequirements.helpdeskSla.mediumPriorityHours}h`
+                    : "Support Queue Active"}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {systemRequirements.helpdeskSla?.supportHoursDescription ||
+                    "Tracked in support queue"}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-start gap-3">
+              <Laptop className="w-7 h-7 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                  System &amp; Browser Compatibility
+                </span>
+                <p className="text-xs font-bold text-slate-900">
+                  {Array.isArray(systemRequirements.supportedBrowsers)
+                    ? systemRequirements.supportedBrowsers
+                        .map((b: any) =>
+                          typeof b === "string"
+                            ? b
+                            : `${b.name} ${b.minVersion}+`
+                        )
+                        .join(", ")
+                    : "Modern Web Browsers"}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {systemRequirements.hardwareRequirements
+                    ? `Min ${Math.round((systemRequirements.hardwareRequirements.minimumRamMb || 4096) / 1024)}GB RAM · ${systemRequirements.hardwareRequirements.minimumDisplayResolution || "1280x720"} · ${
+                        systemRequirements.hardwareRequirements.webcamRequiredForExams
+                          ? "Webcam Required for Exams"
+                          : "Standard Display"
+                      }`
+                    : "Audio / video support verified via diagnostics"}
+                </p>
+                {Array.isArray(systemRequirements.supportedOperatingSystems) && (
+                  <p className="text-[10px] text-slate-400">
+                    OS: {systemRequirements.supportedOperatingSystems.join(", ")}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-start gap-3">
+              <CheckCircle2 className="w-7 h-7 text-blue-600 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                  Network &amp; Security Diagnostics
+                </span>
+                <p className="text-xs font-bold text-slate-900">
+                  {systemRequirements.networkRequirements
+                    ? `Min ${systemRequirements.networkRequirements.minimumBandwidthMbps} Mbps (${systemRequirements.networkRequirements.recommendedBandwidthMbps} Mbps rec.)`
+                    : "Automated client telemetry"}
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  {systemRequirements.browserSettingsRequired
+                    ? "Cookies, JavaScript, LocalStorage & WebRTC Camera enabled"
+                    : "Browser, resolution & WebRTC check attached to tickets"}
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
-            <Laptop className="w-8 h-8 text-emerald-600 shrink-0" />
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                System Compatibility
+              <span className="font-bold text-slate-900 block mb-0.5">
+                Privacy &amp; Data Security
               </span>
-              <p className="text-xs font-bold text-slate-900">
-                {Array.isArray(systemRequirements.supportedBrowsers)
-                  ? systemRequirements.supportedBrowsers.join(", ")
-                  : systemRequirements.browsers || "Modern Web Browsers"}
-              </p>
-              <p className="text-[11px] text-slate-500">
-                {systemRequirements.hardwareRequirements ||
-                  systemRequirements.minimumHardware ||
-                  "Audio / video support verified via client diagnostics"}
-              </p>
+              <span className="text-slate-600">
+                Role-scoped access controls, encrypted HTTPS transport, and protected academic/clinical records.
+              </span>
             </div>
-          </div>
-
-          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center gap-3">
-            <CheckCircle2 className="w-8 h-8 text-blue-600 shrink-0" />
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                Diagnostic Capture
+              <span className="font-bold text-slate-900 block mb-0.5">
+                Reliability &amp; Data Backup
               </span>
-              <p className="text-xs font-bold text-slate-900">
-                Automated client telemetry
-              </p>
-              <p className="text-[11px] text-slate-500">
-                Browser, resolution, WebRTC check
-              </p>
+              <span className="text-slate-600">
+                Seat-time telemetry, submissions, checkoffs, and clinical hours are atomically persisted in managed relational storage with automated backups.
+              </span>
+            </div>
+            <div>
+              <span className="font-bold text-slate-900 block mb-0.5">
+                LMS Training &amp; Tech Assistance
+              </span>
+              <span className="text-slate-600">
+                Platform onboarding completed during orientation; technical tickets include live browser/WebRTC diagnostics for troubleshooting.
+              </span>
             </div>
           </div>
         </div>

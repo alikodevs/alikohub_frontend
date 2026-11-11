@@ -19,6 +19,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
     name: "",
     startDate: "",
     endDate: "",
+    isHighSchoolTenMonth: false,
   });
 
   const { data: cohortsData, isLoading } = useCohorts(courseId);
@@ -31,10 +32,29 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
       return;
     }
 
+    const start = new Date(formData.startDate);
+    const end = new Date(formData.endDate);
+    if (end <= start) {
+      toast.error("End date must be after start date");
+      return;
+    }
+    const durationDays = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+    if (!formData.isHighSchoolTenMonth && durationDays > 90) {
+      toast.error(
+        "Standard cohorts must be completed within 90 days (3 months) unless marked as a 10-month high school calendar."
+      );
+      return;
+    }
+
+
     createCohortMutation.mutate(
       {
         courseId: Number(courseId),
-        ...formData,
+        name: formData.name,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        maxCapacity: 30,
+        isHighSchoolTenMonth: formData.isHighSchoolTenMonth,
       },
       {
         onSuccess: () => {
@@ -43,6 +63,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
             name: "",
             startDate: "",
             endDate: "",
+            isHighSchoolTenMonth: false,
           });
         },
       },
@@ -141,6 +162,29 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                   }
                   className="bg-white border-slate-200 h-11"
                 />
+              </div>
+
+              <div className="flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-600">
+                <span>
+                  Cohort Capacity: <strong className="text-slate-900">Fixed at 30 Students Max</strong> (1:30 instructor ratio cap; supervising instructor auto-assigned).
+                </span>
+              </div>
+
+              <div className="flex items-center pt-6">
+                <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isHighSchoolTenMonth}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        isHighSchoolTenMonth: e.target.checked,
+                      })
+                    }
+                    className="rounded border-slate-300 text-accent focus:ring-accent"
+                  />
+                  <span>10-Month High School Calendar Program (90-day exception)</span>
+                </label>
               </div>
 
               <div className="md:col-span-2 pt-4 flex justify-end">
@@ -248,6 +292,16 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                           >
                             {statusBadge.label}
                           </span>
+                          {cohort.maxCapacity != null && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                              Cap: {cohort.maxCapacity}
+                            </span>
+                          )}
+                          {cohort.isHighSchoolTenMonth && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                              10-Month HS
+                            </span>
+                          )}
                         </div>
                         <h4 className="font-bold text-slate-800 line-clamp-1 mt-1">
                           {cohort.name}

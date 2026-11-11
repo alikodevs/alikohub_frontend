@@ -75,7 +75,7 @@ const ApplyInstructor = () => {
         email: user?.email || "",
         phone: "",
       },
-      teachingArea: "Data Science, Machine Learning",
+      teachingArea: "",
       resumeUrl: "",
       interviewResponses: [
         { question: "Why do you want to teach?", answer: "" },
@@ -452,7 +452,7 @@ const ApplyInstructor = () => {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="e.g. Full Stack Web Development, UI/UX Design"
+                          placeholder="e.g. Certified Nursing Assistant (CNA), Clinical Skills Lab, Infection Control"
                           className="h-10 bg-slate-50/50 border-slate-200 focus-visible:ring-slate-300 text-slate-800 text-xs rounded-xl"
                           {...field}
                         />

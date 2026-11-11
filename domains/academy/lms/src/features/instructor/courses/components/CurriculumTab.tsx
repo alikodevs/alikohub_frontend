@@ -40,6 +40,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DiscussionForumView } from "@/features/rubric/components/DiscussionForumView";
+import { LessonReadingsTab } from "./LessonReadingsTab";
 
 interface CurriculumTabProps {
   course?: Course;
@@ -363,6 +364,12 @@ export const CurriculumTab = ({
               >
                 Assessments
               </TabsTrigger>
+              <TabsTrigger
+                value="readings"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#7c6ef0] data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium text-slate-500 data-[state=active]:text-[#7c6ef0] pb-3 px-0 transition-all text-[13.5px]"
+              >
+                Textbooks &amp; Readings
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="materials" className="mt-6">
@@ -554,6 +561,14 @@ export const CurriculumTab = ({
                   )}
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="readings" className="mt-6">
+              <LessonReadingsTab
+                courseId={course?.id}
+                lessonId={lesson.id}
+                lessonTitle={lesson.title}
+              />
             </TabsContent>
           </Tabs>
         </div>

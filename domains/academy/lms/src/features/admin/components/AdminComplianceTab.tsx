@@ -365,11 +365,19 @@ export const AdminComplianceTab: React.FC = () => {
                         Session #{sess.id}
                       </span>{" "}
                       <span className="text-slate-500">
-                        • Tab Blurs: {sess.tabBlurCount ?? 0} ({sess.totalBlurDurationSeconds ?? 0}s)
+                        &bull; User: {sess.userId || sess.studentUserId || "Candidate"} &bull; Tab Blurs: {sess.tabBlurCount ?? 0}
                       </span>
+                      {(sess.tabBlurCount ?? 0) >= 3 && (
+                        <Badge
+                          variant="outline"
+                          className="ml-2 bg-rose-50 text-rose-700 border-rose-200 text-[10px]"
+                        >
+                          FLAGGED (3+ BLURS)
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
-                      {(sess.isAudited || sess.auditNotes) ? (
+                      {sess.isAudited ? (
                         <Badge
                           variant="outline"
                           className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px]"

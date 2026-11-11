@@ -18,6 +18,8 @@ import {
   Users,
   LifeBuoy,
   ShieldCheck,
+  Megaphone,
+  Star,
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
 import { cn } from "@/lib/utils";
@@ -45,6 +47,7 @@ const navSections: NavSection[] = [
       { label: "My Courses", to: "/instructor/courses", icon: BookOpen, hideForAuditor: true },
       { label: "Analytics", to: "/instructor/analytics", icon: BarChart },
       { label: "Schedules", to: "/instructor/schedules", icon: CalendarDays, hideForAuditor: true },
+      { label: "Announcements", to: "/instructor/announcements", icon: Megaphone, hideForAuditor: true },
       { label: "Chat", to: "/instructor/chat", icon: MessageCircle, hideForAuditor: true },
     ],
   },
@@ -56,6 +59,7 @@ const navSections: NavSection[] = [
       { label: "Gradebook", to: "/instructor/gradebook", icon: GraduationCap },
       { label: "Submissions", to: "/instructor/submissions", icon: ClipboardList },
       { label: "Rubrics", to: "/instructor/rubrics", icon: Award },
+      { label: "Program Evaluations", to: "/instructor/evaluations", icon: Star },
     ],
   },
   {
@@ -185,7 +189,7 @@ const InstructorSidebar = ({
 
       <aside
         className={cn(
-          "w-[240px] shrink-0 flex flex-col h-screen bg-[#0b1739] border-r border-slate-800/60 z-50 text-slate-300",
+          "w-[272px] shrink-0 flex flex-col h-screen bg-[#0b1739] border-r border-slate-800/60 z-50 text-slate-300",
           // Desktop: always visible
           "hidden lg:flex lg:sticky lg:top-0",
           // Mobile: slide-in overlay

@@ -25,6 +25,7 @@ import {
   AlertCircle,
   HelpCircle,
   Layers,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   useSkillsList,
+  useCreateSkillMutation,
   useStudentSkillsMatrix,
   useRecordCheckoffMutation,
   useInstructorCredentials,
@@ -128,6 +130,41 @@ export const CNACompetencyMatrixPage: React.FC = () => {
   const [evaluatorSignature, setEvaluatorSignature] = useState<string>("");
 
   const recordCheckoffMutation = useRecordCheckoffMutation();
+  const createSkillMutation = useCreateSkillMutation();
+  const [isRegisterSkillOpen, setIsRegisterSkillOpen] = useState(false);
+  const [newSkillNumber, setNewSkillNumber] = useState("");
+  const [newSkillName, setNewSkillName] = useState("");
+  const [newSkillCategory, setNewSkillCategory] = useState("Basic Nursing");
+  const [newSkillStepsText, setNewSkillStepsText] = useState("");
+
+  const handleCreateSkill = async () => {
+    const steps = newSkillStepsText
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (!newSkillNumber.trim() || !newSkillName.trim() || !newSkillCategory.trim()) {
+      toast.error("Skill number, name, and category are required.");
+      return;
+    }
+    if (steps.length === 0) {
+      toast.error("Enter at least one evaluation step (one per line).");
+      return;
+    }
+    try {
+      await createSkillMutation.mutateAsync({
+        skillNumber: newSkillNumber.trim(),
+        name: newSkillName.trim(),
+        category: newSkillCategory.trim(),
+        steps,
+      });
+      setNewSkillNumber("");
+      setNewSkillName("");
+      setNewSkillStepsText("");
+      setIsRegisterSkillOpen(false);
+    } catch {
+      // Error toast handled by mutation
+    }
+  };
 
   // Instructor WABON RN Credential State
   const { data: instructorCredential, refetch: refetchCredential } = useInstructorCredentials(
@@ -357,6 +394,16 @@ export const CNACompetencyMatrixPage: React.FC = () => {
               </div>
             </div>
           </div>
+          {canManageStaffActions && (
+            <Button
+              size="sm"
+              onClick={() => setIsRegisterSkillOpen(true)}
+              className="h-10 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              Register Core Skill
+            </Button>
+          )}
         </div>
       </div>
 
@@ -927,6 +974,100 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                   <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
                 )}
                 Register & Verify Credentials
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Register Core Skill Modal */}
+      <Dialog
+        open={isRegisterSkillOpen}
+        onOpenChange={(open) => !open && setIsRegisterSkillOpen(false)}
+      >
+        <DialogContent className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 max-w-md space-y-4">
+          <div className="space-y-1">
+            <DialogTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Stethoscope className="w-5 h-5 text-emerald-600" />
+              Register Core Competency Skill
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500">
+              Add a state-aligned CNA lab skill and its critical evaluation steps.
+            </DialogDescription>
+          </div>
+
+          <div className="space-y-3 pt-1">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">
+                  Skill Number *
+                </label>
+                <Input
+                  value={newSkillNumber}
+                  onChange={(e) => setNewSkillNumber(e.target.value)}
+                  placeholder="e.g. SK-23"
+                  className="h-9 text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">
+                  Category *
+                </label>
+                <Input
+                  value={newSkillCategory}
+                  onChange={(e) => setNewSkillCategory(e.target.value)}
+                  placeholder="e.g. Infection Control"
+                  className="h-9 text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">
+                Skill Title *
+              </label>
+              <Input
+                value={newSkillName}
+                onChange={(e) => setNewSkillName(e.target.value)}
+                placeholder="e.g. Donning and Removing PPE Gown and Gloves"
+                className="h-9 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">
+                Critical Steps * (one step per line)
+              </label>
+              <Textarea
+                rows={5}
+                value={newSkillStepsText}
+                onChange={(e) => setNewSkillStepsText(e.target.value)}
+                placeholder={"Perform hand hygiene before putting on PPE\nPut on gown and tie both neck and waist ties\nPut on gloves extending over gown cuffs"}
+                className="text-xs resize-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsRegisterSkillOpen(false)}
+                className="h-8 text-xs"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                disabled={createSkillMutation.isPending}
+                onClick={handleCreateSkill}
+                className="h-8 text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white"
+              >
+                {createSkillMutation.isPending ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <Plus className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                Register Skill
               </Button>
             </div>
           </div>

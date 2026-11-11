@@ -10,6 +10,9 @@ import {
   Users,
   CalendarDays,
   ChevronRight,
+  Stethoscope,
+  MapPin,
+  Gauge,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEnrollments, useCourseSchedules } from "@/hooks/useAcademy";
@@ -18,6 +21,7 @@ import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { useQueries } from "@tanstack/react-query";
 import { academyService } from "@/services/academyService";
+import { wabonComplianceService } from "@/features/rubric/services/wabonComplianceService";
 
 const typeColors: Record<string, string> = {
   LIVE: "bg-rose-100 text-rose-700",
@@ -105,6 +109,23 @@ const StudentSchedules = () => {
     return lookup;
   }, [enrollments]);
 
+  // Deduplicate enrolled cohort IDs for clinical shifts and 90-day pacing
+  const enrolledCohortIds = useMemo(() => {
+    if (!enrollments) return [];
+    const activeEnrollments = enrollments.filter(
+      (e: any) =>
+        e.status === "ACTIVE" ||
+        e.status === "COMPLETED" ||
+        completedTxCourseIds.has(e.courseId ?? e.course?.id),
+    );
+    const ids = new Set<number>();
+    activeEnrollments.forEach((e: any) => {
+      const chId = e.cohortId ?? e.cohort?.id;
+      if (chId) ids.add(Number(chId));
+    });
+    return Array.from(ids);
+  }, [enrollments, completedTxCourseIds]);
+
   // Fetch schedules for each enrolled course in parallel
   const scheduleQueries = useQueries({
     queries: enrolledCourseIds.map((courseId) => ({
@@ -116,8 +137,51 @@ const StudentSchedules = () => {
     })),
   });
 
+  // Fetch clinical facility shifts and cohort pacing for enrolled cohorts
+  const clinicalShiftQueries = useQueries({
+    queries: enrolledCohortIds.map((cohortId) => ({
+      queryKey: ["clinical-shifts", "cohort", cohortId],
+      queryFn: () => wabonComplianceService.getCohortClinicalShifts(cohortId),
+      enabled: !!cohortId,
+      staleTime: 2 * 60 * 1000,
+    })),
+  });
+
+  const gradeReportQueries = useQueries({
+    queries: enrolledCohortIds.map((cohortId) => ({
+      queryKey: ["gradebook", "student", cohortId, undefined],
+      queryFn: () => wabonComplianceService.getStudentGradeReport(cohortId),
+      enabled: !!cohortId,
+      staleTime: 2 * 60 * 1000,
+    })),
+  });
+
   const isSchedulesLoading =
     enrollmentsLoading || scheduleQueries.some((q) => q.isLoading);
+
+  const clinicalShifts = useMemo(() => {
+    const merged: any[] = [];
+    clinicalShiftQueries.forEach((q) => {
+      if (Array.isArray(q.data)) merged.push(...q.data);
+    });
+    const seen = new Set<number>();
+    return merged
+      .filter((shift) => {
+        if (!shift?.id || seen.has(shift.id)) return false;
+        seen.add(shift.id);
+        return true;
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.shiftDate).getTime() - new Date(b.shiftDate).getTime(),
+      );
+  }, [clinicalShiftQueries]);
+
+  const cohortPacingSummaries = useMemo(() => {
+    return gradeReportQueries
+      .map((q) => q.data)
+      .filter((r): r is NonNullable<typeof r> => Boolean(r?.summary?.pacing));
+  }, [gradeReportQueries]);
 
   // Merge all schedules from all courses, sort by startTime ascending
   const allSchedules = useMemo(() => {
@@ -427,6 +491,65 @@ const StudentSchedules = () => {
                 </div>
               </div>
             )}
+
+            {/* Scheduled Clinical Facility Shifts */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-base font-heading font-bold text-foreground flex items-center gap-2">
+                  <Stethoscope className="w-4 h-4 text-emerald-600" />
+                  Clinical Facility Shifts
+                </h2>
+                <Link
+                  to="/clinical"
+                  className="text-xs font-semibold text-primary hover:underline"
+                >
+                  Open Clinical Roster &rarr;
+                </Link>
+              </div>
+              {clinicalShifts.length === 0 ? (
+                <div className="bg-card rounded-xl border p-6 text-center text-xs text-muted-foreground">
+                  No in-person clinical facility shifts scheduled for your cohort yet.
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {clinicalShifts.map((shift: any) => (
+                    <div
+                      key={shift.id}
+                      className="bg-card rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-wider">
+                            Clinical Shift · {shift.hoursCredited}h
+                          </span>
+                          {shift.cohort?.name && (
+                            <span className="text-[11px] text-muted-foreground font-medium">
+                              {shift.cohort.name}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          {shift.facilityName}
+                        </h4>
+                      </div>
+                      <div className="text-xs sm:text-right">
+                        <div className="font-bold text-foreground">
+                          {shift.shiftDate
+                            ? format(new Date(shift.shiftDate), "MMM d, yyyy")
+                            : "—"}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {shift.startTime && shift.endTime
+                            ? `${format(new Date(shift.startTime), "p")} — ${format(new Date(shift.endTime), "p")}`
+                            : "Shift times TBD"}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right sidebar */}
@@ -488,6 +611,53 @@ const StudentSchedules = () => {
                 )}
               </div>
             </div>
+
+            {/* Cohort Completion Pacing Deadlines */}
+            {cohortPacingSummaries.length > 0 && (
+              <div className="bg-card rounded-xl border p-5 space-y-3">
+                <h3 className="font-heading font-semibold text-foreground text-sm flex items-center gap-2">
+                  <Gauge className="w-4 h-4 text-primary" />
+                  Cohort Pacing Deadlines
+                </h3>
+                <div className="space-y-2.5">
+                  {cohortPacingSummaries.map((report) => {
+                    const pacing = report.summary.pacing;
+                    const badgeColor =
+                      pacing.status === "ON_TRACK"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : pacing.status === "AT_RISK"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-rose-100 text-rose-700";
+
+                    return (
+                      <div
+                        key={report.cohortId}
+                        className="p-3 rounded-lg bg-muted/50 border text-xs space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-foreground truncate">
+                            {report.courseTitle || `Cohort #${report.cohortId}`}
+                          </span>
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${badgeColor}`}
+                          >
+                            {pacing.status.replace(/_/g, " ")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                          <span>
+                            Progress: {pacing.actualProgressPercent}% / {pacing.expectedProgressPercent}% expected
+                          </span>
+                          <span className="font-semibold text-foreground">
+                            {pacing.daysRemainingInCohort}d left
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Info card */}
             <div

@@ -18,6 +18,7 @@ import {
   FileSpreadsheet,
   Users,
   LifeBuoy,
+  Star,
 } from "lucide-react";
 import logoLms from "@/assets/Aliko Academy LMS Icon.png";
 import { cn } from "@/lib/utils";
@@ -88,6 +89,7 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
     {
       title: "Training & Curriculum",
       items: [
+        { label: "My Grades", to: "/grades", icon: Award },
         { label: "Curriculum Crosswalk", to: "/curriculum", icon: FileSpreadsheet },
         { label: "Skills Lab", to: "/skills-lab", icon: Stethoscope },
         { label: "Clinical Training", to: "/clinical", icon: Building2 },
@@ -98,6 +100,7 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
       items: [
         { label: "Study Groups", to: "/study-groups", icon: Users },
         { label: "Peer Grading", to: "/peer-grading", icon: MessageSquareText },
+        { label: "Program Evaluation", to: "/evaluations", icon: Star },
         { label: "Support Desk", to: "/support", icon: LifeBuoy },
       ],
     },
@@ -184,7 +187,7 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
 
       <aside
         className={cn(
-          "relative w-[240px] shrink-0 flex flex-col h-screen bg-[#0b1739] border-r border-slate-800/60 z-50 text-slate-300",
+          "relative w-[272px] shrink-0 flex flex-col h-screen bg-[#0b1739] border-r border-slate-800/60 z-50 text-slate-300",
           // Desktop: always visible
           "hidden lg:flex lg:sticky lg:top-0",
           // Mobile: slide-in overlay

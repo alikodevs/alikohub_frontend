@@ -26,6 +26,7 @@ export const CreateCohortModal = ({
     courseId: "",
     startDate: "",
     endDate: "",
+    isHighSchoolTenMonth: false,
   });
 
   const { data: coursesData, isLoading: coursesLoading } = useInstructorCourses(
@@ -45,16 +46,39 @@ export const CreateCohortModal = ({
       return;
     }
 
+    const start = new Date(formData.startDate);
+    const end = new Date(formData.endDate);
+    if (end <= start) {
+      toast.error("End date must be after start date");
+      return;
+    }
+    const durationDays = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+    if (!formData.isHighSchoolTenMonth && durationDays > 90) {
+      toast.error(
+        "Standard cohorts must complete within 90 days (3 months) unless flagged as a 10-month high school calendar."
+      );
+      return;
+    }
+
+
     createCohortMutation.mutate(
       {
         courseId: Number(formData.courseId),
         name: formData.name,
         startDate: formData.startDate,
         endDate: formData.endDate,
+        maxCapacity: 30,
+        isHighSchoolTenMonth: formData.isHighSchoolTenMonth,
       },
       {
         onSuccess: () => {
-          setFormData({ name: "", courseId: "", startDate: "", endDate: "" });
+          setFormData({
+            name: "",
+            courseId: "",
+            startDate: "",
+            endDate: "",
+            isHighSchoolTenMonth: false,
+          });
           onClose();
         },
       },
@@ -162,6 +186,22 @@ export const CreateCohortModal = ({
               />
             </div>
           </div>
+
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
+            Cohort Capacity: <strong className="text-slate-900">Fixed at 30 Students Max</strong> (WAC 246-841A-440 1:30 ratio cap; supervising instructor auto-assigned).
+          </div>
+
+          <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.isHighSchoolTenMonth}
+              onChange={(e) =>
+                setFormData({ ...formData, isHighSchoolTenMonth: e.target.checked })
+              }
+              className="rounded border-slate-300 text-accent focus:ring-accent"
+            />
+            <span>10-Month High School Calendar Program (Exempt from 90-day limit)</span>
+          </label>
 
           <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={onClose}>

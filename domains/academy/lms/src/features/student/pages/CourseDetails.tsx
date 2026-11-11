@@ -24,6 +24,7 @@ import {
   useEnrollments,
 } from "@/hooks/useAcademy";
 import { useMyTransactions } from "@/features/student/hooks/usePayment";
+import { useUser, usePortalMode } from "@/features/auth/hooks/useAuth";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,6 +45,13 @@ const CourseDetails = () => {
   const { data: cohortsData } = useCohorts(id || "");
   const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollments();
   const { data: myTransactions } = useMyTransactions();
+  const { data: user } = useUser();
+  const { isAuditor } = usePortalMode();
+  const canInspectCourse =
+    isAuditor ||
+    user?.globalRole === "ADMIN" ||
+    user?.academyRole === "COMMISSION_AUDITOR" ||
+    user?.academyActiveRole === "COMMISSION_AUDITOR";
 
   useCourseSEO({
     title: course?.title || "Course Details",
@@ -319,6 +327,18 @@ const CourseDetails = () => {
                 </div>
 
                 <div className="space-y-3">
+                  {canInspectCourse && (
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-800 font-bold gap-2 h-11 rounded-xl"
+                      onClick={() => navigate(`/learn/${course.id}`)}
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                      Inspect Course Player (Read-Only)
+                    </Button>
+                  )}
+
                   {/* Dual Enrollment Options when Cohorts Exist */}
                   {cohorts.length > 0 && !isEnrolledInCourse && (
                     <div className="space-y-3 pt-2">

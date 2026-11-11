@@ -139,8 +139,18 @@ const InstructorLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
-            {/* Student view switch */}
-            {!isAuditor && (
+            {/* Student view switch / auditor read-only preview */}
+            {isAuditor ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/dashboard")}
+                className="gap-2 text-primary border-primary/20 hover:bg-primary/10 hover:text-primary text-xs h-9 hidden sm:flex transition-colors"
+              >
+                <Repeat className="w-3.5 h-3.5" />
+                Preview Student View
+              </Button>
+            ) : (
               <Button
                 variant="outline"
                 size="sm"
