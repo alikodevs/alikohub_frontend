@@ -11,6 +11,25 @@ export const useSkillsList = () => {
   });
 };
 
+export const useCreateSkillMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: {
+      skillNumber: string;
+      name: string;
+      category: string;
+      steps: string[];
+    }) => skillsLabService.createSkill(dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["skills-lab", "skills"] });
+      toast.success("Core competency skill registered");
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to register core skill");
+    },
+  });
+};
+
 export const useStudentSkillsMatrix = (
   studentUserId?: string,
   cohortId?: string | number
@@ -63,11 +82,33 @@ export const useRegisterCredentialsMutation = () => {
     }) => skillsLabService.registerInstructorCredentials(dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["instructor-credentials"] });
-      toast.success("WABON RN Instructor Credentials verified and active!");
+      toast.success("WABON RN Instructor Credentials registered!");
     },
     onError: (err: any) => {
       toast.error(
         err.response?.data?.message || "Failed to register RN credentials."
+      );
+    },
+  });
+};
+
+export const useUpdateCredentialsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (dto: {
+      rnLicenseNumber?: string;
+      rnLicenseExpiration?: string;
+      yearsLongTermCareExp?: number;
+      trainTheTrainerCertUrl?: string;
+      wabonApprovalLetterUrl?: string;
+    }) => skillsLabService.updateInstructorCredentials(dto),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["instructor-credentials"] });
+      toast.success("RN Instructor Credentials updated!");
+    },
+    onError: (err: any) => {
+      toast.error(
+        err.response?.data?.message || "Failed to update RN credentials."
       );
     },
   });

@@ -489,10 +489,43 @@ export const useCreateTeachingSchedule = () => {
       academyService.instructor.createTeachingSchedule(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teaching-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["course-schedules"] });
       toast.success("Schedule created successfully!");
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to create schedule");
+    },
+  });
+};
+
+export const useUpdateTeachingSchedule = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ scheduleId, data }: { scheduleId: string | number; data: any }) =>
+      academyService.instructor.updateTeachingSchedule(scheduleId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teaching-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["course-schedules"] });
+      toast.success("Schedule updated successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to update schedule");
+    },
+  });
+};
+
+export const useDeleteTeachingSchedule = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (scheduleId: string | number) =>
+      academyService.instructor.deleteTeachingSchedule(scheduleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teaching-schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["course-schedules"] });
+      toast.success("Schedule removed");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to remove schedule");
     },
   });
 };
@@ -530,13 +563,45 @@ export const useCreateCohort = () => {
       courseId: string | number;
       startDate: string;
       endDate: string;
+      maxCapacity?: number;
+      assignedInstructorIds?: string[];
+      isHighSchoolTenMonth?: boolean;
     }) => academyService.instructor.createCohort(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cohorts"] });
+      queryClient.invalidateQueries({ queryKey: ["instructor-cohorts"] });
       toast.success("Cohort created successfully!");
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to create cohort");
+    },
+  });
+};
+
+export const useUpdateCohort = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      cohortId,
+      data,
+    }: {
+      cohortId: string | number;
+      data: {
+        name?: string;
+        startDate?: string;
+        endDate?: string;
+        maxCapacity?: number;
+        assignedInstructorIds?: string[];
+        isHighSchoolTenMonth?: boolean;
+      };
+    }) => academyService.instructor.updateCohort(cohortId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cohorts"] });
+      queryClient.invalidateQueries({ queryKey: ["instructor-cohorts"] });
+      toast.success("Cohort updated successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to update cohort");
     },
   });
 };

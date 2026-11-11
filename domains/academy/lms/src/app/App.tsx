@@ -64,6 +64,7 @@ import Schedules from "@/features/instructor/pages/Schedules";
 import InstructorSettings from "@/features/instructor/pages/Settings";
 import InstructorChat from "@/features/instructor/pages/Chat";
 import InstructorNotifications from "@/features/instructor/pages/InstructorNotifications";
+import InstructorAnnouncements from "@/features/instructor/pages/InstructorAnnouncements";
 
 // Pages - Account
 import Profile from "@/features/student/account/Profile";
@@ -79,6 +80,9 @@ import PeerGrading from "@/features/student/pages/PeerGrading";
 import PeerGradingDetail from "@/features/student/pages/PeerGradingDetail";
 import StudentSchedules from "@/features/student/pages/StudentSchedules";
 import Announcements from "@/features/student/pages/Announcements";
+import StudentGradesPage from "@/features/student/pages/StudentGradesPage";
+import ProgramEvaluationsPage from "@/features/evaluations/ProgramEvaluationsPage";
+import PublicCertificateVerifyPage from "@/features/student/pages/PublicCertificateVerifyPage";
 import ChatPage from "@/features/chat/ChatPage";
 
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -100,6 +104,11 @@ const AppInner = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/verify-certificate" element={<PublicCertificateVerifyPage />} />
+      <Route
+        path="/verify/credential/:certificateNumber"
+        element={<PublicCertificateVerifyPage />}
+      />
 
       {/* Default Redirect */}
       <Route path="/" element={<LoginPage />} />
@@ -135,6 +144,8 @@ const AppInner = () => {
         <Route path="/account-security" element={<AccountSecurity />} />
         <Route path="/subscriptions" element={<Subscriptions />} />
         <Route path="/certifications" element={<Certifications />} />
+        <Route path="/grades" element={<StudentGradesPage />} />
+        <Route path="/evaluations" element={<ProgramEvaluationsPage />} />
         <Route path="/career-hub" element={<CareerHub />} />
         <Route path="/transactions" element={<TransactionsPage />} />
         <Route path="/peer-grading" element={<PeerGrading />} />
@@ -173,6 +184,8 @@ const AppInner = () => {
           <Route path="/instructor/support" element={<SupportDeskPage />} />
           <Route path="/instructor/audit" element={<ComplianceAuditPage />} />
           <Route path="/instructor/schedules" element={<Schedules />} />
+          <Route path="/instructor/announcements" element={<InstructorAnnouncements />} />
+          <Route path="/instructor/evaluations" element={<ProgramEvaluationsPage />} />
           <Route path="/instructor/settings" element={<InstructorSettings />} />
           <Route path="/instructor/chat" element={<InstructorChat />} />
           <Route

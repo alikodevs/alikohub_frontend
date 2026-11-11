@@ -4,15 +4,27 @@ import type { Skill, SkillCheckoff, SkillsLabMatrix } from "../types";
 export const skillsLabService = {
   /**
    * Register a new core NA competency skill
-   * Postman 3.5.1: POST {{baseUrl}}/skills-lab/skills
+   * Backend: POST /skills-lab/skills (CreateCoreSkillSchema)
    */
-  createSkill: async (dto: Partial<Skill>): Promise<Skill> => {
+  createSkill: async (dto: {
+    skillNumber: string;
+    name?: string;
+    title?: string;
+    category: string;
+    steps?: string[];
+    criticalSteps?: string[];
+  }): Promise<Skill> => {
+    const steps =
+      Array.isArray(dto.steps) && dto.steps.length > 0
+        ? dto.steps
+        : Array.isArray(dto.criticalSteps)
+        ? dto.criticalSteps
+        : [];
     const payload = {
-      ...dto,
-      skillNumber: dto.skillNumber,
-      name: (dto as any).name || dto.title,
-      category: dto.category,
-      description: dto.description || "",
+      skillNumber: dto.skillNumber.trim(),
+      name: (dto.name || dto.title || "").trim(),
+      category: dto.category.trim(),
+      steps,
     };
     const response = await api.post<Skill>("/skills-lab/skills", payload);
     return response.data;
@@ -144,6 +156,21 @@ export const skillsLabService = {
     wabonApprovalLetterUrl?: string;
   }): Promise<any> => {
     const response = await api.post("/instructors/credentials", dto);
+    return response.data;
+  },
+
+  /**
+   * Update Instructor WABON RN Credentials
+   * Backend: PUT /instructors/credentials (UpdateCredentialSchema)
+   */
+  updateInstructorCredentials: async (dto: {
+    rnLicenseNumber?: string;
+    rnLicenseExpiration?: string;
+    yearsLongTermCareExp?: number;
+    trainTheTrainerCertUrl?: string;
+    wabonApprovalLetterUrl?: string;
+  }): Promise<any> => {
+    const response = await api.put("/instructors/credentials", dto);
     return response.data;
   },
 

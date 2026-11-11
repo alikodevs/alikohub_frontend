@@ -54,16 +54,36 @@ export const useAssignReadingMutation = () => {
       chapters: string;
       pageRange: string;
       courseId?: number;
-    }) => wabonComplianceService.assignLessonReading(dto),
+    }) =>
+      wabonComplianceService.assignLessonReading({
+        lessonId: dto.lessonId,
+        textbookId: dto.textbookId,
+        chapters: dto.chapters,
+        pageRange: dto.pageRange,
+      }),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({
         queryKey: ["curriculum-crosswalk"],
       });
+      if (vars.lessonId) {
+        queryClient.invalidateQueries({
+          queryKey: ["curriculum-crosswalk", "readings", "lesson", vars.lessonId],
+        });
+      }
       toast.success("Reading assignment linked to unit syllabus");
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || "Failed to assign reading");
     },
+  });
+};
+
+export const useLessonReadings = (lessonId?: string | number | null) => {
+  return useQuery<any[]>({
+    queryKey: ["curriculum-crosswalk", "readings", "lesson", lessonId],
+    queryFn: () => wabonComplianceService.getLessonReadings(lessonId!),
+    enabled: Boolean(lessonId),
+    staleTime: 2 * 60 * 1000,
   });
 };
 

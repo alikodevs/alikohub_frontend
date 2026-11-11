@@ -2,19 +2,19 @@ import api from "@/lib/api";
 import type { SeatTimeHeartbeatDto, SeatTimeSummary } from "../types";
 
 export const wabonComplianceService = {
-  // ── Seat-Time Heartbeat Engine (WAC 246-841A-440(2) / Postman 2.4.1) ──
+  // ── Seat-Time Heartbeat Engine (SeatTimeHeartbeatSchema) ──
   recordSeatTimeHeartbeat: async (dto: SeatTimeHeartbeatDto): Promise<{ success: boolean; recordedSeconds?: number }> => {
-    const payload = {
+    const activeSeconds = Math.min(120, Math.max(0, Math.round(dto.activeSeconds ?? 60)));
+    const idleSeconds = Math.max(0, Math.round(dto.idleSeconds ?? 0));
+    const payload: Record<string, any> = {
       courseId: Number(dto.courseId),
       lessonId: Number(dto.lessonId),
-      ...(dto.cohortId ? { cohortId: Number(dto.cohortId) } : {}),
-      activeSeconds: dto.activeSeconds ?? dto.intervalSeconds ?? 60,
-      idleSeconds: dto.idleSeconds ?? 0,
-      tabFocused: dto.tabFocused !== undefined ? dto.tabFocused : true,
-      intervalSeconds: dto.intervalSeconds ?? dto.activeSeconds ?? 60,
-      engagementScore: dto.engagementScore ?? 1.0,
-      interactionType: dto.interactionType ?? "READING",
+      activeSeconds,
+      idleSeconds,
     };
+    if (dto.contentId && !isNaN(Number(dto.contentId))) {
+      payload.contentId = Number(dto.contentId);
+    }
     const response = await api.post<{ success: boolean; recordedSeconds?: number }>(
       "/seat-time/heartbeat",
       payload
@@ -279,6 +279,64 @@ export const wabonComplianceService = {
     includeFullLogs?: boolean;
   }) => {
     const response = await api.post("/compliance-exporter/dossier", dto);
+    return response.data;
+  },
+
+  // ── End-of-Course Evaluations (EvaluationsController) ──
+  submitEvaluationSurvey: async (dto: {
+    cohortId: number;
+    courseRating: number;
+    platformRating: number;
+    instructorRating: number;
+    comments?: string;
+  }) => {
+    const payload = {
+      cohortId: Number(dto.cohortId),
+      courseRating: Number(dto.courseRating),
+      platformRating: Number(dto.platformRating),
+      instructorRating: Number(dto.instructorRating),
+      ...(dto.comments?.trim() ? { comments: dto.comments.trim() } : {}),
+    };
+    const response = await api.post("/evaluations/surveys", payload);
+    return response.data;
+  },
+
+  getMyEvaluationSurvey: async (cohortId: string | number) => {
+    try {
+      const response = await api.get(`/evaluations/my-survey/${cohortId}`);
+      return response.data;
+    } catch (err: any) {
+      if (err?.response?.status === 404) return null;
+      throw err;
+    }
+  },
+
+  getCohortEvaluationSurveys: async (cohortId: string | number) => {
+    const response = await api.get(`/evaluations/cohort/${cohortId}`);
+    return response.data;
+  },
+
+  // ── State Certification & Verification (CertificationController) ──
+  generateCertificate: async (dto: {
+    cohortId: number;
+    userId?: string;
+    directorName?: string;
+    directorRnLicense?: string;
+  }) => {
+    const payload: Record<string, any> = {
+      cohortId: Number(dto.cohortId),
+    };
+    if (dto.userId) payload.userId = dto.userId;
+    if (dto.directorName?.trim()) payload.directorName = dto.directorName.trim();
+    if (dto.directorRnLicense?.trim()) payload.directorRnLicense = dto.directorRnLicense.trim();
+    const response = await api.post("/certification/generate", payload);
+    return response.data;
+  },
+
+  verifyCertificate: async (certificateNumber: string) => {
+    const response = await api.post("/certification/verify", {
+      certificateNumber: certificateNumber.trim(),
+    });
     return response.data;
   },
 };

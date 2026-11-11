@@ -528,10 +528,13 @@ const LmsMyLearning = () => {
                             </div>
 
                             {isCompleted ? (
-                              <button className="text-[13px] font-semibold text-primary hover:underline flex items-center gap-1 transition-colors">
+                              <Link
+                                to="/certifications"
+                                className="text-[13px] font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
+                              >
                                 View certificate{" "}
                                 <ArrowRight className="w-3.5 h-3.5" />
-                              </button>
+                              </Link>
                             ) : (
                               <Link
                                 to={`/courses/${courseId}`}

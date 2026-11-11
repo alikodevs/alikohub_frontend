@@ -430,16 +430,56 @@ export const academyService = {
       return response.data;
     },
 
+    updateTeachingSchedule: async (scheduleId: string | number, data: any) => {
+      const response = await api.patch(`/teaching-schedule/${scheduleId}`, data);
+      return response.data;
+    },
+
+    deleteTeachingSchedule: async (scheduleId: string | number) => {
+      const response = await api.delete(`/teaching-schedule/${scheduleId}`);
+      return response.data;
+    },
+
     createCohort: async (data: {
       name: string;
       courseId: string | number;
       startDate: string;
       endDate: string;
+      maxCapacity?: number;
+      assignedInstructorIds?: string[];
+      isHighSchoolTenMonth?: boolean;
     }) => {
-      const response = await api.post<Cohort>("/cohorts", {
-        ...data,
+      const payload: Record<string, any> = {
+        name: data.name,
         courseId: Number(data.courseId),
-      });
+        startDate: data.startDate,
+        endDate: data.endDate,
+      };
+      if (data.maxCapacity !== undefined) {
+        payload.maxCapacity = Number(data.maxCapacity);
+      }
+      if (data.assignedInstructorIds?.length) {
+        payload.assignedInstructorIds = data.assignedInstructorIds;
+      }
+      if (data.isHighSchoolTenMonth !== undefined) {
+        payload.isHighSchoolTenMonth = Boolean(data.isHighSchoolTenMonth);
+      }
+      const response = await api.post<Cohort>("/cohorts", payload);
+      return response.data;
+    },
+
+    updateCohort: async (
+      cohortId: string | number,
+      data: {
+        name?: string;
+        startDate?: string;
+        endDate?: string;
+        maxCapacity?: number;
+        assignedInstructorIds?: string[];
+        isHighSchoolTenMonth?: boolean;
+      },
+    ) => {
+      const response = await api.put<Cohort>(`/cohorts/${cohortId}`, data);
       return response.data;
     },
 

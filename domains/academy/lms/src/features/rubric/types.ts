@@ -252,55 +252,63 @@ export interface SkillsLabMatrix {
 // ── Exam Security & Proctoring Types (WABON WAC 246-841A-440(9)) ──
 export interface StartExamSessionDto {
   exerciseId: string | number;
+  idPhotoUrl?: string;
+  webcamSnapUrl?: string;
   webcamSnapshotUrl?: string;
   photoIdSnapshotUrl?: string;
+  ipAddress?: string;
   clientIp?: string;
   userAgent?: string;
-  honorCodeAccepted?: boolean;
+  honorCodeAccepted: boolean;
 }
 
 export interface ExamSession {
   id: string | number;
+  sessionId?: string | number;
   exerciseId: string | number;
+  userId?: string;
   studentUserId?: string;
   startTime: string;
   endTime?: string;
   tabBlurCount: number;
-  totalBlurDurationSeconds: number;
+  totalBlurDurationSeconds?: number;
+  idPhotoUrl?: string | null;
+  webcamSnapUrl?: string | null;
   webcamSnapshotUrl?: string;
   photoIdSnapshotUrl?: string;
+  score?: number | null;
+  isAudited?: boolean;
   isFlagged?: boolean;
-  auditNotes?: string;
+  hasIdPhoto?: boolean;
+  hasWebcamSnap?: boolean;
+  profile?: {
+    userId: string;
+    role: string;
+  };
 }
 
 export interface TabBlurDto {
   sessionId: string | number;
-  blurDurationSeconds: number;
-  currentQuestionIndex?: number;
 }
 
 export interface EndExamSessionDto {
   sessionId: string | number;
+  score?: number;
 }
 
 export interface AuditExamSessionDto {
   sessionId: string | number;
   isAudited?: boolean;
   isFlagged?: boolean;
-  auditNotes?: string;
 }
 
 // ── Active Seat-Time Heartbeat Engine (WABON WAC 246-841A-440(6)) ──
 export interface SeatTimeHeartbeatDto {
   courseId: string | number;
   lessonId: string | number;
-  cohortId?: string | number;
-  activeSeconds?: number;
+  contentId?: string | number;
+  activeSeconds: number;
   idleSeconds?: number;
-  tabFocused?: boolean;
-  intervalSeconds?: number;
-  engagementScore?: number;
-  interactionType?: "VIDEO_PLAYBACK" | "READING" | "QUIZ_INTERACTION" | "EXERCISE" | string;
 }
 
 export interface SeatTimeSummary {
@@ -791,4 +799,127 @@ export interface ComplianceDossier {
       generalSlaHours: number;
     };
   };
+}
+
+// ── Support System Requirements (GET /support-desk/system-requirements) ──
+export interface SystemRequirements {
+  supportedOperatingSystems: string[];
+  supportedBrowsers: Array<{
+    name: string;
+    minVersion: string;
+    recommended: boolean;
+  }>;
+  hardwareRequirements: {
+    minimumRamMb: number;
+    recommendedRamMb: number;
+    webcamRequiredForExams: boolean;
+    microphoneRequiredForConferencing: boolean;
+    minimumDisplayResolution: string;
+  };
+  networkRequirements: {
+    minimumBandwidthMbps: number;
+    recommendedBandwidthMbps: number;
+    latencyMsThreshold: number;
+  };
+  browserSettingsRequired: {
+    cookiesEnabled: boolean;
+    javaScriptEnabled: boolean;
+    localStorageEnabled: boolean;
+    webRtcCameraAccessEnabled: boolean;
+  };
+  helpdeskSla: {
+    urgentPriorityHours: number;
+    highPriorityHours: number;
+    mediumPriorityHours: number;
+    lowPriorityHours: number;
+    supportHoursDescription: string;
+  };
+}
+
+// ── End-of-Course Evaluation Surveys ──
+export interface EvaluationSurvey {
+  id: number;
+  cohortId: number;
+  userId: string;
+  courseRating: number;
+  platformRating: number;
+  instructorRating: number;
+  comments?: string | null;
+  submittedAt: string;
+  student?: {
+    userId: string;
+    role: string;
+  };
+}
+
+export interface SubmitEvaluationSurveyDto {
+  cohortId: number;
+  courseRating: number;
+  platformRating: number;
+  instructorRating: number;
+  comments?: string;
+}
+
+export interface CohortEvaluationMetrics {
+  cohortId: number;
+  totalSurveys: number;
+  averageCourseRating: number;
+  averagePlatformRating: number;
+  averageInstructorRating: number;
+  surveys: EvaluationSurvey[];
+}
+
+// ── State Completion Certification & Verification ──
+export interface GenerateCertificateDto {
+  cohortId: number;
+  userId?: string;
+  directorName?: string;
+  directorRnLicense?: string;
+}
+
+export interface GeneratedCertificate {
+  certificateNumber: string;
+  wabonApprovalCode: string;
+  programTitle: string;
+  stateStandard: string;
+  student: {
+    userId: string;
+  };
+  cohortId: number;
+  courseTitle: string;
+  hoursBreakdown: {
+    classroomTheoryHours: number;
+    skillsLabHours: number;
+    clinicalHours: number;
+    totalTrainingHours: number;
+  };
+  academicRecord: {
+    overallTheoryScorePercent: number;
+    letterGrade: string;
+    skillsLabStatus: string;
+    clinicalStatus: string;
+  };
+  signatures: {
+    programDirector: string;
+    directorRnLicense: string;
+    issuedAt: string;
+  };
+  verification: {
+    verificationCode: string;
+    verificationToken: string;
+    qrVerificationUrl: string;
+    status: string;
+  };
+}
+
+export interface VerifiedCertificate {
+  certificateNumber: string;
+  wabonApprovalCode: string;
+  institution: string;
+  programName: string;
+  cohortId: number;
+  status: string;
+  stateBoard: string;
+  regulatoryCompliance: string;
+  verifiedAt: string;
 }
