@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlikoHub Academy LMS Testing Journey</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary: #0095da;
+        --primary-dark: #0077b3;
+        --primary-light: #ebf7fd;
+        --slate-900: #0f172a;
+        --slate-800: #1e293b;
+        --slate-700: #334155;
+        --slate-500: #64748b;
+        --slate-200: #e2e8f0;
+        --slate-100: #f1f5f9;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f8fafc;
+        color: var(--slate-800);
+        line-height: 1.6;
+        padding: 48px 24px 80px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .page-header {
+        margin-bottom: 32px;
+      }
+
+      .page-title {
+        font-size: 30px;
+        font-weight: 800;
+        color: var(--slate-900);
+        letter-spacing: -0.025em;
+        margin-bottom: 6px;
+      }
+
+      .page-subtitle {
+        font-size: 15px;
+        color: var(--slate-500);
+        line-height: 1.5;
+      }
+
+      .timeline-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .day-card {
+        background: #ffffff;
+        border-radius: 18px;
+        border: 1px solid var(--slate-200);
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+      }
+
+      .day-card:hover {
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+        border-color: #cbd5e1;
+      }
+
+      .day-card-header {
+        padding: 20px 26px;
+        border-bottom: 1px solid var(--slate-100);
+        background: #fafcfe;
+      }
+
+      .day-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+      }
+
+      .day-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        border: 1px solid #bae6fd;
+        letter-spacing: 0.04em;
+      }
+
+      .day-date {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--slate-500);
+      }
+
+      .day-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--slate-900);
+      }
+
+      .day-card-body {
+        padding: 22px 26px;
+      }
+
+      .role-tag {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 2px 7px;
+        border-radius: 5px;
+        margin-right: 6px;
+        background: #f1f5f9;
+        color: #0f172a;
+      }
+
+      .role-inst {
+        background: #ede9fe;
+        color: #5b21b6;
+      }
+
+      .role-stud {
+        background: #ecfdf5;
+        color: #047857;
+      }
+
+      .role-admin {
+        background: #fffbeb;
+        color: #b45309;
+      }
+
+      .role-audit {
+        background: #e0f2fe;
+        color: #0369a1;
+      }
+
+      .tasks-col-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--slate-500);
+        margin-bottom: 12px;
+      }
+
+      .task-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .task-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 14px;
+        color: var(--slate-700);
+        line-height: 1.55;
+      }
+
+      .step-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        min-width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      @media (max-width: 650px) {
+        body {
+          padding: 28px 14px 50px;
+        }
+        .page-title {
+          font-size: 24px;
+        }
+        .day-card-header,
+        .day-card-body {
+          padding: 18px;
+        }
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+          padding: 0;
+        }
+        .day-card {
+          box-shadow: none;
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <header class="page-header">
+        <h1 class="page-title">AlikoHub LMS Testing Journey</h1>
+        <p class="page-subtitle">
+          End-to-end demo script across Instructor, Student, Admin, and Commission Auditor accounts to test every implemented flow live.
+        </p>
+      </header>
+
+      <section class="timeline-cards">
+        <!-- FLOW 1: RUBRICS & DISCUSSIONS -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">JOURNEY 01</span>
+              <span class="day-date">Instructor &rarr; Student &rarr; Instructor &rarr; Student</span>
+            </div>
+            <h3 class="day-title">Rubrics, Unit Discussion Post &amp; Rubric Grading</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Step-by-Step Click Flow</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="step-num">1</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Rubrics</strong> from the sidebar &rarr; click <strong>Create Rubric</strong> &rarr; define criteria and point levels (or pick a starter template) &rarr; save your <strong>Discussion Rubric</strong>.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">2</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>My Courses</strong> &rarr; open your course &rarr; go to the <strong>Activities</strong> tab &rarr; expand a module &rarr; click <strong>Unit Discussion &amp; Rubrics</strong>.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">3</span>
+                <span><span class="role-tag role-inst">Instructor</span> Click <strong>Create Unit Discussion Topic</strong> &rarr; write the clinical prompt &rarr; select your rubric under <strong>Attach Standardized Grading Rubric</strong> &rarr; click <strong>Publish Discussion Topic</strong>.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">4</span>
+                <span><span class="role-tag role-stud">Student</span> Switch to Student account &rarr; open <strong>My Learning</strong> &rarr; open the lesson &rarr; click <strong>Go to Unit Discussion Forum</strong>.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">5</span>
+                <span><span class="role-tag role-stud">Student</span> Click <strong>View Rubric Criteria</strong> to see expectations &rarr; type your message/answer &rarr; click <strong>Post Contribution</strong> (and reply to peers with <strong>Reply</strong> &rarr; <strong>Post Peer Reply</strong>).</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">6</span>
+                <span><span class="role-tag role-inst">Instructor</span> Return to <strong>My Courses &rarr; Activities &rarr; [Module] &rarr; Unit Discussion &amp; Rubrics</strong> &rarr; see the student's post &rarr; click <strong>Grade with Rubric</strong> &rarr; pick criterion scores, add written feedback, and save.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">7</span>
+                <span><span class="role-tag role-stud">Student</span> Back in Student <strong>Unit Discussion Forum</strong>, see the earned points badge, feedback, and <strong>View Rubric Evaluation</strong> (and updated score in <strong>My Grades</strong>).</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- FLOW 2: ADMISSIONS & ORIENTATION -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">JOURNEY 02</span>
+              <span class="day-date">Student &rarr; Instructor &rarr; Student</span>
+            </div>
+            <h3 class="day-title">Admissions 6-Document Clearance, E-Sign &amp; Orientation Gate</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Step-by-Step Click Flow</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="step-num">1</span>
+                <span><span class="role-tag role-stud">Student</span> Open <strong>Admissions</strong> from the sidebar &rarr; upload all 6 documents (Background Check, TB Test, Immunizations, BLS/CPR, Photo ID, Diploma/GED).</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">2</span>
+                <span><span class="role-tag role-stud">Student</span> Review disclosures and sign the electronic Enrollment Agreement on screen.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">3</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Admissions</strong> (<strong>Admissions &amp; Document Review</strong>) &rarr; inspect the student's 6 uploaded files &rarr; click Approve (or Reject with remediation reason).</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">4</span>
+                <span><span class="role-tag role-stud">Student</span> Try opening a course lesson before orientation &rarr; blocked cleanly by the Orientation Gate &rarr; go to <strong>Orientation</strong>, complete the checklist and attendance attestation.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">5</span>
+                <span><span class="role-tag role-stud">Student</span> Enter <strong>Lessons</strong> smoothly; seat-time tracking now begins only inside real lessons.</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- FLOW 3: COHORTS, TEXTBOOKS & SCHEDULES -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">JOURNEY 03</span>
+              <span class="day-date">Instructor &rarr; Student</span>
+            </div>
+            <h3 class="day-title">Course Setup: 1:30 Cohort Cap, 90-Day Window, Textbooks &amp; Schedules</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Step-by-Step Click Flow</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="step-num">1</span>
+                <span><span class="role-tag role-inst">Instructor</span> In <strong>My Courses &rarr; Cohorts</strong>, click <strong>Add Cohort</strong> &rarr; confirm fixed capacity is locked at <strong>30 Students Max</strong> and test the 90-day date validation (or check <strong>10-Month High School Calendar Program</strong>).</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">2</span>
+                <span><span class="role-tag role-inst">Instructor</span> Switch to the <strong>Activities</strong> tab &rarr; select a lesson &rarr; open the <strong>Textbooks &amp; Readings</strong> tab &rarr; register the course textbook and link specific chapters &amp; pages.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">3</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Schedules</strong> &rarr; create a Live Session, Q&amp;A, or Office Hours slot for the cohort (and test editing/deleting a session).</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">4</span>
+                <span><span class="role-tag role-stud">Student</span> Open the lesson to see <strong>Required Textbook Readings</strong> inline, open <strong>Curriculum Crosswalk</strong> for the full course map, and open <strong>My Schedule</strong> to see classes + cohort deadline pacing.</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- FLOW 4: PROCTORED EXAMS & INDIVIDUAL FEEDBACK -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">JOURNEY 04</span>
+              <span class="day-date">Student &rarr; Instructor &rarr; Admin &rarr; Student</span>
+            </div>
+            <h3 class="day-title">Proctored Exam ID/Webcam Check, Anti-Cheat &amp; Personalized Feedback</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Step-by-Step Click Flow</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="step-num">1</span>
+                <span><span class="role-tag role-stud">Student</span> Open an exam lesson &rarr; upload a Government Photo ID, take a live Webcam snapshot, check the integrity pledge &rarr; start the exam.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">2</span>
+                <span><span class="role-tag role-stud">Student</span> Answer questions while countdown timer, copy-block, and tab-switch tracking run &rarr; submit exam.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">3</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Submissions</strong> &rarr; select the student attempt &rarr; view Photo ID, Webcam snapshot, and tab-blur incidents &rarr; click <strong>Approve Proctor Session</strong> (or <strong>Mark Unverified</strong>).</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">4</span>
+                <span><span class="role-tag role-inst">Instructor</span> Enter individualized feedback per question (or score via rubric) and click <strong>Save Overall Feedback</strong>.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">5</span>
+                <span><span class="role-tag role-admin">Admin</span> Optionally open <strong>Admin &rarr; Compliance &amp; Audits</strong> to inspect flagged proctored exam sessions across the institution.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">6</span>
+                <span><span class="role-tag role-stud">Student</span> Open <strong>Peer Grading</strong> (<strong>Instructor Feedback</strong>) &rarr; click <strong>View details</strong> to read written comments and rubric results.</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- FLOW 5: RN CREDENTIALS, SKILLS LAB & CLINICAL -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">JOURNEY 05</span>
+              <span class="day-date">Instructor &rarr; Admin &rarr; Instructor &rarr; Student</span>
+            </div>
+            <h3 class="day-title">RN License Credentials, In-Person Skills Lab &amp; Clinical Hours</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Step-by-Step Click Flow</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="step-num">1</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Settings</strong> &rarr; enter RN License Number, Expiration Date, Years of LTC Experience, and upload certificates &rarr; submit.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">2</span>
+                <span><span class="role-tag role-admin">Admin</span> Open <strong>Admin &rarr; Faculty &amp; Credentials</strong> &rarr; approve the instructor's RN credentials.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">3</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Skills Lab</strong> &rarr; optionally click <strong>Register Core Skill</strong> to add skills &rarr; pick Cohort &amp; Student &rarr; record in-person Pass/Fail checkoffs and notes.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">4</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Clinical Training</strong> &rarr; click <strong>Schedule Clinical Shift</strong> &rarr; enter facility, date, and hours &rarr; later log student attendance &amp; hours completed.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">5</span>
+                <span><span class="role-tag role-stud">Student</span> Open <strong>Skills Lab</strong>, <strong>Clinical Training</strong>, and <strong>My Schedule</strong> to see passed competencies, verified clinical hours, and upcoming shifts.</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- FLOW 6: STUDY GROUPS, ANNOUNCEMENTS & SUPPORT -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">JOURNEY 06</span>
+              <span class="day-date">Student &rarr; Instructor / Admin &rarr; Student</span>
+            </div>
+            <h3 class="day-title">Peer Study Groups, Cohort Announcements &amp; Technical Support</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Step-by-Step Click Flow</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="step-num">1</span>
+                <span><span class="role-tag role-stud">Student</span> Open <strong>Study Groups</strong> &rarr; click <strong>New Study Group</strong> (or join an active peer group) to collaborate independently with classmates.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">2</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Announcements</strong> in the instructor sidebar &rarr; publish an update (students view it under <strong>Announcements</strong>).</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">3</span>
+                <span><span class="role-tag role-stud">Student</span> Open <strong>Support Desk</strong> &rarr; inspect browser/hardware specs, <strong>Privacy &amp; Data Security</strong>, and <strong>Reliability &amp; Data Backup</strong> policies &rarr; submit a ticket.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">4</span>
+                <span><span class="role-tag role-admin">Admin / Staff</span> Triage and resolve the ticket in <strong>Support Desk</strong> or <strong>Admin &rarr; Support</strong> so the student sees the updated response.</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- FLOW 7: COMMISSION AUDITOR DUAL VIEW -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">JOURNEY 07</span>
+              <span class="day-date">Commission Auditor Inspection Loop</span>
+            </div>
+            <h3 class="day-title">Auditor Read-Only Review Across Staff &amp; Student Views</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Step-by-Step Click Flow</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="step-num">1</span>
+                <span><span class="role-tag role-audit">Auditor</span> Sign in as <code>COMMISSION_AUDITOR</code> &rarr; review <strong>Gradebook</strong>, <strong>Attendance Census</strong>, <strong>Submissions</strong>, <strong>Rubrics</strong>, <strong>Program Evaluations</strong>, and <strong>Compliance Audit</strong> (notice edit/create actions stay locked).</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">2</span>
+                <span><span class="role-tag role-audit">Auditor</span> Click <strong>Preview Student View</strong> in the top header to enter the student portal without enrollment or orientation blocks.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">3</span>
+                <span><span class="role-tag role-audit">Auditor</span> Open any course &rarr; click <strong>Inspect Course Player (Read-Only)</strong> &rarr; review videos, required readings, quizzes, and discussion threads safely with no accidental submissions.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">4</span>
+                <span><span class="role-tag role-audit">Auditor</span> Click <strong>Back to Audit Portal</strong> in the student header to return immediately to compliance reports.</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- FLOW 8: GRADEBOOK, EVALUATION & CERTIFICATE -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">JOURNEY 08</span>
+              <span class="day-date">Instructor &rarr; Student &rarr; Public</span>
+            </div>
+            <h3 class="day-title">Consolidated Gradebook, Evaluation Survey, Certificate &amp; Verification</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="tasks-col-title">Step-by-Step Click Flow</div>
+            <ul class="task-list">
+              <li class="task-item">
+                <span class="step-num">1</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Gradebook</strong> &rarr; verify theory (&ge;80%), discussions, 22/22 skills, 40+ clinical hours, and export the cohort CSV.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">2</span>
+                <span><span class="role-tag role-stud">Student</span> Open <strong>My Grades</strong> to verify all pass thresholds &rarr; open <strong>Program Evaluation</strong> to submit 1&ndash;5 ratings on course, platform, and instructor.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">3</span>
+                <span><span class="role-tag role-inst">Instructor</span> Open <strong>Program Evaluations</strong> to confirm the cohort survey metrics and comments updated live.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">4</span>
+                <span><span class="role-tag role-stud">Student</span> Open <strong>Certifications</strong> (or click <strong>View certificate</strong> on a completed course) &rarr; click <strong>Generate Certificate</strong> &rarr; print or open the public verification link.</span>
+              </li>
+              <li class="task-item">
+                <span class="step-num">5</span>
+                <span><span class="role-tag">Public</span> Anyone can visit <code>/verify-certificate</code> (no login needed), enter the Certificate Number, and verify official WABON completion status live.</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>
+

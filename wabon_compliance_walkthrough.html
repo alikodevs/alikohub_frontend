@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WAC 246-841A-440 Compliance — Step-by-Step Frontend Walkthrough</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary: #0095da;
+        --primary-dark: #0077b3;
+        --primary-light: #ebf7fd;
+        --slate-900: #0f172a;
+        --slate-800: #1e293b;
+        --slate-700: #334155;
+        --slate-500: #64748b;
+        --slate-200: #e2e8f0;
+        --slate-100: #f1f5f9;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f8fafc;
+        color: var(--slate-800);
+        line-height: 1.6;
+        padding: 48px 24px 80px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .page-header {
+        margin-bottom: 32px;
+      }
+
+      .page-title {
+        font-size: 30px;
+        font-weight: 800;
+        color: var(--slate-900);
+        letter-spacing: -0.025em;
+        margin-bottom: 6px;
+      }
+
+      .page-subtitle {
+        font-size: 15px;
+        color: var(--slate-500);
+        line-height: 1.5;
+      }
+
+      .timeline-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .day-card {
+        background: #ffffff;
+        border-radius: 18px;
+        border: 1px solid var(--slate-200);
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+      }
+
+      .day-card:hover {
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+        border-color: #cbd5e1;
+      }
+
+      .day-card-header {
+        padding: 20px 26px;
+        border-bottom: 1px solid var(--slate-100);
+        background: #fafcfe;
+      }
+
+      .day-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+      }
+
+      .day-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        border: 1px solid #bae6fd;
+        letter-spacing: 0.04em;
+      }
+
+      .day-date {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--slate-500);
+      }
+
+      .day-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--slate-900);
+      }
+
+      .day-card-body {
+        padding: 22px 26px;
+      }
+
+      .rule-box {
+        font-size: 14px;
+        color: var(--slate-700);
+        background: #f8fafc;
+        border-left: 3px solid var(--primary);
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 16px;
+      }
+
+      .tasks-col-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--slate-500);
+        margin-bottom: 10px;
+      }
+
+      .task-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+
+      .task-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 14px;
+        color: var(--slate-700);
+        line-height: 1.5;
+      }
+
+      .bullet-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--primary);
+        flex-shrink: 0;
+        margin-top: 8px;
+      }
+
+      @media (max-width: 650px) {
+        body {
+          padding: 28px 14px 50px;
+        }
+        .page-title {
+          font-size: 24px;
+        }
+        .day-card-header,
+        .day-card-body {
+          padding: 18px;
+        }
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+          padding: 0;
+        }
+        .day-card {
+          box-shadow: none;
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <header class="page-header">
+        <h1 class="page-title">WAC 246-841A-440 Compliance</h1>
+        <p class="page-subtitle">
+          step-by-step showing each requirement and how our LMS frontend delivers it end to end.
+        </p>
+      </header>
+
+      <section class="timeline-cards">
+        <!-- POINT 1 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 01</span>
+              <span class="day-date">General Requirement</span>
+            </div>
+            <h3 class="day-title">Hybrid Format: Theory + Skills Lab + Clinical Correlation</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Online delivery is only for classroom theory and must connect closely with in-person skills lab and clinical training.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor creates online theory units, videos, PDFs, quizzes, and discussions under <strong>My Courses &rarr; Curriculum</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor logs in-person hands-on competencies in <strong>Skills Lab</strong> and facility shifts in <strong>Clinical Training</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Students see all three components linked side by side in <strong>Curriculum Crosswalk</strong> and <strong>My Grades</strong>.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 2 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 02</span>
+              <span class="day-date">Commission Review Access</span>
+            </div>
+            <h3 class="day-title">Dual Access to Instructor &amp; Student Views</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> The commission must see both instructor and student views, including lessons, quizzes, discussions, feedback tools, and gradebook.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Commission Auditors log into a read-only staff view showing <strong>Gradebook</strong>, <strong>Submissions</strong>, <strong>Rubrics</strong>, <strong>Program Evaluations</strong>, and <strong>Compliance Audit</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Auditor clicks <strong>Preview Student View</strong> in the header (or <strong>Inspect Course Player (Read-Only)</strong> on a course).</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Auditor browses lessons, readings, quizzes, and forums in read-only mode, then clicks <strong>Back to Audit Portal</strong>.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 3 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 03</span>
+              <span class="day-date">Class Size Rule</span>
+            </div>
+            <h3 class="day-title">1:30 Student-to-Instructor Ratio Cap</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Asynchronous online cohorts cannot have more than 30 students per instructor.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor opens <strong>My Courses &rarr; Cohorts</strong> and clicks <strong>Create Cohort</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Cohort setup caps <strong>Max Students</strong> between 1 and 30 and assigns the supervising instructor.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Ratio compliance is visible to reviewers on the <strong>Compliance Audit</strong> page.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 4 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 04</span>
+              <span class="day-date">Completion Timeline</span>
+            </div>
+            <h3 class="day-title">3-Month (90-Day) Program Limit</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Students must finish the entire program within 3 months, except approved 10-month high school programs.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span><strong>Create / Edit Cohort</strong> blocks date ranges over 90 days unless the <strong>10-Month High School Calendar Program</strong> checkbox is enabled.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Students see remaining cohort days and pacing status (On Track / At Risk) in <strong>My Schedule</strong> and <strong>My Grades</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructors monitor every student's pacing across cohorts inside <strong>Gradebook</strong>.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 5 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 05</span>
+              <span class="day-date">Institutional Quality</span>
+            </div>
+            <h3 class="day-title">Online Training Capability &amp; Quality Metrics</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Applicants must show institutional support, online quality standards, and program review outcomes.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Active student seat-time is automatically logged while studying lessons and exported in <strong>Compliance Audit</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Students rate course quality, LMS platform, and instruction in <strong>Program Evaluation</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructors, Admins, and Auditors review survey averages and program compliance dossiers together in one place.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 6 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 06</span>
+              <span class="day-date">Syllabus Alignment</span>
+            </div>
+            <h3 class="day-title">Curriculum &amp; Textbook Reading Correlation</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Online lessons must align directly with assigned textbook readings.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor opens any lesson in <strong>My Courses &rarr; Curriculum</strong> and clicks the <strong>Textbooks &amp; Readings</strong> tab.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor registers the course textbook and links exact chapter names and page ranges to that lesson.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Students see required textbook chapters directly inside every lesson player and in <strong>Curriculum Crosswalk</strong>.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 7 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 07</span>
+              <span class="day-date">Faculty Supervision</span>
+            </div>
+            <h3 class="day-title">Approved RN Supervision &amp; Active Instructor Support</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Approved RN instructors must supervise and interact with students across theory, skills lab, and clinical shifts.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor enters their RN license number, expiration date, LTC experience, and documents in <strong>Instructor Settings</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Admin reviews and approves RN faculty credentials under <strong>Admin &rarr; Faculty &amp; Credentials</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Approved instructors post <strong>Announcements</strong>, run live Q&amp;As in <strong>Schedules</strong>, grade discussions, check off lab skills, and verify clinical hours.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 8 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 08</span>
+              <span class="day-date">Entry Requirements</span>
+            </div>
+            <h3 class="day-title">Student Selection &amp; Admissions Clearance</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Programs must verify entry requirements and enrollment records before students begin.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Student opens <strong>Admissions</strong> and uploads all 6 entry documents (Background Check, TB Test, Immunizations, BLS/CPR, Photo ID, Diploma/GED).</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Student reviews statutory disclosures and signs the electronic Enrollment Agreement on screen.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor opens <strong>Admissions</strong> (<strong>Admissions &amp; Document Review</strong>), inspects each document, and approves or returns for correction.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 9 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 09</span>
+              <span class="day-date">Pre-Start Requirement</span>
+            </div>
+            <h3 class="day-title">Mandatory Non-Credit Orientation</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Students must complete live or in-person orientation before starting, and orientation hours cannot count toward program hours.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Before entering lessons, students open <strong>Orientation</strong> to confirm policies, schedule expectations, online conduct, and LMS navigation.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Course lessons stay locked until orientation is marked complete.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Study time tracking only starts inside actual lessons, so orientation time never counts toward course hours.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 10 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 10</span>
+              <span class="day-date">Week-1 Attendance</span>
+            </div>
+            <h3 class="day-title">First-Week Academic Assignment &amp; Attendance Census</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Programs must use an academic-based assignment in Week 1 to verify student attendance.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Students complete their Week-1 academic activity inside the first module lessons.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor opens <strong>Attendance Census</strong> to review Verified Present vs. At-Risk / No-Show students.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor exports the cohort attendance record cleanly from the census page.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 11 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 11</span>
+              <span class="day-date">Unit Interaction</span>
+            </div>
+            <h3 class="day-title">Unit Asynchronous Discussions &amp; Grading Rubrics</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Each unit needs an asynchronous discussion tied to outcomes with student interaction, instructor feedback, and a grading rubric.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor creates or clones structured multi-criteria rubrics under <strong>Rubrics</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor creates a discussion topic per unit in <strong>My Courses &rarr; Curriculum</strong> and attaches a rubric.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Students preview the rubric criteria inside the lesson's <strong>Unit Discussion Forum</strong>, post replies to classmates, and receive rubric-scored feedback.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 12 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 12</span>
+              <span class="day-date">Peer Collaboration</span>
+            </div>
+            <h3 class="day-title">Independent Student Study Groups</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Students must be able to meet independently in peer study groups.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Student opens <strong>Study Groups</strong> from the sidebar and selects their cohort.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Student clicks <strong>New Study Group</strong> to share a topic and meeting details, or joins an existing group in one click.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Students can leave, update, or organize group study sessions independently.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 13 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 13</span>
+              <span class="day-date">Student Remediation</span>
+            </div>
+            <h3 class="day-title">Individualized Written Instructor Feedback</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Students needing help must receive robust, personalized instructor feedback rather than only computer-generated scores.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor opens <strong>Submissions</strong>, opens a student's attempt, and scores each question using text feedback or an interactive rubric matrix.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor enters holistic attempt comments and clicks <strong>Save Overall Feedback</strong> to store them in the gradebook.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Students read their personalized feedback and rubric breakdowns under <strong>Peer Grading</strong> (graded submissions) and <strong>My Grades</strong>.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 14 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 14</span>
+              <span class="day-date">Time Management</span>
+            </div>
+            <h3 class="day-title">Unified Schedule of Theory, Skills &amp; Clinical Deadlines</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Students must receive an organized schedule covering classroom theory, skills lab, clinical dates, and paced deadlines.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor schedules Live Sessions, Recordings, Q&amp;As, Office Hours, and Workshops by cohort in <strong>Schedules</strong> (with Edit &amp; Delete).</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor creates facility dates in <strong>Clinical Training</strong> and posts key updates in <strong>Announcements</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Student opens <strong>My Schedule</strong> to see upcoming live classes, clinical facility shifts, and cohort deadline pacing in one view.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 15 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 15</span>
+              <span class="day-date">Assessment Integrity</span>
+            </div>
+            <h3 class="day-title">Exam Identity Verification &amp; Proctoring Security</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Programs must verify each student's identity on online exams and maintain security controls during testing.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Before an exam starts in <strong>Lessons</strong>, student uploads a Government Photo ID, takes a live Webcam snapshot, and signs the integrity pledge.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>During the exam, the player enforces a countdown timer, blocks copying, and counts tab/window switches.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor reviews the Photo ID, Webcam snapshot, and blur flags in <strong>Submissions</strong> (and Admin in <strong>Compliance &amp; Audits</strong>) to approve or mark unverified.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 16 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 16</span>
+              <span class="day-date">Platform Operations</span>
+            </div>
+            <h3 class="day-title">Technical Support, Privacy, Security &amp; Data Backups</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> Programs must provide reliable technical support, LMS training/specs, privacy/security safeguards, and data backups.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Student opens <strong>Support Desk</strong> to check supported browsers, hardware/network specs, response hours, privacy/security safeguards, and backup policy.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Student clicks <strong>Submit Support Ticket</strong> for technical issues and tracks staff responses.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructors and Admins triage and resolve open tickets inside <strong>Support Desk</strong> and <strong>Admin &rarr; Support</strong>.</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- POINT 17 -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <span class="day-badge">POINT 17</span>
+              <span class="day-date">Graduation &amp; Reporting</span>
+            </div>
+            <h3 class="day-title">Electronic Gradebook, Skills Lab, Clinical Hours &amp; Certificates</h3>
+          </div>
+          <div class="day-card-body">
+            <div class="rule-box">
+              <strong>compliance states:</strong> All Nursing Assistant standards (80% theory, lab checkoffs, clinical hours, gradebook, and records) must work together for program completion.
+            </div>
+            <div class="tasks-col-title">Implementation(Step-by-Step Flow)</div>
+            <ul class="task-list">
+              <li class="task-item"><span class="bullet-dot"></span><span>Instructor records Core Skills in <strong>Skills Lab</strong>, logs 40+ clinical hours in <strong>Clinical Training</strong>, and monitors cohort readiness or exports CSVs in <strong>Gradebook</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Student tracks Theory (&ge;80%), Skills Lab, and Clinical milestones in <strong>My Grades</strong> and submits <strong>Program Evaluation</strong>.</span></li>
+              <li class="task-item"><span class="bullet-dot"></span><span>Once all gates pass, student generates a printable certificate in <strong>Certifications</strong>, verifiable publicly at <strong>WABON Credential Verification</strong> (<code>/verify-certificate</code>).</span></li>
+            </ul>
+          </div>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>

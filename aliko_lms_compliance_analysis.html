@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlikoHub Academy LMS — Full Architecture &amp; Compliance Audit</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Plus Jakarta Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: #f8fafc;
+        color: #1e293b;
+        line-height: 1.6;
+        padding: 48px 24px 80px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      /* Page Header */
+      .page-header {
+        margin-bottom: 28px;
+      }
+
+      .page-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.025em;
+        margin-bottom: 8px;
+      }
+
+      .page-subtitle {
+        font-size: 15px;
+        color: #64748b;
+        line-height: 1.55;
+      }
+
+      /* Summary Strip */
+      .legend-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .status-pill {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+        letter-spacing: 0.03em;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .pill-blue {
+        background: #ebf7fd;
+        color: #0077b3;
+        border: 1px solid #bae6fd;
+      }
+
+      .pill-green {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+      }
+
+      .pill-amber {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+      }
+
+      .pill-red {
+        background: #fff1f2;
+        color: #be123c;
+        border: 1px solid #fecdd3;
+      }
+
+      /* Section Cards */
+      .timeline-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .day-card {
+        background: #ffffff;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+      }
+
+      .day-card:hover {
+        box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+        border-color: #cbd5e1;
+      }
+
+      .day-card-header {
+        padding: 20px 26px;
+        border-bottom: 1px solid #f1f5f9;
+        background: #fafcfe;
+      }
+
+      .day-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 6px;
+      }
+
+      .meta-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .day-badge {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: #ebf7fd;
+        color: #0077b3;
+        border: 1px solid #bae6fd;
+        letter-spacing: 0.04em;
+      }
+
+      .day-date {
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+      }
+
+      .day-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: #0f172a;
+      }
+
+      .day-card-body {
+        padding: 22px 26px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .section-block + .section-block {
+        padding-top: 16px;
+        border-top: 1px solid #f1f5f9;
+      }
+
+      .tasks-col-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #64748b;
+        margin-bottom: 10px;
+      }
+
+      .tasks-col-title.gap-title {
+        color: #b45309;
+      }
+
+      .task-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+
+      .task-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        font-size: 14px;
+        color: #334155;
+        line-height: 1.55;
+      }
+
+      .bullet-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #0095da;
+        flex-shrink: 0;
+        margin-top: 8px;
+      }
+
+      .bullet-dot.warn {
+        background: #f59e0b;
+      }
+
+      .bullet-dot.danger {
+        background: #e11d48;
+      }
+
+      .bullet-dot.ok {
+        background: #10b981;
+      }
+
+      code {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 1px 5px;
+        border-radius: 4px;
+      }
+
+      strong {
+        color: #0f172a;
+        font-weight: 700;
+      }
+
+      /* Responsive */
+      @media (max-width: 650px) {
+        body {
+          padding: 28px 14px 50px;
+        }
+
+        .page-title {
+          font-size: 23px;
+        }
+
+        .day-card-header,
+        .day-card-body {
+          padding: 18px;
+        }
+      }
+
+      /* Print */
+      @media print {
+        body {
+          background: #ffffff;
+          padding: 0;
+        }
+
+        .day-card {
+          box-shadow: none;
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Page Header -->
+      <header class="page-header">
+        <h1 class="page-title">AlikoHub Academy LMS — Full System &amp; Compliance Audit</h1>
+        <p class="page-subtitle">
+          End-to-end analysis of the entire built LMS stack (frontend workflows vs.
+          <code>AlikoHub_Master_Full_Backend.postman_collection.json</code> and WAC 246-841A-440 requirements) across Admissions, Orientation, Rubrics, Discussions, Skills Lab, Clinical Hours, Seat-Time, Exam Security, Gradebook, Study Groups, Support Desk, Admin, and Auditor portals.
+        </p>
+
+        <div class="legend-bar">
+          <span class="status-pill pill-green">IMPLEMENTED &amp; ALIGNED</span>
+          <span class="status-pill pill-amber">PARTIAL / CONTRACT DRIFT</span>
+          <span class="status-pill pill-red">MISSING / BLOCKED IN UI</span>
+        </div>
+      </header>
+
+      <section class="timeline-cards">
+        <!-- SECTION 1: CROSS-CUTTING ARCHITECTURE -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">CORE ARCHITECTURE</span>
+                <span class="day-date">Cross-Cutting Patterns &amp; Contracts</span>
+              </div>
+              <span class="status-pill pill-amber">CONTRACT DRIFT</span>
+            </div>
+            <h3 class="day-title">Backend Postman Drift, Cohort Fallbacks &amp; Role Isolation</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">What Is Built Across the Platform</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Role Isolation &amp; Live Data Truth:</strong> <code>usePortalMode</code>, <code>InstructorRoute</code>, <code>AdminRoute</code>, and <code>InstructorSidebar</code> cleanly isolate Student, Instructor, Admin (<code>/admin/*</code>), and read-only <code>COMMISSION_AUDITOR</code> views without mixing student attendance inside Admin. Recent updates purged hardcoded hour limits, static skill counts, and decorative title badges.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Defensive Path &amp; Response Normalization:</strong> Services such as <code>admissionsService</code>, <code>orientationService</code>, and <code>discussionService</code> handle both <code>/academy/*</code> and root API prefixes and normalize array vs. wrapped response shapes.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="section-block">
+              <div class="tasks-col-title gap-title">System-Wide Risks &amp; Mismatches</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Master Postman vs. Live Validation Schemas:</strong> Frontend comments explicitly note live controller/Joi DTO shapes that differ from Postman sample bodies in <strong>Admissions</strong> (6 file URLs + <code>signatureUrl</code> + <code>status</code> vs. Postman flat fields/<code>decision</code>), <strong>Orientation</strong> (<code>orientationAttended</code>/<code>netiquetteSigned</code> vs. <code>orientationDate</code>/<code>syllabusAcknowledged</code>), <strong>Rubrics</strong> (<code>name</code>/<code>type</code>/<code>title</code> vs. <code>title</code>/<code>courseId</code>/<code>maxScore</code>), and <strong>Clinical</strong> (<code>hoursCredited</code>/<code>hoursCompleted</code>/<code>competencyNotes</code> vs. <code>totalHours</code>/<code>attendedHours</code>/<code>clinicalNotes</code>).</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot danger"></span>
+                  <span><strong>Commission Auditor Locked Out of Student Lesson Player:</strong> <code>InstructorLayout</code> hides <em>Switch to Student</em> when <code>isAuditor</code> is true, <code>OrientationGate</code> omits <code>COMMISSION_AUDITOR</code> from <code>isPrivileged</code>, and <code>LessonView</code> blocks anyone with <code>!isEnrolled</code> — preventing Commission auditors (and un-enrolled staff) from viewing Student lessons, quizzes, and inline discussions.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Silent <code>cohortId = 1</code> Fallbacks:</strong> <code>CourseDetails</code> supports self-paced enrollments without a cohort; when <code>cohortId</code> is absent, <code>OrientationGate</code> and the 60s seat-time heartbeat in <code>LessonView</code> fall back to <code>cohortId = 1</code>.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- SECTION 2: ADMISSIONS & ORIENTATION -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">MODULE 01</span>
+                <span class="day-date">Admissions, Orientation &amp; Week-1 Census</span>
+              </div>
+              <span class="status-pill pill-green">MOSTLY COMPLETE</span>
+            </div>
+            <h3 class="day-title">Student Selection, Mandatory Non-Credit Orientation &amp; Attendance Census</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">Implemented Frontend Flows</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>6-Document Clearance &amp; RCW 1.80 E-Sign:</strong> <code>AdmissionsClearancePage</code> collects Background Check, TB Test, Immunizations, BLS/CPR, Photo ID, and HS Diploma/GED (via <code>/upload</code> -&gt; <code>/files/upload</code> -&gt; <code>/content/upload</code> fallback), signs the Enrollment Agreement + 4 statutory disclosures (<code>POST /admissions/sign-agreement</code>), and guides students to Orientation.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Instructor Document Verification &amp; Week-1 Census:</strong> <code>InstructorAdmissionsPage</code> checks 6/6 prerequisites and approves/rejects with remediation notes; <code>CohortCensusPage</code> tracks <code>VERIFIED_PRESENT</code>, <code>PENDING_VERIFICATION</code>, <code>NO_SHOW_AT_RISK</code>, and <code>ADMINISTRATIVE_DROP</code> alongside WABON Dossier export.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Non-Credit Orientation Gate:</strong> <code>OrientationChecklistPage</code> covers program policies, netiquette, LMS navigation, and live attendance attestation; <code>OrientationGate</code> gates <code>/learn/:id</code>, while seat-time heartbeats only run inside <code>LessonView</code> (excluding orientation time).</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="section-block">
+              <div class="tasks-col-title gap-title">Gaps Found</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Missing Week-1 Gate Toggle in Exercise Authoring:</strong> <code>LessonView</code> and <code>CurriculumCompliancePage</code> consume <code>isWeekOneAttendanceGate</code>, but <code>ExerciseModal</code> has no checkbox to mark a question/exercise as the Week-1 attendance gate.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>No Inline Administrative Drop Action in Census:</strong> <code>CohortCensusPage</code> displays at-risk/no-show counts without an instructor drop button (enrollment cancellation <code>DELETE /enrollments/:id</code> only lives in Admin).</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- SECTION 3: RUBRICS & DISCUSSIONS -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">MODULE 02</span>
+                <span class="day-date">Rubrics Engine &amp; Asynchronous Discussions</span>
+              </div>
+              <span class="status-pill pill-green">WELL IMPLEMENTED</span>
+            </div>
+            <h3 class="day-title">Standardized Multi-Criteria Rubrics &amp; Unit Discussion Forums</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">Implemented Frontend Flows</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Full Rubric Lifecycle:</strong> <code>RubricsManagementPage</code>, <code>RubricBuilderModal</code> (with Infection Control &amp; CNA Clinical Case starter templates), <code>RubricSelector</code>, <code>RubricGradingMatrix</code> (<code>POST /rubrics/evaluate</code> with client fallback), <code>RubricCriteriaTable</code>, and <code>RubricStudentResultView</code> support create, preview, type filter (<code>DISCUSSION</code>/<code>ASSIGNMENT</code>), cloning (<code>POST /rubrics/:id/clone</code>), and auditor read-only locks.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Embedded Unit Discussions:</strong> Instructors create unit discussion topics and bind rubrics inside <code>CurriculumTab</code> (<code>canCreateTopic={true}</code>); students access per-unit forums directly from <code>LessonView</code>, inspect attached rubric criteria upfront, post threaded replies (<code>parentId</code>), and review instructor rubric breakdowns once graded via <code>POST /discussions/posts/:postId/grade</code>.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="section-block">
+              <div class="tasks-col-title gap-title">Gaps Found</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Hardcoded UI Pass Benchmarks:</strong> <code>RubricGradingMatrix</code> and <code>SubmissionDetail</code> check <code>&gt;= 80%</code> while <code>DiscussionForumView</code> flags <code>isSubstantive</code> at <code>&gt;= 70%</code>, rather than reading rubric-specific <code>passingScore</code> values from the backend.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>No Publish Completeness Check &amp; Module Fallback:</strong> Nothing prevents publishing a module with zero discussion topics, and <code>LessonView</code> passes <code>activeMod?.id || 1</code> if active module lookup is missing.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- SECTION 4: SKILLS LAB & CLINICAL TRAINING -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">MODULE 03</span>
+                <span class="day-date">In-Person Skills Lab &amp; Clinical Hours</span>
+              </div>
+              <span class="status-pill pill-amber">ALIGNED WITH GAPS</span>
+            </div>
+            <h3 class="day-title">22-Skill CNA Competency Matrix &amp; Facility Clinical Shift Tracking</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">Implemented Frontend Flows</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Skills Lab Matrix &amp; Checkoffs:</strong> <code>CNACompetencyMatrixPage</code> isolates student view to their own matrix, lets instructors/auditors inspect students via <code>useCohortStudents</code>, warns if the evaluator lacks registered RN credentials (<code>GET /instructors/credentials/:id</code>), and records Pass/Fail checkoffs + evaluator notes (<code>POST/PATCH /skills-lab/checkoffs</code>).</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Clinical Facility Shifts &amp; Verified Hours:</strong> <code>ClinicalTrainingPage</code> supports instructor shift creation (<code>POST /clinical/shifts</code>), attendance &amp; competency sign-off (<code>POST/PATCH /clinical/attendance</code>), and student visibility into cohort shifts and verified hours against backend thresholds.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="section-block">
+              <div class="tasks-col-title gap-title">Gaps Found</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>No Skills Lab Session Scheduling or Core Skill UI Registration:</strong> <code>skillsLabService</code> tracks skill definitions and checkoff attempts, not in-person lab session schedules or 1:10 section rosters; <code>POST /skills-lab/skills</code> has no authoring modal in <code>CNACompetencyMatrixPage</code>.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Clinical DTO Drift &amp; Disconnected Calendar:</strong> <code>wabonComplianceService</code> sends <code>hoursCredited</code> / <code>hoursCompleted</code> / <code>competencyNotes</code> / <code>passed</code> instead of Postman <code>3.5.5</code>/<code>3.5.8</code> keys (<code>facilityAddress</code>, <code>unitName</code>, <code>totalHours</code>, <code>maxStudents: 10</code>, <code>attendedHours</code>, <code>status</code>, <code>clinicalNotes</code>), and clinical shifts do not appear in student <em>My Schedule</em>.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- SECTION 5: CURRICULUM CROSSWALK, TEXTBOOKS & COHORT PACING -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">MODULE 04</span>
+                <span class="day-date">Curriculum Crosswalk, Textbooks, Cohorts &amp; Schedules</span>
+              </div>
+              <span class="status-pill pill-amber">AUTHORING GAPS</span>
+            </div>
+            <h3 class="day-title">Hybrid Crosswalk, Required Readings, 1:30 Ratio &amp; 90-Day Pacing</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">Implemented Frontend Flows</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Dynamic Curriculum Crosswalk View:</strong> <code>CurriculumCompliancePage</code> reads live <code>/curriculum-crosswalk/matrix/course/:courseId</code> and <code>/curriculum-crosswalk/textbooks/course/:courseId</code> with backend-derived track filters and zero hardcoded hour fallbacks.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Cohort &amp; Teaching Schedules:</strong> <code>CreateCohortModal</code> and <code>CohortsTab</code> create cohorts (<code>POST /cohorts</code>); <code>ScheduleTab</code>, instructor <code>Schedules</code>, and <code>StudentSchedules</code> display <code>LIVE</code>, <code>RECORDING</code>, <code>Q_AND_A</code>, <code>OFFICE_HOURS</code>, and <code>WORKSHOP</code> sessions.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="section-block">
+              <div class="tasks-col-title gap-title">Gaps Found</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot danger"></span>
+                  <span><strong>Dead Textbook &amp; Reading Assignment Hooks:</strong> <code>useCreateTextbookMutation</code> (<code>3.6.1</code>) and <code>useAssignReadingMutation</code> (<code>3.6.2</code>) exist in <code>useCurriculumCrosswalk.ts</code> but have <strong>zero callers</strong> — instructors cannot add textbooks or attach chapter/page readings via UI, and <code>LessonView</code> never calls <code>getLessonReadings</code> to display aligned textbook readings inline.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot danger"></span>
+                  <span><strong>Missing Cohort Pacing &amp; Ratio Controls:</strong> Neither <code>CreateCohortModal</code> nor <code>CohortsTab</code> collects <code>maxStudents</code> (cap 30), assigns <code>instructorId</code>, validates the 90-day completion limit, or supports the 10-month High School program calendar exception.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Incomplete Schedule Controls &amp; Missing Instructor Announcements:</strong> <code>ScheduleTab</code> lacks <code>meetingUrl</code>, <code>cohortId</code>, edit/delete actions, and unified unit/lab/clinical deadline pacing; Announcement management only exists in Admin (<code>AdminAnnouncements</code>), not Instructor routes.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- SECTION 6: SEAT-TIME & EXAM SECURITY -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">MODULE 05</span>
+                <span class="day-date">Seat-Time Telemetry &amp; Proctored Exams</span>
+              </div>
+              <span class="status-pill pill-red">ID CAPTURE MISSING</span>
+            </div>
+            <h3 class="day-title">60s Engagement Heartbeats, Identity Attestation &amp; Proctor Audits</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">Implemented Frontend Flows</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Active Seat-Time Engine &amp; Audit Export:</strong> <code>LessonView</code> dispatches 60-second heartbeats (<code>activeSeconds</code> vs. <code>idleSeconds</code> when <code>document.hidden</code>, tagged by <code>VIDEO_PLAYBACK</code> / <code>QUIZ_INTERACTION</code> / <code>READING</code>) and displays progress in the lesson sidebar; <code>SeatTimeAuditTable</code> exports cohort ledgers to CSV.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Honor Pledge, Tab-Blur Tracking &amp; Audit Queue:</strong> <code>LessonView</code> enforces an Identity &amp; Integrity Honor Pledge, countdown timer, copy protection (<code>onCopy</code>), and <code>visibilitychange</code> blur logging (<code>examSecurityService.recordTabBlur</code>); <code>SubmissionDetail</code> and <code>AdminComplianceTab</code> review <code>tabBlurCount</code> and mark sessions audited/flagged (<code>4.15</code>).</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="section-block">
+              <div class="tasks-col-title gap-title">Gaps Found</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot danger"></span>
+                  <span><strong>No Photo ID or Webcam Capture at Exam Start:</strong> <code>SubmissionDetail</code> (<code>webcamSnapshotUrl</code>, <code>photoIdSnapshotUrl</code>), <code>ComplianceAuditPage</code> (<code>photoIdVerificationRequired</code>, <code>webcamSnapshotRequired</code>), and Postman <code>2.6.1</code> expect visual identity snapshots, yet <code>LessonView</code> calls <code>startSession</code> with only <code>{ exerciseId, honorCodeAccepted: true, userAgent }</code>.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Aggregated Logs Only &amp; First-Question Session Key:</strong> <code>startSession</code> uses <code>exercisesList[0]?.id || 1</code> instead of a dedicated exam ID, and as noted in <code>SeatTimeAuditTable</code>, raw pulse/blur timestamps are not stored individually (only cumulative totals).</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- SECTION 7: GRADEBOOK, FEEDBACK, STUDY GROUPS & SUPPORT -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">MODULE 06</span>
+                <span class="day-date">Gradebook, Feedback, Study Groups &amp; Support</span>
+              </div>
+              <span class="status-pill pill-amber">STUDENT GAPS</span>
+            </div>
+            <h3 class="day-title">Tri-Track Gradebook, Individualized Feedback, Peer Study &amp; Tech Support</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">Implemented Frontend Flows</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Consolidated Instructor Gradebook &amp; Submission Review:</strong> <code>InstructorGradebookPage</code> combines theory, discussions, skills lab, clinical hours, seat-time, CSV export (<code>3.4.7</code>), and <code>FULLY_COMPLIANT_READY_FOR_CERTIFICATION</code> readiness; <code>SubmissionDetail</code> saves per-question individualized feedback and rubric scores, visible to students in <code>PeerGradingDetail</code>.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Study Groups &amp; Technical Support Desk:</strong> <code>StudyGroupsPage</code> supports student-initiated group creation/join/leave per cohort; <code>SupportDeskPage</code> and <code>AdminSupportTab</code> manage support tickets, response SLAs, supported browsers, and hardware requirements via <code>useSystemRequirements()</code>.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="section-block">
+              <div class="tasks-col-title gap-title">Gaps Found</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot danger"></span>
+                  <span><strong>Missing Student Gradebook View:</strong> <code>useStudentGradeReport</code> (<code>GET /gradebook/student/:cohortId</code>, Postman <code>2.8.1</code>) is defined in both <code>useGradebook.ts</code> and <code>useDiscussions.ts</code>, yet <strong>no student page renders it</strong>.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Misnamed &ldquo;Peer Grading&rdquo; &amp; Mock Overall Feedback Button:</strong> <code>PeerGrading.tsx</code> lists only the student&rsquo;s own instructor-graded submissions rather than peer review, and <code>handleSaveOverallFeedback</code> in <code>SubmissionDetail</code> runs a simulated <code>setTimeout</code> toast with no API call.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Privacy, Security &amp; Backup Disclosures Absent on Support Page:</strong> <code>SupportDeskPage</code> renders SLAs, browsers, and hardware specs, but omits dedicated student-facing Privacy Policy, Security/Encryption, Reliability, and Data Backup assurances (no <code>/privacy</code> route exists in <code>App.tsx</code>).</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- SECTION 8: ADMIN, FACULTY, EVALUATIONS & CERTIFICATIONS -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">MODULE 07</span>
+                <span class="day-date">Admin Governance, Auditor Dossier, Surveys &amp; Certs</span>
+              </div>
+              <span class="status-pill pill-red">UNWIRED BACKEND ENDPOINTS</span>
+            </div>
+            <h3 class="day-title">Admin Portal (4.1&ndash;4.22), RN Credentials, Evaluations &amp; Certificates</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">Implemented Frontend Flows</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Dedicated Admin Portal (<code>4.1</code>&ndash;<code>4.22</code>):</strong> <code>AdminDashboard</code> and its 7 modules implement course approval/rejection/instructor assignment, platform users &amp; enrollments, teacher application &amp; DON faculty approvals (<code>4.10</code>&ndash;<code>4.14</code>), content library, support oversight, exam integrity audit (<code>4.15</code>), seat-time report (<code>4.16</code>), CSV export (<code>4.17</code>), and WABON Compliance Dossier (<code>4.19</code>).</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot ok"></span>
+                  <span><strong>Compliance Audit Dossier View:</strong> <code>ComplianceAuditPage</code> renders institutional/QM metadata, tri-track curriculum parity, faculty workload, and proctoring configuration directly from the backend dossier.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="section-block">
+              <div class="tasks-col-title gap-title">Missing Backend-Supported Features</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot danger"></span>
+                  <span><strong>Completion Certificates &amp; Public Verification Unwired (<code>2.8.4</code>, <code>1.14</code>):</strong> <code>Certifications.tsx</code> displays a <em>&ldquo;Certificates Coming Soon&rdquo;</em> placeholder, <code>StudentProgress</code> has a non-functional <em>View certificate</em> button, and no UI calls <code>POST /certification/generate</code> or <code>POST /certification/verify</code>.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot danger"></span>
+                  <span><strong>End-of-Course Evaluation Surveys Missing (<code>2.8.2</code>, <code>2.8.3</code>, <code>3.6.23</code>):</strong> Zero files in <code>src</code> call <code>/evaluations/*</code> &mdash; no student survey form or instructor/auditor cohort survey metrics dashboard exists.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot warn"></span>
+                  <span><strong>Legacy Instructor Application &amp; Missing RN Credential Form (<code>2.1.6</code>, <code>3.6.24</code>):</strong> <code>ApplyInstructor</code> still defaults <code>teachingArea</code> to <code>&ldquo;Data Science, Machine Learning&rdquo;</code> instead of collecting WA RN license/LTC/Train-the-Trainer proof, and instructor settings lack a UI calling <code>POST/PUT /instructors/credentials</code>.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- SECTION 9: PRIORITY ACTION PLAN -->
+        <article class="day-card">
+          <div class="day-card-header">
+            <div class="day-meta">
+              <div class="meta-left">
+                <span class="day-badge">ACTION PRIORITY</span>
+                <span class="day-date">Recommended Engineering Sequence</span>
+              </div>
+              <span class="status-pill pill-blue">NEXT STEPS</span>
+            </div>
+            <h3 class="day-title">Highest-Impact Gaps to Close First</h3>
+          </div>
+
+          <div class="day-card-body">
+            <div class="section-block">
+              <div class="tasks-col-title">Ordered Remediation Queue</div>
+              <ul class="task-list">
+                <li class="task-item">
+                  <span class="bullet-dot"></span>
+                  <span><strong>1. Fix Commission Auditor Dual-View Access:</strong> Allow read-only switching to Student views for <code>COMMISSION_AUDITOR</code> in <code>InstructorLayout</code>, add <code>COMMISSION_AUDITOR</code> to <code>OrientationGate.isPrivileged</code>, exempt read-only Auditors/Instructors/Admins from <code>LessonView</code>&rsquo;s <code>!isEnrolled</code> wall, and resolve real enrollment <code>cohortId</code> values cleanly.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot"></span>
+                  <span><strong>2. Wire Webcam &amp; Photo ID Capture at Exam Start:</strong> Capture <code>idPhotoUrl</code> and <code>webcamSnapUrl</code> in <code>LessonView</code> before calling <code>examSecurityService.startSession</code> so faculty/auditor review in <code>SubmissionDetail</code> has live snapshot evidence.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot"></span>
+                  <span><strong>3. Build UI for Already-Supported Backend Endpoints:</strong> Wire Certificates &amp; Public Verification (<code>2.8.4</code>, <code>1.14</code>), End-of-Course Evaluation Surveys (<code>2.8.2</code>, <code>2.8.3</code>, <code>3.6.23</code>), and the Student Tri-Track Gradebook page (<code>2.8.1</code>).</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot"></span>
+                  <span><strong>4. Expose Authoring Controls &amp; Enforce Program Caps:</strong> Add <code>maxStudents &lt;= 30</code>, <code>instructorId</code>, and 90-day / 10-month High School options in cohort creation; expose <code>isWeekOneAttendanceGate</code> in <code>ExerciseModal</code>; wire <code>useCreateTextbookMutation</code> / <code>useAssignReadingMutation</code> and inline lesson readings.</span>
+                </li>
+                <li class="task-item">
+                  <span class="bullet-dot"></span>
+                  <span><strong>5. Reconcile Service/Postman DTO Contracts &amp; Support Disclosures:</strong> Standardize Clinical/Admissions/Rubrics/Orientation API schemas with the backend team, persist <code>handleSaveOverallFeedback</code>, and publish Privacy, Security, Reliability, and Backup policies on <code>SupportDeskPage</code>.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>
+
