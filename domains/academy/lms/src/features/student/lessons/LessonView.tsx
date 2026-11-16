@@ -1417,7 +1417,7 @@ const LmsLearn = () => {
           {renderRequiredReadings("mt-6 bg-white rounded-xl p-5 border border-[var(--lovable-border)] shadow-sm max-w-4xl space-y-3")}
 
           {/* Unit Discussion Callout (WAC 246-841A-440) */}
-          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/40 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-4xl shadow-2xs">
+          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-[#f4f8fd] to-[#e8f0fa]/60 border border-[#c8dcf3] flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-4xl shadow-2xs">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="p-1 rounded-md bg-blue-100/70 text-blue-700">
@@ -1588,7 +1588,7 @@ const LmsLearn = () => {
           {renderRequiredReadings()}
 
           {/* Unit Discussion Callout (WAC 246-841A-440) */}
-          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/40 border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-[#f4f8fd] to-[#e8f0fa]/60 border border-[#c8dcf3] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="p-1 rounded-md bg-blue-100/70 text-blue-700">

@@ -648,7 +648,7 @@ const InstructorCreateCourse = () => {
                           }
                         }}
                         placeholder="0.00"
-                        className="border-none bg-transparent text-3xl font-black text-foreground focus-visible:ring-0 shadow-none h-auto p-0 w-40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="border-none bg-transparent text-3xl font-heading font-bold text-foreground focus-visible:ring-0 shadow-none h-auto p-0 w-40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -657,7 +657,7 @@ const InstructorCreateCourse = () => {
                   </div>
 
                   <div className="border-t border-border pt-5">
-                    <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       Price in USD
                     </Label>
                     <div className="flex items-center gap-3 mt-2">
@@ -675,7 +675,7 @@ const InstructorCreateCourse = () => {
                           }
                         }}
                         placeholder="0.00"
-                        className="border-none bg-transparent text-3xl font-black text-foreground focus-visible:ring-0 shadow-none h-auto p-0 w-40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="border-none bg-transparent text-3xl font-heading font-bold text-foreground focus-visible:ring-0 shadow-none h-auto p-0 w-40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">

@@ -204,51 +204,51 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold text-slate-600">Enrolled Candidates</span>
+            <span className="text-xs font-semibold text-slate-600">Enrolled Candidates</span>
             <Users className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="text-2xl font-black text-slate-900">
+          <div className="text-2xl font-bold text-slate-900">
             {report?.totalStudents || 0}
           </div>
-          <p className="text-[11px] text-slate-500 font-medium">Actively enrolled in cohort</p>
+          <p className="text-[11px] text-slate-500 font-normal">Actively enrolled in cohort</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold text-slate-600">Avg. Active Theory</span>
+            <span className="text-xs font-semibold text-slate-600">Avg. Active Theory</span>
             <Clock className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-2xl font-black text-slate-900">
+          <div className="text-2xl font-bold text-slate-900">
             {report?.averageActiveHours || 0}{" "}
-            <span className="text-sm font-semibold text-slate-400">
+            <span className="text-sm font-medium text-slate-400">
               {(report?.students?.[0]?.requiredSeconds ?? 0) > 0
                 ? `/ ${(report!.students[0].requiredSeconds / 3600).toFixed(1)} hrs`
                 : "hrs"}
             </span>
           </div>
-          <p className="text-[11px] text-emerald-600 font-bold">Required theory hours metric</p>
+          <p className="text-[11px] text-emerald-600 font-medium">Required theory hours metric</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold text-slate-600">Theory Clearance Rate</span>
+            <span className="text-xs font-semibold text-slate-600">Theory Clearance Rate</span>
             <ShieldCheck className="w-4 h-4 text-blue-600" />
           </div>
-          <div className="text-2xl font-black text-slate-900">
-            {report?.compliantStudentsCount || 0} <span className="text-sm font-semibold text-slate-400">/ {report?.totalStudents || 0}</span>
+          <div className="text-2xl font-bold text-slate-900">
+            {report?.compliantStudentsCount || 0} <span className="text-sm font-medium text-slate-400">/ {report?.totalStudents || 0}</span>
           </div>
-          <p className="text-[11px] text-blue-600 font-bold">Theory clearance unlocked</p>
+          <p className="text-[11px] text-blue-600 font-medium">Theory clearance unlocked</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-bold text-slate-600">Cohort Total Hours</span>
-            <BookOpen className="w-4 h-4 text-purple-500" />
+            <span className="text-xs font-semibold text-slate-600">Cohort Total Hours</span>
+            <BookOpen className="w-4 h-4 text-[#2b5f9e]" />
           </div>
-          <div className="text-2xl font-black text-slate-900">
-            {report?.totalActiveHours || 0} <span className="text-sm font-semibold text-slate-400">hrs</span>
+          <div className="text-2xl font-bold text-slate-900">
+            {report?.totalActiveHours || 0} <span className="text-sm font-medium text-slate-400">hrs</span>
           </div>
-          <p className="text-[11px] text-purple-600 font-bold">Total accumulated theory</p>
+          <p className="text-[11px] text-[#2b5f9e] font-medium">Total accumulated theory</p>
         </div>
       </div>
 
@@ -492,17 +492,17 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
                 return (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
                     <div className="p-2 space-y-0.5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Required Standard</span>
-                      <span className="text-lg font-black text-slate-900 block">
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Required Standard</span>
+                      <span className="text-lg font-bold text-slate-900 block">
                         {reqSecs > 0 ? `${reqHrs.toFixed(1)} hrs` : "—"}
                       </span>
                       <span className="text-[11px] text-slate-500">
-                        {reqSecs > 0 ? `${Math.round(reqSecs / 60).toLocaleString()} minutes target` : "From backend target"}
+                        {reqSecs > 0 ? `${Math.round(reqSecs / 60).toLocaleString()} minutes target` : "Target hours"}
                       </span>
                     </div>
                     <div className="p-2 space-y-0.5 border-y sm:border-y-0 sm:border-x border-slate-200">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Earned Theory Hours</span>
-                      <span className="text-lg font-black text-emerald-600 block">
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Earned Theory Hours</span>
+                      <span className="text-lg font-bold text-emerald-600 block">
                         {selectedRecordForDetail ? formatHours(earnedSecs) : "0.0 hrs"}
                       </span>
                       <span className="text-[11px] text-slate-500">
@@ -510,8 +510,8 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
                       </span>
                     </div>
                     <div className="p-2 space-y-0.5">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Remaining Deficit</span>
-                      <span className="text-lg font-black text-amber-600 block">
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Remaining Deficit</span>
+                      <span className="text-lg font-bold text-amber-600 block">
                         {reqSecs > 0 ? `${remainingHrs.toFixed(1)} hrs` : "—"}
                       </span>
                       <span className="text-[11px] text-slate-500">
@@ -601,7 +601,7 @@ export const SeatTimeAuditTable: React.FC<SeatTimeAuditTableProps> = ({
                               {lb.lessonTitle || lb.title || `Lesson #${lb.lessonId}`}
                             </span>
                             {lb.isCreditHour ? (
-                              <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-[9px] font-bold px-1.5 py-0">
+                              <Badge className="bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3] text-[9px] font-bold px-1.5 py-0">
                                 Theory Credit
                               </Badge>
                             ) : (

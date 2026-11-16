@@ -181,12 +181,12 @@ export const CurriculumCompliancePage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center shrink-0">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                Curriculum Alignment & Program Crosswalk
+              <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+                Curriculum Alignment &amp; Crosswalk
               </h1>
               <p className="text-xs text-slate-500">
                 {crosswalkData?.courseTitle || activeCohort?.name || "Course modules, textbook readings, and unit assessments."}
@@ -198,7 +198,7 @@ export const CurriculumCompliancePage: React.FC = () => {
         <div className="flex items-center gap-3 flex-wrap">
           {cohorts.length > 1 && (
             <Select value={String(activeCohort?.id || "")} onValueChange={setSelectedCohortId}>
-              <SelectTrigger className="w-56 bg-white border-slate-200 text-xs font-semibold h-10">
+              <SelectTrigger className="w-56 bg-white border-slate-200 text-xs font-medium h-10">
                 <SelectValue placeholder="Select Cohort" />
               </SelectTrigger>
               <SelectContent>
@@ -214,9 +214,9 @@ export const CurriculumCompliancePage: React.FC = () => {
           {canManageStaffActions && (
             <Button
               onClick={() => setIsAddTextbookOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-white font-bold text-xs h-10 rounded-xl shadow-xs"
+              className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs h-10 rounded-xl shadow-xs"
             >
-              <Plus className="w-4 h-4 mr-1.5" /> Register Course Textbook
+              <Plus className="w-4 h-4 mr-1.5" /> Register Textbook
             </Button>
           )}
         </div>
@@ -226,37 +226,37 @@ export const CurriculumCompliancePage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Curriculum Modules
             </span>
             <Layers className="w-4 h-4 text-primary" />
           </div>
-          <div className="text-2xl font-black text-slate-900">{modules.length}</div>
-          <p className="text-[11px] text-slate-500">Active course modules loaded from syllabus</p>
+          <div className="text-2xl font-bold text-slate-900">{modules.length}</div>
+          <p className="text-[11px] text-slate-500 font-normal">Active course modules from syllabus</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Units & Readings
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              Units &amp; Readings
             </span>
             <BookOpen className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-2xl font-black text-slate-900">{totalUnitsCount}</div>
-          <p className="text-[11px] text-slate-500">
-            {linkedReadingsCount} unit(s) with linked textbook readings
+          <div className="text-2xl font-bold text-slate-900">{totalUnitsCount}</div>
+          <p className="text-[11px] text-slate-500 font-normal">
+            {linkedReadingsCount} unit(s) with assigned readings
           </p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Course Textbooks
             </span>
-            <BookMarked className="w-4 h-4 text-purple-600" />
+            <BookMarked className="w-4 h-4 text-[#2b5f9e]" />
           </div>
-          <div className="text-2xl font-black text-slate-900">{textbooks.length}</div>
-          <p className="text-[11px] text-slate-500">Registered textbook references</p>
+          <div className="text-2xl font-bold text-slate-900">{textbooks.length}</div>
+          <p className="text-[11px] text-slate-500 font-normal">Registered textbook references</p>
         </div>
       </div>
 
@@ -307,9 +307,9 @@ export const CurriculumCompliancePage: React.FC = () => {
       {/* Registered Course Textbooks */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+          <h2 className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
             <BookMarked className="w-5 h-5 text-primary" />
-            Course Textbooks & Reading References
+            Course Textbooks &amp; Reading References
           </h2>
           <span className="text-xs text-slate-500">
             {textbooks.length} Books Registered
@@ -328,7 +328,7 @@ export const CurriculumCompliancePage: React.FC = () => {
                 className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs space-y-1.5"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-primary uppercase">
+                  <span className="text-[10px] font-semibold text-primary uppercase">
                     {book.edition || "Primary Textbook"}
                   </span>
                   {book.isbn && (
@@ -337,7 +337,7 @@ export const CurriculumCompliancePage: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 leading-snug">
+                <h3 className="text-sm font-heading font-semibold text-slate-900 leading-snug">
                   {book.title}
                 </h3>
                 <p className="text-xs text-slate-500">Author: {book.author}</p>
@@ -354,17 +354,17 @@ export const CurriculumCompliancePage: React.FC = () => {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-black text-slate-900">
-              Interactive Curriculum Crosswalk (Units & Learning Objectives)
+            <h2 className="text-base font-heading font-semibold text-slate-900">
+              Curriculum Crosswalk &amp; Learning Objectives
             </h2>
             <p className="text-xs text-slate-500">
-              Correlating Modules, Textbook Readings, Skills Lab Alignment, and First-Week Attendance Gates.
+              Course modules, textbook readings, skills lab alignment, and orientation gates.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Select value={selectedTrack} onValueChange={setSelectedTrack}>
-              <SelectTrigger className="w-44 bg-white border-slate-200 text-xs font-semibold h-9">
+              <SelectTrigger className="w-44 bg-white border-slate-200 text-xs font-medium h-9">
                 <SelectValue placeholder="All Tracks" />
               </SelectTrigger>
               <SelectContent>
@@ -412,16 +412,16 @@ export const CurriculumCompliancePage: React.FC = () => {
                 {/* Module Header */}
                 <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-black text-slate-900">
+                    <span className="text-xs font-semibold text-slate-900">
                       Module {mod.moduleId}: {mod.moduleTitle}
                     </span>
                     {mod.track && (
-                      <Badge variant="outline" className="text-[10px] font-bold uppercase bg-white border-slate-200 text-slate-600">
+                      <Badge variant="outline" className="text-[10px] font-medium uppercase bg-white border-slate-200 text-slate-600">
                         {mod.track.replace(/_/g, " ")}
                       </Badge>
                     )}
                     {mod.isOrientationModule && (
-                      <Badge className="bg-amber-100 text-amber-800 border-0 text-[10px] font-bold">
+                      <Badge className="bg-amber-100 text-amber-800 border-0 text-[10px] font-medium">
                         Orientation Module (Non-Credit)
                       </Badge>
                     )}
@@ -496,17 +496,17 @@ export const CurriculumCompliancePage: React.FC = () => {
       {/* Register Textbook Dialog */}
       <Dialog open={isAddTextbookOpen} onOpenChange={setIsAddTextbookOpen}>
         <DialogContent className="max-w-md">
-          <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
+          <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
             <BookMarked className="w-5 h-5 text-primary" />
-            Register Accredited Course Textbook
+            Register Course Textbook
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
-            Link an approved textbook to this course for syllabus crosswalk and lesson reading assignments.
+            Link an approved textbook to this course for syllabus crosswalk and reading assignments.
           </DialogDescription>
 
           <form onSubmit={handleAddTextbook} className="space-y-4 pt-2">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Textbook Title
               </label>
               <Input
@@ -519,7 +519,7 @@ export const CurriculumCompliancePage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Author(s)
               </label>
               <Input
@@ -533,7 +533,7 @@ export const CurriculumCompliancePage: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
+                <label className="text-xs font-medium text-slate-700 block mb-1">
                   Edition
                 </label>
                 <Input
@@ -544,7 +544,7 @@ export const CurriculumCompliancePage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
+                <label className="text-xs font-medium text-slate-700 block mb-1">
                   ISBN
                 </label>
                 <Input
@@ -557,7 +557,7 @@ export const CurriculumCompliancePage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Publisher
               </label>
               <Input
@@ -574,7 +574,7 @@ export const CurriculumCompliancePage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsAddTextbookOpen(false)}
-                className="h-9 text-xs"
+                className="h-9 text-xs font-medium"
               >
                 Cancel
               </Button>
@@ -582,14 +582,14 @@ export const CurriculumCompliancePage: React.FC = () => {
                 type="submit"
                 size="sm"
                 disabled={addTextbookMutation.isPending}
-                className="h-9 text-xs font-bold bg-primary text-white"
+                className="h-9 text-xs font-semibold bg-primary text-white"
               >
                 {addTextbookMutation.isPending ? (
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
                 ) : (
                   <Plus className="w-4 h-4 mr-1.5" />
                 )}
-                Register Textbook
+                Save Textbook
               </Button>
             </div>
           </form>

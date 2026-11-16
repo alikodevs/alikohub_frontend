@@ -99,11 +99,11 @@ export const ComplianceAuditPage: React.FC = () => {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                  WABON Regulatory Compliance Dossier
+                <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+                  Regulatory Compliance Dossier
                 </h1>
                 <p className="text-xs text-slate-500">
-                  Accreditation &amp; Program Compliance Audit Dossier.
+                  Accreditation verification, curriculum crosswalks, and regulatory compliance dossier.
                 </p>
               </div>
             </div>
@@ -114,7 +114,7 @@ export const ComplianceAuditPage: React.FC = () => {
               onClick={() => exportCsvMutation.mutate(cohortId)}
               disabled={exportCsvMutation.isPending}
               variant="outline"
-              className="bg-white border-slate-200 text-xs font-bold h-10 rounded-xl"
+              className="bg-white border-slate-200 text-xs font-semibold h-10 rounded-xl"
             >
               <Download className="w-4 h-4 mr-1.5" /> Export Gradebook CSV
             </Button>
@@ -122,7 +122,7 @@ export const ComplianceAuditPage: React.FC = () => {
             <Button
               onClick={handleDownloadDossierJson}
               disabled={!dossier}
-              className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold h-10 rounded-xl shadow-xs"
+              className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold h-10 rounded-xl shadow-xs"
             >
               <Download className="w-4 h-4 mr-1.5" /> Download Full Dossier JSON
             </Button>
@@ -134,8 +134,8 @@ export const ComplianceAuditPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <Shield className="w-6 h-6 text-emerald-400 shrink-0" />
             <div className="text-xs">
-              <p className="font-bold text-slate-100">
-                State Regulatory Auditor Audit Trail (Immutable Evidence)
+              <p className="font-semibold text-slate-100">
+                State Regulatory Audit Trail
               </p>
               <p className="text-slate-400">
                 All records, seat-time heartbeats, exam proctor events, and clinical signatures are cryptographic and read-only.
@@ -150,14 +150,14 @@ export const ComplianceAuditPage: React.FC = () => {
         {/* Cohort Selector */}
         <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="w-full sm:w-72">
-            <label className="text-[11px] font-bold text-slate-500 uppercase block mb-1">
+            <label className="text-xs font-medium text-slate-600 block mb-1">
               Select Audit Cohort
             </label>
             <Select
               value={cohortId ? String(cohortId) : undefined}
               onValueChange={setSelectedCohortId}
             >
-              <SelectTrigger className="bg-slate-50 border-slate-200 text-xs font-semibold h-9">
+              <SelectTrigger className="bg-slate-50 border-slate-200 text-xs font-medium h-9">
                 <SelectValue placeholder={cohorts.length > 0 ? "Select Cohort" : "No cohorts found"} />
               </SelectTrigger>
               <SelectContent>
@@ -177,14 +177,14 @@ export const ComplianceAuditPage: React.FC = () => {
 
           <div className="flex items-center gap-4 text-xs">
             <div>
-              <span className="text-slate-400 block text-[10px] uppercase font-bold">Generated Timestamp</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Generated Timestamp</span>
               <span className="font-mono font-medium text-slate-700">
                 {dossier ? new Date(dossier.generatedAt).toLocaleString() : "—"}
               </span>
             </div>
             <div>
-              <span className="text-slate-400 block text-[10px] uppercase font-bold">Authority</span>
-              <span className="font-bold text-slate-900">
+              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Authority</span>
+              <span className="font-semibold text-slate-900">
                 {dossier?.submissionAuthority || "—"}
               </span>
             </div>
@@ -205,9 +205,9 @@ export const ComplianceAuditPage: React.FC = () => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all shrink-0",
+                "px-3.5 py-1.5 text-xs rounded-lg transition-all shrink-0 font-medium",
                 activeTab === tab.id
-                  ? "bg-white text-slate-900 shadow-xs"
+                  ? "bg-white text-slate-900 shadow-xs font-semibold"
                   : "text-slate-500 hover:text-slate-700"
               )}
             >
@@ -233,10 +233,10 @@ export const ComplianceAuditPage: React.FC = () => {
                 {/* Statutory Requirements Summary */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                    <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
                       Faculty Theory Ratio Standard
                     </span>
-                    <span className="text-xl font-black text-slate-900 block">
+                    <span className="text-xl font-bold text-slate-900 block">
                       {dossier.statutoryStandards?.maximumTheoryRatio ?? "—"}
                     </span>
                     <p className="text-xs text-slate-500">
@@ -250,10 +250,10 @@ export const ComplianceAuditPage: React.FC = () => {
                   </div>
 
                   <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                    <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
                       Clinical &amp; Skills Lab Ratio Standard
                     </span>
-                    <span className="text-xl font-black text-slate-900 block">
+                    <span className="text-xl font-bold text-slate-900 block">
                       {dossier.statutoryStandards?.maximumLabAndClinicalRatio ?? "—"}
                     </span>
                     <p className="text-xs text-slate-500">
@@ -262,10 +262,10 @@ export const ComplianceAuditPage: React.FC = () => {
                   </div>
 
                   <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                    <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
                       Cohort Duration Cap
                     </span>
-                    <span className="text-xl font-black text-slate-900 block">
+                    <span className="text-xl font-bold text-slate-900 block">
                       {dossier.statutoryStandards?.maximumCohortDurationCalendarDays != null
                         ? `${dossier.statutoryStandards.maximumCohortDurationCalendarDays} Days Max`
                         : "—"}
@@ -287,7 +287,7 @@ export const ComplianceAuditPage: React.FC = () => {
                 {/* Tri-Track Program Structure from Backend */}
                 {dossier.triTrackMasterCurriculum && (
                   <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-                    <h3 className="text-base font-black text-slate-900">
+                    <h3 className="text-base font-heading font-semibold text-slate-900">
                       Program Curriculum Structure
                     </h3>
 
@@ -382,7 +382,7 @@ export const ComplianceAuditPage: React.FC = () => {
                       Total Modules: {dossier.curriculumCrosswalk?.totalModules ?? 0} • Total Lessons: {dossier.curriculumCrosswalk?.totalLessons ?? 0}
                     </p>
                   </div>
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-xs">
+                  <Badge variant="outline" className="bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3] text-xs">
                     Certified Curriculum Syllabus
                   </Badge>
                 </div>
@@ -513,13 +513,13 @@ export const ComplianceAuditPage: React.FC = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                    <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
                       Quality Matters Review Score
                     </span>
-                    <span className="text-2xl font-black text-slate-900 block">
+                    <span className="text-2xl font-bold text-slate-900 block">
                       {dossier.qualityAssuranceAndQM?.qmReviewScore ?? "—"}
                     </span>
-                    <p className="text-xs text-emerald-700 font-bold">
+                    <p className="text-xs text-emerald-700 font-semibold">
                       {dossier.qualityAssuranceAndQM?.qmCertificationLevel ||
                         dossier.qualityAssuranceAndQM?.accreditationStatus ||
                         "—"}
@@ -527,10 +527,10 @@ export const ComplianceAuditPage: React.FC = () => {
                   </div>
 
                   <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                    <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
                       State Exam Historical Pass Rate
                     </span>
-                    <span className="text-2xl font-black text-slate-900 block">
+                    <span className="text-2xl font-bold text-slate-900 block">
                       {dossier.qualityAssuranceAndQM?.historicalPassRates?.nnaapStateExamPassRatePercent != null
                         ? `${dossier.qualityAssuranceAndQM.historicalPassRates.nnaapStateExamPassRatePercent}%`
                         : "—"}
@@ -543,10 +543,10 @@ export const ComplianceAuditPage: React.FC = () => {
                   </div>
 
                   <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                    <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
                       Cohort Completion Rate
                     </span>
-                    <span className="text-2xl font-black text-slate-900 block">
+                    <span className="text-2xl font-bold text-slate-900 block">
                       {dossier.qualityAssuranceAndQM?.historicalPassRates?.cohortCompletionRatePercent != null
                         ? `${dossier.qualityAssuranceAndQM.historicalPassRates.cohortCompletionRatePercent}%`
                         : "—"}
@@ -563,7 +563,7 @@ export const ComplianceAuditPage: React.FC = () => {
             {/* EXAM SECURITY TAB */}
             {activeTab === "SECURITY" && (
               <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-heading font-semibold text-slate-900">
                   Regulatory Protocols &amp; Security Framework
                 </h3>
 

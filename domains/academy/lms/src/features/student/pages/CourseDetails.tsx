@@ -202,7 +202,7 @@ const CourseDetails = () => {
       <div className="min-h-screen bg-[#F5F7F9]">
         <LmsNavbar />
         <div className="section-container py-20 text-center">
-          <h1 className="text-3xl font-extrabold text-[#1C2840] mb-6">
+          <h1 className="text-3xl font-heading font-bold text-[#1C2840] mb-6">
             Course not found
           </h1>
           <Button
@@ -246,7 +246,7 @@ const CourseDetails = () => {
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-5xl font-extrabold text-[#1C2840] leading-tight font-roboto">
+              <h1 className="text-3xl md:text-4xl font-heading font-bold text-[#1C2840] leading-tight font-roboto">
                 {course.title}
               </h1>
               <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-2xl font-medium">
@@ -312,7 +312,7 @@ const CourseDetails = () => {
                 </div>
 
                 <div className="text-center">
-                  <p className="text-3xl font-black text-slate-900">
+                  <p className="text-3xl font-heading font-bold text-slate-900">
                     {isCourseFree
                       ? "Free"
                       : course.currency === "USD"
@@ -331,7 +331,7 @@ const CourseDetails = () => {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="w-full border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-800 font-bold gap-2 h-11 rounded-xl"
+                      className="w-full border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-800 font-semibold gap-2 h-11 rounded-xl"
                       onClick={() => navigate(`/learn/${course.id}`)}
                     >
                       <ShieldCheck className="h-4 w-4" />
@@ -345,10 +345,10 @@ const CourseDetails = () => {
                       {/* Self-Paced Option Card */}
                       <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:border-slate-300 transition-all">
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
                             Self-Paced
                           </span>
-                          <span className="text-xs font-bold text-slate-700">
+                          <span className="text-xs font-semibold text-slate-700">
                             Lifetime Access
                           </span>
                         </div>
@@ -504,7 +504,7 @@ const CourseDetails = () => {
                   <h2 className="text-2xl font-bold text-[#1C2840]">
                     Upcoming Cohorts
                   </h2>
-                  <span className="px-3 py-1 bg-slate-100 text-[#1C2840] text-[10px] font-black uppercase tracking-widest rounded-full border border-slate-200">
+                  <span className="px-3 py-1 bg-slate-100 text-slate-700 text-[10px] font-semibold uppercase tracking-wider rounded-full border border-slate-200">
                     Instructional Program
                   </span>
                 </div>
@@ -517,11 +517,11 @@ const CourseDetails = () => {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-[#f26b21]" />
-                          <h4 className="font-bold text-slate-900 font-roboto">
+                          <h4 className="font-semibold text-slate-900 font-roboto">
                             {cohort.name}
                           </h4>
                         </div>
-                        <p className="text-xs text-slate-500 flex items-center gap-2 font-bold">
+                        <p className="text-xs text-slate-500 flex items-center gap-2 font-medium">
                           <Clock className="w-3.5 h-3.5" />
                           Starts{" "}
                           {new Date(cohort.startDate).toLocaleDateString(
@@ -532,10 +532,10 @@ const CourseDetails = () => {
                       </div>
                       <div className="flex items-center gap-6">
                         <div className="hidden sm:block text-right">
-                          <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.15em]">
+                          <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
                             Availability
                           </p>
-                          <p className="text-xs font-bold text-slate-900">
+                          <p className="text-xs font-semibold text-slate-900">
                             Limited Enrollment
                           </p>
                         </div>
@@ -549,7 +549,7 @@ const CourseDetails = () => {
                               : "ghost"
                           }
                           size="sm"
-                          className={`font-black text-[11px] uppercase tracking-widest rounded-xl px-4 ${
+                          className={`font-semibold text-xs rounded-xl px-4 ${
                             enrolledCohortIds.includes(cohort.id)
                               ? "bg-slate-100 text-slate-500 border-slate-200 cursor-default"
                               : pendingCohortEnrollments.some(
@@ -603,10 +603,10 @@ const CourseDetails = () => {
                           {idx + 1}
                         </span>
                         <div>
-                          <h3 className="font-bold text-slate-900 text-sm md:text-base font-roboto">
+                          <h3 className="font-semibold text-slate-900 text-sm md:text-base font-roboto">
                             {module.title}
                           </h3>
-                          <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mt-0.5">
+                          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-0.5">
                             {module.lessons?.length || 0} lessons
                           </p>
                         </div>
@@ -622,7 +622,7 @@ const CourseDetails = () => {
           <div className="space-y-8">
             <Card className="rounded-3xl border border-slate-200 bg-white shadow-xl overflow-hidden">
               <CardContent className="p-8">
-                <h3 className="font-bold text-2xl text-[#1C2840] mb-6 font-roboto">
+                <h3 className="font-bold text-xl text-[#1C2840] mb-6 font-roboto">
                   Quick Facts
                 </h3>
                 <div className="space-y-6">
@@ -631,10 +631,10 @@ const CourseDetails = () => {
                       <ShieldCheck className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">
+                      <p className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
                         Security
                       </p>
-                      <p className="text-base font-bold text-slate-900">
+                      <p className="text-base font-semibold text-slate-900">
                         Verified Pathways
                       </p>
                     </div>
@@ -644,10 +644,10 @@ const CourseDetails = () => {
                       <Award className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">
+                      <p className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
                         Reward
                       </p>
-                      <p className="text-base font-bold text-slate-900">
+                      <p className="text-base font-semibold text-slate-900">
                         Aliko Hub Certificate
                       </p>
                     </div>
@@ -657,10 +657,10 @@ const CourseDetails = () => {
                       <Users className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">
+                      <p className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
                         Support
                       </p>
-                      <p className="text-base font-bold text-slate-900">
+                      <p className="text-base font-semibold text-slate-900">
                         Mentorship Included
                       </p>
                     </div>
@@ -856,10 +856,10 @@ const CourseDetails = () => {
 
           <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
             <div className="space-y-1 text-left">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
                 Enrollment Fee
               </p>
-              <p className="text-2xl font-extrabold text-[#1C2840]">
+              <p className="text-2xl font-heading font-bold text-[#1C2840]">
                 {isCourseFree
                   ? "FREE"
                   : course.currency === "USD"

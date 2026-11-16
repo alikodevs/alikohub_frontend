@@ -120,7 +120,7 @@ const AnnouncementBanner = () => {
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold uppercase tracking-widest">
                 <Sparkles className="w-2.5 h-2.5" />
                 New
               </span>
@@ -504,7 +504,7 @@ const StudentDashboard = () => {
                         className="bg-card rounded-xl border hover:shadow-md transition-shadow duration-200 p-4 flex gap-4"
                       >
                         {/* Course thumbnail placeholder */}
-                        <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center shrink-0 border border-border overflow-hidden">
+                        <div className="w-14 h-14 rounded-lg bg-[#e8f0fa] flex items-center justify-center shrink-0 border border-border overflow-hidden">
                           {enrollment.course?.thumbnail ? (
                             <img
                               src={enrollment.course.thumbnail}
@@ -512,7 +512,7 @@ const StudentDashboard = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <BookOpen className="w-6 h-6 text-indigo-400" />
+                            <BookOpen className="w-6 h-6 text-[#2b5f9e]" />
                           )}
                         </div>
 
@@ -579,8 +579,8 @@ const StudentDashboard = () => {
                     icon: BookOpen,
                     label: "Courses active",
                     value: activeEnrollments?.length || 0,
-                    color: "text-indigo-600",
-                    bg: "bg-indigo-50",
+                    color: "text-[#2b5f9e]",
+                    bg: "bg-[#e8f0fa]",
                   },
                   {
                     icon: Award,
@@ -600,8 +600,8 @@ const StudentDashboard = () => {
                     icon: TrendingUp,
                     label: "Quizzes done",
                     value: analytics?.quizzesCompleted || 0,
-                    color: "text-purple-600",
-                    bg: "bg-purple-50",
+                    color: "text-[#f26b21]",
+                    bg: "bg-[#fff1e6]",
                   },
                 ].map((stat) => (
                   <div

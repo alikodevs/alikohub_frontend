@@ -58,8 +58,8 @@ const InstructorDashboard = () => {
       label: "Experience",
       value: `${instructorStats?.yearsOfExperience || 0} Years`,
       icon: Award,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
+      color: "text-[#2b5f9e]",
+      bg: "bg-[#e8f0fa]",
     },
   ];
 
@@ -271,7 +271,7 @@ const InstructorDashboard = () => {
             <div className="bg-white rounded-xl border border-border overflow-hidden">
               <div className="p-2">
                 <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors text-left group">
-                  <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+                  <div className="p-2 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] transition-colors group-hover:bg-[#2b5f9e] group-hover:text-white">
                     <PlusCircle className="w-5 h-5" />
                   </div>
                   <div>

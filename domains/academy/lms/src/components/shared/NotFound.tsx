@@ -25,7 +25,7 @@ const NotFound = () => {
           😕
         </div>
 
-        <p className="mb-1 text-3xl font-extrabold tracking-tight text-slate-800">
+        <p className="mb-1 text-3xl font-heading font-bold tracking-tight text-slate-800">
           Error 404
         </p>
         <p className="mb-4 text-lg font-semibold text-slate-700">

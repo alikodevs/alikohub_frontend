@@ -254,18 +254,18 @@ export const AdmissionsClearancePage: React.FC = () => {
         {/* ── Top Header ── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-heading tracking-tight">
-              Admissions Clearance & Onboarding Checklist
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-slate-900 tracking-tight">
+              Admissions Clearance &amp; Onboarding
             </h1>
             <p className="text-sm text-slate-500 mt-1">
-              Complete prerequisite documentation, digital enrollment agreement, and mandatory orientation before beginning theory coursework.
+              Complete prerequisite documentation, digital enrollment agreement, and orientation before beginning coursework.
             </p>
           </div>
 
           {/* Cohort Selector */}
           {cohortOptions.length > 1 && (
             <div className="flex items-center gap-2 shrink-0">
-              <label htmlFor="cohort-select" className="text-xs font-bold text-slate-600">
+              <label htmlFor="cohort-select" className="text-xs font-medium text-slate-600">
                 Cohort:
               </label>
               <select
@@ -273,7 +273,7 @@ export const AdmissionsClearancePage: React.FC = () => {
                 aria-label="Select cohort"
                 value={selectedCohortId}
                 onChange={(e) => setSelectedCohortId(Number(e.target.value))}
-                className="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="text-xs font-medium bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {cohortOptions.map((opt) => (
                   <option key={opt.cohortId} value={opt.cohortId}>
@@ -292,17 +292,17 @@ export const AdmissionsClearancePage: React.FC = () => {
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div className="space-y-1 flex-1">
-              <h3 className="text-sm font-bold text-rose-900">
+              <h3 className="text-sm font-semibold text-rose-900">
                 Admissions Clearance Requires Remediation
               </h3>
               <p className="text-xs text-rose-700">
                 An instructor or admissions officer reviewed your documents and requested corrections:
               </p>
-              <div className="p-3 bg-white/80 rounded-xl border border-rose-200/80 text-xs font-semibold text-rose-950 mt-2">
+              <div className="p-3 bg-white/80 rounded-xl border border-rose-200/80 text-xs font-medium text-rose-950 mt-2">
                 "{application.rejectionReason}"
               </div>
               <p className="text-[11px] text-rose-600 mt-1">
-                Please update the indicated prerequisite files or document links below and re-submit for review.
+                Please update the indicated files below and re-submit for review.
               </p>
             </div>
           </div>
@@ -312,24 +312,24 @@ export const AdmissionsClearancePage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Status KPI */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Clearance Status
             </span>
             <div className="flex items-center gap-2">
               {isApproved ? (
-                <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-bold py-1 px-3">
+                <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-semibold py-1 px-3">
                   <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Cleared (Approved)
                 </Badge>
               ) : isRejected ? (
-                <Badge className="bg-rose-50 text-rose-700 border-rose-300 text-xs font-bold py-1 px-3">
+                <Badge className="bg-rose-50 text-rose-700 border-rose-300 text-xs font-semibold py-1 px-3">
                   <AlertCircle className="w-3.5 h-3.5 mr-1 text-rose-600" /> Action Required
                 </Badge>
               ) : isPendingReview ? (
-                <Badge className="bg-blue-50 text-blue-700 border-blue-300 text-xs font-bold py-1 px-3">
+                <Badge className="bg-blue-50 text-blue-700 border-blue-300 text-xs font-semibold py-1 px-3">
                   <Clock className="w-3.5 h-3.5 mr-1 text-blue-600" /> Pending Review
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-xs font-bold py-1 px-3 text-slate-500">
+                <Badge variant="outline" className="text-xs font-medium py-1 px-3 text-slate-500">
                   Documents Incomplete
                 </Badge>
               )}
@@ -345,23 +345,23 @@ export const AdmissionsClearancePage: React.FC = () => {
 
           {/* Prerequisite Documents KPI */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Prerequisite Files
             </span>
-            <div className="text-xl font-black text-slate-900">
-              {docsCompletedCount} / 6 <span className="text-xs font-semibold text-slate-400">Submitted</span>
+            <div className="text-xl font-bold text-slate-900">
+              {docsCompletedCount} / 6 <span className="text-xs font-normal text-slate-500">Submitted</span>
             </div>
             <Progress value={(docsCompletedCount / 6) * 100} className="h-2 bg-slate-100" />
           </div>
 
           {/* Enrollment Agreement KPI */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Enrollment Agreement
             </span>
             <div className="flex items-center gap-2">
               {isAgreementSigned ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Digitally Signed
                 </span>
               ) : (
@@ -369,7 +369,7 @@ export const AdmissionsClearancePage: React.FC = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => setIsAgreementModalOpen(true)}
-                  className="h-8 text-xs font-bold text-blue-600 hover:text-blue-700 border-blue-200 hover:bg-blue-50 rounded-xl"
+                  className="h-8 text-xs font-semibold text-blue-600 hover:text-blue-700 border-blue-200 hover:bg-blue-50 rounded-xl"
                 >
                   <PenTool className="w-3.5 h-3.5 mr-1.5" /> Sign Agreement
                 </Button>
@@ -384,19 +384,19 @@ export const AdmissionsClearancePage: React.FC = () => {
 
           {/* Orientation Gate KPI */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Mandatory Orientation
             </span>
             <div className="flex items-center gap-2">
               {isOrientationDone ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Completed
                 </span>
               ) : (
                 <Button
                   size="sm"
                   asChild
-                  className="h-8 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-2xs"
+                  className="h-8 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-2xs"
                 >
                   <Link to={`/orientation?cohortId=${selectedCohortId}`}>
                     Go to Orientation <ArrowRight className="w-3 h-3 ml-1" />
@@ -414,15 +414,15 @@ export const AdmissionsClearancePage: React.FC = () => {
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 font-heading flex items-center gap-2">
+              <h2 className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
                 <FileCheck2 className="w-5 h-5 text-blue-600" />
                 1. Prerequisite Document Clearance
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Upload scanned PDF/image copies or enter verified storage URLs for each mandatory statutory requirement.
+                Upload scanned PDF/image copies or enter verified storage URLs for each mandatory requirement.
               </p>
             </div>
-            <Badge variant="outline" className="text-xs font-bold self-start sm:self-auto">
+            <Badge variant="outline" className="text-xs font-medium self-start sm:self-auto">
               {docsCompletedCount} of 6 Complete
             </Badge>
           </div>
@@ -805,7 +805,7 @@ export const AdmissionsClearancePage: React.FC = () => {
           <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between space-y-5">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center shrink-0">
                   <PenTool className="w-5 h-5" />
                 </div>
                 {isAgreementSigned ? (
@@ -909,7 +909,7 @@ export const AdmissionsClearancePage: React.FC = () => {
         </div>
 
         {/* ── Return to Course CTA ── */}
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+        <div className="p-6 rounded-3xl bg-gradient-to-r from-[#1c4477] via-[#2b5f9e] to-[#234e83] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
           <div className="space-y-1">
             <h4 className="font-bold text-base font-heading">
               Ready to begin theory lessons?
@@ -934,7 +934,7 @@ export const AdmissionsClearancePage: React.FC = () => {
         <DialogContent className="sm:max-w-[700px] p-0 border-none rounded-3xl overflow-hidden bg-white max-h-[90vh] flex flex-col shadow-2xl">
           <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center shrink-0">
                 <PenTool className="w-4 h-4" />
               </div>
               <div>

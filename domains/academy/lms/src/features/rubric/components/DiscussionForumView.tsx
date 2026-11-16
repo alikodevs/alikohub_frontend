@@ -692,7 +692,7 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
                       </Badge>
                     )}
                     {post.grade != null && (
-                      <span className="text-xs font-black text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md border border-blue-100">
+                      <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-md border border-blue-100">
                         {post.grade} pts
                       </span>
                     )}
@@ -779,7 +779,7 @@ export const DiscussionForumView: React.FC<DiscussionForumViewProps> = ({
                               </Badge>
                             )}
                             {reply.grade != null && (
-                              <span className="text-[11px] font-extrabold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                              <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
                                 {reply.grade} pts
                               </span>
                             )}

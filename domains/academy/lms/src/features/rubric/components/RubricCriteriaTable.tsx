@@ -62,7 +62,7 @@ export const RubricCriteriaTable: React.FC<RubricCriteriaTableProps> = ({
           <span className="text-[11px] font-semibold text-slate-400 block uppercase tracking-wider">
             Total Possible
           </span>
-          <span className="text-sm font-extrabold text-blue-700">
+          <span className="text-sm font-bold text-blue-700">
             {totalPossiblePoints} pts
           </span>
         </div>

@@ -50,10 +50,10 @@ interface FormState {
 
 const typeColors: Record<string, string> = {
   LIVE: "bg-rose-100 text-rose-700 border-rose-200",
-  RECORDING: "bg-indigo-100 text-indigo-700 border-indigo-200",
+  RECORDING: "bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3]",
   Q_AND_A: "bg-amber-100 text-amber-700 border-amber-200",
   OFFICE_HOURS: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  WORKSHOP: "bg-violet-100 text-violet-700 border-violet-200",
+  WORKSHOP: "bg-[#fff1e6] text-[#c2410c] border-[#ffd8bc]",
 };
 
 const InstructorSchedules = () => {
@@ -543,7 +543,7 @@ const InstructorSchedules = () => {
                           <div className="space-y-2 flex-grow">
                             <div className="flex flex-wrap items-center gap-2">
                               <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border border-current ${
+                                className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider border border-current ${
                                   typeColors[session.type] ||
                                   "bg-slate-100 text-slate-700"
                                 }`}

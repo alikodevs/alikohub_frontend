@@ -79,7 +79,7 @@ const InstructorAnalytics = () => {
               className="rounded-xl text-xs font-bold gap-1.5 h-9 bg-white"
             >
               <Link to="/instructor/admissions">
-                <FileCheck2 className="w-4 h-4 text-indigo-600" /> Admissions Clearance
+                <FileCheck2 className="w-4 h-4 text-[#2b5f9e]" /> Admissions Clearance
               </Link>
             </Button>
             <Button
@@ -147,7 +147,7 @@ const InstructorAnalytics = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Experience</CardTitle>
-              <Clock className="h-4 w-4 text-purple-500" />
+              <Clock className="h-4 w-4 text-[#f26b21]" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">

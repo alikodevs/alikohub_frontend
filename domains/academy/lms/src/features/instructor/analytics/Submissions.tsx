@@ -43,12 +43,12 @@ const initialsOf = (firstname?: string, lastname?: string) =>
   `${firstname?.[0] ?? ""}${lastname?.[0] ?? ""}`.toUpperCase();
 
 const AVATAR_PALETTES = [
-  "bg-indigo-50 text-indigo-600",
+  "bg-[#e8f0fa] text-[#2b5f9e]",
   "bg-rose-50 text-rose-600",
-  "bg-amber-50 text-amber-600",
+  "bg-[#fff1e6] text-[#f26b21]",
   "bg-emerald-50 text-emerald-600",
   "bg-sky-50 text-sky-600",
-  "bg-violet-50 text-violet-600",
+  "bg-slate-100 text-slate-700",
 ];
 const avatarPalette = (key: string) => {
   let hash = 0;

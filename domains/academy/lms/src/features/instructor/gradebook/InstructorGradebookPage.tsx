@@ -146,11 +146,11 @@ export const InstructorGradebookPage: React.FC = () => {
                 <GraduationCap className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                  Instructor Master Gradebook &amp; Pacing
+                <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+                  Instructor Master Gradebook
                 </h1>
                 <p className="text-xs text-slate-500">
-                  Consolidated Theory Scores, Skills Lab Checkoffs, and Verified Clinical Hours.
+                  Consolidated theory scores, skills lab evaluations, and clinical hours.
                 </p>
               </div>
             </div>
@@ -161,7 +161,7 @@ export const InstructorGradebookPage: React.FC = () => {
               onClick={handleExportCsv}
               disabled={exportCsvMutation.isPending || !activeCohortId}
               variant="outline"
-              className="bg-white border-slate-200 text-xs font-bold h-10 rounded-xl shadow-xs"
+              className="bg-white border-slate-200 text-xs font-semibold h-10 rounded-xl shadow-xs"
             >
               {exportCsvMutation.isPending ? (
                 <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
@@ -176,11 +176,11 @@ export const InstructorGradebookPage: React.FC = () => {
         {/* Cohort Selector & Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Active Cohort
             </span>
             <Select value={activeCohortId || undefined} onValueChange={setSelectedCohortId}>
-              <SelectTrigger className="bg-slate-50 border-slate-200 text-xs font-semibold h-9">
+              <SelectTrigger className="bg-slate-50 border-slate-200 text-xs font-medium h-9">
                 <SelectValue placeholder={cohorts.length > 0 ? "Select Cohort" : "No cohorts found"} />
               </SelectTrigger>
               <SelectContent>
@@ -199,15 +199,15 @@ export const InstructorGradebookPage: React.FC = () => {
           </div>
 
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Total Enrolled
             </span>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-slate-900">
+              <span className="text-2xl font-bold text-slate-900">
                 {totalStudents}
               </span>
-              <span className="text-xs text-slate-500 font-bold">
-                ({graduatingCount} fully certified)
+              <span className="text-xs text-slate-500 font-medium">
+                ({graduatingCount} certified)
               </span>
             </div>
             <p className="text-[11px] text-slate-500">
@@ -216,32 +216,32 @@ export const InstructorGradebookPage: React.FC = () => {
           </div>
 
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Below 80% Theory (Remediation)
             </span>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-rose-600">
+              <span className="text-2xl font-bold text-rose-600">
                 {remediationNeededCount}
               </span>
-              <span className="text-xs text-rose-600 font-bold">Students</span>
+              <span className="text-xs text-rose-600 font-medium">Students</span>
             </div>
             <p className="text-[11px] text-slate-500">
-              Requires academic intervention
+              Academic intervention required
             </p>
           </div>
 
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
               Pacing Alerts (At-Risk)
             </span>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-amber-600">
+              <span className="text-2xl font-bold text-amber-600">
                 {atRiskCount}
               </span>
-              <span className="text-xs text-amber-600 font-bold">Students</span>
+              <span className="text-xs text-amber-600 font-medium">Students</span>
             </div>
             <p className="text-[11px] text-slate-500">
-              Behind cohort pacing schedule
+              Behind cohort schedule
             </p>
           </div>
         </div>
@@ -252,17 +252,17 @@ export const InstructorGradebookPage: React.FC = () => {
             {[
               { id: "ALL", label: `All Students (${totalStudents})` },
               { id: "PASSING", label: "Theory Passing" },
-              { id: "REMEDIATION", label: `Remediation Required (${remediationNeededCount})` },
+              { id: "REMEDIATION", label: `Remediation (${remediationNeededCount})` },
               { id: "BEHIND", label: `Pacing Alerts (${atRiskCount})` },
-              { id: "COMPLIANT", label: "Fully Certified" },
+              { id: "COMPLIANT", label: "Certified" },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setStatusFilter(tab.id)}
                 className={cn(
-                  "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all shrink-0",
+                  "px-3.5 py-1.5 text-xs rounded-lg transition-all shrink-0 font-medium",
                   statusFilter === tab.id
-                    ? "bg-white text-slate-900 shadow-xs"
+                    ? "bg-white text-slate-900 shadow-xs font-semibold"
                     : "text-slate-500 hover:text-slate-700"
                 )}
               >
@@ -367,7 +367,7 @@ export const InstructorGradebookPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <span
                             className={cn(
-                              "text-sm font-black",
+                              "text-sm font-semibold",
                               isPassing ? "text-slate-900" : "text-rose-600"
                             )}
                           >

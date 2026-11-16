@@ -51,12 +51,12 @@ const initialsOf = (firstname?: string, lastname?: string) =>
   `${firstname?.[0] ?? ""}${lastname?.[0] ?? ""}`.toUpperCase();
 
 const AVATAR_PALETTES = [
-  "bg-indigo-50 text-indigo-600",
+  "bg-[#e8f0fa] text-[#2b5f9e]",
   "bg-rose-50 text-rose-600",
-  "bg-amber-50 text-amber-600",
+  "bg-[#fff1e6] text-[#f26b21]",
   "bg-emerald-50 text-emerald-600",
   "bg-sky-50 text-sky-600",
-  "bg-violet-50 text-violet-600",
+  "bg-slate-100 text-slate-700",
 ];
 const avatarPalette = (key: string) => {
   let hash = 0;
@@ -798,7 +798,7 @@ const SubmissionDetail = () => {
                 <ArrowLeft size={14} />
                 Back to All Submissions
               </Button>
-              <h1 className="text-2xl font-black text-slate-900 font-heading tracking-tight">
+              <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">
                 {headerCourseTitle}
               </h1>
               <p className="text-xs text-slate-500 mt-1">
@@ -833,7 +833,7 @@ const SubmissionDetail = () => {
                       <span className="font-bold text-slate-900 text-base">
                         {group.user?.firstname} {group.user?.lastname}
                       </span>
-                      <Badge className="bg-purple-100 text-purple-800 border-none text-[10px] font-bold">
+                      <Badge className="bg-[#e8f0fa] text-[#2b5f9e] border-none text-[10px] font-bold">
                         <Layers className="w-3 h-3 mr-1" />
                         Attempt #{attemptCount}
                       </Badge>
@@ -871,29 +871,29 @@ const SubmissionDetail = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {/* Total Score */}
               <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Total Score
                 </span>
-                <div className="text-xl font-black text-slate-900">
+                <div className="text-xl font-bold text-slate-900">
                   {totalScore} <span className="text-xs font-semibold text-slate-400">/{maxPoints}</span>
                 </div>
-                <span className="text-[11px] font-bold text-blue-600 block">
+                <span className="text-[11px] font-semibold text-blue-600 block">
                   {percentage}% Grade
                 </span>
               </div>
 
               {/* WABON Status */}
               <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
                   WABON Standard
                 </span>
-                <div className="text-sm font-bold mt-1">
+                <div className="text-sm font-semibold mt-1">
                   {isPassing ? (
-                    <span className="text-emerald-700 font-black flex items-center gap-1">
+                    <span className="text-emerald-700 font-bold flex items-center gap-1">
                       <CheckCircle2 size={14} /> Passed
                     </span>
                   ) : (
-                    <span className="text-amber-700 font-black flex items-center gap-1">
+                    <span className="text-amber-700 font-bold flex items-center gap-1">
                       <AlertCircle size={14} /> Remediation
                     </span>
                   )}
@@ -905,10 +905,10 @@ const SubmissionDetail = () => {
 
               {/* Correct Questions */}
               <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">
+                <span className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider block">
                   Correct
                 </span>
-                <div className="text-xl font-black text-emerald-800">
+                <div className="text-xl font-bold text-emerald-800">
                   {correctCount} <span className="text-xs font-semibold text-emerald-600">/{submissions.length}</span>
                 </div>
                 <span className="text-[10px] text-emerald-600 font-medium block">
@@ -918,10 +918,10 @@ const SubmissionDetail = () => {
 
               {/* Incorrect Questions */}
               <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-200/80 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold text-rose-700 uppercase tracking-wider block">
+                <span className="text-[10px] font-semibold text-rose-700 uppercase tracking-wider block">
                   Incorrect
                 </span>
-                <div className="text-xl font-black text-rose-800">
+                <div className="text-xl font-bold text-rose-800">
                   {incorrectCount} <span className="text-xs font-semibold text-rose-600">/{submissions.length}</span>
                 </div>
                 <span className="text-[10px] text-rose-600 font-medium block">
@@ -931,10 +931,10 @@ const SubmissionDetail = () => {
 
               {/* Unanswered Questions */}
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
                   Unanswered
                 </span>
-                <div className="text-xl font-black text-slate-700">
+                <div className="text-xl font-bold text-slate-700">
                   {unansweredCount} <span className="text-xs font-semibold text-slate-400">/{submissions.length}</span>
                 </div>
                 <span className="text-[10px] text-slate-400 font-medium block">
@@ -944,10 +944,10 @@ const SubmissionDetail = () => {
 
               {/* Pending Manual Review */}
               <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 shadow-2xs space-y-1">
-                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">
+                <span className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider block">
                   Pending Review
                 </span>
-                <div className="text-xl font-black text-amber-800">
+                <div className="text-xl font-bold text-amber-800">
                   {pendingCount}
                 </div>
                 <span className="text-[10px] text-amber-600 font-medium block">
@@ -970,7 +970,7 @@ const SubmissionDetail = () => {
             <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                  <div className="w-9 h-9 rounded-xl bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center font-bold">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
@@ -1034,10 +1034,10 @@ const SubmissionDetail = () => {
               {/* Proctoring telemetry grid */}
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs pt-1">
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  <span className="text-[10px] uppercase font-semibold text-slate-500 block">
                     Window Blur / Tab Switches
                   </span>
-                  <span className="text-base font-black text-slate-900 block">
+                  <span className="text-base font-bold text-slate-900 block">
                     {blurCount} Incidents
                   </span>
                   <span className="text-[11px] text-slate-500">

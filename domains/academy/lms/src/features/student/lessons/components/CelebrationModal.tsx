@@ -146,7 +146,7 @@ export default function CelebrationModal({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-2xl font-black text-slate-900 mb-2 truncate max-w-full tracking-tight"
+                className="text-2xl font-heading font-bold text-slate-900 mb-2 truncate max-w-full tracking-tight"
               >
                 {title}
               </motion.h2>

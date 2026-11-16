@@ -112,7 +112,7 @@ export const OrientationChecklistPage: React.FC = () => {
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
           <Link to="/dashboard" className="hover:text-slate-800 transition-colors">
             Dashboard
           </Link>
@@ -121,12 +121,12 @@ export const OrientationChecklistPage: React.FC = () => {
             My Courses
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-bold">Mandatory Orientation</span>
+          <span className="text-slate-900 font-semibold">Mandatory Orientation</span>
         </div>
 
         {/* Header Hero */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-70" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#f4f8fd] to-[#e8f0fa] rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-70" />
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
             <div className="flex items-center gap-4">
@@ -145,7 +145,7 @@ export const OrientationChecklistPage: React.FC = () => {
                 )}
               </div>
               <div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">
                   Mandatory Student Orientation
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -162,12 +162,12 @@ export const OrientationChecklistPage: React.FC = () => {
                   Checking Prerequisite...
                 </div>
               ) : isCompleted ? (
-                <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl text-xs font-bold text-emerald-700 shadow-xs">
+                <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl text-xs font-semibold text-emerald-700 shadow-xs">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  Orientation Completed & Verified
+                  Orientation Completed &amp; Verified
                 </div>
               ) : (
-                <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 px-4 py-2 rounded-xl text-xs font-bold text-rose-700 shadow-xs">
+                <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 px-4 py-2 rounded-xl text-xs font-semibold text-rose-700 shadow-xs">
                   <Clock className="w-4 h-4 text-rose-600" />
                   Action Required: Pending Completion
                 </div>
@@ -179,17 +179,11 @@ export const OrientationChecklistPage: React.FC = () => {
           <div className="mt-6 p-4 rounded-2xl bg-amber-50/60 border border-amber-200 text-xs text-amber-900 flex items-start gap-3 leading-relaxed">
             <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <span className="font-bold text-amber-950 block">
-                Program Orientation Notice — Non-Credited Prerequisite
+              <span className="font-semibold text-amber-950 block">
+                Program Notice — Non-Credited Prerequisite
               </span>
               <p className="text-amber-800">
-                Orientation hours are an administrative prerequisite and attendance census.
-                Under program policy, orientation time is{" "}
-                <span className="font-semibold underline">
-                  strictly non-credited (0 credited hours)
-                </span>{" "}
-                and is recorded independently from your 50+ hours of mandated classroom theory
-                and 40+ clinical hours.
+                Orientation time is an administrative prerequisite recorded separately from your 50+ hours of theory and 40+ clinical hours.
               </p>
             </div>
           </div>
@@ -197,7 +191,7 @@ export const OrientationChecklistPage: React.FC = () => {
           {/* Cohort Selector (if student has multiple enrollments) */}
           {cohortOptions.length > 1 && (
             <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <span className="text-xs font-bold text-slate-700">Enrolled Cohort:</span>
+              <span className="text-xs font-medium text-slate-700">Enrolled Cohort:</span>
               <div className="flex items-center gap-2 overflow-x-auto">
                 {cohortOptions.map((cohort) => (
                   <button
@@ -205,9 +199,9 @@ export const OrientationChecklistPage: React.FC = () => {
                     type="button"
                     onClick={() => setSelectedCohortId(cohort.cohortId)}
                     className={cn(
-                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all border",
+                      "px-3 py-1.5 rounded-xl text-xs font-medium transition-all border",
                       selectedCohortId === cohort.cohortId
-                        ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                        ? "bg-blue-600 text-white border-blue-600 shadow-xs font-semibold"
                         : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                     )}
                   >
@@ -226,11 +220,11 @@ export const OrientationChecklistPage: React.FC = () => {
               <FileCheck2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 font-heading">
-                Admissions Prerequisite Documents & Enrollment Agreement
+              <h3 className="text-sm font-semibold text-slate-900 font-heading">
+                Admissions Prerequisites &amp; Enrollment Agreement
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Submit background check, TB test, immunizations, CPR card, and sign digital enrollment agreement.
+                Submit background check, health screenings, CPR card, and sign your digital agreement.
               </p>
             </div>
           </div>
@@ -238,7 +232,7 @@ export const OrientationChecklistPage: React.FC = () => {
             asChild
             size="sm"
             variant="outline"
-            className="rounded-xl h-9 text-xs font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 shrink-0"
+            className="rounded-xl h-9 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 shrink-0"
           >
             <Link to={`/admissions?cohortId=${selectedCohortId}`}>
               Admissions Checklist <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
@@ -277,28 +271,27 @@ export const OrientationChecklistPage: React.FC = () => {
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-slate-900">
-                  Orientation Gate Passed
+                <h3 className="text-base font-heading font-semibold text-slate-900">
+                  Orientation Verified &amp; Complete
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Your attendance census, LMS tutorial, and netiquette pledge have been verified
-                  by the Academy compliance system.
+                  Your attendance, LMS walkthrough, and netiquette pledge have been verified.
                 </p>
                 {status?.orientationAttendedAt && (
-                  <p className="text-[11px] font-semibold text-emerald-700">
-                    Verified on: {new Date(status.orientationAttendedAt).toLocaleString()}
+                  <p className="text-[11px] font-medium text-emerald-700">
+                    Verified on {new Date(status.orientationAttendedAt).toLocaleString()}
                   </p>
                 )}
               </div>
             </div>
 
             <div className="pt-4 border-t border-emerald-100 flex items-center justify-between gap-4 flex-wrap">
-              <span className="text-xs text-slate-500">
-                All course modules and lessons are accessible.
+              <span className="text-xs text-slate-500 font-normal">
+                All course modules and lessons are unlocked.
               </span>
               <Button
                 onClick={() => navigate(redirectTarget)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-10 px-6 rounded-xl shadow-md shadow-emerald-600/20"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-10 px-6 rounded-xl shadow-md shadow-emerald-600/20"
               >
                 Continue to Lessons <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -310,11 +303,11 @@ export const OrientationChecklistPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">
             <div className="border-b border-slate-100 pb-4">
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-base font-heading font-semibold text-slate-900">
                 Required Prerequisite Items
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Carefully review and acknowledge all 3 items to unlock your training curriculum.
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Review and acknowledge all 3 items to unlock your training curriculum.
               </p>
             </div>
 
@@ -339,24 +332,23 @@ export const OrientationChecklistPage: React.FC = () => {
                 />
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <span className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                       <GraduationCap className="w-4 h-4 text-blue-600" />
-                      1. Live / Cohort Orientation Attendance
+                      1. Cohort Orientation Attendance
                     </span>
-                    <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-100 text-[10px] font-bold">
-                      Mandatory
+                    <Badge variant="outline" className="text-[10px] font-medium text-slate-600 border-slate-200">
+                      Required
                     </Badge>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    I confirm that I attended the live or scheduled orientation session for{" "}
-                    <span className="font-semibold text-slate-800">
+                    I attended orientation for{" "}
+                    <span className="font-medium text-slate-800">
                       {currentCohort?.name || `Cohort #${selectedCohortId}`}
                     </span>
-                    . I reviewed the course syllabus, program objectives, instructor contact
-                    methods, and clinical facility prerequisites.
+                    , reviewing course syllabus, program objectives, faculty expectations, and clinical prerequisites.
                   </p>
-                  <p className="text-[11px] text-slate-400 italic">
-                    Note: Orientation is a non-credited onboarding prerequisite and does not count toward theory hours.
+                  <p className="text-[11px] text-slate-400">
+                    Non-credited prerequisite (does not count toward theory hours).
                   </p>
                 </div>
               </label>
@@ -380,18 +372,16 @@ export const OrientationChecklistPage: React.FC = () => {
                 />
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <span className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                       <MonitorCheck className="w-4 h-4 text-blue-600" />
-                      2. LMS Platform Navigation & Seat-Time Tracking Tutorial
+                      2. Platform Navigation &amp; Attendance Tracking
                     </span>
-                    <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-100 text-[10px] font-bold">
-                      Mandatory
+                    <Badge variant="outline" className="text-[10px] font-medium text-slate-600 border-slate-200">
+                      Required
                     </Badge>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    I have completed the LMS system walkthrough. I understand how the seat-time
-                    heartbeat tracks active engagement, how to navigate curriculum modules, submit
-                    assignments, and access technical support.
+                    I have reviewed the LMS system walkthrough, understanding seat-time tracking, curriculum navigation, assignment submissions, and technical support.
                   </p>
                 </div>
               </label>
@@ -415,18 +405,16 @@ export const OrientationChecklistPage: React.FC = () => {
                 />
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <span className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                       <FileCheck2 className="w-4 h-4 text-blue-600" />
-                      3. Healthcare Netiquette & Academic Integrity Pledge
+                      3. Healthcare Netiquette &amp; Academic Integrity
                     </span>
-                    <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-100 text-[10px] font-bold">
-                      Mandatory
+                    <Badge variant="outline" className="text-[10px] font-medium text-slate-600 border-slate-200">
+                      Required
                     </Badge>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    I pledge to uphold professional healthcare communication, protect resident
-                    confidentiality under HIPAA, engage with peers constructively in discussion
-                    forums, and adhere strictly to AlikoHub Academy academic honesty policies.
+                    I pledge to maintain professional communication, uphold HIPAA patient confidentiality, engage constructively in discussions, and adhere to academic honesty policies.
                   </p>
                 </div>
               </label>
@@ -447,7 +435,7 @@ export const OrientationChecklistPage: React.FC = () => {
                 <Button
                   type="submit"
                   disabled={!allChecked || completeMutation.isPending || statusLoading}
-                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-11 px-8 rounded-xl shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs h-10 px-8 rounded-xl shadow-md shadow-blue-500/20 disabled:opacity-50"
                 >
                   {completeMutation.isPending ? (
                     <>
@@ -456,7 +444,7 @@ export const OrientationChecklistPage: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      Confirm & Unlock Curriculum <ArrowRight className="w-4 h-4 ml-2" />
+                      Confirm &amp; Unlock Curriculum <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   )}
                 </Button>

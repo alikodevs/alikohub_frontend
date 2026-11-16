@@ -174,11 +174,11 @@ export const SupportDeskPage: React.FC = () => {
               <LifeBuoy className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl font-heading font-bold text-slate-900 tracking-tight">
                 Academic & Technical Support Desk
               </h1>
-              <p className="text-xs text-slate-500">
-                Student Technical &amp; Academic Support | Priority Ticket Queue &amp; System Diagnostics.
+              <p className="text-xs text-slate-500 mt-0.5">
+                Academic advising, platform troubleshooting, and technical assistance.
               </p>
             </div>
           </div>
@@ -186,7 +186,7 @@ export const SupportDeskPage: React.FC = () => {
 
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-white font-bold text-xs h-10 rounded-xl shadow-xs"
+          className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs h-10 rounded-xl shadow-xs"
         >
           <Plus className="w-4 h-4 mr-1.5" /> Submit Support Request
         </Button>
@@ -338,7 +338,7 @@ export const SupportDeskPage: React.FC = () => {
 
       {/* Tickets List */}
       <div className="space-y-4">
-        <h2 className="text-base font-black text-slate-900">
+        <h2 className="text-base font-heading font-semibold text-slate-900">
           {isInstructorOrAuditor ? "Student Support Ticket Queue" : "Your Submitted Support Requests"}
         </h2>
 
@@ -448,7 +448,7 @@ export const SupportDeskPage: React.FC = () => {
       {/* Submit Support Ticket Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="max-w-lg">
-          <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
+          <DialogTitle className="text-base font-heading font-bold text-slate-900 flex items-center gap-2">
             <LifeBuoy className="w-5 h-5 text-amber-600" />
             Submit Support Request
           </DialogTitle>
@@ -577,7 +577,7 @@ export const SupportDeskPage: React.FC = () => {
         }}
       >
         <DialogContent className="max-w-md">
-          <DialogTitle className="text-base font-black text-slate-900">
+          <DialogTitle className="text-base font-heading font-bold text-slate-900">
             Update Ticket #{selectedTicketForResolution?.id}
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">

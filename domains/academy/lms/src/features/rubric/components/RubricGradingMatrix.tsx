@@ -224,7 +224,7 @@ export const RubricGradingMatrix: React.FC<RubricGradingMatrixProps> = ({
               Evaluated Score
             </span>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xl font-extrabold text-white">
+              <span className="text-xl font-bold text-white">
                 {currentScore}
               </span>
               <span className="text-xs text-slate-300 font-medium">
@@ -348,7 +348,7 @@ export const RubricGradingMatrix: React.FC<RubricGradingMatrixProps> = ({
                           </span>
                           <span
                             className={cn(
-                              "text-[11px] font-extrabold px-2 py-0.5 rounded-md border",
+                              "text-[11px] font-semibold px-2 py-0.5 rounded-md border",
                               isSelected
                                 ? "bg-blue-600 text-white border-blue-600"
                                 : "bg-slate-100 text-slate-700 border-slate-200"

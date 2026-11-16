@@ -164,7 +164,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                   transaction.provider === "CHAPA" &&
                     "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
                   transaction.provider === "STRIPE" &&
-                    "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
+                    "bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3]",
                   !transaction.provider &&
                     "bg-zinc-500/10 text-zinc-650 dark:text-zinc-400 border-zinc-500/20",
                 )}

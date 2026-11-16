@@ -64,7 +64,7 @@ export const RubricStudentResultView: React.FC<RubricStudentResultViewProps> = (
         </div>
 
         <div className="flex items-baseline gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-2xl font-black text-slate-900">
+          <span className="text-2xl font-heading font-bold text-slate-900">
             {totalPoints}
           </span>
           <span className="text-xs font-semibold text-slate-400">
@@ -72,7 +72,7 @@ export const RubricStudentResultView: React.FC<RubricStudentResultViewProps> = (
           </span>
           <span
             className={cn(
-              "text-xs font-extrabold px-1.5 py-0.5 rounded ml-1",
+              "text-xs font-semibold px-1.5 py-0.5 rounded ml-1",
               passedBenchmark
                 ? "bg-emerald-100 text-emerald-800"
                 : "bg-amber-100 text-amber-800"

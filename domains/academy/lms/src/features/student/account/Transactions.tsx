@@ -71,9 +71,9 @@ const PROVIDER_COLORS: Record<
   { bg: string; text: string; border: string }
 > = {
   STRIPE: {
-    bg: "bg-violet-50",
-    text: "text-violet-700",
-    border: "border-violet-200",
+    bg: "bg-[#e8f0fa]",
+    text: "text-[#2b5f9e]",
+    border: "border-[#c8dcf3]",
   },
   CHAPA: {
     bg: "bg-green-50",
@@ -89,9 +89,9 @@ const PROVIDER_COLORS: Record<
 
 const providerStyle = (provider: string) =>
   PROVIDER_COLORS[provider?.toUpperCase()] ?? {
-    bg: "bg-indigo-50",
-    text: "text-indigo-700",
-    border: "border-indigo-200",
+    bg: "bg-[#e8f0fa]",
+    text: "text-[#2b5f9e]",
+    border: "border-[#c8dcf3]",
   };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -230,11 +230,11 @@ const TransactionsPage = () => {
                   {/* Icon */}
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors"
-                    style={{ backgroundColor: "#EEF2FF" }}
+                    style={{ backgroundColor: "#e8f0fa" }}
                   >
                     <CreditCard
                       className="w-5 h-5"
-                      style={{ color: "#6366f1" }}
+                      style={{ color: "#2b5f9e" }}
                     />
                   </div>
 

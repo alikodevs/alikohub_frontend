@@ -191,11 +191,11 @@ export const ClinicalTrainingPage: React.FC = () => {
               <Building2 className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                Clinical Training, Attendance &amp; Supervision
+              <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+                Clinical Training &amp; Attendance
               </h1>
               <p className="text-xs text-slate-500">
-                In-Person Clinical Patient Care Attendance, Site Assignments &amp; Supervision.
+                In-person patient care attendance, healthcare facility rotations, and RN supervision.
               </p>
             </div>
           </div>
@@ -204,18 +204,18 @@ export const ClinicalTrainingPage: React.FC = () => {
         {/* Clinical Hours Summary Card */}
         <div className="flex items-center gap-3">
           <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <Clock className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+              <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
                 {isInstructorOrAuditor ? "Scheduled Shift Hours" : "Verified Clinical Hours"}
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-black text-slate-900">
+                <span className="text-xl font-bold text-slate-900">
                   {isInstructorOrAuditor ? totalScheduledShiftHours : completedHours}
                 </span>
-                <span className="text-xs text-slate-400 font-bold">
+                <span className="text-xs text-slate-500 font-medium">
                   {isInstructorOrAuditor
                     ? `hrs (${shifts.length} shifts)`
                     : minRequiredHours > 0
@@ -229,9 +229,9 @@ export const ClinicalTrainingPage: React.FC = () => {
           {canManageStaffActions && (
             <Button
               onClick={() => setIsCreateShiftOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-white font-bold text-xs h-10 rounded-xl shadow-xs"
+              className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs h-10 rounded-xl shadow-xs"
             >
-              <Plus className="w-4 h-4 mr-1.5" /> Schedule Clinical Shift
+              <Plus className="w-4 h-4 mr-1.5" /> Schedule Shift
             </Button>
           )}
         </div>
@@ -241,11 +241,11 @@ export const ClinicalTrainingPage: React.FC = () => {
       <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
         <Info className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
         <div className="space-y-1 text-xs text-amber-900">
-          <p className="font-bold">
-            Clinical Standards &amp; Prerequisite Gate:
+          <p className="font-semibold">
+            Clinical Standards &amp; Prerequisites:
           </p>
           <p className="text-amber-800 leading-relaxed">
-            In-person clinical shifts require skills lab clearance and supervising RN verification at approved healthcare facilities.
+            In-person clinical shifts require verified skills lab completion and supervising RN verification at contracted facilities.
           </p>
         </div>
       </div>
@@ -255,7 +255,7 @@ export const ClinicalTrainingPage: React.FC = () => {
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-base font-black text-slate-900">
+              <h2 className="text-base font-heading font-semibold text-slate-900">
                 Your Clinical Training Progress
               </h2>
               <p className="text-xs text-slate-500">
@@ -264,14 +264,14 @@ export const ClinicalTrainingPage: React.FC = () => {
             </div>
             <Badge
               className={cn(
-                "text-xs px-3 py-1 font-bold",
+                "text-xs px-3 py-1 font-semibold",
                 studentHoursData?.meetsMinimum
                   ? "bg-emerald-600 text-white"
                   : "bg-blue-600 text-white"
               )}
             >
               {studentHoursData?.meetsMinimum
-                ? "REQUIREMENT COMPLETED"
+                ? "Requirement Met"
                 : minRequiredHours > 0
                 ? `${Math.max(0, minRequiredHours - completedHours).toFixed(1)} Hours Remaining`
                 : `${completedHours} Hours Logged`}
@@ -279,7 +279,7 @@ export const ClinicalTrainingPage: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-bold text-slate-600">
+            <div className="flex justify-between text-xs font-medium text-slate-600">
               <span>{completedHours} verified hours completed</span>
               {minRequiredHours > 0 && (
                 <span>{progressPercent}% of {minRequiredHours}h required</span>
@@ -361,8 +361,8 @@ export const ClinicalTrainingPage: React.FC = () => {
       {/* Clinical Shifts Roster */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-black text-slate-900">
-            Approved Healthcare Facility Shifts &amp; Supervision Roster
+          <h2 className="text-base font-heading font-semibold text-slate-900">
+            Healthcare Facility Shifts &amp; Supervision
           </h2>
           <span className="text-xs text-slate-500">
             {shifts.length} Shift(s) Scheduled
@@ -377,9 +377,9 @@ export const ClinicalTrainingPage: React.FC = () => {
         ) : shifts.length === 0 ? (
           <div className="p-8 text-center bg-white border border-slate-200 rounded-2xl space-y-2">
             <Building2 className="w-8 h-8 text-slate-400 mx-auto" />
-            <p className="text-sm font-bold text-slate-700">No Clinical Shifts Scheduled</p>
+            <p className="text-sm font-semibold text-slate-700">No Clinical Shifts Scheduled</p>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Schedule clinical shifts at contracted long-term care and healthcare facilities to begin tracking verified clinical hours.
+              Schedule clinical shifts at contracted healthcare facilities to track verified clinical hours.
             </p>
           </div>
         ) : (
@@ -394,19 +394,19 @@ export const ClinicalTrainingPage: React.FC = () => {
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-extrabold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
                         {shift.hoursCredited} Hours Credited
                       </span>
                       <Badge
                         variant="outline"
-                        className="text-[10px] font-bold px-2 py-0.5 bg-slate-50 text-slate-700 border-slate-200"
+                        className="text-[10px] font-medium px-2 py-0.5 bg-slate-50 text-slate-700 border-slate-200"
                       >
                         {enrolledCount} Enrolled
                       </Badge>
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                      <h3 className="text-sm font-heading font-semibold text-slate-900 flex items-center gap-1.5">
                         <Building2 className="w-4 h-4 text-primary shrink-0" />
                         {shift.facilityName}
                       </h3>
@@ -475,7 +475,7 @@ export const ClinicalTrainingPage: React.FC = () => {
       {/* Schedule Clinical Shift Dialog */}
       <Dialog open={isCreateShiftOpen} onOpenChange={setIsCreateShiftOpen}>
         <DialogContent className="max-w-md">
-          <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
+          <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
             <Building2 className="w-5 h-5 text-primary" />
             Schedule Clinical Training Shift
           </DialogTitle>
@@ -485,7 +485,7 @@ export const ClinicalTrainingPage: React.FC = () => {
 
           <form onSubmit={handleCreateShift} className="space-y-4 pt-2">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Healthcare Facility Name
               </label>
               <Input
@@ -498,7 +498,7 @@ export const ClinicalTrainingPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Shift Date
               </label>
               <Input
@@ -512,7 +512,7 @@ export const ClinicalTrainingPage: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
+                <label className="text-xs font-medium text-slate-700 block mb-1">
                   Start Time
                 </label>
                 <Input
@@ -524,7 +524,7 @@ export const ClinicalTrainingPage: React.FC = () => {
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
+                <label className="text-xs font-medium text-slate-700 block mb-1">
                   End Time
                 </label>
                 <Input
@@ -538,7 +538,7 @@ export const ClinicalTrainingPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Credited Clinical Hours (Max 12.0)
               </label>
               <Input
@@ -559,7 +559,7 @@ export const ClinicalTrainingPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsCreateShiftOpen(false)}
-                className="h-9 text-xs"
+                className="h-9 text-xs font-medium"
               >
                 Cancel
               </Button>
@@ -567,7 +567,7 @@ export const ClinicalTrainingPage: React.FC = () => {
                 type="submit"
                 size="sm"
                 disabled={createShiftMutation.isPending}
-                className="h-9 text-xs font-bold bg-primary text-white"
+                className="h-9 text-xs font-semibold bg-primary text-white"
               >
                 {createShiftMutation.isPending ? (
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
@@ -584,9 +584,9 @@ export const ClinicalTrainingPage: React.FC = () => {
       {/* Record Attendance Dialog */}
       <Dialog open={isAttendanceDialogOpen} onOpenChange={setIsAttendanceDialogOpen}>
         <DialogContent className="max-w-md">
-          <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
+          <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
             <UserCheck className="w-5 h-5 text-blue-600" />
-            Verify Clinical Attendance & Direct Care
+            Verify Clinical Attendance &amp; Direct Care
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
             {selectedShift?.facilityName} • {selectedShift ? new Date(selectedShift.shiftDate).toLocaleDateString() : ""}
@@ -594,7 +594,7 @@ export const ClinicalTrainingPage: React.FC = () => {
 
           <div className="space-y-4 pt-2">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Student to Verify
               </label>
               <Select
@@ -636,14 +636,14 @@ export const ClinicalTrainingPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
+                <label className="text-xs font-medium text-slate-700 block mb-1">
                   Competency Evaluation
                 </label>
                 <Select
                   value={attendancePassed ? "true" : "false"}
                   onValueChange={(val) => setAttendancePassed(val === "true")}
                 >
-                  <SelectTrigger className="bg-white border-slate-200 text-xs font-semibold h-9">
+                  <SelectTrigger className="bg-white border-slate-200 text-xs font-medium h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -655,13 +655,13 @@ export const ClinicalTrainingPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Clinical Observation & Resident Care Notes
+              <label className="text-xs font-medium text-slate-700 block mb-1">
+                Clinical Observation &amp; Care Notes
               </label>
               <Textarea
                 value={attendanceNotes}
                 onChange={(e) => setAttendanceNotes(e.target.value)}
-                placeholder="Observed resident transfers, vitals measurement, infection control compliance, communication with preceptors..."
+                placeholder="Observed resident transfers, vitals measurement, infection control..."
                 rows={3}
                 className="text-xs"
               />
@@ -672,7 +672,7 @@ export const ClinicalTrainingPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsAttendanceDialogOpen(false)}
-                className="h-9 text-xs"
+                className="h-9 text-xs font-medium"
               >
                 Cancel
               </Button>
@@ -680,14 +680,14 @@ export const ClinicalTrainingPage: React.FC = () => {
                 size="sm"
                 disabled={recordAttendanceMutation.isPending}
                 onClick={handleSubmitAttendance}
-                className="h-9 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white"
+                className="h-9 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {recordAttendanceMutation.isPending ? (
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
                 ) : (
                   <CheckCircle2 className="w-4 h-4 mr-1.5" />
                 )}
-                Verify & Save Attendance
+                Verify &amp; Save Attendance
               </Button>
             </div>
           </div>

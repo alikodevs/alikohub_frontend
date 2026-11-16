@@ -320,7 +320,7 @@ const Announcements = () => {
                                   {item.title}
                                 </h3>
                                 {isNew && (
-                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest">
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-semibold uppercase tracking-wider">
                                     <Sparkles className="w-2.5 h-2.5" />
                                     New
                                   </span>

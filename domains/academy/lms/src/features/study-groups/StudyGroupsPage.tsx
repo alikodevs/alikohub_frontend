@@ -116,14 +116,14 @@ export const StudyGroupsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center shrink-0">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
                 Cohort Study Groups & Peer Collaboration
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Collaborative virtual study rooms, peer review, and group exam preparation.
               </p>
             </div>
@@ -132,7 +132,7 @@ export const StudyGroupsPage: React.FC = () => {
 
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-white font-bold text-xs h-10 rounded-xl shadow-xs"
+          className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold text-xs h-10 rounded-xl shadow-xs"
         >
           <Plus className="w-4 h-4 mr-1.5" /> Create Study Group
         </Button>
@@ -201,7 +201,7 @@ export const StudyGroupsPage: React.FC = () => {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 font-bold text-[10px]">
+                    <Badge variant="outline" className="bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3] font-bold text-[10px]">
                       {memberCount} Active Members
                     </Badge>
                     {canManageStaffActions && (
@@ -232,7 +232,7 @@ export const StudyGroupsPage: React.FC = () => {
                       href={group.meetingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-indigo-600 font-bold hover:underline"
+                      className="inline-flex items-center gap-1.5 text-xs text-[#2b5f9e] font-bold hover:underline"
                     >
                       <Video className="w-3.5 h-3.5" />
                       Join Video Meeting Room
@@ -262,7 +262,7 @@ export const StudyGroupsPage: React.FC = () => {
                         size="sm"
                         onClick={() => handleJoin(group.id)}
                         disabled={joinGroupMutation.isPending}
-                        className="h-8 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+                        className="h-8 text-xs font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
                       >
                         <UserPlus className="w-3.5 h-3.5 mr-1" /> Join Group
                       </Button>
@@ -278,8 +278,8 @@ export const StudyGroupsPage: React.FC = () => {
       {/* Create Study Group Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="max-w-md">
-          <DialogTitle className="text-base font-black text-slate-900 flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-600" />
+          <DialogTitle className="text-base font-heading font-bold text-slate-900 flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#2b5f9e]" />
             Create Cohort Study Group
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
@@ -288,7 +288,7 @@ export const StudyGroupsPage: React.FC = () => {
 
           <form onSubmit={handleCreate} className="space-y-4 pt-2">
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Group Name
               </label>
               <Input
@@ -301,7 +301,7 @@ export const StudyGroupsPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Description & Agenda
               </label>
               <Textarea
@@ -314,7 +314,7 @@ export const StudyGroupsPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
+              <label className="text-xs font-medium text-slate-700 block mb-1">
                 Virtual Meeting URL (Zoom / Google Meet)
               </label>
               <Input
@@ -340,7 +340,7 @@ export const StudyGroupsPage: React.FC = () => {
                 type="submit"
                 size="sm"
                 disabled={createGroupMutation.isPending}
-                className="h-9 text-xs font-bold bg-primary text-white"
+                className="h-9 text-xs font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
               >
                 {createGroupMutation.isPending ? (
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />

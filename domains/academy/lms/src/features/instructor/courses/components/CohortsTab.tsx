@@ -284,7 +284,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                     <div className="flex items-start justify-between mb-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-[#e8f0fa] text-[#2b5f9e]">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-[#e8f0fa] text-[#2b5f9e]">
                             COHORT #{cohort.id}
                           </span>
                           <span

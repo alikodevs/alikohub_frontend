@@ -158,8 +158,8 @@ export const CohortCensusPage: React.FC = () => {
         {/* ── Top Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 font-heading tracking-tight">
-              Attendance & Enrollment Census
+            <h1 className="text-xl font-heading font-bold text-slate-900 tracking-tight">
+              Attendance &amp; Enrollment Census
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
               First-week academic attendance verification and cohort census roster.
@@ -169,12 +169,12 @@ export const CohortCensusPage: React.FC = () => {
           <div className="flex items-center gap-2.5 shrink-0">
             {/* Cohort Selector */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-600">Cohort:</span>
+              <span className="text-xs font-medium text-slate-600">Cohort:</span>
               <select
                 aria-label="Select cohort"
                 value={effectiveCohortId}
                 onChange={(e) => setSelectedCohortId(Number(e.target.value))}
-                className="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[190px] sm:max-w-[240px] truncate"
+                className="text-xs font-medium bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[190px] sm:max-w-[240px] truncate"
               >
                 {cohorts && cohorts.length > 0 ? (
                   cohorts.map((c: any) => (
@@ -193,7 +193,7 @@ export const CohortCensusPage: React.FC = () => {
               onClick={handleExportDossier}
               disabled={isExportingDossier}
               size="sm"
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl h-9 px-3.5 shadow-xs"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl h-9 px-3.5 shadow-xs"
             >
               {isExportingDossier ? (
                 <>
@@ -211,44 +211,44 @@ export const CohortCensusPage: React.FC = () => {
         {/* ── KPI Strip ── */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
               Total Enrolled
             </span>
-            <div className="text-2xl font-black text-slate-900">{totalEnrolled}</div>
+            <div className="text-2xl font-bold text-slate-900">{totalEnrolled}</div>
             <span className="text-[11px] text-slate-500">Cohort Census</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 block">
               Verified Present
             </span>
-            <div className="text-2xl font-black text-emerald-600">{verifiedCount}</div>
+            <div className="text-2xl font-bold text-emerald-600">{verifiedCount}</div>
             <span className="text-[11px] text-slate-500">
               {totalEnrolled > 0 ? Math.round((verifiedCount / totalEnrolled) * 100) : 0}% of roster
             </span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 block">
               Pending Verification
             </span>
-            <div className="text-2xl font-black text-amber-600">{pendingCount}</div>
-            <span className="text-[11px] text-slate-500">Awaiting gate exercise</span>
+            <div className="text-2xl font-bold text-amber-600">{pendingCount}</div>
+            <span className="text-[11px] text-slate-500">Awaiting gate activity</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 block">
               No-Show At-Risk
             </span>
-            <div className="text-2xl font-black text-rose-600">{atRiskCount}</div>
+            <div className="text-2xl font-bold text-rose-600">{atRiskCount}</div>
             <span className="text-[11px] text-slate-500">Unverified &gt; 5 days</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1 col-span-2 sm:col-span-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
               Administrative Drop
             </span>
-            <div className="text-2xl font-black text-slate-600">{droppedCount}</div>
+            <div className="text-2xl font-bold text-slate-600">{droppedCount}</div>
             <span className="text-[11px] text-slate-500">Census attrition</span>
           </div>
         </div>
@@ -336,7 +336,7 @@ export const CohortCensusPage: React.FC = () => {
                       <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center font-bold text-xs shrink-0">
                               {studentName.charAt(0).toUpperCase()}
                             </div>
                             <div>

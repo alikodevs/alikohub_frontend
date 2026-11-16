@@ -83,20 +83,22 @@ export const RubricsManagementPage: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shrink-0">
                 <Award className="w-5 h-5" />
               </div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900">
-                Rubric Management
-              </h1>
+              <div>
+                <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+                  Rubric Management
+                </h1>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Evaluation criteria matrices for assignments, discussions, and skill assessments.
+                </p>
+              </div>
             </div>
-            <p className="text-sm text-slate-500 pl-12.5">
-              Standardized multi-criteria evaluation matrices for assignments, discussion substantive engagement, and WABON skills checkoffs.
-            </p>
           </div>
 
           {canManageRubrics && (
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => setIsBuilderOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-md shadow-blue-500/20"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs h-10 px-5 rounded-xl shadow-md shadow-blue-500/20"
               >
                 <Plus className="w-4 h-4 mr-2" /> Create Rubric
               </Button>
@@ -117,9 +119,9 @@ export const RubricsManagementPage: React.FC = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all shrink-0",
+                  "px-3.5 py-1.5 text-xs rounded-lg transition-all shrink-0 font-medium",
                   activeTab === tab.id
-                    ? "bg-white text-slate-900 shadow-xs"
+                    ? "bg-white text-slate-900 shadow-xs font-semibold"
                     : "text-slate-500 hover:text-slate-700"
                 )}
               >
@@ -144,7 +146,7 @@ export const RubricsManagementPage: React.FC = () => {
         {isLoading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-3">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-            <p className="text-xs text-slate-400 font-semibold">
+            <p className="text-xs text-slate-400 font-medium">
               Loading standardized rubrics...
             </p>
           </div>
@@ -154,7 +156,7 @@ export const RubricsManagementPage: React.FC = () => {
               <Award className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-slate-800">
+              <h3 className="text-sm font-semibold text-slate-800">
                 No rubrics found
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -167,7 +169,7 @@ export const RubricsManagementPage: React.FC = () => {
               onClick={() => setIsBuilderOpen(true)}
               variant="outline"
               size="sm"
-              className="text-xs font-bold rounded-xl border-blue-200 text-blue-600 hover:bg-blue-50"
+              className="text-xs font-semibold rounded-xl border-blue-200 text-blue-600 hover:bg-blue-50"
             >
               <Plus className="w-3.5 h-3.5 mr-1.5" /> Create First Rubric
             </Button>
@@ -191,21 +193,21 @@ export const RubricsManagementPage: React.FC = () => {
                     <div className="flex items-center justify-between gap-2">
                       <Badge
                         variant="outline"
-                        className="text-[10px] font-bold uppercase tracking-wider bg-slate-50 border-slate-200 text-slate-700"
+                        className="text-[10px] font-semibold uppercase tracking-wider bg-slate-50 border-slate-200 text-slate-700"
                       >
                         {rubric.type}
                       </Badge>
-                      <span className="text-xs font-black text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-100">
+                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-100">
                         {totalPoints} pts
                       </span>
                     </div>
 
                     {/* Title & Description */}
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
+                      <h3 className="text-sm font-heading font-semibold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
                         {rubric.name}
                       </h3>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                         {rubric.description || "No description provided."}
                       </p>
                     </div>
@@ -231,7 +233,7 @@ export const RubricsManagementPage: React.FC = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => setSelectedRubricForPreview(rubric)}
-                      className="text-xs font-bold text-slate-600 hover:text-blue-600 hover:bg-blue-50 h-8 px-3 rounded-lg flex items-center gap-1.5"
+                      className="text-xs font-semibold text-slate-600 hover:text-blue-600 hover:bg-blue-50 h-8 px-3 rounded-lg flex items-center gap-1.5"
                     >
                       <Eye className="w-3.5 h-3.5" /> Preview Matrix
                     </Button>
@@ -243,7 +245,7 @@ export const RubricsManagementPage: React.FC = () => {
                         size="sm"
                         onClick={() => handleClone(rubric)}
                         disabled={isCloningThis}
-                        className="text-xs font-bold text-slate-600 hover:bg-slate-50 h-8 px-3 rounded-lg border-slate-200 flex items-center gap-1.5"
+                        className="text-xs font-semibold text-slate-600 hover:bg-slate-50 h-8 px-3 rounded-lg border-slate-200 flex items-center gap-1.5"
                       >
                         {isCloningThis ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />

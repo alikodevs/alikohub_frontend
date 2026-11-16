@@ -326,8 +326,8 @@ export const InstructorAdmissionsPage: React.FC = () => {
         {/* ── Header Bar ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 font-heading tracking-tight">
-              Admissions & Document Review
+            <h1 className="text-xl font-heading font-bold text-slate-900 tracking-tight">
+              Admissions &amp; Document Review
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Review student prerequisite files, digital agreements, and clearance status.
@@ -336,12 +336,12 @@ export const InstructorAdmissionsPage: React.FC = () => {
 
           {/* Cohort Selector */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-bold text-slate-600">Cohort:</span>
+            <span className="text-xs font-medium text-slate-600">Cohort:</span>
             <select
               aria-label="Select cohort"
               value={effectiveCohortId}
               onChange={(e) => setSelectedCohortId(Number(e.target.value))}
-              className="text-xs font-bold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[210px] sm:max-w-[260px] truncate"
+              className="text-xs font-medium bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[210px] sm:max-w-[260px] truncate"
             >
               {cohorts && cohorts.length > 0 ? (
                 cohorts.map((c: any) => (
@@ -359,34 +359,34 @@ export const InstructorAdmissionsPage: React.FC = () => {
         {/* ── KPI Summary Cards ── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
               Total Applicants
             </span>
-            <div className="text-2xl font-black text-slate-900">{totalCount}</div>
+            <div className="text-2xl font-bold text-slate-900">{totalCount}</div>
             <span className="text-[11px] text-slate-500">Cohort {effectiveCohortId}</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 block">
               Pending Review
             </span>
-            <div className="text-2xl font-black text-amber-600">{pendingCount}</div>
+            <div className="text-2xl font-bold text-amber-600">{pendingCount}</div>
             <span className="text-[11px] text-slate-500">Awaiting faculty review</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 block">
               Approved (Cleared)
             </span>
-            <div className="text-2xl font-black text-emerald-600">{approvedCount}</div>
+            <div className="text-2xl font-bold text-emerald-600">{approvedCount}</div>
             <span className="text-[11px] text-slate-500">Enrollment activated</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 block">
               Remediation / Rejected
             </span>
-            <div className="text-2xl font-black text-rose-600">{rejectedCount}</div>
+            <div className="text-2xl font-bold text-rose-600">{rejectedCount}</div>
             <span className="text-[11px] text-slate-500">Notice sent to student</span>
           </div>
         </div>

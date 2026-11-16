@@ -338,7 +338,7 @@ export const RubricBuilderModal: React.FC<RubricBuilderModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <Badge className="bg-blue-50 text-blue-700 border-blue-200 font-extrabold text-xs px-3 py-1">
+            <Badge className="bg-blue-50 text-blue-700 border-blue-200 font-bold text-xs px-3 py-1">
               Total {totalMaxPoints} pts
             </Badge>
           </div>

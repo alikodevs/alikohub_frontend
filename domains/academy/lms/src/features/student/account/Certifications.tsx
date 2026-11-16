@@ -51,6 +51,7 @@ const Certifications = () => {
   const [verifiedCert, setVerifiedCert] = useState<VerifiedCertificate | null>(
     null,
   );
+  const [verifyError, setVerifyError] = useState<string | null>(null);
 
   const generateMutation = useGenerateCertificateMutation();
   const verifyMutation = useVerifyCertificateMutation();
@@ -78,37 +79,45 @@ const Certifications = () => {
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!lookupCertNumber.trim()) return;
-    const res = await verifyMutation.mutateAsync(lookupCertNumber.trim());
-    setVerifiedCert(res);
+    setVerifyError(null);
+    try {
+      const res = await verifyMutation.mutateAsync(lookupCertNumber.trim());
+      setVerifiedCert(res);
+    } catch (err: any) {
+      setVerifiedCert(null);
+      setVerifyError(
+        err?.response?.data?.message || "Certificate could not be verified.",
+      );
+    }
   };
 
   return (
     <StudentLayout>
       <div className="max-w-5xl mx-auto px-5 py-8 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#e5e9f0]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#fff1e6] border border-[#ffd8bc] text-[#f26b21] flex items-center justify-center">
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">
+              <h1 className="text-2xl font-bold text-[#0f1b2d]">
                 State Completion Certificates
               </h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#64748b]">
                 Generate and verify official WABON NA completion certificates after completing all program gates.
               </p>
             </div>
           </div>
           <Link
             to="/verify-certificate"
-            className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+            className="text-xs font-semibold text-[#2b5f9e] hover:underline flex items-center gap-1"
           >
             Public Verification Portal <ExternalLink className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {/* Certificate Generation Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5 print:border-0 print:shadow-none">
+        <div className="bg-white rounded-2xl border border-[#e5e9f0] p-6 space-y-5 print:border-0 print:shadow-none">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 print:hidden">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1">
               <div className="space-y-1.5">
@@ -118,7 +127,7 @@ const Certifications = () => {
                 <select
                   value={activeCohortId}
                   onChange={(e) => setSelectedCohortId(e.target.value)}
-                  className="w-full h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold"
+                  className="w-full h-9 rounded-lg border border-[#e5e9f0] bg-white px-2.5 text-xs font-semibold text-[#0f1b2d]"
                 >
                   {cohortEnrollments.length === 0 ? (
                     <option value="">No enrolled cohorts</option>
@@ -143,7 +152,7 @@ const Certifications = () => {
                   value={directorName}
                   onChange={(e) => setDirectorName(e.target.value)}
                   placeholder="Director Name"
-                  className="h-9 text-xs"
+                  className="h-9 text-xs border-[#e5e9f0]"
                 />
               </div>
               <div className="space-y-1.5">
@@ -154,7 +163,7 @@ const Certifications = () => {
                   value={directorRnLicense}
                   onChange={(e) => setDirectorRnLicense(e.target.value)}
                   placeholder="e.g. RN60123456"
-                  className="h-9 text-xs"
+                  className="h-9 text-xs border-[#e5e9f0]"
                 />
               </div>
             </div>
@@ -162,7 +171,7 @@ const Certifications = () => {
             <Button
               onClick={handleGenerate}
               disabled={!activeCohortId || generateMutation.isPending}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-semibold h-9 text-xs"
+              className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-9 text-xs"
             >
               {generateMutation.isPending ? (
                 <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
@@ -193,10 +202,10 @@ const Certifications = () => {
             <div className="border-2 border-slate-800 rounded-2xl p-6 md:p-8 bg-slate-50/40 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
                 <div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-700 block">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 block">
                     {generatedCert.stateStandard}
                   </span>
-                  <h2 className="text-xl font-black text-slate-900 mt-1">
+                  <h2 className="text-xl font-heading font-bold text-slate-900 mt-1">
                     {generatedCert.programTitle}
                   </h2>
                   <p className="text-xs text-slate-500">
@@ -205,11 +214,11 @@ const Certifications = () => {
                   </p>
                 </div>
                 <div className="text-right space-y-1">
-                  <Badge className="bg-emerald-600 text-white border-0 text-xs">
+                  <Badge className="bg-[#2b5f9e] text-white border-0 text-xs">
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                     {generatedCert.verification.status}
                   </Badge>
-                  <div className="text-xs font-mono font-bold text-slate-800">
+                  <div className="text-xs font-mono font-bold text-[#0f1b2d]">
                     {generatedCert.certificateNumber}
                   </div>
                 </div>
@@ -290,44 +299,55 @@ const Certifications = () => {
         </div>
 
         {/* Quick Verification Lookup */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 print:hidden">
-          <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+        <div className="bg-white rounded-2xl border border-[#e5e9f0] p-6 space-y-4 print:hidden">
+          <h2 className="text-sm font-bold text-[#0f1b2d] flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#2b5f9e]" />
             Verify a Certificate Number
           </h2>
-          <form onSubmit={handleVerify} className="flex gap-2">
-            <Input
-              value={lookupCertNumber}
-              onChange={(e) => setLookupCertNumber(e.target.value)}
-              placeholder="Enter Certificate Number (e.g. ALIKO-WABON-...)"
-              className="h-9 text-xs"
-            />
-            <Button
-              type="submit"
-              size="sm"
-              disabled={verifyMutation.isPending}
-              className="h-9 text-xs gap-1.5"
-            >
-              {verifyMutation.isPending ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Search className="w-3.5 h-3.5" />
-              )}
-              Verify
-            </Button>
+          <form onSubmit={handleVerify} className="space-y-1.5">
+            <div className="flex gap-2">
+              <Input
+                value={lookupCertNumber}
+                onChange={(e) => setLookupCertNumber(e.target.value)}
+                placeholder="Enter Certificate Number (e.g. WA-NAC-1-STUDENT-2026)"
+                className="h-9 text-xs border-[#e5e9f0]"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                disabled={verifyMutation.isPending}
+                className="h-9 text-xs gap-1.5 bg-[#2b5f9e] hover:bg-[#234e83] text-white shrink-0"
+              >
+                {verifyMutation.isPending ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Search className="w-3.5 h-3.5" />
+                )}
+                Verify
+              </Button>
+            </div>
+            <p className="text-[11px] text-[#64748b]">
+              Expected format: <code className="font-mono text-[#0f1b2d]">WA-NAC-&lt;cohortId&gt;-&lt;id&gt;-&lt;year&gt;</code>
+            </p>
           </form>
 
+          {verifyError && (
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
+              {verifyError}
+            </div>
+          )}
+
           {verifiedCert && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1">
-              <div className="font-bold text-emerald-900 flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <div className="p-4 rounded-xl bg-[#f4f8fd] border border-[#c8dcf3] text-xs space-y-1">
+              <div className="font-bold text-[#0f1b2d] flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-[#2b5f9e]" />
                 {verifiedCert.status} · {verifiedCert.certificateNumber}
               </div>
-              <p className="text-emerald-800">
+              <p className="text-[#0f1b2d]">
                 {verifiedCert.institution} · {verifiedCert.programName} (
                 {verifiedCert.wabonApprovalCode})
               </p>
-              <p className="text-[11px] text-emerald-700">
+              <p className="text-[11px] text-[#64748b]">
                 {verifiedCert.stateBoard} · {verifiedCert.regulatoryCompliance}
               </p>
             </div>

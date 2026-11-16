@@ -52,11 +52,11 @@ const StudentGradesPage: React.FC = () => {
               <GraduationCap className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                Electronic Gradebook &amp; Progress
+              <h1 className="text-2xl font-heading font-bold text-slate-900">
+                Gradebook &amp; Progress
               </h1>
               <p className="text-xs text-slate-500">
-                Live WABON readiness across classroom theory (&ge; 80%), skills lab, and clinical hours.
+                Track theory scores (&ge; 80%), skills lab competencies, and clinical hours.
               </p>
             </div>
           </div>
@@ -65,7 +65,7 @@ const StudentGradesPage: React.FC = () => {
             <select
               value={activeCohortId}
               onChange={(e) => setSelectedCohortId(e.target.value)}
-              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700"
+              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700"
             >
               {cohortEnrollments.map((e: any) => {
                 const cId = String(e.cohortId || e.cohort?.id);
@@ -100,22 +100,22 @@ const StudentGradesPage: React.FC = () => {
             {/* Overall Summary Banner */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   {report.courseTitle || `Cohort #${report.cohortId}`}
                 </span>
                 <div className="flex items-baseline gap-3">
-                  <span className="text-4xl font-black text-slate-900">
+                  <span className="text-4xl font-bold text-slate-900">
                     {summary.overallTheoryPercent}%
                   </span>
-                  <Badge className="bg-slate-900 text-white border-0 text-xs font-bold">
+                  <Badge className="bg-slate-900 text-white border-0 text-xs font-semibold">
                     Grade: {summary.letterGrade}
                   </Badge>
                   <Badge
                     variant="outline"
                     className={
                       summary.isTheoryPassed
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold"
-                        : "bg-amber-50 text-amber-700 border-amber-200 font-bold"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold"
+                        : "bg-amber-50 text-amber-700 border-amber-200 font-semibold"
                     }
                   >
                     {summary.isTheoryPassed ? (
@@ -123,12 +123,12 @@ const StudentGradesPage: React.FC = () => {
                     ) : (
                       <AlertTriangle className="w-3.5 h-3.5 mr-1" />
                     )}
-                    {summary.isTheoryPassed ? "Theory Passing (>= 80%)" : "Below 80% Pass Threshold"}
+                    {summary.isTheoryPassed ? "Theory Passing (>= 80%)" : "Below 80% Threshold"}
                   </Badge>
                 </div>
                 <p className="text-xs text-slate-500">
                   Compliance Status:{" "}
-                  <strong className="text-slate-800">{summary.complianceStatus}</strong>
+                  <strong className="font-semibold text-slate-800">{summary.complianceStatus}</strong>
                 </p>
               </div>
 
@@ -151,10 +151,10 @@ const StudentGradesPage: React.FC = () => {
             {/* Theory Score Breakdown */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-2">
-                <span className="text-[11px] font-bold uppercase text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Quizzes Average
                 </span>
-                <div className="text-2xl font-black text-slate-900">
+                <div className="text-2xl font-bold text-slate-900">
                   {summary.quizAveragePercent}%
                 </div>
                 <p className="text-xs text-slate-500">
@@ -163,10 +163,10 @@ const StudentGradesPage: React.FC = () => {
               </div>
 
               <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-2">
-                <span className="text-[11px] font-bold uppercase text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Proctored Exams Average
                 </span>
-                <div className="text-2xl font-black text-slate-900">
+                <div className="text-2xl font-bold text-slate-900">
                   {summary.examAveragePercent}%
                 </div>
                 <p className="text-xs text-slate-500">
@@ -175,14 +175,14 @@ const StudentGradesPage: React.FC = () => {
               </div>
 
               <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-2">
-                <span className="text-[11px] font-bold uppercase text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Discussions Rubric Average
                 </span>
-                <div className="text-2xl font-black text-slate-900">
+                <div className="text-2xl font-bold text-slate-900">
                   {summary.discussionAveragePercent}%
                 </div>
                 <p className="text-xs text-slate-500">
-                  {report.details?.discussionsGraded ?? 0} unit discussions graded
+                  {report.details?.discussionsGraded ?? 0} discussions graded
                 </p>
               </div>
             </div>
@@ -191,7 +191,7 @@ const StudentGradesPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
                     <Stethoscope className="w-4 h-4 text-emerald-600" />
                     Skills Lab Checkoffs
                   </span>
@@ -199,14 +199,14 @@ const StudentGradesPage: React.FC = () => {
                     variant="outline"
                     className={
                       summary.skillsLab.isSkillsLabComplete
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px]"
-                        : "bg-slate-50 text-slate-600 text-[10px]"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-medium"
+                        : "bg-slate-50 text-slate-600 text-[10px] font-medium"
                     }
                   >
                     {summary.skillsLab.isSkillsLabComplete ? "Complete" : "In Progress"}
                   </Badge>
                 </div>
-                <div className="text-2xl font-black text-slate-900">
+                <div className="text-2xl font-bold text-slate-900">
                   {summary.skillsLab.passedCount} / {summary.skillsLab.totalRequired}
                 </div>
                 <Progress
@@ -219,7 +219,7 @@ const StudentGradesPage: React.FC = () => {
                 />
                 <Link
                   to="/skills-lab"
-                  className="text-xs font-semibold text-primary hover:underline block"
+                  className="text-xs font-medium text-primary hover:underline block"
                 >
                   View Skills Matrix &rarr;
                 </Link>
@@ -227,7 +227,7 @@ const StudentGradesPage: React.FC = () => {
 
               <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
                     <Building2 className="w-4 h-4 text-blue-600" />
                     Clinical Hours
                   </span>
@@ -235,14 +235,14 @@ const StudentGradesPage: React.FC = () => {
                     variant="outline"
                     className={
                       summary.clinicalHours.isClinicalHoursMet
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px]"
-                        : "bg-slate-50 text-slate-600 text-[10px]"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-medium"
+                        : "bg-slate-50 text-slate-600 text-[10px] font-medium"
                     }
                   >
                     {summary.clinicalHours.isClinicalHoursMet ? "40h Met" : "In Progress"}
                   </Badge>
                 </div>
-                <div className="text-2xl font-black text-slate-900">
+                <div className="text-2xl font-bold text-slate-900">
                   {summary.clinicalHours.totalCompleted}h /{" "}
                   {summary.clinicalHours.minimumRequired}h
                 </div>
@@ -261,7 +261,7 @@ const StudentGradesPage: React.FC = () => {
                 />
                 <Link
                   to="/clinical"
-                  className="text-xs font-semibold text-primary hover:underline block"
+                  className="text-xs font-medium text-primary hover:underline block"
                 >
                   View Clinical Log &rarr;
                 </Link>
@@ -269,29 +269,29 @@ const StudentGradesPage: React.FC = () => {
 
               <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
                     <Gauge className="w-4 h-4 text-amber-600" />
-                    90-Day Cohort Pacing
+                    Cohort Pacing
                   </span>
                   <Badge
                     variant="outline"
                     className={
                       summary.pacing.status === "ON_TRACK"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px]"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-medium"
                         : summary.pacing.status === "AT_RISK"
-                          ? "bg-amber-50 text-amber-700 border-amber-200 text-[10px]"
-                          : "bg-rose-50 text-rose-700 border-rose-200 text-[10px]"
+                          ? "bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-medium"
+                          : "bg-rose-50 text-rose-700 border-rose-200 text-[10px] font-medium"
                     }
                   >
                     {summary.pacing.status.replace(/_/g, " ")}
                   </Badge>
                 </div>
-                <div className="text-2xl font-black text-slate-900">
+                <div className="text-2xl font-bold text-slate-900">
                   {summary.pacing.daysRemainingInCohort} Days Left
                 </div>
                 <p className="text-xs text-slate-500">
-                  Progress: <strong>{summary.pacing.actualProgressPercent}%</strong> actual vs{" "}
-                  <strong>{summary.pacing.expectedProgressPercent}%</strong> expected
+                  Progress: <strong className="font-semibold text-slate-700">{summary.pacing.actualProgressPercent}%</strong> actual vs{" "}
+                  <strong className="font-semibold text-slate-700">{summary.pacing.expectedProgressPercent}%</strong> expected
                 </p>
               </div>
             </div>

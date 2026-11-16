@@ -35,9 +35,9 @@ const careerTools = [
     title: "Portfolio Upload",
     desc: "Showcase your projects and certifications to potential employers.",
     cta: "Upload Work",
-    bg: "bg-gradient-to-br from-purple-50 to-purple-100/50",
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600",
+    bg: "bg-gradient-to-br from-[#f4f8fd] to-[#e8f0fa]",
+    iconBg: "bg-[#e8f0fa]",
+    iconColor: "text-[#2b5f9e]",
   },
 ];
 

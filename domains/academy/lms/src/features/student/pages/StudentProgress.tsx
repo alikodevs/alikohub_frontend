@@ -166,7 +166,7 @@ const LmsMyLearning = () => {
         {/* ── Page Header (matches inspo .head) ── */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-heading font-extrabold text-[#0f1b2d] tracking-tight">
+            <h1 className="text-2xl font-heading font-bold text-[#0f1b2d] tracking-tight">
               My Learning
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
@@ -203,13 +203,13 @@ const LmsMyLearning = () => {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2 text-slate-500 font-semibold text-[13px]">
+            <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
               <span className="w-7 h-7 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center shrink-0">
                 <Award className="w-4 h-4" />
               </span>
               Overall progress
             </div>
-            <div className="text-[28px] font-heading font-extrabold text-[#0f1b2d] leading-tight tracking-tight">
+            <div className="text-2xl font-semibold text-slate-900 tracking-tight">
               {isLoading ? "—" : `${overallProgress}%`}
             </div>
             <div className="h-1.5 rounded-full bg-[#e5e9f0] overflow-hidden mt-1">
@@ -221,15 +221,15 @@ const LmsMyLearning = () => {
           </div>
 
           <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2 text-slate-500 font-semibold text-[13px]">
+            <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
               <span className="w-7 h-7 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center shrink-0">
                 <BookOpen className="w-4 h-4" />
               </span>
               In progress
             </div>
-            <div className="text-[28px] font-heading font-extrabold text-[#0f1b2d] leading-tight tracking-tight">
+            <div className="text-2xl font-semibold text-slate-900 tracking-tight">
               {isLoading ? "—" : inProgressCoursesList.length}
-              <small className="text-sm font-semibold text-slate-500 ml-1.5">
+              <small className="text-xs font-normal text-slate-500 ml-1.5">
                 courses
               </small>
             </div>
@@ -241,15 +241,15 @@ const LmsMyLearning = () => {
           </div>
 
           <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2 text-slate-500 font-semibold text-[13px]">
+            <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
               <span className="w-7 h-7 rounded-lg bg-[#e3f5ea] text-[#15803d] flex items-center justify-center shrink-0">
                 <CheckCircle2 className="w-4 h-4" />
               </span>
               Completed
             </div>
-            <div className="text-[28px] font-heading font-extrabold text-[#0f1b2d] leading-tight tracking-tight">
+            <div className="text-2xl font-semibold text-slate-900 tracking-tight">
               {isLoading ? "—" : completedCourses}
-              <small className="text-sm font-semibold text-slate-500 ml-1.5">
+              <small className="text-xs font-normal text-slate-500 ml-1.5">
                 of {totalCourses}
               </small>
             </div>
@@ -259,15 +259,15 @@ const LmsMyLearning = () => {
           </div>
 
           <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2 text-slate-500 font-semibold text-[13px]">
+            <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
               <span className="w-7 h-7 rounded-lg bg-[#fff1e6] text-[#f26b21] flex items-center justify-center shrink-0">
                 <Clock className="w-4 h-4" />
               </span>
               Lessons done
             </div>
-            <div className="text-[28px] font-heading font-extrabold text-[#0f1b2d] leading-tight tracking-tight">
+            <div className="text-2xl font-semibold text-slate-900 tracking-tight">
               {isLoading ? "—" : totalCompletedLessons}
-              <small className="text-sm font-semibold text-slate-500 ml-1.5">
+              <small className="text-xs font-normal text-slate-500 ml-1.5">
                 of {totalLessonsAll}
               </small>
             </div>
@@ -285,7 +285,7 @@ const LmsMyLearning = () => {
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-[#0f1b2d]">
+                  <h4 className="text-sm font-semibold text-[#0f1b2d]">
                     Mandatory Student Orientation Required
                   </h4>
                   <p className="text-xs text-slate-600 mt-0.5">
@@ -300,7 +300,7 @@ const LmsMyLearning = () => {
                   asChild
                   variant="outline"
                   size="sm"
-                  className="bg-white border-[#e5e9f0] text-[#0f1b2d] hover:bg-[#f8fafc] font-semibold text-xs rounded-lg h-9 px-4 shrink-0"
+                  className="bg-white border-[#e5e9f0] text-[#0f1b2d] hover:bg-[#f8fafc] font-medium text-xs rounded-lg h-9 px-4 shrink-0"
                 >
                   <Link to={`/admissions?cohortId=${primaryCohortId}`}>
                     Admissions Clearance
@@ -309,7 +309,7 @@ const LmsMyLearning = () => {
                 <Button
                   asChild
                   size="sm"
-                  className="bg-[#f26b21] hover:bg-[#d95812] text-white font-semibold text-xs rounded-lg h-9 px-5 shrink-0 border-0"
+                  className="bg-[#f26b21] hover:bg-[#d95812] text-white font-medium text-xs rounded-lg h-9 px-5 shrink-0 border-0"
                 >
                   <Link to={`/orientation?cohortId=${primaryCohortId}`}>
                     Complete Orientation{" "}
@@ -333,15 +333,15 @@ const LmsMyLearning = () => {
                     role="tab"
                     aria-selected={selected}
                     onClick={() => setActiveTab(tab)}
-                    className={`inline-flex items-center gap-2 px-3 py-3.5 text-sm font-bold border-b-2 transition-colors -mb-px ${
+                    className={`inline-flex items-center gap-2 px-3 py-3.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
                       selected
                         ? "border-[#2b5f9e] text-[#2b5f9e]"
-                        : "border-transparent text-slate-500 hover:text-[#0f1b2d]"
+                        : "border-transparent text-slate-500 hover:text-[#0f1b2d] font-medium"
                     }`}
                   >
                     {tab}
                     <span
-                      className={`text-xs font-bold min-w-[22px] h-5 flex items-center justify-center rounded-full px-2 leading-none ${
+                      className={`text-xs font-medium min-w-[22px] h-5 flex items-center justify-center rounded-full px-2 leading-none ${
                         selected
                           ? "bg-[#e8f0fa] text-[#2b5f9e]"
                           : "bg-[#f8fafc] border border-[#e5e9f0] text-slate-500"
@@ -402,22 +402,22 @@ const LmsMyLearning = () => {
               <table className="w-full border-collapse min-w-[780px]">
                 <thead>
                   <tr className="bg-[#f8fafc] border-b border-[#e5e9f0]">
-                    <th className="text-left text-xs font-bold text-slate-500 px-5 py-2.5 whitespace-nowrap">
+                    <th className="text-left text-xs font-medium text-slate-500 px-5 py-2.5 whitespace-nowrap">
                       Course
                     </th>
-                    <th className="text-left text-xs font-bold text-slate-500 px-4 py-2.5 whitespace-nowrap">
+                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2.5 whitespace-nowrap">
                       Status
                     </th>
-                    <th className="text-left text-xs font-bold text-slate-500 px-4 py-2.5 whitespace-nowrap">
+                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2.5 whitespace-nowrap">
                       Lessons
                     </th>
-                    <th className="text-left text-xs font-bold text-slate-500 px-4 py-2.5 whitespace-nowrap">
+                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2.5 whitespace-nowrap">
                       Progress
                     </th>
-                    <th className="text-left text-xs font-bold text-slate-500 px-4 py-2.5 whitespace-nowrap">
+                    <th className="text-left text-xs font-medium text-slate-500 px-4 py-2.5 whitespace-nowrap">
                       Updated
                     </th>
-                    <th className="text-right text-xs font-bold text-slate-500 px-5 py-2.5 whitespace-nowrap">
+                    <th className="text-right text-xs font-medium text-slate-500 px-5 py-2.5 whitespace-nowrap">
                       Action
                     </th>
                   </tr>
@@ -472,7 +472,7 @@ const LmsMyLearning = () => {
                               <div className="min-w-0">
                                 <Link
                                   to={`/courses/${courseId}`}
-                                  className="font-bold text-sm text-[#0f1b2d] hover:text-[#2b5f9e] transition-colors line-clamp-1 block"
+                                  className="font-semibold text-sm text-[#0f1b2d] hover:text-[#2b5f9e] transition-colors line-clamp-1 block"
                                 >
                                   {enrollment.course?.title}
                                 </Link>
@@ -490,7 +490,7 @@ const LmsMyLearning = () => {
                           {/* Status Badge */}
                           <td className="px-4 py-3.5 whitespace-nowrap">
                             <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                 isCompleted
                                   ? "bg-[#e3f5ea] text-[#15803d]"
                                   : "bg-[#fff1e6] text-[#c2540a]"
@@ -513,7 +513,7 @@ const LmsMyLearning = () => {
                                 value={percentage}
                                 className="h-1.5 flex-1 bg-[#e5e9f0]"
                               />
-                              <span className="text-xs font-bold text-[#0f1b2d] w-9 text-right">
+                              <span className="text-xs font-semibold text-slate-700 w-9 text-right">
                                 {percentage}%
                               </span>
                             </div>
@@ -604,7 +604,7 @@ const LmsMyLearning = () => {
               <CalendarDays className="w-5 h-5 text-[#2b5f9e]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-[#0f1b2d]">My Schedule</p>
+              <p className="text-sm font-semibold text-[#0f1b2d]">My Schedule</p>
               <p className="text-xs text-slate-500">
                 View upcoming classes &amp; clinical shifts
               </p>
@@ -620,7 +620,7 @@ const LmsMyLearning = () => {
               <Award className="w-5 h-5 text-[#f26b21]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-[#0f1b2d]">Certifications</p>
+              <p className="text-sm font-semibold text-[#0f1b2d]">Certifications</p>
               <p className="text-xs text-slate-500">
                 Generate &amp; verify achievements
               </p>
@@ -636,7 +636,7 @@ const LmsMyLearning = () => {
               <MessageCircle className="w-5 h-5 text-[#15803d]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-[#0f1b2d]">Need Help?</p>
+              <p className="text-sm font-semibold text-[#0f1b2d]">Need Help?</p>
               <p className="text-xs text-slate-500">Chat with instructors</p>
             </div>
             <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#15803d] transition-colors shrink-0" />

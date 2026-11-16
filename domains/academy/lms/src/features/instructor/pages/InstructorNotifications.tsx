@@ -84,7 +84,7 @@ const InstructorNotifications = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1.5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-200/40">
+              <div className="w-10 h-10 rounded-xl bg-[#2b5f9e] flex items-center justify-center shadow-sm">
                 <BellRing className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -217,8 +217,8 @@ const InstructorNotifications = () => {
         ) : filteredNotifications?.length === 0 ? (
           /* Empty State */
           <div className="bg-card rounded-2xl border border-dashed border-slate-200 p-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center mx-auto mb-5">
-              <Inbox className="w-10 h-10 text-blue-300" />
+            <div className="w-20 h-20 rounded-full bg-[#e8f0fa] flex items-center justify-center mx-auto mb-5">
+              <Inbox className="w-10 h-10 text-[#2b5f9e]" />
             </div>
             <h3 className="text-lg font-bold text-foreground mb-1.5">
               {activeTab === "unread"
@@ -268,7 +268,7 @@ const InstructorNotifications = () => {
                         <div
                           className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                             isUnread
-                              ? "bg-gradient-to-br from-blue-400 to-indigo-500 text-white shadow-lg shadow-blue-200/40"
+                              ? "bg-[#2b5f9e] text-white shadow-sm"
                               : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
                           }`}
                         >

@@ -55,7 +55,14 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       clearAuth();
 
-      const publicPaths = ["/login", "/register", "/forgot-password", "/reset-password"];
+      const publicPaths = [
+        "/login",
+        "/register",
+        "/forgot-password",
+        "/reset-password",
+        "/verify-certificate",
+        "/verify/credential",
+      ];
       const currentPath = window.location.pathname;
       const isPublicPath = publicPaths.some(
         (p) => currentPath === p || currentPath.startsWith(`${p}/`)

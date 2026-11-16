@@ -292,7 +292,7 @@ export const ExerciseModal = ({
         <div className="flex-1 overflow-y-auto px-8 py-4 space-y-6">
           {bulkExercises.length > 0 && (
             <div className="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-              <span className="text-[10px] font-black uppercase text-slate-400 w-full mb-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 w-full mb-1">
                 Queue ({bulkExercises.length})
               </span>
               {bulkExercises.map((ex, idx) => (

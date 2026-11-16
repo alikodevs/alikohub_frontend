@@ -82,9 +82,9 @@ const AVATAR_COLORS = [
     border: "border-amber-500/30",
   },
   {
-    bg: "bg-violet-500/15",
-    text: "text-violet-400",
-    border: "border-violet-500/30",
+    bg: "bg-[#e8f0fa]",
+    text: "text-[#2b5f9e]",
+    border: "border-[#c8dcf3]",
   },
   { bg: "bg-pink-500/15", text: "text-pink-400", border: "border-pink-500/30" },
   { bg: "bg-cyan-500/15", text: "text-cyan-400", border: "border-cyan-500/30" },
@@ -94,9 +94,9 @@ const AVATAR_COLORS = [
     border: "border-orange-500/30",
   },
   {
-    bg: "bg-indigo-500/15",
-    text: "text-indigo-400",
-    border: "border-indigo-500/30",
+    bg: "bg-sky-500/15",
+    text: "text-sky-600",
+    border: "border-sky-500/30",
   },
 ];
 
@@ -1038,7 +1038,7 @@ const AdminDashboard = () => {
                                     tx.provider === "CHAPA" &&
                                       "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30",
                                     tx.provider === "STRIPE" &&
-                                      "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30",
+                                      "bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3]",
                                     !tx.provider &&
                                       "bg-zinc-500/10 text-slate-500 border-zinc-500/30",
                                   )}

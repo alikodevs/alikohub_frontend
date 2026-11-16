@@ -362,7 +362,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${
+                            className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
                               session.type === "LIVE"
                                 ? "bg-emerald-100 text-emerald-700"
                                 : "bg-blue-100 text-blue-700"

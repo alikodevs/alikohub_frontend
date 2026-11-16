@@ -23,7 +23,7 @@ const RatingInput: React.FC<{
 }> = ({ label, description, value, onChange }) => (
   <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
     <div>
-      <span className="text-sm font-bold text-slate-900 block">{label}</span>
+      <span className="text-sm font-semibold text-slate-900 block">{label}</span>
       <span className="text-xs text-slate-500">{description}</span>
     </div>
     <div className="flex items-center gap-2 pt-1">
@@ -32,7 +32,7 @@ const RatingInput: React.FC<{
           key={score}
           type="button"
           onClick={() => onChange(score)}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-bold transition-colors ${
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${
             value === score
               ? "bg-amber-500 text-white border-amber-500"
               : value > score
@@ -118,13 +118,13 @@ export const ProgramEvaluationsPage: React.FC = () => {
     <div className="max-w-5xl mx-auto px-5 py-8 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-heading font-bold text-slate-900">
             Program &amp; Platform Evaluations
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             {isInstructorView
-              ? "Cohort student evaluation metrics covering course curriculum, LMS platform, and instruction."
-              : "End-of-course evaluation feedback on curriculum quality, technical platform usability, and instructor support."}
+              ? "Student evaluation metrics covering curriculum, LMS platform, and instructor support."
+              : "Feedback on curriculum quality, platform usability, and instructor guidance."}
           </p>
         </div>
 
@@ -132,7 +132,7 @@ export const ProgramEvaluationsPage: React.FC = () => {
           <select
             value={activeCohortId}
             onChange={(e) => setSelectedCohortId(e.target.value)}
-            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700"
+            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium text-slate-700"
           >
             {cohortOptions.map((c: any) => (
               <option key={c.id} value={String(c.id)}>
@@ -157,41 +157,41 @@ export const ProgramEvaluationsPage: React.FC = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="bg-white rounded-2xl border border-slate-200 p-4">
-                <span className="text-[11px] font-bold uppercase text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Total Surveys
                 </span>
-                <div className="text-2xl font-black text-slate-900 mt-1">
+                <div className="text-2xl font-bold text-slate-900 mt-1">
                   {cohortMetrics?.totalSurveys ?? 0}
                 </div>
               </div>
               <div className="bg-white rounded-2xl border border-slate-200 p-4">
-                <span className="text-[11px] font-bold uppercase text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Avg Course Rating
                 </span>
-                <div className="text-2xl font-black text-slate-900 mt-1">
+                <div className="text-2xl font-bold text-slate-900 mt-1">
                   {Number(cohortMetrics?.averageCourseRating ?? 0).toFixed(1)} / 5
                 </div>
               </div>
               <div className="bg-white rounded-2xl border border-slate-200 p-4">
-                <span className="text-[11px] font-bold uppercase text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Avg Platform Rating
                 </span>
-                <div className="text-2xl font-black text-slate-900 mt-1">
+                <div className="text-2xl font-bold text-slate-900 mt-1">
                   {Number(cohortMetrics?.averagePlatformRating ?? 0).toFixed(1)} / 5
                 </div>
               </div>
               <div className="bg-white rounded-2xl border border-slate-200 p-4">
-                <span className="text-[11px] font-bold uppercase text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                   Avg Instructor Rating
                 </span>
-                <div className="text-2xl font-black text-slate-900 mt-1">
+                <div className="text-2xl font-bold text-slate-900 mt-1">
                   {Number(cohortMetrics?.averageInstructorRating ?? 0).toFixed(1)} / 5
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-sm font-heading font-semibold text-slate-900 flex items-center gap-2">
                 <MessageSquareText className="w-4 h-4 text-primary" />
                 Submitted Cohort Surveys
               </h2>
@@ -271,7 +271,7 @@ export const ProgramEvaluationsPage: React.FC = () => {
           />
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 block">
+            <label className="text-xs font-medium text-slate-700 block">
               Additional Comments &amp; Suggestions (Optional)
             </label>
             <Textarea
