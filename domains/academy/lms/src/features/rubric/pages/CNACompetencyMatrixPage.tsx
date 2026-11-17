@@ -341,11 +341,11 @@ export const CNACompetencyMatrixPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#e8f0fa] border border-[#2b5f9e]/20 text-[#2b5f9e] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#EAF3F9] border border-primary/20 text-primary flex items-center justify-center shrink-0">
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-heading font-semibold tracking-tight text-slate-900">
                 Skills Lab &amp; Competency Matrix
               </h1>
               <p className="text-xs text-slate-500">
@@ -358,15 +358,15 @@ export const CNACompetencyMatrixPage: React.FC = () => {
         {/* Skills Competency Summary Cards */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#EAF3F9] text-primary flex items-center justify-center">
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
+              <span className="text-[10px] uppercase font-medium text-slate-500 block tracking-wider">
                 Core Competencies
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-slate-900">
+                <span className="text-xl font-semibold text-slate-900">
                   {totalCoreSkillsCount}
                 </span>
                 <span className="text-xs text-slate-500 font-medium">
@@ -377,15 +377,15 @@ export const CNACompetencyMatrixPage: React.FC = () => {
           </div>
 
           <div className="bg-white border border-slate-200 p-3 rounded-2xl shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#fff1e6] text-[#f26b21] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#FFF2E3] text-[#D77510] flex items-center justify-center">
               <Award className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-semibold text-slate-500 block tracking-wider">
+              <span className="text-[10px] uppercase font-medium text-slate-500 block tracking-wider">
                 Competencies Passed
               </span>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-slate-900">
+                <span className="text-xl font-semibold text-slate-900">
                   {passedSkillsCount}
                 </span>
                 <span className="text-xs text-slate-500 font-medium">
@@ -398,7 +398,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
             <Button
               size="sm"
               onClick={() => setIsRegisterSkillOpen(true)}
-              className="h-10 px-4 rounded-xl bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-semibold gap-1.5 border-0 shadow-xs"
+              className="h-10 px-4 rounded-xl bg-primary hover:bg-[#084B78] text-white text-xs font-medium gap-1.5 border-0 shadow-xs"
             >
               <Plus className="w-4 h-4" />
               Register Core Skill
@@ -474,10 +474,10 @@ export const CNACompetencyMatrixPage: React.FC = () => {
 
           {/* Quick Roster Status */}
           <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-white px-3 py-2 rounded-xl border border-slate-200">
-            <User className="w-4 h-4 text-[#2b5f9e] shrink-0" />
-            <span>Viewing: <strong className="font-semibold text-slate-900">{currentStudentName}</strong></span>
+            <User className="w-4 h-4 text-primary shrink-0" />
+            <span>Viewing: <strong className="font-medium text-slate-900">{currentStudentName}</strong></span>
             {failedSkillsCount > 0 && (
-              <Badge variant="outline" className="bg-[#fff1e6] text-[#c2540a] border-[#f26b21]/30 ml-2 font-medium">
+              <Badge variant="outline" className="bg-[#FFF2E3] text-[#AC5B0B] border-[#D77510]/30 ml-2 font-medium">
                 {failedSkillsCount} Need Reassessment
               </Badge>
             )}
@@ -487,11 +487,11 @@ export const CNACompetencyMatrixPage: React.FC = () => {
 
       {/* Student View Banner */}
       {!isInstructorOrAuditor && (
-        <div className="bg-[#e8f0fa]/60 border border-[#2b5f9e]/20 rounded-2xl p-4 flex items-center justify-between gap-3">
+        <div className="bg-[#EAF3F9] border border-border rounded-2xl p-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <ShieldCheck className="w-6 h-6 text-[#2b5f9e] shrink-0" />
+            <ShieldCheck className="w-6 h-6 text-primary shrink-0" />
             <div>
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-medium text-slate-900">
                 Official Skills Lab Competency Record
               </h3>
               <p className="text-xs text-slate-600">
@@ -502,8 +502,8 @@ export const CNACompetencyMatrixPage: React.FC = () => {
           {totalCoreSkillsCount > 0 && (
             <Badge
               className={cn(
-                "text-white border-0 text-xs px-3 py-1 font-semibold shrink-0",
-                passedSkillsCount >= totalCoreSkillsCount ? "bg-[#f26b21]" : "bg-[#2b5f9e]"
+                "text-white border-0 text-xs px-3 py-1 font-medium shrink-0",
+                passedSkillsCount >= totalCoreSkillsCount ? "bg-[#D77510]" : "bg-primary"
               )}
             >
               {passedSkillsCount >= totalCoreSkillsCount
@@ -595,9 +595,9 @@ export const CNACompetencyMatrixPage: React.FC = () => {
               className={cn(
                 "rounded-2xl border bg-white p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4",
                 isPassed
-                  ? "border-[#2b5f9e]/30 bg-[#e8f0fa]/15"
+                  ? "border-primary/30 bg-[#EAF3F9]/20"
                   : isFailed
-                  ? "border-[#f26b21]/40 bg-[#fff8f3]"
+                  ? "border-[#D77510]/30 bg-[#FFF2E3]/20"
                   : "border-slate-200"
               )}
             >
@@ -605,7 +605,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-[#2b5f9e] bg-[#e8f0fa] px-2.5 py-1 rounded-lg border border-[#2b5f9e]/20">
+                    <span className="text-xs font-medium text-primary bg-[#EAF3F9] px-2.5 py-1 rounded-lg border border-primary/20">
                       {skill.skillNumber}
                     </span>
                     <Badge variant="outline" className="text-[10px] uppercase font-medium text-slate-500">
@@ -617,9 +617,9 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                     className={cn(
                       "text-[10px] font-medium px-2.5 py-0.5",
                       isPassed
-                        ? "bg-[#e8f0fa] text-[#2b5f9e] border-[#2b5f9e]/30 font-semibold"
+                        ? "bg-[#EAF3F9] text-primary border-primary/30"
                         : isFailed
-                        ? "bg-[#fff1e6] text-[#c2540a] border-[#f26b21]/30 font-semibold"
+                        ? "bg-[#FFF2E3] text-[#AC5B0B] border-[#D77510]/30"
                         : "bg-slate-50 text-slate-500 border-slate-200"
                     )}
                   >
@@ -633,7 +633,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
 
                 {/* Title & Description */}
                 <div>
-                  <h3 className="text-sm font-heading font-semibold text-slate-900 leading-snug">
+                  <h3 className="text-sm font-heading font-medium text-slate-900 leading-snug">
                     {skill.title}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
@@ -646,10 +646,10 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                   <div className={cn(
                     "p-2.5 rounded-xl border text-xs",
                     isPassed
-                      ? "bg-[#e8f0fa]/50 border-[#2b5f9e]/25 text-[#0f1b2d]"
-                      : "bg-[#fff1e6]/70 border-[#f26b21]/30 text-[#9a3412]"
+                      ? "bg-[#EAF3F9]/50 border-primary/25 text-[#1E293B]"
+                      : "bg-[#FFF2E3]/70 border-[#D77510]/30 text-[#AC5B0B]"
                   )}>
-                    <span className="font-semibold block text-[10px] uppercase tracking-wider mb-0.5">
+                    <span className="font-medium block text-[10px] uppercase tracking-wider mb-0.5">
                       Instructor Notes:
                     </span>
                     <p className="text-xs leading-relaxed">{comments}</p>
@@ -663,7 +663,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
 
                 {/* Critical Steps List Summary */}
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/60 space-y-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500 block">
                     Critical Steps ({skill.criticalSteps?.length || 0})
                   </span>
                   <ul className="space-y-1 text-xs text-slate-600">
@@ -692,7 +692,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                   <Button
                     onClick={() => handleOpenCheckoff(skill)}
                     size="sm"
-                    className="h-8 text-xs font-semibold rounded-lg bg-[#2b5f9e] hover:bg-[#234e83] text-white border-0"
+                    className="h-8 text-xs font-medium rounded-lg bg-primary hover:bg-[#084B78] text-white border-0"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
                     {isPassed ? "Re-evaluate Skill" : "Record Checkoff"}
@@ -713,27 +713,27 @@ export const CNACompetencyMatrixPage: React.FC = () => {
         }}
       >
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
-            <Stethoscope className="w-5 h-5 text-[#2b5f9e]" />
+          <DialogTitle className="text-base font-heading font-medium text-slate-900 flex items-center gap-2">
+            <Stethoscope className="w-5 h-5 text-primary" />
             {selectedSkillForCheckoff?.skillNumber}: {selectedSkillForCheckoff?.title}
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
-            Evaluating student: <strong className="font-semibold text-slate-700">{checkoffStudentName}</strong> for in-person skills competency.
+            Evaluating student: <strong className="font-medium text-slate-700">{checkoffStudentName}</strong> for in-person skills competency.
           </DialogDescription>
 
           <div className="space-y-4 pt-2">
             {/* WABON RN Credential Notice */}
             {!instructorCredential && isInstructorOrAuditor && (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#fff8f3] border border-[#f26b21]/30 text-[#9a3412] text-xs">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#FFF2E3] border border-[#D77510]/30 text-[#AC5B0B] text-xs">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-[#f26b21] shrink-0" />
+                  <AlertTriangle className="w-4 h-4 text-[#D77510] shrink-0" />
                   <span>Instructor RN license not registered on file.</span>
                 </div>
                 <Button
                   size="sm"
                   type="button"
                   onClick={() => setIsRegisterCredentialOpen(true)}
-                  className="h-7 text-xs font-semibold bg-[#f26b21] hover:bg-[#d95812] text-white border-0"
+                  className="h-7 text-xs font-medium bg-[#D77510] hover:bg-[#AC5B0B] text-white border-0"
                 >
                   Register RN License
                 </Button>
@@ -744,7 +744,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
             <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                  <User className="w-4 h-4 text-[#2b5f9e]" />
+                  <User className="w-4 h-4 text-primary" />
                   <span>Student for Checkoff</span>
                 </label>
                 <Badge variant="outline" className="text-[10px] font-medium bg-white border-slate-200 text-slate-600">
@@ -782,14 +782,14 @@ export const CNACompetencyMatrixPage: React.FC = () => {
             {/* Protocol Steps Checklist */}
             <div className="space-y-2 border border-slate-200 rounded-xl p-3 bg-slate-50">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-700">
+                <span className="text-xs font-medium text-slate-700">
                   Critical Steps Verification
                 </span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleSelectAllSteps}
-                  className="h-6 text-[11px] text-[#2b5f9e] hover:bg-[#e8f0fa] font-semibold"
+                  className="h-6 text-[11px] text-primary hover:bg-[#EAF3F9] font-medium"
                 >
                   Check All Steps
                 </Button>
@@ -805,13 +805,13 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                       className={cn(
                         "flex items-start gap-2.5 p-2 rounded-lg text-xs cursor-pointer transition-colors border",
                         isChecked
-                          ? "bg-white border-[#2b5f9e]/40 text-[#0f1b2d]"
+                          ? "bg-white border-primary/40 text-[#1E293B]"
                           : "bg-white/60 border-slate-200 text-slate-500 hover:bg-white"
                       )}
                     >
-                      <button type="button" className="mt-0.5 shrink-0 text-[#2b5f9e]">
+                      <button type="button" className="mt-0.5 shrink-0 text-primary">
                         {isChecked ? (
-                          <CheckSquare className="w-4 h-4 text-[#2b5f9e]" />
+                          <CheckSquare className="w-4 h-4 text-primary" />
                         ) : (
                           <Square className="w-4 h-4 text-slate-300" />
                         )}
@@ -880,7 +880,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                 size="sm"
                 disabled={recordCheckoffMutation.isPending}
                 onClick={() => handleSubmitEvaluation(false)}
-                className="h-9 text-xs font-semibold bg-[#f26b21] hover:bg-[#d95812] text-white border-0"
+                className="h-9 text-xs font-medium bg-[#D77510] hover:bg-[#AC5B0B] text-white border-0"
               >
                 <XCircle className="w-4 h-4 mr-1.5" />
                 Unsatisfactory (Needs Practice)
@@ -890,7 +890,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                 size="sm"
                 disabled={recordCheckoffMutation.isPending}
                 onClick={() => handleSubmitEvaluation(true)}
-                className="h-9 text-xs font-semibold bg-[#2b5f9e] hover:bg-[#234e83] text-white border-0"
+                className="h-9 text-xs font-medium bg-primary hover:bg-[#084B78] text-white border-0"
               >
                 {recordCheckoffMutation.isPending ? (
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
@@ -910,8 +910,8 @@ export const CNACompetencyMatrixPage: React.FC = () => {
         onOpenChange={setIsRegisterCredentialOpen}
       >
         <DialogContent className="max-w-md">
-          <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-[#2b5f9e]" />
+          <DialogTitle className="text-base font-heading font-medium text-slate-900 flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-primary" />
             Register Instructor RN License
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
@@ -970,7 +970,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                 size="sm"
                 disabled={registerCredentialMutation.isPending}
                 onClick={handleRegisterCredential}
-                className="h-8 text-xs font-semibold bg-[#2b5f9e] hover:bg-[#234e83] text-white border-0"
+                className="h-8 text-xs font-medium bg-primary hover:bg-[#084B78] text-white border-0"
               >
                 {registerCredentialMutation.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
@@ -991,8 +991,8 @@ export const CNACompetencyMatrixPage: React.FC = () => {
       >
         <DialogContent className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 max-w-md space-y-4">
           <div className="space-y-1">
-            <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
-              <Stethoscope className="w-5 h-5 text-[#2b5f9e]" />
+            <DialogTitle className="text-base font-heading font-medium text-slate-900 flex items-center gap-2">
+              <Stethoscope className="w-5 h-5 text-primary" />
               Register Core Competency Skill
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
@@ -1064,7 +1064,7 @@ export const CNACompetencyMatrixPage: React.FC = () => {
                 size="sm"
                 disabled={createSkillMutation.isPending}
                 onClick={handleCreateSkill}
-                className="h-8 text-xs font-semibold bg-[#2b5f9e] hover:bg-[#234e83] text-white border-0"
+                className="h-8 text-xs font-medium bg-primary hover:bg-[#084B78] text-white border-0"
               >
                 {createSkillMutation.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />

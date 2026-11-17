@@ -107,8 +107,8 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
       <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-[#2b5f9e]" />
+            <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-primary" />
               Linked Textbook Readings
             </h4>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -119,7 +119,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
               (WAC 246-841A-440 syllabus correlation).
             </p>
           </div>
-          <Badge variant="outline" className="text-[11px] font-semibold w-fit">
+          <Badge variant="outline" className="text-[11px] font-medium w-fit">
             {readings.length} Assigned
           </Badge>
         </div>
@@ -139,7 +139,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span className="text-xs font-bold text-slate-900">
+                    <span className="text-xs font-medium text-slate-900">
                       {r.textbook?.title || `Textbook #${r.textbookId}`}
                     </span>
                     {r.textbook?.edition && (
@@ -156,7 +156,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                   )}
                 </div>
                 <div className="flex items-center gap-2 pl-5 sm:pl-0">
-                  <Badge className="bg-[#2b5f9e]/10 text-[#2b5f9e] border border-[#2b5f9e]/20 text-[11px] font-semibold">
+                  <Badge className="bg-[#EAF3F9] text-primary border border-primary/20 text-[11px] font-medium">
                     {r.chapters}
                   </Badge>
                   <Badge variant="outline" className="text-[11px] font-medium">
@@ -178,7 +178,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
           className="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-4 gap-3 items-end"
         >
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="text-[11px] font-semibold text-slate-600">
+            <Label className="text-[11px] font-medium text-slate-600">
               Course Textbook
             </Label>
             <select
@@ -190,7 +190,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 }))
               }
               disabled={isTextbooksLoading || textbooks.length === 0}
-              className="w-full h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#2b5f9e]/30"
+              className="w-full h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               {textbooks.length === 0 ? (
                 <option value="">Register a textbook below first...</option>
@@ -205,7 +205,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-semibold text-slate-600">
+            <Label className="text-[11px] font-medium text-slate-600">
               Chapters
             </Label>
             <Input
@@ -219,7 +219,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[11px] font-semibold text-slate-600">
+            <Label className="text-[11px] font-medium text-slate-600">
               Page Range
             </Label>
             <Input
@@ -239,7 +239,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
               disabled={
                 assignReadingMutation.isPending || textbooks.length === 0
               }
-              className="h-9 px-4 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-semibold rounded-lg"
+              className="h-9 px-4 bg-primary hover:bg-[#084B78] text-white text-xs font-medium rounded-lg"
             >
               {assignReadingMutation.isPending ? (
                 <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
@@ -256,7 +256,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
       <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
               <Library className="w-4 h-4 text-slate-600" />
               Registered Course Textbooks ({textbooks.length})
             </h4>
@@ -269,7 +269,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
             variant="outline"
             size="sm"
             onClick={() => setShowAddTextbook((v) => !v)}
-            className="h-8 text-xs font-semibold"
+            className="h-8 text-xs font-medium"
           >
             <Plus className="w-3.5 h-3.5 mr-1" />
             {showAddTextbook ? "Close Form" : "Register Textbook"}
@@ -283,7 +283,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-[11px] font-semibold">
+                <Label className="text-[11px] font-medium">
                   Textbook Title *
                 </Label>
                 <Input
@@ -297,7 +297,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-[11px] font-semibold">Author *</Label>
+                <Label className="text-[11px] font-medium">Author *</Label>
                 <Input
                   value={tbForm.author}
                   onChange={(e) =>
@@ -309,7 +309,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-[11px] font-semibold">Edition</Label>
+                <Label className="text-[11px] font-medium">Edition</Label>
                 <Input
                   value={tbForm.edition}
                   onChange={(e) =>
@@ -320,7 +320,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-[11px] font-semibold">ISBN</Label>
+                <Label className="text-[11px] font-medium">ISBN</Label>
                 <Input
                   value={tbForm.isbn}
                   onChange={(e) =>
@@ -331,7 +331,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 />
               </div>
               <div className="space-y-1 md:col-span-2">
-                <Label className="text-[11px] font-semibold">Publisher</Label>
+                <Label className="text-[11px] font-medium">Publisher</Label>
                 <Input
                   value={tbForm.publisher}
                   onChange={(e) =>
@@ -347,7 +347,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 type="submit"
                 size="sm"
                 disabled={addTextbookMutation.isPending}
-                className="h-8 px-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold"
+                className="h-8 px-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium"
               >
                 {addTextbookMutation.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
@@ -365,7 +365,7 @@ export const LessonReadingsTab: React.FC<LessonReadingsTabProps> = ({
                 key={tb.id}
                 className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 text-xs space-y-0.5"
               >
-                <div className="font-bold text-slate-800">{tb.title}</div>
+                <div className="font-medium text-slate-800">{tb.title}</div>
                 <div className="text-slate-500">
                   {tb.author}
                   {tb.edition ? ` · ${tb.edition}` : ""}

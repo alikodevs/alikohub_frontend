@@ -90,7 +90,7 @@ const LoginPage = () => {
             name="email"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel className="text-sm font-semibold">
+                <FormLabel className="text-sm font-medium">
                   Email address
                 </FormLabel>
                 <FormControl>
@@ -114,12 +114,12 @@ const LoginPage = () => {
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <FormLabel className="text-sm font-semibold">
+                  <FormLabel className="text-sm font-medium">
                     Password
                   </FormLabel>
                   <Link
                     to="/forgot-password"
-                    className="text-xs text-primary font-bold hover:underline transition-all"
+                    className="text-xs text-primary font-medium hover:underline transition-all"
                   >
                     Forgot Password?
                   </Link>
@@ -141,7 +141,7 @@ const LoginPage = () => {
           <div className="pt-2 space-y-6">
             <Button
               type="submit"
-              className="w-full h-11 sm:h-12 text-base font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full h-11 sm:h-12 text-base font-medium shadow-xs transition-all hover:bg-[#084B78] active:scale-[0.99]"
               disabled={isPending}
             >
               {isPending ? (
@@ -156,7 +156,7 @@ const LoginPage = () => {
                 <span className="w-full border-t border-border/60" />
               </div>
               <div className="relative flex justify-center text-[12px] uppercase tracking-[0.1em]">
-                <span className="bg-white/80 backdrop-blur-sm px-4 text-muted-foreground/60 font-bold uppercase">
+                <span className="bg-white/80 backdrop-blur-sm px-4 text-muted-foreground/60 font-medium uppercase">
                   OR
                 </span>
               </div>
@@ -170,7 +170,7 @@ const LoginPage = () => {
               Don't have an account?{" "}
               <Link
                 to="/register"
-                className="text-primary font-bold hover:text-primary/80 transition-colors"
+                className="text-primary font-medium hover:text-primary/80 transition-colors"
               >
                 Create one
               </Link>

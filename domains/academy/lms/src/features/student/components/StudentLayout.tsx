@@ -124,7 +124,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f6f8fb]">
+    <div className="flex min-h-screen bg-[#F7F9FC]">
       {/* Sidebar */}
       <StudentSidebar
         isOpen={sidebarOpen}
@@ -134,7 +134,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Header Bar */}
-        <header className="h-[60px] shrink-0 z-20 bg-white border-b border-[#e5e9f0] flex items-center gap-3 px-6 sm:px-8 lg:px-10">
+        <header className="h-[60px] shrink-0 z-20 bg-white border-b border-[#E2E8F0] flex items-center gap-3 px-6 sm:px-8 lg:px-10">
           {/* Hamburger - mobile only */}
           <button
             onClick={() => setSidebarOpen(true)}
@@ -148,7 +148,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             <Input
               placeholder="Search courses, topics..."
-              className="pl-9 h-9 bg-[#f8fafc] border border-[#e5e9f0] focus-visible:ring-1 focus-visible:ring-[#2b5f9e] text-sm rounded-lg text-[#0f1b2d] placeholder:text-slate-400"
+              className="pl-9 h-9 bg-[#F4F8FB] border border-[#E2E8F0] focus-visible:ring-1 focus-visible:ring-[#0A65A0] text-sm rounded-lg text-[#1E293B] placeholder:text-slate-400"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && e.currentTarget.value.trim()) {
                   navigate(
@@ -166,7 +166,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/instructor/audit")}
-                className="gap-2 bg-white text-[#2b5f9e] border-[#e5e9f0] hover:bg-[#e8f0fa] hover:border-[#2b5f9e]/30 hover:text-[#2b5f9e] text-xs font-semibold h-9 rounded-lg hidden sm:flex transition-colors"
+                className="gap-2 bg-white text-[#0A65A0] border-[#E2E8F0] hover:bg-[#EAF3F9] hover:border-[#0A65A0]/30 hover:text-[#0A65A0] text-xs font-medium h-9 rounded-lg hidden sm:flex transition-colors"
               >
                 <Repeat className="w-3.5 h-3.5" />
                 Back to Audit Portal
@@ -178,7 +178,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
                 size="sm"
                 onClick={handleSwitchRole}
                 disabled={isSwitching}
-                className="gap-2 bg-white text-[#0f1b2d] border-[#e5e9f0] hover:bg-[#f8fafc] hover:border-[#2b5f9e]/40 hover:text-[#2b5f9e] text-xs font-semibold h-9 rounded-lg hidden sm:flex transition-colors"
+                className="gap-2 bg-white text-[#1E293B] border-[#E2E8F0] hover:bg-[#F4F8FB] hover:border-[#0A65A0]/40 hover:text-[#0A65A0] text-xs font-medium h-9 rounded-lg hidden sm:flex transition-colors"
               >
                 <Repeat className="w-3.5 h-3.5" />
                 Switch to Instructor
@@ -189,7 +189,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate("/dashboard")}
-                className="gap-2 bg-white text-[#2b5f9e] border-[#e5e9f0] hover:bg-[#e8f0fa] hover:text-[#2b5f9e] text-xs font-semibold h-9 rounded-lg hidden sm:flex transition-colors"
+                className="gap-2 bg-white text-[#0A65A0] border-[#E2E8F0] hover:bg-[#EAF3F9] hover:text-[#0A65A0] text-xs font-medium h-9 rounded-lg hidden sm:flex transition-colors"
               >
                 <GraduationCap className="w-3.5 h-3.5" />
                 Switch to Student
@@ -200,7 +200,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
                 variant="outline"
                 size="sm"
                 disabled
-                className="gap-2 text-muted-foreground border-[#e5e9f0] text-xs h-9 rounded-lg hidden sm:flex"
+                className="gap-2 text-muted-foreground border-[#E2E8F0] text-xs font-medium h-9 rounded-lg hidden sm:flex"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 Application pending
@@ -211,10 +211,10 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
                 variant="outline"
                 size="sm"
                 asChild
-                className="gap-2 bg-white text-[#2b5f9e] border-[#e5e9f0] hover:bg-[#e8f0fa] hover:text-[#2b5f9e] text-xs font-semibold h-9 rounded-lg hidden sm:flex transition-colors"
+                className="gap-2 bg-white text-[#0A65A0] border-[#E2E8F0] hover:bg-[#EAF3F9] hover:text-[#0A65A0] text-xs font-medium h-9 rounded-lg hidden sm:flex transition-colors"
               >
                 <Link to="/instructor/apply">
-                  <Sparkles className="w-3.5 h-3.5 text-[#f26b21]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#D77510]" />
                   Apply for instructor
                 </Link>
               </Button>
@@ -227,12 +227,12 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
                   setNotificationOpen(!notificationOpen);
                   setProfileOpen(false); // close profile dropdown if open
                 }}
-                className="relative w-9 h-9 rounded-lg border border-[#e5e9f0] bg-white hover:bg-[#f8fafc] text-slate-600 hover:text-[#0f1b2d] flex items-center justify-center transition-colors"
+                className="relative w-9 h-9 rounded-lg border border-[#E2E8F0] bg-white hover:bg-[#F4F8FB] text-slate-600 hover:text-[#1E293B] flex items-center justify-center transition-colors"
                 aria-label="Notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#f26b21] ring-2 ring-white" />
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#D77510] ring-2 ring-white" />
                 )}
               </button>
 
@@ -325,7 +325,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
                     src={user?.profilePicture || undefined}
                     alt={user?.firstname}
                   />
-                  <AvatarFallback className="bg-[#2b5f9e] text-white text-xs font-bold">
+                  <AvatarFallback className="bg-primary text-white text-xs font-bold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
@@ -344,7 +344,7 @@ const StudentLayout = ({ children }: { children: React.ReactNode }) => {
                           src={user?.profilePicture || undefined}
                           alt={user?.firstname}
                         />
-                        <AvatarFallback className="bg-[#2b5f9e] text-white font-bold">
+                        <AvatarFallback className="bg-primary text-white font-bold">
                           {userInitials}
                         </AvatarFallback>
                       </Avatar>

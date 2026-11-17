@@ -43,9 +43,9 @@ const initialsOf = (firstname?: string, lastname?: string) =>
   `${firstname?.[0] ?? ""}${lastname?.[0] ?? ""}`.toUpperCase();
 
 const AVATAR_PALETTES = [
-  "bg-[#e8f0fa] text-[#2b5f9e]",
+  "bg-[#EAF3F9] text-primary",
   "bg-rose-50 text-rose-600",
-  "bg-[#fff1e6] text-[#f26b21]",
+  "bg-[#FFF2E3] text-[#D77510]",
   "bg-emerald-50 text-emerald-600",
   "bg-sky-50 text-sky-600",
   "bg-slate-100 text-slate-700",

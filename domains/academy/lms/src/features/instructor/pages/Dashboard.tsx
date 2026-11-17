@@ -37,8 +37,8 @@ const InstructorDashboard = () => {
       label: "Total Students",
       value: instructorStats?.totalStudents || 0,
       icon: Users,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
+      color: "text-[#0A65A0]",
+      bg: "bg-[#EAF3F9]",
     },
     {
       label: "All Courses",
@@ -51,15 +51,15 @@ const InstructorDashboard = () => {
       label: "Avg Rating",
       value: instructorStats?.averageRating?.toFixed(1) || "0.0",
       icon: Star,
-      color: "text-amber-600",
-      bg: "bg-amber-50",
+      color: "text-[#D77510]",
+      bg: "bg-[#FFF2E3]",
     },
     {
       label: "Experience",
       value: `${instructorStats?.yearsOfExperience || 0} Years`,
       icon: Award,
-      color: "text-[#2b5f9e]",
-      bg: "bg-[#e8f0fa]",
+      color: "text-[#0A65A0]",
+      bg: "bg-[#EAF3F9]",
     },
   ];
 
@@ -71,7 +71,7 @@ const InstructorDashboard = () => {
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
               <div>
-                <p className="text-sm font-bold text-red-800">
+                <p className="text-sm font-medium text-red-800">
                   Failed to load dashboard data
                 </p>
                 <p className="text-xs text-red-600">
@@ -86,7 +86,7 @@ const InstructorDashboard = () => {
                 refetchStats();
                 refetchCourses();
               }}
-              className="gap-2 border-red-300 text-red-700 hover:bg-red-100 shrink-0 rounded-full font-semibold"
+              className="gap-2 border-red-300 text-red-700 hover:bg-red-100 shrink-0 rounded-full font-medium"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Retry
             </Button>
@@ -95,27 +95,23 @@ const InstructorDashboard = () => {
 
         {/* ── Instructor Console Banner ── */}
         <div
-          className="relative overflow-hidden rounded-2xl p-6 md:p-8 border border-blue-100/80 shadow-sm"
-          style={{
-            background:
-              "linear-gradient(135deg, #eef5ff 0%, #f4f8ff 55%, #fff7ed 100%)",
-          }}
+          className="relative overflow-hidden rounded-2xl p-6 md:p-8 border border-[#E2E8F0] shadow-sm bg-white"
         >
           {/* Soft warm glow top-right */}
           <div
             className="absolute top-0 right-0 w-80 h-80 pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse at top right, rgba(254,215,170,0.45) 0%, rgba(253,230,138,0.2) 35%, transparent 70%)",
+                "radial-gradient(ellipse at top right, rgba(254,215,170,0.3) 0%, rgba(253,230,138,0.15) 35%, transparent 70%)",
             }}
           />
 
           <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="space-y-2 max-w-xl">
-              <p className="text-[#5a6e8c] text-[11px] font-bold uppercase tracking-widest">
+              <p className="text-[#5a6e8c] text-[11px] font-medium uppercase tracking-widest">
                 Instructor Dashboard
               </p>
-              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0b1a40] leading-tight">
+              <h1 className="text-2xl sm:text-3xl font-heading font-semibold text-[#081831] leading-tight">
                 Instructor Console
               </h1>
               <p className="text-slate-600 text-sm leading-relaxed">
@@ -128,13 +124,13 @@ const InstructorDashboard = () => {
               <Button
                 asChild
                 variant="outline"
-                className="border-slate-300 text-slate-700 hover:bg-white bg-white/80 font-semibold rounded-full px-5 py-2.5 text-sm"
+                className="border-slate-300 text-slate-700 hover:bg-white bg-white/80 font-medium rounded-full px-5 py-2.5 text-sm"
               >
                 <Link to="/instructor/analytics">View Analytics</Link>
               </Button>
               <Button
                 asChild
-                className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-full px-6 py-2.5 shadow-md shadow-primary/20 border-0"
+                className="gap-2 bg-primary hover:bg-[#084B78] text-primary-foreground font-medium text-sm rounded-full px-6 py-2.5 shadow-sm border-0"
               >
                 <Link to="/instructor/courses/new">
                   <PlusCircle className="w-4 h-4" /> Create New Course
@@ -156,7 +152,7 @@ const InstructorDashboard = () => {
                   <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
               </div>
-              <p className="text-xl font-bold text-slate-900">{stat.value}</p>
+              <p className="text-xl font-semibold text-slate-900">{stat.value}</p>
               <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
             </div>
           ))}
@@ -166,12 +162,12 @@ const InstructorDashboard = () => {
           {/* Recent Courses */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-heading font-bold text-slate-900">
+              <h2 className="text-xl font-heading font-semibold text-slate-900">
                 Your Recent Courses
               </h2>
               <Link
                 to="/instructor/courses"
-                className="text-sm font-semibold text-[#2b5f9e] hover:underline"
+                className="text-sm font-medium text-primary hover:underline"
               >
                 View all
               </Link>
@@ -221,7 +217,7 @@ const InstructorDashboard = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span
-                            className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                            className={`text-[10px] font-medium uppercase px-2 py-0.5 rounded-full ${
                               course.status === "PUBLISHED"
                                 ? "bg-emerald-50 text-emerald-600"
                                 : course.status === "PENDING"
@@ -235,7 +231,7 @@ const InstructorDashboard = () => {
                             • {course.enrolledCount || 0} students
                           </span>
                         </div>
-                        <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-[#2b5f9e] transition-colors">
+                        <h3 className="text-base font-medium text-slate-900 truncate group-hover:text-primary transition-colors">
                           {course.title}
                         </h3>
                         <div className="flex items-center gap-4 mt-2">
@@ -250,7 +246,7 @@ const InstructorDashboard = () => {
                         </div>
                       </div>
                       <div className="flex flex-col justify-center">
-                        <Button variant="ghost" size="sm" asChild>
+                        <Button variant="ghost" size="sm" asChild className="font-medium">
                           <Link to={`/instructor/courses/${course.id}`}>
                             Edit
                           </Link>
@@ -265,17 +261,17 @@ const InstructorDashboard = () => {
 
           {/* Quick Tasks / Notifications */}
           <div className="space-y-6">
-            <h2 className="text-xl font-heading font-bold text-slate-900">
+            <h2 className="text-xl font-heading font-semibold text-slate-900">
               Quick Actions
             </h2>
             <div className="bg-white rounded-xl border border-border overflow-hidden">
               <div className="p-2">
                 <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors text-left group">
-                  <div className="p-2 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] transition-colors group-hover:bg-[#2b5f9e] group-hover:text-white">
+                  <div className="p-2 rounded-lg bg-[#EAF3F9] text-[#0A65A0] transition-colors group-hover:bg-[#0A65A0] group-hover:text-white">
                     <PlusCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">
+                    <p className="text-sm font-medium text-slate-900">
                       Create Cohort
                     </p>
                     <p className="text-xs text-slate-500">
@@ -287,11 +283,11 @@ const InstructorDashboard = () => {
                   to="/instructor/submissions"
                   className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors text-left group"
                 >
-                  <div className="p-2 rounded-lg bg-pink-50 text-pink-600 transition-colors group-hover:bg-pink-600 group-hover:text-white">
+                  <div className="p-2 rounded-lg bg-[#FFF2E3] text-[#D77510] transition-colors group-hover:bg-[#D77510] group-hover:text-white">
                     <FileText className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">
+                    <p className="text-sm font-medium text-slate-900">
                       Grade Submissions
                     </p>
                     <p className="text-xs text-slate-500">

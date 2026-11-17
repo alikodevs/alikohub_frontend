@@ -120,11 +120,11 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
   return (
     <>
       <Dialog open={Boolean(course)} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="sm:max-w-2xl bg-white border-[#E1EAF2] max-h-[88vh] flex flex-col p-0 overflow-hidden">
-          <div className="px-6 py-5 border-b border-[#E1EAF2] bg-slate-50/70">
+        <DialogContent className="sm:max-w-2xl bg-white border-slate-200 max-h-[88vh] flex flex-col p-0 overflow-hidden">
+          <div className="px-6 py-5 border-b border-slate-200 bg-slate-50/70">
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[#2b5f9e]" />
+              <DialogTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
                 Manage Course: {course.title}
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500">
@@ -137,17 +137,17 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
             {/* Assign Instructor (Postman 4.3) */}
             <form
               onSubmit={handleAssign}
-              className="p-4 rounded-xl border border-[#E1EAF2] bg-[#F4F8FB]/60 space-y-3"
+              className="p-4 rounded-xl border border-slate-200 bg-[#F4F8FB]/60 space-y-3"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <UserPlus className="w-4 h-4 text-[#2b5f9e]" />
+                <span className="text-xs font-medium text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <UserPlus className="w-4 h-4 text-primary" />
                   Assign Instructor to Course
                 </span>
                 {course.instructor && (
                   <span className="text-xs text-slate-500">
                     Current:{" "}
-                    <strong className="text-slate-800">
+                    <strong className="text-slate-800 font-medium">
                       {course.instructor.firstname} {course.instructor.lastname}
                     </strong>
                   </span>
@@ -158,7 +158,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
                 <select
                   value={selectedInstructorId}
                   onChange={(e) => setSelectedInstructorId(e.target.value)}
-                  className="flex-1 h-9 px-3 rounded-lg border border-[#E1EAF2] bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#2b5f9e]"
+                  className="flex-1 h-9 px-3 rounded-lg border border-slate-200 bg-white text-xs text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="">Select instructor...</option>
                   {instructorOptions.map((opt) => (
@@ -171,7 +171,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
                   type="submit"
                   size="sm"
                   disabled={!selectedInstructorId || assignMutation.isPending}
-                  className="h-9 px-4 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold rounded-lg"
+                  className="h-9 px-4 bg-primary hover:bg-[#084B78] text-white text-xs font-medium rounded-lg"
                 >
                   {assignMutation.isPending ? (
                     <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
@@ -186,7 +186,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
             {/* Modules & Lessons Structure (Postman 4.5 & 4.6) */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="text-xs font-medium text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                   <Layers className="w-4 h-4 text-slate-600" />
                   Modules &amp; Lessons ({modules.length})
                 </span>
@@ -198,7 +198,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
                   Loading course structure...
                 </div>
               ) : modules.length === 0 ? (
-                <div className="p-6 text-center rounded-xl border border-[#E1EAF2] text-xs text-slate-500">
+                <div className="p-6 text-center rounded-xl border border-slate-200 text-xs text-slate-500">
                   No modules found for this course.
                 </div>
               ) : (
@@ -208,11 +208,11 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
                     return (
                       <div
                         key={mod.id}
-                        className="rounded-xl border border-[#E1EAF2] bg-white overflow-hidden"
+                        className="rounded-xl border border-slate-200 bg-white overflow-hidden"
                       >
-                        <div className="px-4 py-3 bg-slate-50 border-b border-[#E1EAF2] flex items-center justify-between gap-2">
+                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2">
                           <div>
-                            <span className="text-xs font-bold text-slate-900">
+                            <span className="text-xs font-semibold text-slate-900">
                               Module #{mod.id}: {mod.title}
                             </span>
                             <span className="text-[11px] text-slate-500 ml-2">
@@ -230,7 +230,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
                                 title: mod.title,
                               })
                             }
-                            className="h-7 px-2.5 text-[11px] font-bold text-red-600 border-red-200 hover:bg-red-50"
+                            className="h-7 px-2.5 text-[11px] font-medium text-red-600 border-red-200 hover:bg-red-50"
                           >
                             <Trash2 className="w-3 h-3 mr-1" /> Delete Module
                           </Button>
@@ -281,7 +281,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
             </div>
           </div>
 
-          <DialogFooter className="px-6 py-4 border-t border-[#E1EAF2] bg-slate-50">
+          <DialogFooter className="px-6 py-4 border-t border-[#E2E8F0] bg-slate-50">
             <Button
               type="button"
               variant="outline"
@@ -299,7 +299,7 @@ export const AdminCourseManageModal: React.FC<AdminCourseManageModalProps> = ({
         open={Boolean(confirmDelete)}
         onOpenChange={(open) => !open && setConfirmDelete(null)}
       >
-        <DialogContent className="sm:max-w-md bg-white border-[#E1EAF2]">
+        <DialogContent className="sm:max-w-md bg-white border-[#E2E8F0]">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-slate-900">
               Delete {confirmDelete?.type === "module" ? "Module" : "Lesson"}?

@@ -71,9 +71,9 @@ const PROVIDER_COLORS: Record<
   { bg: string; text: string; border: string }
 > = {
   STRIPE: {
-    bg: "bg-[#e8f0fa]",
-    text: "text-[#2b5f9e]",
-    border: "border-[#c8dcf3]",
+    bg: "bg-[#EAF3F9]",
+    text: "text-primary",
+    border: "border-[#E2E8F0]",
   },
   CHAPA: {
     bg: "bg-green-50",
@@ -89,9 +89,9 @@ const PROVIDER_COLORS: Record<
 
 const providerStyle = (provider: string) =>
   PROVIDER_COLORS[provider?.toUpperCase()] ?? {
-    bg: "bg-[#e8f0fa]",
-    text: "text-[#2b5f9e]",
-    border: "border-[#c8dcf3]",
+    bg: "bg-[#EAF3F9]",
+    text: "text-primary",
+    border: "border-[#E2E8F0]",
   };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -136,7 +136,7 @@ const TransactionsPage = () => {
 
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <h1 className="text-2xl font-heading font-bold text-foreground flex items-center gap-2">
+              <h1 className="text-2xl font-heading font-semibold text-foreground flex items-center gap-2">
                 <Receipt className="w-6 h-6 text-primary" />
                 Transaction History
               </h1>
@@ -147,11 +147,11 @@ const TransactionsPage = () => {
 
             {/* Total badge */}
             {!isLoading && !isError && paidTransactions?.length > 0 && (
-              <div className="rounded-xl px-5 py-3 bg-[#e8f0fa] border border-[#2b5f9e]/20 text-[#2b5f9e] shrink-0">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#2b5f9e]/75 mb-0.5">
+              <div className="rounded-xl px-5 py-3 bg-[#EAF3F9] border border-primary/20 text-primary shrink-0">
+                <p className="text-[10px] font-medium uppercase tracking-widest text-primary/75 mb-0.5">
                   Total paid
                 </p>
-                <p className="text-lg font-heading font-bold leading-none text-[#0f1b2d]">
+                <p className="text-lg font-heading font-semibold leading-none text-slate-900">
                   {formatCurrency(totalSpent, currency)}
                 </p>
               </div>
@@ -228,25 +228,19 @@ const TransactionsPage = () => {
                   className="bg-card border rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition-all duration-200 group"
                 >
                   {/* Icon */}
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors"
-                    style={{ backgroundColor: "#e8f0fa" }}
-                  >
-                    <CreditCard
-                      className="w-5 h-5"
-                      style={{ color: "#2b5f9e" }}
-                    />
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors bg-[#EAF3F9]">
+                    <CreditCard className="w-5 h-5 text-primary" />
                   </div>
 
                   {/* Main info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-base font-heading font-bold text-foreground leading-none">
+                      <span className="text-base font-heading font-semibold text-foreground leading-none">
                         {formatCurrency(tx.amount, tx.currency)}
                       </span>
                       {/* Provider chip */}
                       <span
-                        className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md border ${pvdr.bg} ${pvdr.text} ${pvdr.border}`}
+                        className={`text-[10px] font-medium uppercase px-2 py-0.5 rounded-md border ${pvdr.bg} ${pvdr.text} ${pvdr.border}`}
                       >
                         {tx.provider}
                       </span>
@@ -269,7 +263,7 @@ const TransactionsPage = () => {
 
                   {/* Status badge */}
                   <span
-                    className={`inline-flex items-center gap-1.5 text-[11px] font-bold uppercase px-3 py-1.5 rounded-xl border shrink-0 ${cfg.color} ${cfg.bg} ${cfg.border}`}
+                    className={`inline-flex items-center gap-1.5 text-[11px] font-medium uppercase px-3 py-1.5 rounded-xl border shrink-0 ${cfg.color} ${cfg.bg} ${cfg.border}`}
                   >
                     <StatusIcon className="w-3.5 h-3.5" />
                     {cfg.label}

@@ -94,10 +94,10 @@ export function AdminAnnouncements() {
       {/* Title section + publish toggle */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-slate-800">
+          <h2 className="text-lg font-semibold text-slate-800">
             Broadcast Announcements
           </h2>
-          <div className="h-0.5 w-8 bg-[#F37E28] rounded-full mt-0.5" />
+          <div className="h-0.5 w-8 bg-[#D77510] rounded-full mt-0.5" />
           <p className="text-xs text-slate-500 mt-1">
             Publish site-wide announcements and send push notifications to app
             users.
@@ -106,7 +106,7 @@ export function AdminAnnouncements() {
 
         <Button
           onClick={() => setShowCreate(true)}
-          className="gap-2 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
+          className="gap-2 bg-primary hover:bg-[#084B78] text-white text-xs font-medium px-4 py-2 rounded-xl transition-all"
         >
           Create Announcement
           <Plus size={14} />
@@ -114,9 +114,9 @@ export function AdminAnnouncements() {
       </div>
 
       {/* History & List Panel */}
-      <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
-        <div className="px-6 py-5 border-b border-[#E1EAF2] flex items-center justify-between">
-          <h3 className="font-bold text-slate-800 text-sm">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+          <h3 className="font-semibold text-slate-800 text-sm">
             Announcement Registry ({total})
           </h3>
           <Button
@@ -124,7 +124,7 @@ export function AdminAnnouncements() {
             size="sm"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="h-8 text-xs font-semibold gap-1.5 border-[#E1EAF2] text-slate-600"
+            className="h-8 text-xs font-medium gap-1.5 border-slate-200 text-slate-600"
           >
             <RefreshCw
               className={`w-3 h-3 ${isFetching ? "animate-spin" : ""}`}
@@ -151,7 +151,7 @@ export function AdminAnnouncements() {
           /* Error Card */
           <div className="p-12 text-center">
             <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
-            <h4 className="text-sm font-bold text-slate-800">
+            <h4 className="text-sm font-semibold text-slate-800">
               Failed to load announcements
             </h4>
             <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
@@ -163,7 +163,7 @@ export function AdminAnnouncements() {
               variant="outline"
               size="sm"
               onClick={() => refetch()}
-              className="mt-3 gap-1.5 text-xs font-semibold"
+              className="mt-3 gap-1.5 text-xs font-medium"
             >
               Retry
             </Button>
@@ -171,10 +171,10 @@ export function AdminAnnouncements() {
         ) : announcements.length === 0 ? (
           /* Empty State */
           <div className="p-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#EAF4FB] flex items-center justify-center mx-auto mb-4">
-              <Inbox className="w-8 h-8 text-[#2b5f9e]/30" />
+            <div className="w-16 h-16 rounded-full bg-[#EAF3F9] flex items-center justify-center mx-auto mb-4">
+              <Inbox className="w-8 h-8 text-primary/40" />
             </div>
-            <h4 className="text-sm font-bold text-slate-800">
+            <h4 className="text-sm font-semibold text-slate-800">
               No announcements broadcasted yet
             </h4>
             <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
@@ -183,7 +183,7 @@ export function AdminAnnouncements() {
             </p>
             <Button
               onClick={() => setShowCreate(true)}
-              className="mt-4 gap-1 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold rounded-xl"
+              className="mt-4 gap-1 bg-primary hover:bg-[#084B78] text-white text-xs font-medium rounded-xl"
             >
               Create Announcement
             </Button>
@@ -192,7 +192,7 @@ export function AdminAnnouncements() {
           /* Table Log */
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-slate-500 uppercase text-xs font-bold border-b border-zinc-200 dark:border-[#3f3f46] transition-colors duration-300">
+              <thead className="text-slate-500 uppercase text-xs font-medium border-b border-zinc-200 dark:border-[#3f3f46] transition-colors duration-300">
                 <tr>
                   <th className="px-6 py-4">Title</th>
                   <th className="px-6 py-4">Message Summary</th>
@@ -200,11 +200,11 @@ export function AdminAnnouncements() {
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E1EAF2]">
+              <tbody className="divide-y divide-[#E2E8F0]">
                 {announcements.map((item) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-[#EAF4FB] transition-colors"
+                    className="hover:bg-[#EAF3F9] transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -268,20 +268,20 @@ export function AdminAnnouncements() {
 
             {/* Pagination controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-6 py-4 border-t border-[#E1EAF2]">
+              <div className="flex items-center justify-between px-6 py-4 border-t border-[#E2E8F0]">
                 <span className="text-xs text-zinc-500 font-medium">
                   Page {page} of {totalPages}
                 </span>
                 <div className="flex gap-2">
                   <button
-                    className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1 || isFetching}
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
-                    className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages || isFetching}
                   >
@@ -296,7 +296,7 @@ export function AdminAnnouncements() {
 
       {/* Create Announcement Modal */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="sm:max-w-[550px] bg-white border border-[#E1EAF2]">
+        <DialogContent className="sm:max-w-[550px] bg-white border border-[#E2E8F0]">
           <DialogHeader>
             <DialogTitle className="text-slate-800 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
@@ -310,7 +310,7 @@ export function AdminAnnouncements() {
 
           <form onSubmit={handleCreate} className="space-y-4 py-2">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                 Title
               </label>
               <input
@@ -318,14 +318,14 @@ export function AdminAnnouncements() {
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 placeholder="e.g. Scheduled Maintenance, New Course Release..."
-                className="w-full px-4 py-2 rounded-lg border border-[#E1EAF2] bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#F37E28]/40 focus:border-[#F37E28] transition-all"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#D77510]/40 focus:border-[#D77510] transition-all"
                 disabled={createMutation.isPending}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                 Content Body
               </label>
               <textarea
@@ -333,13 +333,13 @@ export function AdminAnnouncements() {
                 onChange={(e) => setNewContent(e.target.value)}
                 placeholder="Type the announcement message details here..."
                 rows={5}
-                className="w-full px-4 py-2 rounded-lg border border-[#E1EAF2] bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#F37E28]/40 focus:border-[#F37E28] transition-all resize-none"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#D77510]/40 focus:border-[#D77510] transition-all resize-none"
                 disabled={createMutation.isPending}
                 required
               />
             </div>
 
-            <DialogFooter className="pt-4 border-t border-[#E1EAF2] gap-2 sm:gap-0">
+            <DialogFooter className="pt-4 border-t border-slate-200 gap-2 sm:gap-0">
               <Button
                 type="button"
                 variant="ghost"
@@ -349,7 +349,7 @@ export function AdminAnnouncements() {
                   setNewContent("");
                 }}
                 disabled={createMutation.isPending}
-                className="text-xs text-slate-500 font-semibold"
+                className="text-xs text-slate-500 font-medium"
               >
                 Cancel
               </Button>
@@ -360,7 +360,7 @@ export function AdminAnnouncements() {
                   !newContent.trim() ||
                   createMutation.isPending
                 }
-                className="bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all"
+                className="bg-primary hover:bg-[#084B78] text-white text-xs font-medium flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all"
               >
                 {createMutation.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -376,7 +376,7 @@ export function AdminAnnouncements() {
 
       {/* Edit Announcement Modal */}
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
-        <DialogContent className="sm:max-w-[550px] bg-white border border-[#E1EAF2]">
+        <DialogContent className="sm:max-w-[550px] bg-white border border-slate-200">
           <DialogHeader>
             <DialogTitle className="text-slate-800 flex items-center gap-2">
               <Pencil className="w-5 h-5 text-amber-500" />
@@ -389,7 +389,7 @@ export function AdminAnnouncements() {
 
           <form onSubmit={handleEdit} className="space-y-4 py-2">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                 Title
               </label>
               <input
@@ -397,14 +397,14 @@ export function AdminAnnouncements() {
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 placeholder="e.g. Scheduled Maintenance, New Course Release..."
-                className="w-full px-4 py-2 rounded-lg border border-[#E1EAF2] bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#F37E28]/40 focus:border-[#F37E28] transition-all"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#D77510]/40 focus:border-[#D77510] transition-all"
                 disabled={updateMutation.isPending}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">
                 Content Body
               </label>
               <textarea
@@ -412,13 +412,13 @@ export function AdminAnnouncements() {
                 onChange={(e) => setEditContent(e.target.value)}
                 placeholder="Type the announcement message details here..."
                 rows={5}
-                className="w-full px-4 py-2 rounded-lg border border-[#E1EAF2] bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#F37E28]/40 focus:border-[#F37E28] transition-all resize-none"
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-[#D77510]/40 focus:border-[#D77510] transition-all resize-none"
                 disabled={updateMutation.isPending}
                 required
               />
             </div>
 
-            <DialogFooter className="pt-4 border-t border-[#E1EAF2] gap-2 sm:gap-0">
+            <DialogFooter className="pt-4 border-t border-slate-200 gap-2 sm:gap-0">
               <Button
                 type="button"
                 variant="ghost"
@@ -427,7 +427,7 @@ export function AdminAnnouncements() {
                   setEditTarget(null);
                 }}
                 disabled={updateMutation.isPending}
-                className="text-xs text-slate-500 font-semibold"
+                className="text-xs text-slate-500 font-medium"
               >
                 Cancel
               </Button>
@@ -438,7 +438,7 @@ export function AdminAnnouncements() {
                   !editContent.trim() ||
                   updateMutation.isPending
                 }
-                className="bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all"
+                className="bg-primary hover:bg-[#084B78] text-white text-xs font-medium flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all"
               >
                 {updateMutation.isPending ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />

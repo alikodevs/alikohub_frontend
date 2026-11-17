@@ -62,10 +62,10 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <LifeBuoy className="w-5 h-5 text-[#2b5f9e]" />
+          <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <LifeBuoy className="w-5 h-5 text-primary" />
             Platform Support Tickets ({tickets.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -77,7 +77,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[#E1EAF2] bg-slate-50 text-xs font-semibold text-slate-700"
+            className="h-9 px-3 rounded-lg border border-slate-200 bg-slate-50 text-xs font-medium text-slate-700"
           >
             <option value="ALL">All Statuses</option>
             <option value="OPEN">Open</option>
@@ -89,7 +89,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[#E1EAF2] bg-slate-50 text-xs font-semibold text-slate-700"
+            className="h-9 px-3 rounded-lg border border-[#E2E8F0] bg-slate-50 text-xs font-semibold text-slate-700"
           >
             <option value="ALL">All Categories</option>
             <option value="LOGIN_AUTH">Login &amp; Auth</option>
@@ -102,10 +102,10 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
         </div>
       </div>
 
-      <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E2E8F0]">
               <tr>
                 <th className="px-6 py-4">Ticket</th>
                 <th className="px-6 py-4">User</th>
@@ -116,7 +116,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
                 <th className="px-6 py-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E1EAF2]">
+            <tbody className="divide-y divide-[#E2E8F0]">
               {isLoading ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-zinc-500">
@@ -132,7 +132,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
                 </tr>
               ) : (
                 tickets.map((t) => (
-                  <tr key={t.id} className="hover:bg-[#EAF4FB] transition-colors">
+                  <tr key={t.id} className="hover:bg-[#EAF3F9] transition-colors">
                     <td className="px-6 py-4 text-xs">
                       <div className="font-bold text-slate-900">
                         #{t.id} — {t.subject}
@@ -188,7 +188,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
         open={Boolean(selectedTicket)}
         onOpenChange={(open) => !open && setSelectedTicket(null)}
       >
-        <DialogContent className="sm:max-w-md bg-white border-[#E1EAF2]">
+        <DialogContent className="sm:max-w-md bg-white border-[#E2E8F0]">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-slate-900">
               Update Support Ticket #{selectedTicket?.id}
@@ -206,7 +206,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
               <select
                 value={nextStatus}
                 onChange={(e) => setNextStatus(e.target.value as SupportStatus)}
-                className="w-full h-9 px-3 rounded-lg border border-[#E1EAF2] bg-white text-xs font-semibold"
+                className="w-full h-9 px-3 rounded-lg border border-[#E2E8F0] bg-white text-xs font-semibold"
               >
                 <option value="OPEN">Open</option>
                 <option value="IN_PROGRESS">In Progress</option>
@@ -234,6 +234,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
               variant="outline"
               size="sm"
               onClick={() => setSelectedTicket(null)}
+              className="font-medium"
             >
               Cancel
             </Button>
@@ -241,7 +242,7 @@ export const AdminSupportTab: React.FC<AdminSupportTabProps> = ({ userMap }) => 
               size="sm"
               disabled={updateMutation.isPending}
               onClick={handleSave}
-              className="bg-[#2b5f9e] hover:bg-[#234e83] text-white"
+              className="bg-primary hover:bg-[#084B78] text-white font-medium"
             >
               {updateMutation.isPending ? (
                 <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />

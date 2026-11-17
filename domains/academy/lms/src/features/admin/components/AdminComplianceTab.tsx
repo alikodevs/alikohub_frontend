@@ -92,7 +92,7 @@ export const AdminComplianceTab: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Cohort Selector & Export Controls (Postman 4.17 & 4.19) */}
-      <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-emerald-600" />
@@ -103,7 +103,7 @@ export const AdminComplianceTab: React.FC = () => {
           <select
             value={cohortId ? String(cohortId) : ""}
             onChange={(e) => setSelectedCohortId(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[#E1EAF2] bg-slate-50 text-xs font-semibold text-slate-800"
+            className="h-9 px-3 rounded-lg border border-[#E2E8F0] bg-slate-50 text-xs font-semibold text-slate-800"
           >
             {cohorts.length === 0 ? (
               <option value="">No cohorts found</option>
@@ -123,7 +123,7 @@ export const AdminComplianceTab: React.FC = () => {
             variant="outline"
             disabled={!cohortId || exportCsvMutation.isPending}
             onClick={() => cohortId && exportCsvMutation.mutate(cohortId)}
-            className="h-9 text-xs font-bold border-[#E1EAF2]"
+            className="h-9 text-xs font-bold border-[#E2E8F0]"
           >
             {exportCsvMutation.isPending ? (
               <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
@@ -146,7 +146,7 @@ export const AdminComplianceTab: React.FC = () => {
       </div>
 
       {/* Compliance Dossier Snapshot (Postman 4.19) */}
-      <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm space-y-4">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
@@ -218,11 +218,11 @@ export const AdminComplianceTab: React.FC = () => {
       </div>
 
       {/* Seat-Time Regulatory Report (Postman 4.16) */}
-      <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
-        <div className="px-6 py-4 border-b border-[#E1EAF2] flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#2b5f9e]" />
+            <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" />
               Cohort Seat-Time Regulatory Report
             </h3>
             <p className="text-xs text-slate-500">
@@ -232,7 +232,7 @@ export const AdminComplianceTab: React.FC = () => {
               {seatReport?.totalStudents ?? 0}
             </p>
           </div>
-          <Badge variant="outline" className="text-[10px] font-bold">
+          <Badge variant="outline" className="text-[10px] font-medium">
             <Users className="w-3 h-3 mr-1" />
             {seatReport?.totalStudents ?? 0} Students
           </Badge>
@@ -240,7 +240,7 @@ export const AdminComplianceTab: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E2E8F0]">
               <tr>
                 <th className="px-6 py-3">Student</th>
                 <th className="px-6 py-3">Active Hours</th>
@@ -248,7 +248,7 @@ export const AdminComplianceTab: React.FC = () => {
                 <th className="px-6 py-3">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E1EAF2]">
+            <tbody className="divide-y divide-[#E2E8F0]">
               {seatReportLoading ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-10 text-center text-xs text-slate-400">
@@ -263,7 +263,7 @@ export const AdminComplianceTab: React.FC = () => {
                 </tr>
               ) : (
                 seatReport.students.map((st) => (
-                  <tr key={st.userId} className="hover:bg-[#EAF4FB]">
+                  <tr key={st.userId} className="hover:bg-[#EAF3F9]">
                     <td className="px-6 py-3 text-xs font-semibold text-slate-900">
                       {st.studentName}
                       {st.studentEmail && (
@@ -300,7 +300,7 @@ export const AdminComplianceTab: React.FC = () => {
       </div>
 
       {/* Exam Session Security Audit (Postman 4.15) */}
-      <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm space-y-4">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h3 className="text-sm font-bold text-slate-900">
@@ -317,7 +317,7 @@ export const AdminComplianceTab: React.FC = () => {
                 value={exerciseIdInput}
                 onChange={(e) => setExerciseIdInput(e.target.value)}
                 placeholder="Exercise ID..."
-                className="w-32 h-9 text-xs bg-slate-50 border-[#E1EAF2]"
+                className="w-32 h-9 text-xs bg-slate-50 border-[#E2E8F0]"
               />
               <Button type="submit" size="sm" variant="outline" className="h-9 text-xs font-bold">
                 <Search className="w-3.5 h-3.5 mr-1" /> Load Sessions
@@ -329,13 +329,13 @@ export const AdminComplianceTab: React.FC = () => {
                 value={directSessionId}
                 onChange={(e) => setDirectSessionId(e.target.value)}
                 placeholder="Session ID..."
-                className="w-28 h-9 text-xs bg-slate-50 border-[#E1EAF2]"
+                className="w-28 h-9 text-xs bg-slate-50 border-slate-200"
               />
               <Button
                 size="sm"
                 disabled={!directSessionId.trim() || auditSessionMutation.isPending}
                 onClick={() => handleAuditSession(directSessionId.trim())}
-                className="h-9 text-xs font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
+                className="h-9 text-xs font-medium bg-primary hover:bg-[#084B78] text-white"
               >
                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Audit Session
               </Button>
@@ -344,7 +344,7 @@ export const AdminComplianceTab: React.FC = () => {
         </div>
 
         {lookupExerciseId && (
-          <div className="border border-[#E1EAF2] rounded-lg overflow-hidden">
+          <div className="border border-slate-200 rounded-lg overflow-hidden">
             {sessionsLoading ? (
               <div className="p-6 text-center text-xs text-slate-400">
                 Loading sessions for Exercise #{lookupExerciseId}...
@@ -354,14 +354,14 @@ export const AdminComplianceTab: React.FC = () => {
                 No exam sessions found for Exercise #{lookupExerciseId}.
               </div>
             ) : (
-              <div className="divide-y divide-[#E1EAF2]">
+              <div className="divide-y divide-slate-200">
                 {examSessions.map((sess: any) => (
                   <div
                     key={sess.id}
                     className="p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs"
                   >
                     <div>
-                      <span className="font-bold text-slate-900">
+                      <span className="font-medium text-slate-900">
                         Session #{sess.id}
                       </span>{" "}
                       <span className="text-slate-500">
@@ -389,7 +389,7 @@ export const AdminComplianceTab: React.FC = () => {
                           size="sm"
                           disabled={auditSessionMutation.isPending}
                           onClick={() => handleAuditSession(sess.id)}
-                          className="h-7 px-3 text-[11px] font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
+                          className="h-7 px-3 text-[11px] font-medium bg-primary hover:bg-[#084B78] text-white"
                         >
                           Mark Audited
                         </Button>

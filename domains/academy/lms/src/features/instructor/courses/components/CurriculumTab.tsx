@@ -197,7 +197,7 @@ export const CurriculumTab = ({
                 <Button
                   size="sm"
                   onClick={() => onAddLesson(selectedItem.moduleId)}
-                  className="bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-semibold rounded-xl h-9 px-4 gap-1.5 shadow-sm"
+                  className="bg-primary hover:bg-[#084B78] text-white text-xs font-medium rounded-xl h-9 px-4 gap-1.5 shadow-sm"
                 >
                   <Plus className="w-4 h-4" /> Add Lesson
                 </Button>
@@ -278,7 +278,7 @@ export const CurriculumTab = ({
                   <Button
                     size="sm"
                     onClick={() => onAddLesson(selectedItem.moduleId)}
-                    className="bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-semibold rounded-xl"
+                    className="bg-primary hover:bg-[#084B78] text-white text-xs font-medium rounded-xl"
                   >
                     <Plus className="w-3.5 h-3.5 mr-1.5" /> Add First Lesson
                   </Button>
@@ -300,12 +300,12 @@ export const CurriculumTab = ({
                 <div className="flex items-center gap-2">
                   <Badge
                     variant="outline"
-                    className="w-fit gap-1.5 border-[#2b5f9e]/30 bg-[#2b5f9e]/5 text-[#2b5f9e] hover:bg-[#2b5f9e]/10 font-medium text-[10px] uppercase tracking-wide rounded-full px-3 py-1"
+                    className="w-fit gap-1.5 border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 font-medium text-[10px] uppercase tracking-wide rounded-full px-3 py-1"
                   >
                     {lesson.type === "VIDEO" ? (
-                      <PlayCircle className="w-3.5 h-3.5 text-[#2b5f9e]" />
+                      <PlayCircle className="w-3.5 h-3.5 text-primary" />
                     ) : (
-                      <FileText className="w-3.5 h-3.5 text-[#2b5f9e]" />
+                      <FileText className="w-3.5 h-3.5 text-primary" />
                     )}
                     <span>{lesson.type} lesson</span>
                   </Badge>
@@ -354,19 +354,19 @@ export const CurriculumTab = ({
             <TabsList className="bg-transparent border-b border-slate-200 w-full justify-start rounded-none h-auto p-0 gap-8">
               <TabsTrigger
                 value="materials"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#2b5f9e] data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium text-slate-500 data-[state=active]:text-[#2b5f9e] pb-3 px-0 transition-all text-[13.5px]"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium text-slate-500 data-[state=active]:text-primary pb-3 px-0 transition-all text-[13.5px]"
               >
                 Materials
               </TabsTrigger>
               <TabsTrigger
                 value="assessments"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#2b5f9e] data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium text-slate-500 data-[state=active]:text-[#2b5f9e] pb-3 px-0 transition-all text-[13.5px]"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium text-slate-500 data-[state=active]:text-primary pb-3 px-0 transition-all text-[13.5px]"
               >
                 Assessments
               </TabsTrigger>
               <TabsTrigger
                 value="readings"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#2b5f9e] data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium text-slate-500 data-[state=active]:text-[#2b5f9e] pb-3 px-0 transition-all text-[13.5px]"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-medium text-slate-500 data-[state=active]:text-primary pb-3 px-0 transition-all text-[13.5px]"
               >
                 Textbooks &amp; Readings
               </TabsTrigger>
@@ -378,10 +378,10 @@ export const CurriculumTab = ({
                   {lesson.contents?.map((content: any) => (
                     <div
                       key={content.id}
-                      className="p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between group hover:border-[#2b5f9e]/40 hover:shadow-sm transition-all"
+                      className="p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between group hover:border-primary/40 hover:shadow-sm transition-all"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-[#2b5f9e]/5 group-hover:text-[#2b5f9e] group-hover:border-[#2b5f9e]/20 transition-all">
+                        <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20 transition-all">
                           {content.type === "VIDEO" ? (
                             <PlayCircle className="w-5 h-5" />
                           ) : (
@@ -401,7 +401,7 @@ export const CurriculumTab = ({
                         <Button
                           size="icon"
                           variant="ghost"
-                          className="h-9 w-9 text-slate-400 hover:text-[#2b5f9e] hover:bg-[#2b5f9e]/5 rounded-lg transition-all"
+                          className="h-9 w-9 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
                           onClick={() => setSelectItem(content)}
                         >
                           <Eye className="w-4.5 h-4.5" />
@@ -470,7 +470,7 @@ export const CurriculumTab = ({
                   </h4>
                   <Button
                     size="sm"
-                    className="bg-[#2b5f9e] hover:bg-[#234e83] text-white rounded-lg gap-2 font-medium"
+                    className="bg-primary hover:bg-[#084B78] text-white rounded-lg gap-2 font-medium"
                     onClick={() =>
                       onAddExercise(selectedItem.moduleId!, lesson.id)
                     }
@@ -511,7 +511,7 @@ export const CurriculumTab = ({
                         return (
                           <div
                             key={fullTitle}
-                            className="p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between group hover:border-[#2b5f9e]/30 hover:shadow-sm transition-all cursor-pointer"
+                            className="p-4 rounded-2xl border border-slate-200 bg-white flex items-center justify-between group hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer"
                             onClick={() =>
                               onSetSelectedItem({
                                 type: "QUIZ_SESSION",
@@ -523,14 +523,14 @@ export const CurriculumTab = ({
                             }
                           >
                             <div className="flex items-center gap-4">
-                              <div className="w-11 h-11 rounded-xl bg-[#2b5f9e]/10 border border-[#2b5f9e]/20 flex items-center justify-center text-[#2b5f9e]">
+                              <div className="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                                 <HelpCircle className="w-5 h-5" />
                               </div>
                               <div>
                                 <span className="font-medium text-slate-800 text-[14px] block">
                                   {displayTitle}
                                 </span>
-                                <span className="text-[11px] font-medium text-[#2b5f9e] uppercase tracking-wide">
+                                <span className="text-[11px] font-medium text-primary uppercase tracking-wide">
                                   {groupExercises.length} questions · click to
                                   manage
                                 </span>
@@ -540,7 +540,7 @@ export const CurriculumTab = ({
                               <Button
                                 size="icon"
                                 variant="ghost"
-                                className="h-9 w-9 text-[#2b5f9e] hover:text-white hover:bg-[#2b5f9e] rounded-lg"
+                                className="h-9 w-9 text-primary hover:text-white hover:bg-primary rounded-lg"
                               >
                                 <Eye className="w-4.5 h-4.5" />
                               </Button>
@@ -1025,7 +1025,7 @@ export const CurriculumTab = ({
           </p>
           <Button
             onClick={onAddModule}
-            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white px-8 h-11 rounded-xl font-medium shadow-lg shadow-[#2b5f9e]/20"
+            className="bg-primary hover:bg-[#084B78] text-white px-8 h-11 rounded-xl font-medium shadow-lg shadow-primary/20"
           >
             <Plus className="w-4 h-4 mr-2" /> Add your first section
           </Button>

@@ -120,7 +120,7 @@ const AnnouncementBanner = () => {
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold uppercase tracking-widest">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-[10px] font-medium uppercase tracking-widest">
                 <Sparkles className="w-2.5 h-2.5" />
                 New
               </span>
@@ -128,14 +128,14 @@ const AnnouncementBanner = () => {
                 {timeAgo}
               </span>
             </div>
-            <h3 className="text-sm font-bold text-foreground leading-snug group-hover:text-amber-800 transition-colors">
+            <h3 className="text-sm font-medium text-foreground leading-snug group-hover:text-amber-800 transition-colors">
               {latest.title}
             </h3>
             <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
               {latest.content}
             </p>
             <button
-              className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 transition-colors"
+              className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 hover:text-amber-700 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowModal(true);
@@ -185,7 +185,7 @@ const AnnouncementBanner = () => {
                   <Megaphone className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-base font-heading font-bold text-slate-900 leading-snug">
+                  <h2 className="text-base font-heading font-semibold text-slate-900 leading-snug">
                     {latest.title}
                   </h2>
                   <div className="flex items-center gap-2.5 mt-1 text-[11px] text-muted-foreground">
@@ -218,7 +218,7 @@ const AnnouncementBanner = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowModal(false)}
-                  className="text-xs font-semibold"
+                  className="text-xs font-medium"
                 >
                   Close
                 </Button>
@@ -229,7 +229,7 @@ const AnnouncementBanner = () => {
                     handleDismiss(e);
                     setShowModal(false);
                   }}
-                  className="text-xs font-semibold gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0"
+                  className="text-xs font-medium gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0"
                   id="dismiss-and-close-btn"
                 >
                   Got it
@@ -390,10 +390,10 @@ const StudentDashboard = () => {
 
           <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="space-y-3 max-w-xl">
-              <p className="text-[#5a6e8c] text-[11px] font-bold uppercase tracking-widest">
+              <p className="text-[#5a6e8c] text-[11px] font-medium uppercase tracking-widest">
                 Welcome back
               </p>
-              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0b1a40] leading-tight">
+              <h1 className="text-2xl sm:text-3xl font-heading font-semibold text-[#081831] leading-tight">
                 {getGreeting()}, {user?.firstname || "Learner"} 👋
               </h1>
               <p className="text-slate-600 text-sm leading-relaxed">
@@ -407,7 +407,7 @@ const StudentDashboard = () => {
                   <span className="text-slate-500 font-medium">
                     Overall progress
                   </span>
-                  <span className="font-bold text-primary">
+                  <span className="font-semibold text-primary">
                     {overallProgress}%
                   </span>
                 </div>
@@ -430,7 +430,7 @@ const StudentDashboard = () => {
             <div className="flex flex-wrap items-center gap-3 shrink-0">
               <Button
                 asChild
-                className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-full px-6 py-2.5 shadow-md shadow-primary/20 border-0 transition-all"
+                className="gap-2 bg-primary hover:bg-[#084B78] text-primary-foreground font-medium text-sm rounded-full px-6 py-2.5 shadow-sm border-0 transition-all"
               >
                 <Link to="/learning">
                   <PlayCircle className="w-4 h-4" />
@@ -440,7 +440,7 @@ const StudentDashboard = () => {
               <Button
                 asChild
                 variant="outline"
-                className="gap-2 bg-white/90 hover:bg-white text-slate-800 hover:text-slate-900 border border-slate-300/80 font-semibold text-sm rounded-full px-5 py-2.5 shadow-sm transition-all"
+                className="gap-2 bg-white/90 hover:bg-white text-slate-800 hover:text-slate-900 border border-slate-300/80 font-medium text-sm rounded-full px-5 py-2.5 shadow-sm transition-all"
               >
                 <Link to="/courses">
                   Browse new courses <ArrowRight className="w-4 h-4" />
@@ -458,7 +458,7 @@ const StudentDashboard = () => {
           {/* ── LEFT: Active Courses ── */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-heading font-bold text-foreground">
+              <h2 className="text-base font-heading font-semibold text-foreground">
                 My active courses
               </h2>
               <Link
@@ -504,7 +504,7 @@ const StudentDashboard = () => {
                         className="bg-card rounded-xl border hover:shadow-md transition-shadow duration-200 p-4 flex gap-4"
                       >
                         {/* Course thumbnail placeholder */}
-                        <div className="w-14 h-14 rounded-lg bg-[#e8f0fa] flex items-center justify-center shrink-0 border border-border overflow-hidden">
+                        <div className="w-14 h-14 rounded-lg bg-[#EAF3F9] flex items-center justify-center shrink-0 border border-border overflow-hidden">
                           {enrollment.course?.thumbnail ? (
                             <img
                               src={enrollment.course.thumbnail}
@@ -512,7 +512,7 @@ const StudentDashboard = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <BookOpen className="w-6 h-6 text-[#2b5f9e]" />
+                            <BookOpen className="w-6 h-6 text-[#0A65A0]" />
                           )}
                         </div>
 
@@ -520,13 +520,13 @@ const StudentDashboard = () => {
                           {/* Category badge */}
                           {enrollment.course?.category && (
                             <div className="flex items-center gap-1.5 mb-1">
-                              <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                              <span className="text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-wide">
                                 {enrollment.course.category}
                               </span>
                             </div>
                           )}
 
-                          <h3 className="text-sm font-heading font-semibold text-foreground leading-snug truncate">
+                          <h3 className="text-sm font-heading font-medium text-foreground leading-snug truncate">
                             {enrollment.course?.title}
                           </h3>
 
@@ -540,7 +540,7 @@ const StudentDashboard = () => {
                                     ? `${completedLessons} of ${totalLessons} lessons`
                                     : "Progress"}
                               </span>
-                              <span className="font-semibold text-foreground">
+                              <span className="font-medium text-foreground">
                                 {percentage}%
                               </span>
                             </div>
@@ -551,7 +551,7 @@ const StudentDashboard = () => {
                         <Button
                           size="sm"
                           asChild
-                          className="gap-1 self-center shrink-0 text-xs"
+                          className="gap-1 self-center shrink-0 text-xs font-medium"
                         >
                           <Link to={`/learn/${courseId}`}>
                             {isCompleted ? "Review" : "Continue"}{" "}
@@ -570,7 +570,7 @@ const StudentDashboard = () => {
           <div className="space-y-4">
             {/* Learning Summary */}
             <div className="bg-card rounded-xl border p-5">
-              <h3 className="font-heading font-semibold text-foreground mb-4 text-sm flex items-center gap-2">
+              <h3 className="font-heading font-medium text-foreground mb-4 text-sm flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-primary" /> Learning summary
               </h3>
               <div className="grid grid-cols-2 gap-3">
@@ -579,8 +579,8 @@ const StudentDashboard = () => {
                     icon: BookOpen,
                     label: "Courses active",
                     value: activeEnrollments?.length || 0,
-                    color: "text-[#2b5f9e]",
-                    bg: "bg-[#e8f0fa]",
+                    color: "text-[#0A65A0]",
+                    bg: "bg-[#EAF3F9]",
                   },
                   {
                     icon: Award,
@@ -600,8 +600,8 @@ const StudentDashboard = () => {
                     icon: TrendingUp,
                     label: "Quizzes done",
                     value: analytics?.quizzesCompleted || 0,
-                    color: "text-[#f26b21]",
-                    bg: "bg-[#fff1e6]",
+                    color: "text-[#D77510]",
+                    bg: "bg-[#FFF2E3]",
                   },
                 ].map((stat) => (
                   <div
@@ -609,7 +609,7 @@ const StudentDashboard = () => {
                     className={`flex flex-col items-center text-center p-3 rounded-xl ${stat.bg}`}
                   >
                     <stat.icon className={`w-5 h-5 ${stat.color} mb-1.5`} />
-                    <p className="text-xl font-heading font-bold text-foreground leading-none">
+                    <p className="text-xl font-heading font-semibold text-foreground leading-none">
                       {isLoading ? "—" : stat.value}
                     </p>
                     <p className="text-[11px] text-muted-foreground mt-1 leading-tight">
@@ -622,12 +622,12 @@ const StudentDashboard = () => {
 
             {/* Overall Progress card */}
             <div className="bg-card rounded-xl border p-5">
-              <h3 className="font-heading font-semibold text-foreground mb-3 text-sm">
+              <h3 className="font-heading font-medium text-foreground mb-3 text-sm">
                 Overall Progress
               </h3>
               <div className="flex items-center justify-between text-xs mb-2">
                 <span className="text-muted-foreground">Completion rate</span>
-                <span className="font-bold text-foreground">
+                <span className="font-semibold text-foreground">
                   {overallProgress}%
                 </span>
               </div>
@@ -640,11 +640,11 @@ const StudentDashboard = () => {
 
             {/* Instructor CTA */}
             {!isInstructor && (
-              <div className="rounded-xl p-5 bg-white border border-[#e5e9f0] text-center">
-                <div className="w-10 h-10 rounded-xl bg-[#fff1e6] text-[#f26b21] flex items-center justify-center mx-auto mb-3">
+              <div className="rounded-xl p-5 bg-white border border-[#E2E8F0] text-center">
+                <div className="w-10 h-10 rounded-xl bg-[#FFF2E3] text-[#D77510] flex items-center justify-center mx-auto mb-3">
                   <Sparkles className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-heading font-bold text-[#0f1b2d] mb-1.5">
+                <h3 className="text-sm font-heading font-medium text-[#081831] mb-1.5">
                   {isPending ? "Application Pending" : "Share your Knowledge"}
                 </h3>
                 <p className="text-slate-500 text-xs mb-4 leading-relaxed">
@@ -654,7 +654,7 @@ const StudentDashboard = () => {
                 </p>
                 <Button
                   asChild
-                  className="w-full bg-[#2b5f9e] text-white hover:bg-[#234e83] font-semibold text-xs rounded-lg"
+                  className="w-full bg-primary text-white hover:bg-[#084B78] font-medium text-xs rounded-lg"
                   size="sm"
                 >
                   <Link to="/instructor/apply">

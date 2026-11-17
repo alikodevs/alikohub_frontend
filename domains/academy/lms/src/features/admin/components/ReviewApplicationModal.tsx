@@ -113,7 +113,7 @@ const ReviewApplicationModal: React.FC<ReviewModalProps> = ({
                         <span className="text-zinc-700 dark:text-zinc-300 truncate max-w-[200px] text-xs font-medium transition-colors duration-300">
                           {doc.name || `Document ${idx + 1}`}
                         </span>
-                        <span className="text-emerald-55 dark:text-emerald-400 font-bold text-[10px] uppercase group-hover:underline">
+                        <span className="text-emerald-55 dark:text-emerald-400 font-medium text-[10px] uppercase group-hover:underline">
                           View
                         </span>
                       </a>
@@ -134,7 +134,7 @@ const ReviewApplicationModal: React.FC<ReviewModalProps> = ({
                         key={i}
                         className="bg-zinc-50 dark:bg-[#3f3f46] p-4 rounded-lg border border-zinc-200 dark:border-[#52525b] transition-colors duration-300"
                       >
-                        <p className="text-sm font-bold text-zinc-900 dark:text-white mb-1 transition-colors duration-300">
+                        <p className="text-sm font-semibold text-zinc-900 dark:text-white mb-1 transition-colors duration-300">
                           {res.question}
                         </p>
                         <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed transition-colors duration-300">
@@ -151,7 +151,7 @@ const ReviewApplicationModal: React.FC<ReviewModalProps> = ({
           <div className="px-6 py-6">
             {isActionable ? (
               <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1 transition-colors duration-300">
+                <label className="block text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1 transition-colors duration-300">
                   Reviewer notes
                 </label>
                 <textarea
@@ -182,7 +182,7 @@ const ReviewApplicationModal: React.FC<ReviewModalProps> = ({
                     </div>
                   )}
                   <span
-                    className={`text-lg font-bold transition-colors duration-300 ${
+                    className={`text-lg font-semibold transition-colors duration-300 ${
                       application.status === "ACCEPTED" ||
                       application.status === "APPROVED"
                         ? "text-emerald-500 dark:text-emerald-400"
@@ -213,7 +213,7 @@ const ReviewApplicationModal: React.FC<ReviewModalProps> = ({
         <div className="px-6 py-4 bg-zinc-50 dark:bg-[#1f1f22] flex justify-end gap-3 border-t border-zinc-200 dark:border-[#3f3f46] transition-colors duration-300">
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl border border-zinc-300 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-[#3f3f46] transition-colors duration-300"
+            className="px-5 py-2 rounded-xl border border-zinc-300 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-[#3f3f46] transition-colors duration-300"
           >
             Close
           </button>
@@ -223,14 +223,14 @@ const ReviewApplicationModal: React.FC<ReviewModalProps> = ({
               <button
                 onClick={() => onReject(application.id, notes)}
                 disabled={isProcessing}
-                className="px-5 py-2 rounded-xl border border-red-500/30 text-red-500 dark:text-red-400 text-sm font-bold hover:bg-red-500/10 disabled:opacity-50 transition-colors"
+                className="px-5 py-2 rounded-xl border border-red-500/30 text-red-500 dark:text-red-400 text-sm font-medium hover:bg-red-500/10 disabled:opacity-50 transition-colors"
               >
                 Reject
               </button>
               <button
                 onClick={() => onApprove(application.id, notes)}
                 disabled={isProcessing}
-                className="px-5 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+                className="px-5 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors"
               >
                 Approve
               </button>

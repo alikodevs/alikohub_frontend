@@ -126,26 +126,26 @@ export const CohortCensusPage: React.FC = () => {
     switch (status) {
       case "VERIFIED_PRESENT":
         return (
-          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-bold py-0.5 px-2.5">
+          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-medium py-0.5 px-2.5">
             <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Verified Present
           </Badge>
         );
       case "NO_SHOW_AT_RISK":
         return (
-          <Badge className="bg-rose-50 text-rose-700 border-rose-300 text-xs font-bold py-0.5 px-2.5">
+          <Badge className="bg-rose-50 text-rose-700 border-rose-300 text-xs font-medium py-0.5 px-2.5">
             <AlertTriangle className="w-3.5 h-3.5 mr-1 text-rose-600" /> No-Show At-Risk
           </Badge>
         );
       case "ADMINISTRATIVE_DROP":
         return (
-          <Badge className="bg-slate-100 text-slate-700 border-slate-300 text-xs font-bold py-0.5 px-2.5">
+          <Badge className="bg-slate-100 text-slate-700 border-slate-300 text-xs font-medium py-0.5 px-2.5">
             <UserX className="w-3.5 h-3.5 mr-1 text-slate-500" /> Administrative Drop
           </Badge>
         );
       case "PENDING_VERIFICATION":
       default:
         return (
-          <Badge className="bg-amber-50 text-amber-800 border-amber-300 text-xs font-bold py-0.5 px-2.5">
+          <Badge className="bg-amber-50 text-amber-800 border-amber-300 text-xs font-medium py-0.5 px-2.5">
             <Clock className="w-3.5 h-3.5 mr-1 text-amber-600" /> Pending Verification
           </Badge>
         );
@@ -158,7 +158,7 @@ export const CohortCensusPage: React.FC = () => {
         {/* ── Top Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
-            <h1 className="text-xl font-heading font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-heading font-semibold text-slate-900 tracking-tight">
               Attendance &amp; Enrollment Census
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -211,44 +211,44 @@ export const CohortCensusPage: React.FC = () => {
         {/* ── KPI Strip ── */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500 block">
               Total Enrolled
             </span>
-            <div className="text-2xl font-bold text-slate-900">{totalEnrolled}</div>
+            <div className="text-2xl font-semibold text-slate-900">{totalEnrolled}</div>
             <span className="text-[11px] text-slate-500">Cohort Census</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600 block">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-emerald-600 block">
               Verified Present
             </span>
-            <div className="text-2xl font-bold text-emerald-600">{verifiedCount}</div>
+            <div className="text-2xl font-semibold text-emerald-600">{verifiedCount}</div>
             <span className="text-[11px] text-slate-500">
               {totalEnrolled > 0 ? Math.round((verifiedCount / totalEnrolled) * 100) : 0}% of roster
             </span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 block">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-amber-600 block">
               Pending Verification
             </span>
-            <div className="text-2xl font-bold text-amber-600">{pendingCount}</div>
+            <div className="text-2xl font-semibold text-amber-600">{pendingCount}</div>
             <span className="text-[11px] text-slate-500">Awaiting gate activity</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-600 block">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-rose-600 block">
               No-Show At-Risk
             </span>
-            <div className="text-2xl font-bold text-rose-600">{atRiskCount}</div>
+            <div className="text-2xl font-semibold text-rose-600">{atRiskCount}</div>
             <span className="text-[11px] text-slate-500">Unverified &gt; 5 days</span>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-1 col-span-2 sm:col-span-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500 block">
               Administrative Drop
             </span>
-            <div className="text-2xl font-bold text-slate-600">{droppedCount}</div>
+            <div className="text-2xl font-semibold text-slate-600">{droppedCount}</div>
             <span className="text-[11px] text-slate-500">Census attrition</span>
           </div>
         </div>
@@ -278,7 +278,7 @@ export const CohortCensusPage: React.FC = () => {
                 key={tab.id}
                 onClick={() => setAttendanceFilter(tab.id)}
                 className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0",
+                  "px-3 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0",
                   attendanceFilter === tab.id
                     ? "bg-slate-900 text-white shadow-xs"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -295,7 +295,7 @@ export const CohortCensusPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 uppercase tracking-wider font-bold text-[10px]">
+                <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 uppercase tracking-wider font-medium text-[10px]">
                   <th className="py-3.5 px-4">Student</th>
                   <th className="py-3.5 px-4 text-center">Enrollment Status</th>
                   <th className="py-3.5 px-4 text-center">Admissions Clearance</th>
@@ -317,7 +317,7 @@ export const CohortCensusPage: React.FC = () => {
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-slate-400">
                       <Users className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                      <p className="font-bold text-slate-600">No census enrollment records match your filter</p>
+                      <p className="font-medium text-slate-600">No census enrollment records match your filter</p>
                       <p className="text-[11px] text-slate-400 mt-0.5">
                         Students enrolled in Cohort #{effectiveCohortId} will reflect here automatically.
                       </p>
@@ -336,11 +336,11 @@ export const CohortCensusPage: React.FC = () => {
                       <tr key={item.id} className="hover:bg-slate-50/60 transition-colors">
                         <td className="py-3.5 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center font-bold text-xs shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-[#EAF3F9] border border-primary/20 text-primary flex items-center justify-center font-medium text-xs shrink-0">
                               {studentName.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                              <span className="font-bold text-slate-900 block text-xs">
+                              <span className="font-medium text-slate-900 block text-xs">
                                 {studentName}
                               </span>
                               <span className="text-[11px] text-slate-400">
@@ -354,7 +354,7 @@ export const CohortCensusPage: React.FC = () => {
                           <Badge
                             variant="outline"
                             className={cn(
-                              "text-[10px] font-bold py-0.5 px-2",
+                              "text-[10px] font-medium py-0.5 px-2",
                               item.status === "ACTIVE"
                                 ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                 : "text-slate-500 border-slate-200"
@@ -366,15 +366,15 @@ export const CohortCensusPage: React.FC = () => {
 
                         <td className="py-3.5 px-4 text-center">
                           {item.approvalStatus === "APPROVED" ? (
-                            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-bold">
+                            <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-medium">
                               <Check className="w-3 h-3 mr-1" /> Approved
                             </Badge>
                           ) : item.approvalStatus === "REJECTED" ? (
-                            <Badge className="bg-rose-50 text-rose-700 border-rose-200 text-[10px] font-bold">
+                            <Badge className="bg-rose-50 text-rose-700 border-rose-200 text-[10px] font-medium">
                               Remediation
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-[10px] text-amber-700 border-amber-200">
+                            <Badge variant="outline" className="text-[10px] font-medium text-amber-700 border-amber-200">
                               Pending
                             </Badge>
                           )}
@@ -387,7 +387,7 @@ export const CohortCensusPage: React.FC = () => {
                         <td className="py-3.5 px-4 text-slate-600">
                           {item.attendanceVerifiedAt ? (
                             <div className="space-y-0.5">
-                              <span className="font-bold text-slate-900 block">
+                              <span className="font-medium text-slate-900 block">
                                 {format(new Date(item.attendanceVerifiedAt), "MMM d, yyyy")}
                               </span>
                               <span className="text-[11px] text-slate-400">

@@ -63,7 +63,7 @@ const InstructorAnalytics = () => {
       <main className="section-container py-8 md:py-12">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-heading font-bold text-slate-900 border-none">
+            <h1 className="text-2xl font-heading font-semibold text-slate-900 border-none">
               Performance Analytics & Compliance
             </h1>
             <p className="text-slate-500 text-sm mt-1">
@@ -76,17 +76,17 @@ const InstructorAnalytics = () => {
               asChild
               variant="outline"
               size="sm"
-              className="rounded-xl text-xs font-bold gap-1.5 h-9 bg-white"
+              className="rounded-xl text-xs font-medium gap-1.5 h-9 bg-white"
             >
               <Link to="/instructor/admissions">
-                <FileCheck2 className="w-4 h-4 text-[#2b5f9e]" /> Admissions Clearance
+                <FileCheck2 className="w-4 h-4 text-primary" /> Admissions Clearance
               </Link>
             </Button>
             <Button
               asChild
               variant="outline"
               size="sm"
-              className="rounded-xl text-xs font-bold gap-1.5 h-9 bg-white"
+              className="rounded-xl text-xs font-medium gap-1.5 h-9 bg-white"
             >
               <Link to="/instructor/census">
                 <CalendarCheck className="w-4 h-4 text-emerald-600" /> Attendance Census
@@ -101,10 +101,10 @@ const InstructorAnalytics = () => {
               <CardTitle className="text-sm font-medium">
                 Total Courses
               </CardTitle>
-              <BookOpen className="h-4 w-4 text-blue-500" />
+              <BookOpen className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-semibold text-slate-900">
                 {stats?.totalCourses || 0}
               </div>
               <p className="text-xs text-slate-500 mt-1">Active courses</p>
@@ -119,7 +119,7 @@ const InstructorAnalytics = () => {
               <Users className="h-4 w-4 text-emerald-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-semibold text-slate-900">
                 {stats?.totalStudents || 0}
               </div>
               <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
@@ -137,7 +137,7 @@ const InstructorAnalytics = () => {
               <TrendingUp className="h-4 w-4 text-yellow-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-semibold text-slate-900">
                 {stats?.averageRating || 0}
               </div>
               <p className="text-xs text-slate-500 mt-1">Student feedback</p>
@@ -147,10 +147,10 @@ const InstructorAnalytics = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Experience</CardTitle>
-              <Clock className="h-4 w-4 text-[#f26b21]" />
+              <Clock className="h-4 w-4 text-[#D77510]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-semibold text-slate-900">
                 {stats?.yearsOfExperience || 0}
               </div>
               <p className="text-xs text-slate-500 mt-1">Years of teaching</p>

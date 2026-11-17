@@ -35,9 +35,9 @@ const careerTools = [
     title: "Portfolio Upload",
     desc: "Showcase your projects and certifications to potential employers.",
     cta: "Upload Work",
-    bg: "bg-gradient-to-br from-[#f4f8fd] to-[#e8f0fa]",
-    iconBg: "bg-[#e8f0fa]",
-    iconColor: "text-[#2b5f9e]",
+    bg: "bg-gradient-to-br from-[#F4F8FB] to-[#EAF3F9]",
+    iconBg: "bg-[#EAF3F9]",
+    iconColor: "text-primary",
   },
 ];
 
@@ -47,7 +47,7 @@ const CareerHub = () => {
       <LmsNavbar />
 
       <div className="section-container py-8 md:py-12">
-        <h1 className="text-2xl md:text-3xl font-heading font-bold text-foreground mb-2">
+        <h1 className="text-2xl md:text-3xl font-heading font-semibold text-foreground mb-2">
           Career Hub
         </h1>
         <p className="text-muted-foreground mb-8">

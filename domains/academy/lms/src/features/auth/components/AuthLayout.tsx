@@ -26,7 +26,7 @@ const AuthLayout = ({ children, heading, subheading }: AuthLayoutProps) => {
       <div
         className="hidden lg:flex lg:w-[48%] relative overflow-hidden items-center justify-center p-4 lg:sticky lg:top-0 lg:h-screen"
         style={{
-          background: "#081830",
+          background: "#081831",
         }}
       >
         {/* Grid overlay */}
@@ -40,29 +40,27 @@ const AuthLayout = ({ children, heading, subheading }: AuthLayoutProps) => {
         />
 
         {/* Content */}
-        <div className="relative z-10 text-center space-y-10 max-w-sm w-full">
+        <div className="relative z-10 text-center space-y-8 max-w-sm w-full">
           <div className="flex flex-col items-center">
+            {/* Logo */}
             <div className="relative w-full h-32 flex items-center justify-center">
-              {/* Logo */}
               <img
                 src="/academy-icon.png"
                 alt="Aliko Academy"
                 fetchPriority="high"
                 loading="eager"
-                className="relative z-10 h-24 w-auto object-contain translate-x-6
-                 drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]"
+                className="relative z-10 h-24 w-auto object-contain translate-x-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]"
               />
             </div>
 
             <div className="text-center">
-              <span className="text-3xl font-bold tracking-tight block mb-4">
-                <span style={{ color: "#0095DA" }}>Aliko</span>{" "}
-                <span style={{ color: "#F37E28" }}>Academy</span>
+              <span className="text-3xl font-heading font-semibold tracking-tight block mb-3 text-white">
+                <span className="text-white">Aliko</span>{" "}
+                <span style={{ color: "#D77510" }}>Academy</span>
               </span>
               <p
-                className="text-sm font-medium tracking-widest uppercase"
+                className="text-xs font-medium tracking-widest uppercase text-white/80"
                 style={{
-                  color: "rgba(255, 255, 255, 0.9)",
                   letterSpacing: "0.25em",
                 }}
               >
@@ -72,7 +70,7 @@ const AuthLayout = ({ children, heading, subheading }: AuthLayoutProps) => {
           </div>
 
           {/* Description */}
-          <p className="text-base leading-relaxed text-white/70">
+          <p className="text-sm leading-relaxed text-white/70">
             Expert-led courses designed for real-world impact. Start learning
             today and transform your career.
           </p>
@@ -86,9 +84,9 @@ const AuthLayout = ({ children, heading, subheading }: AuthLayoutProps) => {
               >
                 <div
                   className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0"
-                  style={{ backgroundColor: "rgba(243, 126, 40, 0.2)" }}
+                  style={{ backgroundColor: "rgba(215, 117, 16, 0.2)" }}
                 >
-                  <Icon size={14} style={{ color: "#F37E28" }} />
+                  <Icon size={14} style={{ color: "#D77510" }} />
                 </div>
                 <span className="text-xs font-medium text-white/90">
                   {label}
@@ -104,7 +102,7 @@ const AuthLayout = ({ children, heading, subheading }: AuthLayoutProps) => {
             {stats.map(({ value, label }, i) => (
               <div key={label} className="flex items-center gap-6">
                 <div className="text-center">
-                  <p className="text-xl font-bold text-white">{value}</p>
+                  <p className="text-xl font-heading font-semibold text-white">{value}</p>
                   <p className="text-xs text-white/60">{label}</p>
                 </div>
                 {i < stats.length - 1 && (
@@ -120,26 +118,23 @@ const AuthLayout = ({ children, heading, subheading }: AuthLayoutProps) => {
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12 md:p-16 lg:p-20 bg-background/50 backdrop-blur-sm">
         <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
           {/* Mobile logo */}
-          <div className="lg:hidden flex flex-col items-center gap-4 mb-8">
+          <div className="lg:hidden flex flex-col items-center gap-3 mb-6">
             <div className="relative w-full h-20 flex items-center justify-center">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-40 h-20 bg-white/30 blur-2xl rounded-full" />
-              </div>
               <img
                 src="/academy-icon.png"
                 alt="Aliko Academy"
                 fetchPriority="high"
                 loading="eager"
-                className="relative z-10 h-20 w-auto object-contain translate-x-4"
+                className="relative z-10 h-16 w-auto object-contain translate-x-4 drop-shadow-[0_0_10px_rgba(255,255,255,0.15)]"
               />
             </div>
 
             <div className="text-center">
-              <span className="text-2xl font-bold tracking-tight">
-                <span style={{ color: "#0095DA" }}>Aliko</span>{" "}
-                <span style={{ color: "#F37E28" }}>Academy</span>
+              <span className="text-2xl font-heading font-semibold tracking-tight text-foreground">
+                <span className="text-[#0A65A0]">Aliko</span>{" "}
+                <span style={{ color: "#D77510" }}>Academy</span>
               </span>
-              <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mt-1">
+              <p className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mt-0.5">
                 Learn · Grow · Succeed
               </p>
             </div>
@@ -147,18 +142,18 @@ const AuthLayout = ({ children, heading, subheading }: AuthLayoutProps) => {
 
           {/* Heading */}
           <div className="space-y-2 text-center lg:text-left">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-heading font-semibold text-foreground tracking-tight">
               {heading}
             </h2>
             {subheading && (
-              <p className="text-base text-muted-foreground leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {subheading}
               </p>
             )}
           </div>
 
           {/* Form */}
-          <div className="bg-card/50 backdrop-blur-md sm:bg-card sm:p-8 sm:rounded-3xl sm:border sm:border-border/50 sm:shadow-2xl sm:shadow-primary/5">
+          <div className="bg-card p-6 sm:p-8 rounded-2xl border border-border shadow-sm">
             {children}
           </div>
         </div>

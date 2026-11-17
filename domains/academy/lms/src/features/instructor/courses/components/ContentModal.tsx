@@ -134,12 +134,12 @@ export const ContentModal = ({
                   onClick={() => setType(t.id as any)}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-2 ${
                     type === t.id
-                      ? "border-[#2b5f9e] bg-[#e8f0fa] text-[#2b5f9e]"
+                      ? "border-primary bg-[#EAF3F9] text-primary"
                       : "border-slate-100 hover:border-slate-200 text-slate-500"
                   }`}
                 >
                   <t.icon className="w-5 h-5" />
-                  <span className="text-xs font-bold uppercase tracking-wider">
+                  <span className="text-xs font-medium uppercase tracking-wider">
                     {t.label}
                   </span>
                 </button>
@@ -155,19 +155,19 @@ export const ContentModal = ({
             <TabsList className="grid w-full grid-cols-2 h-12 bg-slate-100/50 p-1">
               <TabsTrigger
                 value="upload"
-                className="font-bold data-[state=active]:bg-white"
+                className="font-medium data-[state=active]:bg-white"
               >
                 Upload File
               </TabsTrigger>
               <TabsTrigger
                 value="url"
-                className="font-bold data-[state=active]:bg-white"
+                className="font-medium data-[state=active]:bg-white"
               >
                 External Link
               </TabsTrigger>
             </TabsList>
             <TabsContent value="upload" className="space-y-4 pt-4">
-              <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-[#2b5f9e]/50 transition-colors cursor-pointer relative bg-slate-50/50">
+              <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer relative bg-slate-50/50">
                 <input
                   type="file"
                   className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
@@ -179,20 +179,20 @@ export const ContentModal = ({
                       <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
                         <FileIcon className="w-6 h-6" />
                       </div>
-                      <p className="text-sm text-slate-900 font-bold max-w-[200px] truncate">
+                      <p className="text-sm text-slate-900 font-medium max-w-[200px] truncate">
                         {file.name}
                       </p>
                       {isAdding ? (
                         <div className="w-full mt-3 space-y-1.5">
                           <div className="flex justify-between text-xs text-slate-600 font-medium">
                             <span>Uploading asset...</span>
-                            <span className="font-bold text-[#2b5f9e]">
+                            <span className="font-medium text-primary">
                               {uploadProgress}%
                             </span>
                           </div>
                           <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                             <div
-                              className="bg-[#2b5f9e] h-full transition-all duration-300 rounded-full"
+                              className="bg-primary h-full transition-all duration-300 rounded-full"
                               style={{ width: `${uploadProgress}%` }}
                             />
                           </div>
@@ -210,11 +210,11 @@ export const ContentModal = ({
                       </div>
                       <p className="text-sm text-slate-500 font-medium">
                         Click or drag to{" "}
-                        <span className="text-[#2b5f9e] font-bold">
+                        <span className="text-primary font-medium">
                           upload file
                         </span>
                       </p>
-                      <p className="text-xs text-slate-400 mt-1 uppercase font-bold tracking-tighter">
+                      <p className="text-xs text-slate-400 mt-1 uppercase font-medium tracking-tighter">
                         PDF, MP4 or Document
                       </p>
                     </>
@@ -236,7 +236,7 @@ export const ContentModal = ({
                     className="h-11 pl-10"
                   />
                 </div>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
                   Direct link to external resources
                 </p>
               </div>
@@ -245,13 +245,13 @@ export const ContentModal = ({
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="ghost" onClick={handleClose} className="font-bold">
+          <Button variant="ghost" onClick={handleClose} className="font-medium">
             Cancel
           </Button>
           <Button
             onClick={handleAdd}
             disabled={isAdding || !title || (!file && !url)}
-            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold px-8 border-0"
+            className="bg-primary hover:bg-[#084B78] text-white font-medium px-8 border-0"
           >
             {isAdding ? "Adding..." : "Add Content"}
           </Button>

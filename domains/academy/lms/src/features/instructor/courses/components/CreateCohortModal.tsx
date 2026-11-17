@@ -91,8 +91,8 @@ export const CreateCohortModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl font-bold font-heading">
-            <Users className="w-5 h-5 text-[#2b5f9e]" />
+          <DialogTitle className="flex items-center gap-2 text-xl font-semibold font-heading">
+            <Users className="w-5 h-5 text-primary" />
             Create New Cohort
           </DialogTitle>
           <DialogDescription>
@@ -104,7 +104,7 @@ export const CreateCohortModal = ({
           <div className="space-y-2">
             <Label
               htmlFor="course"
-              className="text-sm font-bold text-slate-700 font-heading"
+              className="text-sm font-medium text-slate-700"
             >
               Select Course
             </Label>
@@ -116,7 +116,7 @@ export const CreateCohortModal = ({
                 onChange={(e) =>
                   setFormData({ ...formData, courseId: e.target.value })
                 }
-                className="w-full pl-10 h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e]"
+                className="w-full pl-10 h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled={coursesLoading}
               >
                 <option value="" disabled>
@@ -135,7 +135,7 @@ export const CreateCohortModal = ({
           <div className="space-y-2">
             <Label
               htmlFor="cohortName"
-              className="text-sm font-bold text-slate-700 font-heading"
+              className="text-sm font-medium text-slate-700"
             >
               Cohort Name
             </Label>
@@ -146,7 +146,7 @@ export const CreateCohortModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="bg-white border-slate-200 focus:ring-[#2b5f9e] h-10"
+              className="bg-white border-slate-200 focus:ring-primary h-10"
             />
           </div>
 
@@ -154,7 +154,7 @@ export const CreateCohortModal = ({
             <div className="space-y-2">
               <Label
                 htmlFor="startDate"
-                className="text-sm font-bold text-slate-700 font-heading"
+                className="text-sm font-medium text-slate-700"
               >
                 Start Date
               </Label>
@@ -171,7 +171,7 @@ export const CreateCohortModal = ({
             <div className="space-y-2">
               <Label
                 htmlFor="endDate"
-                className="text-sm font-bold text-slate-700 font-heading"
+                className="text-sm font-medium text-slate-700"
               >
                 End Date
               </Label>
@@ -188,7 +188,7 @@ export const CreateCohortModal = ({
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-600">
-            Cohort Capacity: <strong className="text-slate-900">Fixed at 30 Students Max</strong> (WAC 246-841A-440 1:30 ratio cap; supervising instructor auto-assigned).
+            Cohort Capacity: <strong className="text-slate-900 font-medium">Fixed at 30 Students Max</strong> (WAC 246-841A-440 1:30 ratio cap; supervising instructor auto-assigned).
           </div>
 
           <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
@@ -198,19 +198,19 @@ export const CreateCohortModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, isHighSchoolTenMonth: e.target.checked })
               }
-              className="rounded border-slate-300 text-[#2b5f9e] focus:ring-[#2b5f9e]"
+              className="rounded border-slate-300 text-primary focus:ring-primary"
             />
             <span>10-Month High School Calendar Program (Exempt from 90-day limit)</span>
           </label>
 
           <DialogFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} className="font-medium">
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={createCohortMutation.isPending || !formData.courseId}
-              className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold border-0"
+              className="bg-primary hover:bg-[#084B78] text-white font-medium border-0"
             >
               {createCohortMutation.isPending ? "Creating..." : "Create Cohort"}
             </Button>

@@ -98,7 +98,7 @@ export const AdminEnrollmentsCohortsTab: React.FC<
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl w-fit">
           <button
             onClick={() => setSubTab("ENROLLMENTS")}
@@ -134,16 +134,16 @@ export const AdminEnrollmentsCohortsTab: React.FC<
                 ? "Search student or course..."
                 : "Search cohort name or course..."
             }
-            className="pl-9 h-9 text-xs bg-slate-50 border-[#E1EAF2]"
+            className="pl-9 h-9 text-xs bg-slate-50 border-[#E2E8F0]"
           />
         </div>
       </div>
 
       {subTab === "ENROLLMENTS" ? (
-        <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+              <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E2E8F0]">
                 <tr>
                   <th className="px-6 py-4">Student</th>
                   <th className="px-6 py-4">Course</th>
@@ -153,7 +153,7 @@ export const AdminEnrollmentsCohortsTab: React.FC<
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E1EAF2]">
+              <tbody className="divide-y divide-[#E2E8F0]">
                 {enrollmentsLoading ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
@@ -177,7 +177,7 @@ export const AdminEnrollmentsCohortsTab: React.FC<
                     return (
                       <tr
                         key={enr.id}
-                        className="hover:bg-[#EAF4FB] transition-colors"
+                        className="hover:bg-[#EAF3F9] transition-colors"
                       >
                         <td className="px-6 py-4 text-xs">
                           <div className="font-semibold text-slate-900">
@@ -237,10 +237,10 @@ export const AdminEnrollmentsCohortsTab: React.FC<
           </div>
         </div>
       ) : (
-        <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+              <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E2E8F0]">
                 <tr>
                   <th className="px-6 py-4">Cohort</th>
                   <th className="px-6 py-4">Course</th>
@@ -249,7 +249,7 @@ export const AdminEnrollmentsCohortsTab: React.FC<
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E1EAF2]">
+              <tbody className="divide-y divide-[#E2E8F0]">
                 {cohortsLoading ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
@@ -267,7 +267,7 @@ export const AdminEnrollmentsCohortsTab: React.FC<
                   filteredCohorts.map((cohort: any) => (
                     <tr
                       key={cohort.id}
-                      className="hover:bg-[#EAF4FB] transition-colors"
+                      className="hover:bg-[#EAF3F9] transition-colors"
                     >
                       <td className="px-6 py-4 text-xs font-bold text-slate-900">
                         {cohort.name || `Cohort #${cohort.id}`}
@@ -314,7 +314,7 @@ export const AdminEnrollmentsCohortsTab: React.FC<
         open={Boolean(confirmTarget)}
         onOpenChange={(open) => !open && setConfirmTarget(null)}
       >
-        <DialogContent className="sm:max-w-md bg-white border-[#E1EAF2]">
+        <DialogContent className="sm:max-w-md bg-white border-[#E2E8F0]">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-slate-900">
               {confirmTarget?.type === "enrollment"

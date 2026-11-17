@@ -3,8 +3,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        roboto: ["Roboto", "sans-serif"],
+        sans: ["Montserrat", "sans-serif"],
+        heading: ["Roboto", "sans-serif"],
         montserrat: ["Montserrat", "sans-serif"],
+        roboto: ["Roboto", "sans-serif"],
       },
     },
   },

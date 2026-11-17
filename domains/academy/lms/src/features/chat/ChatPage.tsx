@@ -36,10 +36,10 @@ import type { ChatContact, ChatConversation, ChatMessage } from "./types";
 // ── Brand tokens ─────────────────────────────────────────────────────────
 // AlikoHub brand: blue → orange diagonal gradient, link/focus blue.
 
-const BRAND_BLUE = "#0095DA";
-const BRAND_BLUE_DARK = "#0077B3";
-const BRAND_ORANGE = "#F37E28";
-const BRAND_FOCUS = "#2C5F96";
+const BRAND_BLUE = "#0A65A0";
+const BRAND_BLUE_DARK = "#084B78";
+const BRAND_ORANGE = "#D77510";
+const BRAND_FOCUS = "#084B78";
 
 // ── Props ─────────────────────────────────────────────────────────────────
 
@@ -56,12 +56,12 @@ const getInitials = (first?: string, last?: string) =>
 // Alternating brand-blue / brand-orange avatar gradients, with a couple of
 // blended in-between tones for variety across a longer contact list.
 const avatarColors = [
-  "from-[#0095DA] to-[#0077B3]",
-  "from-[#F37E28] to-[#D9661E]",
-  "from-[#2C5F96] to-[#0095DA]",
-  "from-[#F37E28] to-[#0095DA]",
-  "from-[#0095DA] to-[#2C5F96]",
-  "from-[#D9661E] to-[#F37E28]",
+  "from-[#0A65A0] to-[#084B78]",
+  "from-[#D77510] to-[#AC5B0B]",
+  "from-[#084B78] to-[#0A65A0]",
+  "from-[#D77510] to-[#0A65A0]",
+  "from-[#0A65A0] to-[#084B78]",
+  "from-[#AC5B0B] to-[#D77510]",
 ];
 
 const getAvatarColor = (id: string) => {
@@ -340,7 +340,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
         </div>
 
         <div className="flex items-center justify-between">
-          <h1 className="text-base font-heading font-bold text-slate-900">
+          <h1 className="text-base font-heading font-semibold text-slate-900">
             Messages
           </h1>
 
@@ -349,7 +349,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
             <button
               onClick={() => setActiveTab("conversations")}
               className={cn(
-                "px-3 py-1 rounded-full text-[11px] font-bold transition-all duration-200",
+                "px-3 py-1 rounded-full text-[11px] font-medium transition-all duration-200",
                 activeTab === "conversations"
                   ? "text-white shadow-sm"
                   : "text-slate-400 hover:text-slate-600",
@@ -365,7 +365,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
             <button
               onClick={() => setActiveTab("contacts")}
               className={cn(
-                "px-3 py-1 rounded-full text-[11px] font-bold transition-all duration-200 flex items-center gap-1",
+                "px-3 py-1 rounded-full text-[11px] font-medium transition-all duration-200 flex items-center gap-1",
                 activeTab === "contacts"
                   ? "text-white shadow-sm"
                   : "text-slate-400 hover:text-slate-600",
@@ -443,7 +443,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
           <Button
             size="sm"
             variant="outline"
-            className="mt-3 text-xs font-bold gap-1.5 rounded-full"
+            className="mt-3 text-xs font-medium gap-1.5 rounded-full"
             style={{ borderColor: `${BRAND_BLUE}55`, color: BRAND_BLUE }}
             onClick={() => setActiveTab("contacts")}
           >
@@ -484,7 +484,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
               <Avatar className="w-11 h-11 shrink-0">
                 <AvatarFallback
                   className={cn(
-                    "bg-gradient-to-br text-white text-sm font-bold",
+                    "bg-gradient-to-br text-white text-sm font-medium",
                     getAvatarColor(peer?.userId || ""),
                   )}
                 >
@@ -498,8 +498,8 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
                     className={cn(
                       "text-sm truncate leading-snug",
                       unread
-                        ? "font-bold text-slate-900"
-                        : "font-semibold text-slate-800",
+                        ? "font-semibold text-slate-900"
+                        : "font-medium text-slate-800",
                     )}
                   >
                     {peerName}
@@ -526,7 +526,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
                   </p>
                   {unread && (
                     <span
-                      className="shrink-0 w-5 h-5 rounded-full text-white text-[10px] font-bold flex items-center justify-center"
+                      className="shrink-0 w-5 h-5 rounded-full text-white text-[10px] font-medium flex items-center justify-center"
                       style={{ backgroundColor: BRAND_ORANGE }}
                     >
                       {conv.unreadCount}
@@ -608,7 +608,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
               <Avatar className="w-10 h-10 shrink-0">
                 <AvatarFallback
                   className={cn(
-                    "bg-gradient-to-br text-white text-xs font-bold",
+                    "bg-gradient-to-br text-white text-xs font-medium",
                     getAvatarColor(contact.userId),
                   )}
                 >
@@ -616,12 +616,12 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-800 truncate leading-snug">
+                <p className="text-sm font-medium text-slate-800 truncate leading-snug">
                   {displayName}
                 </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <span
-                    className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full"
+                    className="text-[10px] font-medium uppercase tracking-wide px-1.5 py-0.5 rounded-full"
                     style={
                       isInstructor
                         ? {
@@ -667,7 +667,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
               style={{ color: BRAND_BLUE }}
             />
           </div>
-          <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
+          <h2 className="text-xl font-heading font-semibold text-slate-900 mb-2">
             Welcome to Messages
           </h2>
           <p className="text-sm text-slate-400 max-w-xs">
@@ -701,7 +701,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
           <Avatar className="w-10 h-10 shrink-0">
             <AvatarFallback
               className={cn(
-                "bg-gradient-to-br text-white text-sm font-bold",
+                "bg-gradient-to-br text-white text-sm font-medium",
                 getAvatarColor(activePeer?.userId || ""),
               )}
             >
@@ -710,12 +710,12 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
           </Avatar>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-heading font-bold text-slate-900 truncate">
+            <p className="text-sm font-heading font-semibold text-slate-900 truncate">
               {getPeerDisplayName(activePeer)}
             </p>
             {activePeer?.role && (
               <span
-                className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full inline-block mt-0.5"
+                className="text-[10px] font-medium uppercase tracking-wide px-1.5 py-0.5 rounded-full inline-block mt-0.5"
                 style={
                   activePeer.role === "INSTRUCTOR"
                     ? {
@@ -764,7 +764,7 @@ const ChatPage = ({ layoutless = false }: ChatPageProps) => {
                 <div key={group.date}>
                   {/* Date separator */}
                   <div className="flex items-center justify-center my-4">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 py-1 bg-white rounded-full border border-slate-100">
+                    <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider px-3 py-1 bg-white rounded-full border border-slate-100">
                       {formatGroupDate(group.date)}
                     </span>
                   </div>

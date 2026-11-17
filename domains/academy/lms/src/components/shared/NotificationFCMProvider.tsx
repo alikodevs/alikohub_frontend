@@ -56,10 +56,10 @@ function getNotificationColor(type?: string) {
       };
     case "NEW_COURSE":
       return {
-        bg: "bg-gradient-to-br from-[#f4f8fd] to-[#e8f0fa]",
-        iconBg: "bg-[#2b5f9e]",
-        accent: "text-[#2b5f9e]",
-        border: "border-[#c8dcf3]",
+        bg: "bg-gradient-to-br from-[#F4F8FB] to-[#EAF3F9]",
+        iconBg: "bg-primary",
+        accent: "text-primary",
+        border: "border-[#E2E8F0]",
       };
     case "NEW_COHORT":
       return {

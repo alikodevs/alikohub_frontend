@@ -154,7 +154,7 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
       {/* Sidebar Container */}
       <div
         className={cn(
-          "bg-white border-r border-[#e5e9f0] transition-all duration-300 flex flex-col min-h-screen sticky top-0 z-50 shrink-0 text-slate-600",
+          "bg-white border-r border-[#E2E8F0] transition-all duration-300 flex flex-col min-h-screen sticky top-0 z-50 shrink-0 text-slate-600",
           // Desktop: Full width
           "lg:w-[272px]",
           // Mobile: Toggleable full sidebar
@@ -163,14 +163,14 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
         )}
       >
         {/* Logo Section */}
-        <div className="flex items-center gap-3 h-[60px] px-5 border-b border-[#e5e9f0]">
+        <div className="flex items-center gap-3 h-[60px] px-5 border-b border-[#E2E8F0]">
           <Link to="/admin" className="flex items-center gap-3">
             <img
               src={logoLms}
               alt="Aliko Hub LMS"
               className="w-8 h-8 object-contain"
             />
-            <span className="hidden lg:block text-[#0f1b2d] font-bold text-sm tracking-wide font-heading">
+            <span className="hidden lg:block text-[#1E293B] font-semibold text-sm tracking-wide font-heading">
               Aliko Hub LMS
             </span>
           </Link>
@@ -187,7 +187,7 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
           {sections.map((section, sIdx) => (
             <div key={sIdx}>
               {section.title && (
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.08em] px-3 mb-1.5">
+                <p className="text-[11px] font-medium text-slate-400 uppercase tracking-[0.08em] px-3 mb-1.5">
                   {section.title}
                 </p>
               )}
@@ -202,19 +202,19 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                       title={item.label}
                       className={cn(
                         "relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150",
-                        "text-sm font-semibold",
+                        "text-sm font-medium",
                         itemIsActive
-                          ? "bg-[#e8f0fa] text-[#2b5f9e]"
-                          : "text-slate-600 hover:bg-[#f8fafc] hover:text-[#0f1b2d]",
+                          ? "bg-[#EAF3F9] text-[#0A65A0]"
+                          : "text-slate-600 hover:bg-[#F4F8FB] hover:text-[#1E293B]",
                       )}
                     >
                       {itemIsActive && (
-                        <span className="absolute -left-3 top-2 bottom-2 w-[3px] rounded-r bg-[#f26b21]" />
+                        <span className="absolute -left-3 top-2 bottom-2 w-[3px] rounded-r bg-[#D77510]" />
                       )}
                       <span
                         className={cn(
                           "shrink-0",
-                          itemIsActive ? "text-[#2b5f9e]" : "text-slate-400",
+                          itemIsActive ? "text-[#0A65A0]" : "text-slate-400",
                         )}
                       >
                         {item.icon}

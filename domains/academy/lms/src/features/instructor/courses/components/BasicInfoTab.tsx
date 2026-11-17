@@ -25,12 +25,12 @@ export const BasicInfoTab = ({
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 space-y-6">
         <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-2">
-            <Layout className="w-5 h-5 text-[#2b5f9e]" /> Course Information
+          <h2 className="text-xl font-semibold text-slate-900 mb-8 flex items-center gap-2">
+            <Layout className="w-5 h-5 text-primary" /> Course Information
           </h2>
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Course Title
               </label>
               <Input
@@ -48,7 +48,7 @@ export const BasicInfoTab = ({
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Short Description
               </label>
               <Textarea
@@ -67,16 +67,16 @@ export const BasicInfoTab = ({
         </div>
 
         <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-[#2b5f9e]" /> Pricing
+          <h2 className="text-xl font-semibold text-slate-900 mb-8 flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-primary" /> Pricing
           </h2>
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Price (ETB)
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">Br</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">Br</span>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -97,11 +97,11 @@ export const BasicInfoTab = ({
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Price in USD
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">$</span>
                 <Input
                   type="text"
                   inputMode="decimal"
@@ -126,10 +126,10 @@ export const BasicInfoTab = ({
 
       <div className="space-y-6">
         <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-900 mb-6">Course Meta</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-6">Course Meta</h2>
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
                 Category
               </label>
               <select
@@ -148,7 +148,7 @@ export const BasicInfoTab = ({
         </div>
 
         <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-900 mb-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-6">
             Course Cover
           </h2>
           <div
@@ -169,8 +169,8 @@ export const BasicInfoTab = ({
               />
             ) : (
               <>
-                <Upload className="w-8 h-8 text-slate-300 group-hover:text-[#2b5f9e] transition-colors" />
-                <p className="text-[10px] uppercase font-bold text-slate-400 mt-2">
+                <Upload className="w-8 h-8 text-slate-300 group-hover:text-primary transition-colors" />
+                <p className="text-[10px] uppercase font-medium text-slate-400 mt-2">
                   Upload Image
                 </p>
               </>

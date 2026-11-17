@@ -99,7 +99,7 @@ export const ComplianceAuditPage: React.FC = () => {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+                <h1 className="text-2xl font-heading font-semibold tracking-tight text-slate-900">
                   Regulatory Compliance Dossier
                 </h1>
                 <p className="text-xs text-slate-500">
@@ -377,12 +377,12 @@ export const ComplianceAuditPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="p-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Master Crosswalk Units &amp; Lessons</h3>
+                    <h3 className="text-sm font-medium text-slate-900">Master Crosswalk Units &amp; Lessons</h3>
                     <p className="text-xs text-slate-500">
                       Total Modules: {dossier.curriculumCrosswalk?.totalModules ?? 0} • Total Lessons: {dossier.curriculumCrosswalk?.totalLessons ?? 0}
                     </p>
                   </div>
-                  <Badge variant="outline" className="bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3] text-xs">
+                  <Badge variant="outline" className="bg-[#EAF3F9] text-primary border-[#E2E8F0] text-xs font-medium">
                     Certified Curriculum Syllabus
                   </Badge>
                 </div>
@@ -459,14 +459,14 @@ export const ComplianceAuditPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="p-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">
+                    <h3 className="text-sm font-medium text-slate-900">
                       Approved Faculty Roster &amp; RN Licenses
                     </h3>
                     <p className="text-xs text-slate-500">
                       Registered instructor credentials from backend verification records.
                     </p>
                   </div>
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs font-bold">
+                  <Badge variant="outline" className="bg-[#EAF3F9] text-primary border-[#E2E8F0] text-xs font-medium">
                     {dossier.facultyRoster?.length || 0} Registered Faculty
                   </Badge>
                 </div>
@@ -474,19 +474,19 @@ export const ComplianceAuditPage: React.FC = () => {
                 <Table className="bg-white border border-slate-200 rounded-2xl">
                   <TableHeader className="bg-slate-50">
                     <TableRow>
-                      <TableHead className="text-xs font-bold">Faculty User ID</TableHead>
-                      <TableHead className="text-xs font-bold">RN License #</TableHead>
-                      <TableHead className="text-xs font-bold">License Expiration</TableHead>
-                      <TableHead className="text-xs font-bold">LTC Experience</TableHead>
-                      <TableHead className="text-xs font-bold">Train-the-Trainer</TableHead>
-                      <TableHead className="text-xs font-bold">Director Approved</TableHead>
+                      <TableHead className="text-xs font-medium">Faculty User ID</TableHead>
+                      <TableHead className="text-xs font-medium">RN License #</TableHead>
+                      <TableHead className="text-xs font-medium">License Expiration</TableHead>
+                      <TableHead className="text-xs font-medium">LTC Experience</TableHead>
+                      <TableHead className="text-xs font-medium">Train-the-Trainer</TableHead>
+                      <TableHead className="text-xs font-medium">Director Approved</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {dossier.facultyRoster?.map((fac: any, idx: number) => (
                       <TableRow key={idx}>
                         <TableCell className="font-mono text-xs">{fac.userId}</TableCell>
-                        <TableCell className="font-bold text-xs">{fac.rnLicenseNumber}</TableCell>
+                        <TableCell className="font-medium text-xs">{fac.rnLicenseNumber}</TableCell>
                         <TableCell className="text-xs">
                           {new Date(fac.rnLicenseExpiration).toLocaleDateString()}
                         </TableCell>

@@ -66,10 +66,10 @@ export const AdminFacultyTab: React.FC<AdminFacultyTabProps> = ({ userMap }) => 
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Award className="w-5 h-5 text-[#2b5f9e]" />
+          <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <Award className="w-5 h-5 text-primary" />
             Qualified Faculty Roster &amp; Credentials
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -83,15 +83,15 @@ export const AdminFacultyTab: React.FC<AdminFacultyTabProps> = ({ userMap }) => 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search faculty by name or license..."
-            className="pl-9 h-9 text-xs bg-slate-50 border-[#E1EAF2]"
+            className="pl-9 h-9 text-xs bg-slate-50 border-[#E2E8F0]"
           />
         </div>
       </div>
 
-      <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E2E8F0]">
               <tr>
                 <th className="px-6 py-4">Instructor</th>
                 <th className="px-6 py-4">RN License #</th>
@@ -102,7 +102,7 @@ export const AdminFacultyTab: React.FC<AdminFacultyTabProps> = ({ userMap }) => 
                 <th className="px-6 py-4 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E1EAF2]">
+            <tbody className="divide-y divide-[#E2E8F0]">
               {isLoading ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-zinc-500">
@@ -129,7 +129,7 @@ export const AdminFacultyTab: React.FC<AdminFacultyTabProps> = ({ userMap }) => 
                   return (
                     <tr
                       key={inst.id || uid || idx}
-                      className="hover:bg-[#EAF4FB] transition-colors"
+                      className="hover:bg-[#EAF3F9] transition-colors"
                     >
                       <td className="px-6 py-4">
                         <div className="font-semibold text-slate-900 text-xs">
@@ -169,7 +169,7 @@ export const AdminFacultyTab: React.FC<AdminFacultyTabProps> = ({ userMap }) => 
                           variant="outline"
                           className={
                             approved
-                              ? "bg-blue-50 text-blue-700 border-blue-200 text-[10px]"
+                              ? "bg-[#EAF3F9] text-primary border-primary/20 text-[10px]"
                               : "bg-amber-50 text-amber-700 border-amber-200 text-[10px]"
                           }
                         >
@@ -182,7 +182,7 @@ export const AdminFacultyTab: React.FC<AdminFacultyTabProps> = ({ userMap }) => 
                             size="sm"
                             disabled={!uid || approveMutation.isPending}
                             onClick={() => handleApprove(uid)}
-                            className="h-8 text-xs font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
+                            className="h-8 text-xs font-medium bg-primary hover:bg-[#084B78] text-white"
                           >
                             {approvingId === uid ? (
                               <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />

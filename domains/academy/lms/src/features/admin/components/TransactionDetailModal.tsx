@@ -160,11 +160,11 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
               </div>
               <span
                 className={cn(
-                  "px-2 py-0.5 rounded text-[10px] font-bold uppercase border transition-colors duration-300",
+                  "px-2 py-0.5 rounded text-[10px] font-medium uppercase border transition-colors duration-300",
                   transaction.provider === "CHAPA" &&
                     "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
                   transaction.provider === "STRIPE" &&
-                    "bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3]",
+                    "bg-[#EAF3F9] text-primary border-primary/20",
                   !transaction.provider &&
                     "bg-zinc-500/10 text-zinc-650 dark:text-zinc-400 border-zinc-500/20",
                 )}

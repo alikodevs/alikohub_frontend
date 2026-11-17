@@ -247,7 +247,7 @@ const RegisterPage = () => {
           <div className="space-y-6">
             <Button
               type="submit"
-              className="w-full h-11 font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full h-11 font-medium shadow-xs transition-all hover:bg-[#084B78] active:scale-[0.99]"
               disabled={isPending}
             >
               {isPending ? (
@@ -262,7 +262,7 @@ const RegisterPage = () => {
                 <span className="w-full border-t border-border/60" />
               </div>
               <div className="relative flex justify-center text-[12px] uppercase tracking-[0.1em]">
-                <span className="bg-white/80 backdrop-blur-sm px-4 text-muted-foreground/60 font-bold uppercase">
+                <span className="bg-white/80 backdrop-blur-sm px-4 text-muted-foreground/60 font-medium uppercase">
                   OR
                 </span>
               </div>
@@ -275,7 +275,7 @@ const RegisterPage = () => {
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-primary font-semibold hover:underline"
+              className="text-primary font-medium hover:underline"
             >
               Sign in
             </Link>

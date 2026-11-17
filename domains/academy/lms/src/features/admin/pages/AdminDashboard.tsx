@@ -82,9 +82,9 @@ const AVATAR_COLORS = [
     border: "border-amber-500/30",
   },
   {
-    bg: "bg-[#e8f0fa]",
-    text: "text-[#2b5f9e]",
-    border: "border-[#c8dcf3]",
+    bg: "bg-[#EAF3F9]",
+    text: "text-primary",
+    border: "border-primary/20",
   },
   { bg: "bg-pink-500/15", text: "text-pink-400", border: "border-pink-500/30" },
   { bg: "bg-cyan-500/15", text: "text-cyan-400", border: "border-cyan-500/30" },
@@ -114,10 +114,10 @@ const AdminDashboard = () => {
 
   // Shared color tokens for recharts
   const chartColors = {
-    grid: "#E1EAF2",
+    grid: "#E2E8F0",
     tick: "#71717a",
     tooltipBg: "#ffffff",
-    tooltipBorder: "#E1EAF2",
+    tooltipBorder: "#E2E8F0",
     tooltipText: "#1e293b",
   };
 
@@ -393,10 +393,10 @@ const AdminDashboard = () => {
           {/* ── Teacher Applications ── */}
           {activeTab === "applications" && (
             <div className="space-y-6">
-              <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+                    <thead className="text-slate-500 uppercase text-xs font-medium border-b border-[#E2E8F0]">
                       <tr>
                         <th className="px-6 py-4">Applicant</th>
                         <th className="px-6 py-4">Email</th>
@@ -406,7 +406,7 @@ const AdminDashboard = () => {
                         <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E1EAF2]">
+                    <tbody className="divide-y divide-[#E2E8F0]">
                       {appsLoading ? (
                         <tr>
                           <td
@@ -436,13 +436,13 @@ const AdminDashboard = () => {
                           return (
                             <tr
                               key={app.id}
-                              className="hover:bg-[#EAF4FB] transition-colors group"
+                              className="hover:bg-[#EAF3F9] transition-colors group"
                             >
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center gap-3">
                                   <div
                                     className={cn(
-                                      "w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs border",
+                                      "w-10 h-10 rounded-full flex items-center justify-center font-medium text-xs border",
                                       avatarColor.bg,
                                       avatarColor.text,
                                       avatarColor.border,
@@ -463,7 +463,7 @@ const AdminDashboard = () => {
                                 {app.user?.email ?? ""}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-500  border border-blue-500/20">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-blue-500/10 text-blue-500  border border-blue-500/20">
                                   Instructor
                                 </span>
                               </td>
@@ -473,7 +473,7 @@ const AdminDashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span
                                   className={cn(
-                                    "text-[10px] font-bold px-2.5 py-0.5 rounded-full border",
+                                    "text-[10px] font-medium px-2.5 py-0.5 rounded-full border",
                                     (app.status === "PENDING" ||
                                       app.status === "SUBMITTED") &&
                                       "bg-amber-500/10 text-amber-600  border-amber-500/20",
@@ -491,14 +491,14 @@ const AdminDashboard = () => {
                                 {app.status === "PENDING" ||
                                 app.status === "SUBMITTED" ? (
                                   <button
-                                    className="px-3 py-1.5 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-primary hover:bg-[#084B78] text-white text-xs font-medium rounded-lg transition-colors"
                                     onClick={() => handleReview(app)}
                                   >
                                     Review
                                   </button>
                                 ) : (
                                   <button
-                                    className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-medium rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors"
                                     onClick={() => handleReview(app)}
                                   >
                                     View details
@@ -513,20 +513,20 @@ const AdminDashboard = () => {
                   </table>
                 </div>
 
-                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E1EAF2]">
+                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E2E8F0]">
                   <span className="text-xs text-zinc-500 font-medium">
                     Page {appsPage}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setAppsPage((p) => Math.max(1, p - 1))}
                       disabled={appsPage === 1}
                     >
                       Previous
                     </button>
                     <button
-                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setAppsPage((p) => p + 1)}
                       disabled={
                         !allApplications || allApplications.length < pageSize
@@ -543,10 +543,10 @@ const AdminDashboard = () => {
           {/* ── Course Reviews ── */}
           {activeTab === "courses" && (
             <div className="space-y-6">
-              <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+                    <thead className="text-slate-500 uppercase text-xs font-medium border-b border-[#E2E8F0]">
                       <tr>
                         <th className="px-6 py-4">Course</th>
                         <th className="px-6 py-4">Instructor</th>
@@ -556,7 +556,7 @@ const AdminDashboard = () => {
                         <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E1EAF2]">
+                    <tbody className="divide-y divide-[#E2E8F0]">
                       {coursesLoading ? (
                         <tr>
                           <td
@@ -583,12 +583,12 @@ const AdminDashboard = () => {
                         allCourses.map((course: any) => (
                           <tr
                             key={course.id}
-                            className="hover:bg-[#EAF4FB] transition-colors group"
+                            className="hover:bg-[#EAF3F9] transition-colors group"
                           >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex flex-col">
                                 <span
-                                  className="font-bold text-slate-800 text-sm max-w-[200px] truncate"
+                                  className="font-medium text-slate-800 text-sm max-w-[200px] truncate"
                                   title={course.title}
                                 >
                                   {course.title}
@@ -598,17 +598,17 @@ const AdminDashboard = () => {
                                 </span>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-slate-600 font-semibold">
+                            <td className="px-6 py-4 whitespace-nowrap text-slate-600 font-medium">
                               {course.instructor
                                 ? `${course.instructor.firstname} ${course.instructor.lastname}`
                                 : "N/A"}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="px-2.5 py-1 bg-zinc-100  border border-zinc-200  rounded-lg text-[10px] font-bold text-slate-500 uppercase">
+                              <span className="px-2.5 py-1 bg-zinc-100  border border-zinc-200  rounded-lg text-[10px] font-medium text-slate-500 uppercase">
                                 {course.category}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-slate-800 font-bold">
+                            <td className="px-6 py-4 whitespace-nowrap text-slate-800 font-medium">
                               {course.enrolledNum ||
                                 course.enrolledCount ||
                                 course.enrollmentCount ||
@@ -617,7 +617,7 @@ const AdminDashboard = () => {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span
                                 className={cn(
-                                  "text-[10px] font-bold px-2.5 py-0.5 rounded-full border",
+                                  "text-[10px] font-medium px-2.5 py-0.5 rounded-full border",
                                   (course.status === "PENDING" ||
                                     course.status === "PENDING_APPROVAL") &&
                                     "bg-amber-500/10 text-amber-600  border-amber-500/20",
@@ -639,14 +639,14 @@ const AdminDashboard = () => {
                                 course.status === "PENDING_APPROVAL" ||
                                 course.status === "DRAFT" ? (
                                   <button
-                                    className="px-3 py-1.5 bg-[#2b5f9e] hover:bg-[#234e83] text-white text-xs font-bold rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-primary hover:bg-[#084B78] text-white text-xs font-medium rounded-lg transition-colors"
                                     onClick={() => handleReviewCourse(course)}
                                   >
                                     Review
                                   </button>
                                 ) : (
                                   <button
-                                    className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-medium rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors"
                                     onClick={() => handleReviewCourse(course)}
                                   >
                                     View details
@@ -654,7 +654,7 @@ const AdminDashboard = () => {
                                 )}
 
                                 <button
-                                  className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-medium rounded-lg transition-colors"
+                                  className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-medium rounded-lg transition-colors"
                                   onClick={() => setManageCourse(course)}
                                 >
                                   Manage
@@ -678,20 +678,20 @@ const AdminDashboard = () => {
                   </table>
                 </div>
 
-                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E1EAF2]">
+                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E2E8F0]">
                   <span className="text-xs text-zinc-500 font-medium">
                     Page {coursesPage}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setCoursesPage((p) => Math.max(1, p - 1))}
                       disabled={coursesPage === 1}
                     >
                       Previous
                     </button>
                     <button
-                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setCoursesPage((p) => p + 1)}
                       disabled={!allCourses || allCourses.length < pageSize}
                     >
@@ -715,14 +715,14 @@ const AdminDashboard = () => {
                 <>
                   {/* Summary cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                    <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col justify-between shadow-sm">
                       <div className="flex items-center gap-2 text-slate-500 mb-2">
                         <BookOpen className="w-4 h-4" />
                         <span className="text-sm font-semibold">
                           Total courses
                         </span>
                       </div>
-                      <div className="text-3xl font-bold text-slate-800 mb-2">
+                      <div className="text-3xl font-semibold text-slate-800 mb-2">
                         {analyticsData?.totalCourses || 0}
                       </div>
                       <div className="text-slate-400 text-xs font-medium">
@@ -730,14 +730,14 @@ const AdminDashboard = () => {
                       </div>
                     </div>
 
-                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                    <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col justify-between shadow-sm">
                       <div className="flex items-center gap-2 text-slate-500 mb-2">
                         <ArrowUpRight className="w-4 h-4" />
                         <span className="text-sm font-semibold">
                           Total progress
                         </span>
                       </div>
-                      <div className="text-3xl font-bold text-slate-800 mb-2">
+                      <div className="text-3xl font-semibold text-slate-800 mb-2">
                         {analyticsData?.totalProgress || 0}
                       </div>
                       <div className="text-slate-400 text-xs font-medium">
@@ -745,14 +745,14 @@ const AdminDashboard = () => {
                       </div>
                     </div>
 
-                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                    <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col justify-between shadow-sm">
                       <div className="flex items-center gap-2 text-slate-500 mb-2">
                         <Users className="w-4 h-4" />
                         <span className="text-sm font-semibold">
                           Total enrollments
                         </span>
                       </div>
-                      <div className="text-3xl font-bold text-slate-800 mb-2">
+                      <div className="text-3xl font-semibold text-slate-800 mb-2">
                         {analyticsData?.totalEnrollments || 0}
                       </div>
                       <div className="text-slate-400 text-xs font-medium">
@@ -763,9 +763,9 @@ const AdminDashboard = () => {
 
                   {/* Charts */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 shadow-sm">
-                      <h3 className="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <span className="w-2 h-4 bg-[#2b5f9e] rounded-full"></span>
+                    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-sm font-semibold text-slate-800 mb-6 flex items-center gap-2">
+                        <span className="w-2 h-4 bg-primary rounded-full"></span>
                         Overview distribution
                       </h3>
                       <div className="h-[320px]">
@@ -808,7 +808,7 @@ const AdminDashboard = () => {
                             />
                             <Bar
                               dataKey="value"
-                              fill="#2b5f9e"
+                              fill="#0A65A0"
                               radius={[6, 6, 0, 0]}
                               barSize={50}
                             />
@@ -817,9 +817,9 @@ const AdminDashboard = () => {
                       </div>
                     </div>
 
-                    <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 shadow-sm">
-                      <h3 className="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <span className="w-2 h-4 bg-[#F37E28] rounded-full"></span>
+                    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                      <h3 className="text-sm font-semibold text-slate-800 mb-6 flex items-center gap-2">
+                        <span className="w-2 h-4 bg-[#D77510] rounded-full"></span>
                         Platform trends
                       </h3>
                       <div className="h-[320px]">
@@ -860,11 +860,11 @@ const AdminDashboard = () => {
                             <Line
                               type="monotone"
                               dataKey="value"
-                              stroke="#2b5f9e"
+                              stroke="#0A65A0"
                               strokeWidth={4}
                               dot={{
                                 r: 6,
-                                fill: "#2b5f9e",
+                                fill: "#0A65A0",
                                 strokeWidth: 3,
                                 stroke: chartColors.tooltipBg,
                               }}
@@ -885,12 +885,12 @@ const AdminDashboard = () => {
             <div className="space-y-6">
               {/* Stats Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col justify-between shadow-sm">
                   <div className="flex items-center gap-2 text-slate-500 mb-2">
                     <DollarSign className="w-4 h-4" />
                     <span className="text-sm font-semibold">Total revenue</span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-800 mb-2">
+                  <div className="text-3xl font-semibold text-slate-800 mb-2">
                     ${totalRevenue.toLocaleString()}
                   </div>
                   <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500 text-xs font-medium">
@@ -899,12 +899,12 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col justify-between shadow-sm">
                   <div className="flex items-center gap-2 text-slate-500 mb-2">
                     <CheckCircle2 className="w-4 h-4" />
                     <span className="text-sm font-semibold">Completed</span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-800 mb-2">
+                  <div className="text-3xl font-semibold text-slate-800 mb-2">
                     {completedTx}
                   </div>
                   <div className="text-slate-400 text-xs font-medium">
@@ -912,12 +912,12 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col justify-between shadow-sm">
                   <div className="flex items-center gap-2 text-slate-500 mb-2">
                     <Clock className="w-4 h-4" />
                     <span className="text-sm font-semibold">Pending</span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-800 mb-2">
+                  <div className="text-3xl font-semibold text-slate-800 mb-2">
                     {pendingTx}
                   </div>
                   <div className="text-slate-400 text-xs font-medium">
@@ -925,12 +925,12 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="bg-white border border-[#E1EAF2] rounded-xl p-6 flex flex-col justify-between shadow-sm">
+                <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 flex flex-col justify-between shadow-sm">
                   <div className="flex items-center gap-2 text-slate-500 mb-2">
                     <Users className="w-4 h-4" />
                     <span className="text-sm font-semibold">Unique users</span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-800 mb-2">
+                  <div className="text-3xl font-semibold text-slate-800 mb-2">
                     {uniqueUsers}
                   </div>
                   <div className="text-slate-400 text-xs font-medium">
@@ -940,16 +940,16 @@ const AdminDashboard = () => {
               </div>
 
               {/* Transactions Table Card */}
-              <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
-                <div className="px-6 py-5 border-b border-[#E1EAF2] flex items-center justify-between transition-colors">
-                  <h2 className="text-lg font-bold text-slate-800">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between transition-colors">
+                  <h2 className="text-lg font-semibold text-slate-800">
                     Transaction history
-                    <div className="h-0.5 w-8 bg-[#F37E28] rounded-full mt-0.5" />
+                    <div className="h-0.5 w-8 bg-[#D77510] rounded-full mt-0.5" />
                   </h2>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={exportToPdf}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-white  hover:bg-zinc-50 dark:hover:bg-[#3f3f46] border border-zinc-200  text-slate-800 text-sm font-semibold rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-3 py-1.5 bg-white  hover:bg-zinc-50 dark:hover:bg-[#3f3f46] border border-zinc-200  text-slate-800 text-sm font-medium rounded-lg transition-colors"
                     >
                       <Download className="w-4 h-4" />
                       Export
@@ -959,7 +959,7 @@ const AdminDashboard = () => {
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
-                    <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+                    <thead className="text-slate-500 uppercase text-xs font-medium border-b border-[#E2E8F0]">
                       <tr>
                         <th className="px-4 py-4">Username</th>
                         <th className="px-4 py-4">Course Title</th>
@@ -971,7 +971,7 @@ const AdminDashboard = () => {
                         <th className="px-4 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E1EAF2]">
+                    <tbody className="divide-y divide-[#E2E8F0]">
                       {allTransactionsLoading ? (
                         <tr>
                           <td
@@ -1006,7 +1006,7 @@ const AdminDashboard = () => {
                           return (
                             <tr
                               key={tx.id}
-                              className="hover:bg-[#EAF4FB] transition-colors"
+                              className="hover:bg-[#EAF3F9] transition-colors"
                             >
                               <td className="px-4 py-4 whitespace-nowrap">
                                 <span className="text-zinc-800  font-medium text-sm">
@@ -1022,7 +1022,7 @@ const AdminDashboard = () => {
                                 </span>
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap">
-                                <span className="font-bold text-slate-800 text-sm">
+                                <span className="font-medium text-slate-800 text-sm">
                                   {Number(tx.amount).toLocaleString()}
                                 </span>
                               </td>
@@ -1034,11 +1034,11 @@ const AdminDashboard = () => {
                               <td className="px-4 py-4 whitespace-nowrap">
                                 <span
                                   className={cn(
-                                    "text-xs font-bold uppercase px-2 py-1 rounded-md border",
+                                    "text-xs font-medium uppercase px-2 py-1 rounded-md border",
                                     tx.provider === "CHAPA" &&
                                       "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30",
                                     tx.provider === "STRIPE" &&
-                                      "bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3]",
+                                      "bg-[#EAF3F9] text-primary border-primary/20",
                                     !tx.provider &&
                                       "bg-zinc-500/10 text-slate-500 border-zinc-500/30",
                                   )}
@@ -1060,7 +1060,7 @@ const AdminDashboard = () => {
                                       updateTransactionMutation.isPending
                                     }
                                     className={cn(
-                                      "appearance-none bg-transparent text-xs font-bold pl-3 pr-8 py-1.5 rounded-full border transition-colors cursor-pointer outline-none",
+                                      "appearance-none bg-transparent text-xs font-medium pl-3 pr-8 py-1.5 rounded-full border transition-colors cursor-pointer outline-none",
                                       tx.status === "PENDING" &&
                                         "text-amber-600 dark:text-amber-500 border-amber-500/30 hover:border-amber-500/50",
                                       tx.status === "COMPLETED" &&
@@ -1128,13 +1128,13 @@ const AdminDashboard = () => {
                   </table>
                 </div>
 
-                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E1EAF2]">
+                <div className="flex items-center justify-between px-6 py-4 border-t border-[#E2E8F0]">
                   <span className="text-xs text-zinc-500 font-medium">
                     Page {transactionsPage}
                   </span>
                   <div className="flex gap-2">
                     <button
-                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() =>
                         setTransactionsPage((p) => Math.max(1, p - 1))
                       }
@@ -1143,7 +1143,7 @@ const AdminDashboard = () => {
                       Previous
                     </button>
                     <button
-                      className="px-3 py-1.5 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2] text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0] text-slate-700 text-xs font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       onClick={() => setTransactionsPage((p) => p + 1)}
                       disabled={
                         !paginatedTransactions ||
@@ -1216,7 +1216,7 @@ const AdminDashboard = () => {
                 {pendingStatusChange?.txId} status to{" "}
                 <span
                   className={cn(
-                    "font-bold",
+                    "font-semibold",
                     pendingStatusChange?.newStatus === "COMPLETED" &&
                       "text-emerald-600 ",
                     pendingStatusChange?.newStatus === "PENDING" &&
@@ -1233,7 +1233,7 @@ const AdminDashboard = () => {
             <DialogFooter className="gap-2">
               <Button
                 onClick={() => setPendingStatusChange(null)}
-                className="text-slate-700 bg-white hover:bg-[#EAF4FB] border border-[#E1EAF2]"
+                className="text-slate-700 bg-white hover:bg-[#EAF3F9] border border-[#E2E8F0]"
               >
                 Cancel
               </Button>
@@ -1262,13 +1262,13 @@ const AdminDashboard = () => {
             if (!open) setDeleteCourseTarget(null);
           }}
         >
-          <DialogContent className="sm:max-w-[425px] bg-white border-[#E1EAF2]">
+          <DialogContent className="sm:max-w-[425px] bg-white border-[#E2E8F0]">
             <DialogHeader>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 rounded-full bg-red-50 dark:bg-red-500/10">
                   <AlertTriangle className="w-5 h-5 text-red-500 " />
                 </div>
-                <DialogTitle className="text-xl font-bold text-slate-800">
+                <DialogTitle className="text-xl font-semibold text-slate-800">
                   Delete Course?
                 </DialogTitle>
               </div>
@@ -1286,7 +1286,7 @@ const AdminDashboard = () => {
                 variant="ghost"
                 onClick={() => setDeleteCourseTarget(null)}
                 disabled={deleteCourseMutation.isPending}
-                className="flex-1 sm:flex-none border border-[#E1EAF2] text-slate-700 hover:bg-[#EAF4FB]"
+                className="flex-1 sm:flex-none border border-[#E2E8F0] text-slate-700 hover:bg-[#EAF3F9]"
               >
                 Cancel
               </Button>

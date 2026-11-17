@@ -59,7 +59,7 @@ export const LessonModal = ({
             <select
               value={lessonType}
               onChange={(e) => onTypeChange(e.target.value)}
-              className="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#2b5f9e] outline-none appearance-none cursor-pointer"
+              className="flex h-11 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-primary outline-none appearance-none cursor-pointer"
             >
               <option value="VIDEO">Video Lesson</option>
               <option value="WEBINAR">Live Webinar</option>
@@ -69,13 +69,13 @@ export const LessonModal = ({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} className="font-medium">
             Cancel
           </Button>
           <Button
             onClick={onCreate}
             disabled={isCreating}
-            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white border-0"
+            className="bg-primary hover:bg-[#084B78] text-white font-medium border-0"
           >
             {isCreating ? "Creating..." : "Create Lesson"}
           </Button>

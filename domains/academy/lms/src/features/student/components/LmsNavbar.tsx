@@ -232,14 +232,14 @@ const LmsNavbar = () => {
                     onClick={() => setProfileOpen(false)}
                     className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                   >
-                    <FileCheck2 className="w-4 h-4 text-blue-600" /> Admissions Clearance
+                    <FileCheck2 className="w-4 h-4 text-primary" /> Admissions Clearance
                   </Link>
                   <Link
                     to="/orientation"
                     onClick={() => setProfileOpen(false)}
                     className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                   >
-                    <GraduationCap className="w-4 h-4 text-amber-600" /> Orientation Checklist
+                    <GraduationCap className="w-4 h-4 text-[#D77510]" /> Orientation Checklist
                   </Link>
                   {/* <Link
                     to="/photo"

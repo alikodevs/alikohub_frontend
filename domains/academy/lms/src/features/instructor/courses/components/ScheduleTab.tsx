@@ -140,7 +140,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
         </div>
         <Button
           onClick={() => (isAdding ? resetForm() : setIsAdding(true))}
-          className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold gap-2 border-0"
+          className="bg-primary hover:bg-[#084B78] text-white font-medium gap-2 border-0"
         >
           {isAdding ? (
             "Cancel"
@@ -155,8 +155,8 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
       {isAdding && (
         <Card className="border-none shadow-xl bg-slate-50 ring-1 ring-slate-100 overflow-hidden">
           <CardHeader className="bg-white border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-2">
-            <Calendar className="w-5 h-5 text-[#2b5f9e]" />
-            <CardTitle className="text-lg font-bold">
+            <Calendar className="w-5 h-5 text-primary" />
+            <CardTitle className="text-lg font-semibold">
               {editingId ? "Edit Session Details" : "New Session Details"}
             </CardTitle>
           </CardHeader>
@@ -168,7 +168,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
               <div className="space-y-2">
                 <Label
                   htmlFor="title"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   Session Title
                 </Label>
@@ -179,14 +179,14 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  className="bg-white border-slate-200 focus:ring-[#2b5f9e] h-11"
+                  className="bg-white border-slate-200 focus:ring-primary h-11"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label
                   htmlFor="type"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   Session Type
                 </Label>
@@ -196,7 +196,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, type: e.target.value })
                   }
-                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11"
+                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary h-11"
                 >
                   <option value="LIVE">Live Session</option>
                   <option value="RECORDING">Recorded Lecture Release</option>
@@ -209,7 +209,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
               <div className="space-y-2 md:col-span-2">
                 <Label
                   htmlFor="cohortId"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   Target Cohort (Optional)
                 </Label>
@@ -219,7 +219,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, cohortId: e.target.value })
                   }
-                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11"
+                  className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary h-11"
                 >
                   <option value="">All cohorts in this course</option>
                   {cohorts.map((c: any) => (
@@ -233,7 +233,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
               <div className="space-y-2 md:col-span-2">
                 <Label
                   htmlFor="description"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   Description / Agenda
                 </Label>
@@ -244,14 +244,14 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className="bg-white border-slate-200 focus:ring-[#2b5f9e] min-h-[75px]"
+                  className="bg-white border-slate-200 focus:ring-primary min-h-[75px]"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label
                   htmlFor="startTime"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   Start Time
                 </Label>
@@ -269,7 +269,7 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
               <div className="space-y-2">
                 <Label
                   htmlFor="endTime"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   End Time
                 </Label>
@@ -289,14 +289,14 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
                   type="button"
                   variant="outline"
                   onClick={resetForm}
-                  className="h-11 px-5"
+                  className="h-11 px-5 font-medium"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-11 px-8 rounded-lg transition-all"
+                  className="bg-primary hover:bg-[#084B78] text-white font-medium h-11 px-8 rounded-lg transition-all"
                 >
                   {isSubmitting
                     ? "Saving..."
@@ -311,8 +311,8 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
       )}
 
       <div className="space-y-4">
-        <h3 className="font-bold text-slate-900 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-[#2b5f9e]" />
+        <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-primary" />
           Scheduled Sessions
         </h3>
 
@@ -412,9 +412,9 @@ export const ScheduleTab = ({ courseId }: ScheduleTabProps) => {
 
                     <div className="mt-auto space-y-3">
                       <div className="flex items-center gap-3 text-sm text-slate-500 bg-slate-50 p-2 rounded-lg">
-                        <Clock className="w-4 h-4 text-[#2b5f9e]" />
+                        <Clock className="w-4 h-4 text-primary" />
                         <div className="flex flex-col">
-                          <span className="font-bold text-slate-700 text-xs">
+                          <span className="font-medium text-slate-700 text-xs">
                             {formattedDate}
                           </span>
                           <span className="text-[10px] text-slate-400">

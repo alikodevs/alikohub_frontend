@@ -166,7 +166,7 @@ const LmsMyLearning = () => {
         {/* ── Page Header (matches inspo .head) ── */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-heading font-bold text-[#0f1b2d] tracking-tight">
+            <h1 className="text-2xl font-heading font-semibold text-[#081831] tracking-tight">
               My Learning
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
@@ -177,7 +177,7 @@ const LmsMyLearning = () => {
           {resumeTarget ? (
             <Button
               asChild
-              className="gap-2 bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-9 px-4 rounded-lg border-0 shrink-0"
+              className="gap-2 bg-primary hover:bg-[#084B78] text-white font-medium h-9 px-4 rounded-lg border-0 shrink-0"
             >
               <Link to={`/learn/${resumeTarget.courseId}`}>
                 <PlayCircle className="w-4 h-4" />
@@ -187,7 +187,7 @@ const LmsMyLearning = () => {
           ) : (
             <Button
               asChild
-              className="gap-2 bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-9 px-4 rounded-lg border-0 shrink-0"
+              className="gap-2 bg-primary hover:bg-[#084B78] text-white font-medium h-9 px-4 rounded-lg border-0 shrink-0"
             >
               <Link to="/courses">
                 <BookOpen className="w-4 h-4" />
@@ -202,9 +202,9 @@ const LmsMyLearning = () => {
           aria-label="Summary"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 flex flex-col gap-1.5">
             <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
-              <span className="w-7 h-7 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center shrink-0">
+              <span className="w-7 h-7 rounded-lg bg-[#EAF3F9] text-primary flex items-center justify-center shrink-0">
                 <Award className="w-4 h-4" />
               </span>
               Overall progress
@@ -212,17 +212,17 @@ const LmsMyLearning = () => {
             <div className="text-2xl font-semibold text-slate-900 tracking-tight">
               {isLoading ? "—" : `${overallProgress}%`}
             </div>
-            <div className="h-1.5 rounded-full bg-[#e5e9f0] overflow-hidden mt-1">
+            <div className="h-1.5 rounded-full bg-[#E2E8F0] overflow-hidden mt-1">
               <div
-                className="h-full rounded-full bg-[#2b5f9e] transition-all duration-500"
+                className="h-full rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${overallProgress}%` }}
               />
             </div>
           </div>
 
-          <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 flex flex-col gap-1.5">
             <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
-              <span className="w-7 h-7 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center shrink-0">
+              <span className="w-7 h-7 rounded-lg bg-[#EAF3F9] text-primary flex items-center justify-center shrink-0">
                 <BookOpen className="w-4 h-4" />
               </span>
               In progress
@@ -258,9 +258,9 @@ const LmsMyLearning = () => {
             </p>
           </div>
 
-          <div className="bg-white border border-[#e5e9f0] rounded-xl p-4 flex flex-col gap-1.5">
+          <div className="bg-white border border-[#E2E8F0] rounded-xl p-4 flex flex-col gap-1.5">
             <div className="flex items-center gap-2 text-slate-500 font-medium text-xs">
-              <span className="w-7 h-7 rounded-lg bg-[#fff1e6] text-[#f26b21] flex items-center justify-center shrink-0">
+              <span className="w-7 h-7 rounded-lg bg-[#FFF2E3] text-[#D77510] flex items-center justify-center shrink-0">
                 <Clock className="w-4 h-4" />
               </span>
               Lessons done
@@ -279,13 +279,13 @@ const LmsMyLearning = () => {
         {!isOrientationLoading &&
           activeEnrollments.length > 0 &&
           !isOrientationComplete && (
-            <div className="rounded-xl p-4 bg-[#fff8f3] border border-[#f26b21]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="rounded-xl p-4 bg-[#FFF2E3]/50 border border-[#D77510]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-lg bg-[#fff1e6] border border-[#f26b21]/25 text-[#c2540a] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-[#FFF2E3] border border-[#D77510]/25 text-[#D77510] flex items-center justify-center shrink-0">
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-[#0f1b2d]">
+                  <h4 className="text-sm font-medium text-slate-900">
                     Mandatory Student Orientation Required
                   </h4>
                   <p className="text-xs text-slate-600 mt-0.5">
@@ -300,7 +300,7 @@ const LmsMyLearning = () => {
                   asChild
                   variant="outline"
                   size="sm"
-                  className="bg-white border-[#e5e9f0] text-[#0f1b2d] hover:bg-[#f8fafc] font-medium text-xs rounded-lg h-9 px-4 shrink-0"
+                  className="bg-white border-[#E2E8F0] text-slate-800 hover:bg-[#F4F8FB] font-medium text-xs rounded-lg h-9 px-4 shrink-0"
                 >
                   <Link to={`/admissions?cohortId=${primaryCohortId}`}>
                     Admissions Clearance
@@ -309,7 +309,7 @@ const LmsMyLearning = () => {
                 <Button
                   asChild
                   size="sm"
-                  className="bg-[#f26b21] hover:bg-[#d95812] text-white font-medium text-xs rounded-lg h-9 px-5 shrink-0 border-0"
+                  className="bg-[#D77510] hover:bg-[#AC5B0B] text-white font-medium text-xs rounded-lg h-9 px-5 shrink-0 border-0"
                 >
                   <Link to={`/orientation?cohortId=${primaryCohortId}`}>
                     Complete Orientation{" "}
@@ -333,18 +333,18 @@ const LmsMyLearning = () => {
                     role="tab"
                     aria-selected={selected}
                     onClick={() => setActiveTab(tab)}
-                    className={`inline-flex items-center gap-2 px-3 py-3.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
+                    className={`inline-flex items-center gap-2 px-3 py-3.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
                       selected
-                        ? "border-[#2b5f9e] text-[#2b5f9e]"
-                        : "border-transparent text-slate-500 hover:text-[#0f1b2d] font-medium"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-slate-500 hover:text-[#081831] font-medium"
                     }`}
                   >
                     {tab}
                     <span
                       className={`text-xs font-medium min-w-[22px] h-5 flex items-center justify-center rounded-full px-2 leading-none ${
                         selected
-                          ? "bg-[#e8f0fa] text-[#2b5f9e]"
-                          : "bg-[#f8fafc] border border-[#e5e9f0] text-slate-500"
+                          ? "bg-[#EAF3F9] text-primary"
+                          : "bg-[#F7F9FC] border border-[#E2E8F0] text-slate-500"
                       }`}
                     >
                       {tabCounts[tab]}
@@ -362,7 +362,7 @@ const LmsMyLearning = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filter courses..."
                 aria-label="Filter courses"
-                className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#f8fafc] border border-[#e5e9f0] text-xs text-[#0f1b2d] placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#2b5f9e]"
+                className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#F7F9FC] border border-[#E2E8F0] text-xs text-[#1E293B] placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>
@@ -376,10 +376,10 @@ const LmsMyLearning = () => {
             </div>
           ) : filteredCoursesProgress.length === 0 ? (
             <div className="text-center py-14 px-4">
-              <div className="w-12 h-12 rounded-xl bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-xl bg-[#EAF3F9] text-primary flex items-center justify-center mx-auto mb-3">
                 <BookOpen className="w-6 h-6" />
               </div>
-              <p className="text-sm font-semibold text-[#0f1b2d]">
+              <p className="text-sm font-medium text-[#081831]">
                 {searchQuery.trim()
                   ? "No matching courses found"
                   : activeTab === "Completed"
@@ -458,7 +458,7 @@ const LmsMyLearning = () => {
                           {/* Course Thumbnail + Title */}
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-3 min-w-[240px]">
-                              <div className="w-11 h-11 rounded-[10px] bg-[#e8f0fa] border border-[#e5e9f0] flex items-center justify-center shrink-0 overflow-hidden">
+                              <div className="w-11 h-11 rounded-[10px] bg-[#EAF3F9] border border-[#E2E8F0] flex items-center justify-center shrink-0 overflow-hidden">
                                 {enrollment.course?.thumbnail ? (
                                   <img
                                     src={enrollment.course.thumbnail}
@@ -466,13 +466,13 @@ const LmsMyLearning = () => {
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
-                                  <BookOpen className="w-5 h-5 text-[#2b5f9e]" />
+                                  <BookOpen className="w-5 h-5 text-primary" />
                                 )}
                               </div>
                               <div className="min-w-0">
                                 <Link
                                   to={`/courses/${courseId}`}
-                                  className="font-semibold text-sm text-[#0f1b2d] hover:text-[#2b5f9e] transition-colors line-clamp-1 block"
+                                  className="font-medium text-sm text-[#1E293B] hover:text-primary transition-colors line-clamp-1 block"
                                 >
                                   {enrollment.course?.title}
                                 </Link>
@@ -493,7 +493,7 @@ const LmsMyLearning = () => {
                               className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                 isCompleted
                                   ? "bg-[#e3f5ea] text-[#15803d]"
-                                  : "bg-[#fff1e6] text-[#c2540a]"
+                                  : "bg-[#FFF2E3] text-[#AC5B0B]"
                               }`}
                             >
                               <span className="w-1.5 h-1.5 rounded-full bg-current" />
@@ -502,7 +502,7 @@ const LmsMyLearning = () => {
                           </td>
 
                           {/* Lessons Count */}
-                          <td className="px-4 py-3.5 text-sm text-[#0f1b2d] font-medium whitespace-nowrap">
+                          <td className="px-4 py-3.5 text-sm text-[#1E293B] font-medium whitespace-nowrap">
                             {completedLessons} / {totalLessons}
                           </td>
 
@@ -511,7 +511,7 @@ const LmsMyLearning = () => {
                             <div className="flex items-center gap-2.5 min-w-[140px]">
                               <Progress
                                 value={percentage}
-                                className="h-1.5 flex-1 bg-[#e5e9f0]"
+                                className="h-1.5 flex-1 bg-[#E2E8F0]"
                               />
                               <span className="text-xs font-semibold text-slate-700 w-9 text-right">
                                 {percentage}%
@@ -533,7 +533,7 @@ const LmsMyLearning = () => {
                                     size="sm"
                                     variant="outline"
                                     asChild
-                                    className="h-8 px-3 rounded-lg border-[#e5e9f0] bg-white hover:bg-[#f8fafc] text-[#0f1b2d] font-semibold text-xs"
+                                    className="h-8 px-3 rounded-lg border-[#E2E8F0] bg-white hover:bg-[#F7F9FC] text-[#1E293B] font-medium text-xs"
                                   >
                                     <Link to="/certifications">
                                       View certificate
@@ -543,7 +543,7 @@ const LmsMyLearning = () => {
                                     size="sm"
                                     variant="ghost"
                                     asChild
-                                    className="h-8 px-2.5 rounded-lg text-[#2b5f9e] hover:bg-[#e8f0fa] font-semibold text-xs"
+                                    className="h-8 px-2.5 rounded-lg text-primary hover:bg-[#EAF3F9] font-medium text-xs"
                                   >
                                     <Link to={`/learn/${courseId}`}>Review</Link>
                                   </Button>
@@ -552,14 +552,14 @@ const LmsMyLearning = () => {
                                 <>
                                   <Link
                                     to={`/courses/${courseId}`}
-                                    className="text-xs font-semibold text-[#2b5f9e] hover:underline px-2 py-1"
+                                    className="text-xs font-medium text-primary hover:underline px-2 py-1"
                                   >
                                     Details
                                   </Link>
                                   <Button
                                     size="sm"
                                     asChild
-                                    className="h-8 px-3.5 rounded-lg bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold text-xs gap-1.5 border-0"
+                                    className="h-8 px-3.5 rounded-lg bg-primary hover:bg-[#084B78] text-white font-medium text-xs gap-1.5 border-0"
                                   >
                                     <Link to={`/learn/${courseId}`}>
                                       <PlayCircle className="w-3.5 h-3.5" />
@@ -580,14 +580,14 @@ const LmsMyLearning = () => {
           )}
 
           {/* Table Footer */}
-          <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#e5e9f0] text-xs text-slate-500">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#E2E8F0] text-xs text-slate-500">
             <span>
               Showing {filteredCoursesProgress.length}{" "}
               {filteredCoursesProgress.length === 1 ? "course" : "courses"}
             </span>
             <Link
               to="/grades"
-              className="font-semibold text-[#2b5f9e] hover:underline"
+              className="font-medium text-primary hover:underline"
             >
               Open Electronic Gradebook &rarr;
             </Link>
@@ -598,45 +598,45 @@ const LmsMyLearning = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Link
             to="/schedules"
-            className="group flex items-center gap-4 bg-white rounded-xl border border-[#e5e9f0] p-4 hover:border-[#2b5f9e]/30 transition-all"
+            className="group flex items-center gap-4 bg-white rounded-xl border border-[#E2E8F0] p-4 hover:border-primary/30 transition-all"
           >
-            <div className="w-10 h-10 rounded-lg bg-[#e8f0fa] flex items-center justify-center shrink-0">
-              <CalendarDays className="w-5 h-5 text-[#2b5f9e]" />
+            <div className="w-10 h-10 rounded-lg bg-[#EAF3F9] flex items-center justify-center shrink-0">
+              <CalendarDays className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#0f1b2d]">My Schedule</p>
+              <p className="text-sm font-medium text-slate-800">My Schedule</p>
               <p className="text-xs text-slate-500">
                 View upcoming classes &amp; clinical shifts
               </p>
             </div>
-            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#2b5f9e] transition-colors shrink-0" />
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors shrink-0" />
           </Link>
 
           <Link
             to="/certifications"
-            className="group flex items-center gap-4 bg-white rounded-xl border border-[#e5e9f0] p-4 hover:border-[#f26b21]/30 transition-all"
+            className="group flex items-center gap-4 bg-white rounded-xl border border-[#E2E8F0] p-4 hover:border-[#D77510]/30 transition-all"
           >
-            <div className="w-10 h-10 rounded-lg bg-[#fff1e6] flex items-center justify-center shrink-0">
-              <Award className="w-5 h-5 text-[#f26b21]" />
+            <div className="w-10 h-10 rounded-lg bg-[#FFF2E3] flex items-center justify-center shrink-0">
+              <Award className="w-5 h-5 text-[#D77510]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#0f1b2d]">Certifications</p>
+              <p className="text-sm font-medium text-slate-800">Certifications</p>
               <p className="text-xs text-slate-500">
                 Generate &amp; verify achievements
               </p>
             </div>
-            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#f26b21] transition-colors shrink-0" />
+            <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#D77510] transition-colors shrink-0" />
           </Link>
 
           <Link
             to="/chat"
-            className="group flex items-center gap-4 bg-white rounded-xl border border-[#e5e9f0] p-4 hover:border-[#2b5f9e]/30 transition-all"
+            className="group flex items-center gap-4 bg-white rounded-xl border border-[#E2E8F0] p-4 hover:border-primary/30 transition-all"
           >
             <div className="w-10 h-10 rounded-lg bg-[#e3f5ea] flex items-center justify-center shrink-0">
               <MessageCircle className="w-5 h-5 text-[#15803d]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[#0f1b2d]">Need Help?</p>
+              <p className="text-sm font-medium text-slate-800">Need Help?</p>
               <p className="text-xs text-slate-500">Chat with instructors</p>
             </div>
             <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#15803d] transition-colors shrink-0" />

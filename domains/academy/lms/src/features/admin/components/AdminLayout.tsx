@@ -14,7 +14,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[#f6f8fb]">
+    <div className="flex min-h-screen bg-[#F7F9FC]">
       <AdminSidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} />
       <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
         <AdminHeader title={title} onMenuClick={() => setSidebarOpen(true)} />

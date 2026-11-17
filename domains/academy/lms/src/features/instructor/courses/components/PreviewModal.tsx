@@ -132,8 +132,8 @@ export const PreviewModal = ({
       case "LINK":
         return (
           <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 min-h-[200px]">
-            <div className="flex items-center gap-3 mb-4 text-slate-900 font-bold">
-              <LinkIcon className="w-5 h-5 text-[#2b5f9e]" />
+            <div className="flex items-center gap-3 mb-4 text-slate-900 font-semibold">
+              <LinkIcon className="w-5 h-5 text-primary" />
               <span>External Resource</span>
             </div>
             <p className="text-slate-600 mb-6">
@@ -145,7 +145,7 @@ export const PreviewModal = ({
                 href={getFullUrl(content.url)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 text-white font-medium hover:bg-slate-800 transition-colors"
               >
                 Access Resource <LinkIcon className="w-4 h-4" />
               </a>

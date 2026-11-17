@@ -67,13 +67,13 @@ export const ModuleModal = ({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} className="font-medium">
             Cancel
           </Button>
           <Button
             onClick={onCreate}
             disabled={isCreating}
-            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white border-0"
+            className="bg-primary hover:bg-[#084B78] text-white font-medium border-0"
           >
             {isCreating ? "Creating..." : "Create Module"}
           </Button>

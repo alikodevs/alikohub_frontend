@@ -49,10 +49,10 @@ export const AdminContentLibraryTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#2b5f9e]" />
+          <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-primary" />
             Platform Content Library ({filtered.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -64,7 +64,7 @@ export const AdminContentLibraryTab: React.FC = () => {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[#E1EAF2] bg-slate-50 text-xs font-semibold text-slate-700"
+            className="h-9 px-3 rounded-lg border border-[#E2E8F0] bg-slate-50 text-xs font-semibold text-slate-700"
           >
             <option value="ALL">All Types</option>
             {availableTypes.map((t) => (
@@ -80,16 +80,16 @@ export const AdminContentLibraryTab: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search title or lesson..."
-              className="pl-9 h-9 text-xs bg-slate-50 border-[#E1EAF2]"
+              className="pl-9 h-9 text-xs bg-slate-50 border-[#E2E8F0]"
             />
           </div>
         </div>
       </div>
 
-      <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E2E8F0]">
               <tr>
                 <th className="px-6 py-4">Title</th>
                 <th className="px-6 py-4">Type</th>
@@ -98,7 +98,7 @@ export const AdminContentLibraryTab: React.FC = () => {
                 <th className="px-6 py-4 text-right">Resource</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E1EAF2]">
+            <tbody className="divide-y divide-[#E2E8F0]">
               {isLoading ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
@@ -116,7 +116,7 @@ export const AdminContentLibraryTab: React.FC = () => {
                 filtered.map((item: any) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-[#EAF4FB] transition-colors"
+                    className="hover:bg-[#EAF3F9] transition-colors"
                   >
                     <td className="px-6 py-4 text-xs font-semibold text-slate-900">
                       {item.title || `Content #${item.id}`}
@@ -148,7 +148,7 @@ export const AdminContentLibraryTab: React.FC = () => {
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#2b5f9e] hover:underline"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
                         >
                           Open <ExternalLink className="w-3.5 h-3.5" />
                         </a>

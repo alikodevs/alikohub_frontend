@@ -51,9 +51,9 @@ const initialsOf = (firstname?: string, lastname?: string) =>
   `${firstname?.[0] ?? ""}${lastname?.[0] ?? ""}`.toUpperCase();
 
 const AVATAR_PALETTES = [
-  "bg-[#e8f0fa] text-[#2b5f9e]",
+  "bg-[#EAF3F9] text-primary",
   "bg-rose-50 text-rose-600",
-  "bg-[#fff1e6] text-[#f26b21]",
+  "bg-[#FFF2E3] text-[#D77510]",
   "bg-emerald-50 text-emerald-600",
   "bg-sky-50 text-sky-600",
   "bg-slate-100 text-slate-700",
@@ -830,10 +830,10 @@ const SubmissionDetail = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-base">
+                      <span className="font-semibold text-slate-900 text-base">
                         {group.user?.firstname} {group.user?.lastname}
                       </span>
-                      <Badge className="bg-[#e8f0fa] text-[#2b5f9e] border-none text-[10px] font-bold">
+                      <Badge className="bg-[#EAF3F9] text-primary border-none text-[10px] font-medium">
                         <Layers className="w-3 h-3 mr-1" />
                         Attempt #{attemptCount}
                       </Badge>
@@ -970,16 +970,16 @@ const SubmissionDetail = () => {
             <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center font-bold">
+                  <div className="w-9 h-9 rounded-xl bg-[#EAF3F9] text-primary flex items-center justify-center font-medium">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 flex-wrap">
                       Proctored Exam Security Telemetry
                       <Badge
                         variant="outline"
                         className={cn(
-                          "text-[10px] font-bold",
+                          "text-[10px] font-medium",
                           isAudited
                             ? "bg-emerald-50 text-emerald-700 border-emerald-300"
                             : isFlagged

@@ -25,10 +25,10 @@ import { wabonComplianceService } from "@/features/rubric/services/wabonComplian
 
 const typeColors: Record<string, string> = {
   LIVE: "bg-rose-100 text-rose-700",
-  RECORDING: "bg-[#e8f0fa] text-[#2b5f9e]",
+  RECORDING: "bg-[#EAF3F9] text-primary",
   Q_AND_A: "bg-amber-100 text-amber-700",
   OFFICE_HOURS: "bg-emerald-100 text-emerald-700",
-  WORKSHOP: "bg-[#fff1e6] text-[#c2410c]",
+  WORKSHOP: "bg-[#FFF2E3] text-[#D77510]",
 };
 
 const typeLabels: Record<string, string> = {
@@ -218,7 +218,7 @@ const StudentSchedules = () => {
       <div className="max-w-6xl mx-auto px-5 py-6 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-heading font-bold text-foreground">
+          <h1 className="text-2xl font-heading font-semibold text-foreground">
             My Schedule
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -233,8 +233,8 @@ const StudentSchedules = () => {
               label: "Upcoming",
               value: upcomingSchedules.length,
               icon: CalendarDays,
-              color: "text-[#2b5f9e]",
-              bg: "bg-[#e8f0fa]",
+              color: "text-primary",
+              bg: "bg-[#EAF3F9]",
             },
             {
               label: "Courses",
@@ -270,7 +270,7 @@ const StudentSchedules = () => {
               <div className={`p-2 rounded-lg ${stat.bg} mb-2`}>
                 <stat.icon className={`w-4 h-4 ${stat.color}`} />
               </div>
-              <p className="text-xl font-heading font-bold text-foreground leading-none">
+              <p className="text-xl font-heading font-semibold text-foreground leading-none">
                 {isSchedulesLoading ? "—" : stat.value}
               </p>
               <p className="text-[11px] text-muted-foreground mt-1">
@@ -286,7 +286,7 @@ const StudentSchedules = () => {
           <div className="lg:col-span-2 space-y-5">
             {/* Upcoming schedules */}
             <div>
-              <h2 className="text-base font-heading font-bold text-foreground flex items-center gap-2 mb-3">
+              <h2 className="text-base font-heading font-medium text-foreground flex items-center gap-2 mb-3">
                 <CalendarDays className="w-4 h-4 text-primary" />
                 Upcoming Sessions
               </h2>
@@ -353,7 +353,7 @@ const StudentSchedules = () => {
                             {/* Tags row */}
                             <div className="flex flex-wrap items-center gap-2">
                               <span
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider ${
                                   typeColors[session.type] ||
                                   "bg-slate-100 text-slate-700"
                                 }`}
@@ -362,20 +362,20 @@ const StudentSchedules = () => {
                                 {typeLabels[session.type] || session.type}
                               </span>
                               {isLive && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-500 text-white rounded text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-500 text-white rounded text-[10px] font-medium uppercase tracking-wider animate-pulse">
                                   <span className="w-1.5 h-1.5 rounded-full bg-white" />
                                   Live Now
                                 </span>
                               )}
                               {session.isRecurring && (
-                                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-bold uppercase tracking-wider">
+                                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-medium uppercase tracking-wider">
                                   Recurring
                                 </span>
                               )}
                             </div>
 
                             {/* Title */}
-                            <h3 className="text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
+                            <h3 className="text-base font-medium text-foreground leading-snug group-hover:text-primary transition-colors">
                               {session.title}
                             </h3>
 
@@ -406,7 +406,7 @@ const StudentSchedules = () => {
                           {/* Right: Date block */}
                           <div className="shrink-0 sm:text-right sm:border-l sm:border-border sm:pl-5 flex sm:flex-col items-center sm:items-end justify-between gap-2">
                             <div className="space-y-0.5">
-                              <div className="flex items-center gap-1 sm:justify-end text-foreground font-bold text-xs">
+                              <div className="flex items-center gap-1 sm:justify-end text-foreground font-medium text-xs">
                                 <Calendar className="w-3.5 h-3.5 text-primary" />
                                 {formattedDate}
                               </div>
@@ -416,7 +416,7 @@ const StudentSchedules = () => {
                               </div>
                             </div>
                             {isLive && (
-                              <span className="text-xs text-rose-600 font-bold mt-1">
+                              <span className="text-xs text-rose-600 font-medium mt-1">
                                 Happening now &rarr;
                               </span>
                             )}
@@ -432,7 +432,7 @@ const StudentSchedules = () => {
             {/* Past sessions */}
             {pastSchedules.length > 0 && (
               <div>
-                <h2 className="text-base font-heading font-bold text-muted-foreground flex items-center gap-2 mb-3">
+                <h2 className="text-base font-heading font-medium text-muted-foreground flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4" />
                   Past Sessions
                 </h2>
@@ -495,13 +495,13 @@ const StudentSchedules = () => {
             {/* Scheduled Clinical Facility Shifts */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-base font-heading font-bold text-foreground flex items-center gap-2">
+                <h2 className="text-base font-heading font-medium text-foreground flex items-center gap-2">
                   <Stethoscope className="w-4 h-4 text-emerald-600" />
                   Clinical Facility Shifts
                 </h2>
                 <Link
                   to="/clinical"
-                  className="text-xs font-semibold text-primary hover:underline"
+                  className="text-xs font-medium text-primary hover:underline"
                 >
                   Open Clinical Roster &rarr;
                 </Link>
@@ -519,7 +519,7 @@ const StudentSchedules = () => {
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-semibold uppercase tracking-wider">
+                          <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-medium uppercase tracking-wider">
                             Clinical Shift · {shift.hoursCredited}h
                           </span>
                           {shift.cohort?.name && (
@@ -528,13 +528,13 @@ const StudentSchedules = () => {
                             </span>
                           )}
                         </div>
-                        <h4 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                        <h4 className="text-sm font-medium text-foreground flex items-center gap-1.5">
                           <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           {shift.facilityName}
                         </h4>
                       </div>
                       <div className="text-xs sm:text-right">
-                        <div className="font-bold text-foreground">
+                        <div className="font-medium text-foreground">
                           {shift.shiftDate
                             ? format(new Date(shift.shiftDate), "MMM d, yyyy")
                             : "—"}
@@ -583,7 +583,7 @@ const StudentSchedules = () => {
                         className="flex items-center justify-between p-2.5 rounded-lg hover:bg-muted transition-colors group"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded-lg bg-[#e8f0fa] flex items-center justify-center shrink-0 border border-border overflow-hidden">
+                          <div className="w-8 h-8 rounded-lg bg-[#EAF3F9] flex items-center justify-center shrink-0 border border-border overflow-hidden">
                             {info?.thumbnail ? (
                               <img
                                 src={info.thumbnail}
@@ -591,11 +591,11 @@ const StudentSchedules = () => {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <BookOpen className="w-3.5 h-3.5 text-[#2b5f9e]" />
+                              <BookOpen className="w-3.5 h-3.5 text-primary" />
                             )}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                            <p className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">
                               {info?.title || `Course #${cId}`}
                             </p>
                             <p className="text-[10px] text-muted-foreground">
@@ -615,7 +615,7 @@ const StudentSchedules = () => {
             {/* Cohort Completion Pacing Deadlines */}
             {cohortPacingSummaries.length > 0 && (
               <div className="bg-card rounded-xl border p-5 space-y-3">
-                <h3 className="font-heading font-semibold text-foreground text-sm flex items-center gap-2">
+                <h3 className="font-heading font-medium text-foreground text-sm flex items-center gap-2">
                   <Gauge className="w-4 h-4 text-primary" />
                   Cohort Pacing Deadlines
                 </h3>
@@ -635,11 +635,11 @@ const StudentSchedules = () => {
                         className="p-3 rounded-lg bg-muted/50 border text-xs space-y-1.5"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-foreground truncate">
+                          <span className="font-medium text-foreground truncate">
                             {report.courseTitle || `Cohort #${report.cohortId}`}
                           </span>
                           <span
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${badgeColor}`}
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-medium uppercase ${badgeColor}`}
                           >
                             {pacing.status.replace(/_/g, " ")}
                           </span>
@@ -648,7 +648,7 @@ const StudentSchedules = () => {
                           <span>
                             Progress: {pacing.actualProgressPercent}% / {pacing.expectedProgressPercent}% expected
                           </span>
-                          <span className="font-semibold text-foreground">
+                          <span className="font-medium text-foreground">
                             {pacing.daysRemainingInCohort}d left
                           </span>
                         </div>
@@ -660,14 +660,14 @@ const StudentSchedules = () => {
             )}
 
             {/* Info card */}
-            <div className="rounded-xl p-5 bg-white border border-[#e5e9f0] space-y-2">
+            <div className="rounded-xl p-5 bg-white border border-[#E2E8F0] space-y-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#e8f0fa] text-[#2b5f9e] flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-[#EAF3F9] text-primary flex items-center justify-center shrink-0">
                   <CalendarDays className="w-4 h-4" />
                 </div>
-                <span className="font-bold text-sm text-[#0f1b2d]">Stay on Track</span>
+                <span className="font-medium text-sm text-slate-800">Stay on Track</span>
               </div>
-              <div className="w-7 h-0.5 bg-[#f26b21] rounded-full" />
+              <div className="w-7 h-0.5 bg-[#D77510] rounded-full" />
               <p className="text-slate-500 text-xs leading-relaxed">
                 Your instructors schedule live workshops, Q&A sessions, and
                 office hours through your enrolled cohorts. Check back regularly

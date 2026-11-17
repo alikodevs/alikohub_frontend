@@ -116,11 +116,11 @@ export const StudyGroupsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#EAF3F9] border border-[#E2E8F0] text-primary flex items-center justify-center shrink-0">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-heading font-semibold tracking-tight text-slate-900">
                 Cohort Study Groups & Peer Collaboration
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -132,7 +132,7 @@ export const StudyGroupsPage: React.FC = () => {
 
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold text-xs h-10 rounded-xl shadow-xs"
+          className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs h-10 rounded-xl shadow-xs"
         >
           <Plus className="w-4 h-4 mr-1.5" /> Create Study Group
         </Button>
@@ -142,7 +142,7 @@ export const StudyGroupsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="w-full sm:w-64">
           <Select value={activeCohortId || undefined} onValueChange={setSelectedCohortId}>
-            <SelectTrigger className="bg-white border-slate-200 text-xs font-semibold h-10">
+            <SelectTrigger className="bg-white border-slate-200 text-xs font-medium h-10">
               <SelectValue placeholder={cohorts.length > 0 ? "Select Cohort" : "No cohorts available"} />
             </SelectTrigger>
             <SelectContent>
@@ -180,7 +180,7 @@ export const StudyGroupsPage: React.FC = () => {
       ) : filteredGroups.length === 0 ? (
         <div className="p-12 text-center bg-white border border-slate-200 rounded-2xl space-y-2">
           <Users className="w-8 h-8 text-slate-400 mx-auto" />
-          <p className="text-sm font-bold text-slate-700">No Study Groups Found</p>
+          <p className="text-sm font-medium text-slate-700">No Study Groups Found</p>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             Create a new study group to coordinate group review sessions, quiz practice, or skills review with your peers.
           </p>
@@ -201,7 +201,7 @@ export const StudyGroupsPage: React.FC = () => {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3] font-bold text-[10px]">
+                    <Badge variant="outline" className="bg-[#EAF3F9] text-primary border-[#E2E8F0] font-medium text-[10px]">
                       {memberCount} Active Members
                     </Badge>
                     {canManageStaffActions && (
@@ -217,7 +217,7 @@ export const StudyGroupsPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 leading-snug">
+                    <h3 className="text-sm font-medium text-slate-900 leading-snug">
                       {group.name}
                     </h3>
                     {group.description && (
@@ -232,7 +232,7 @@ export const StudyGroupsPage: React.FC = () => {
                       href={group.meetingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-[#2b5f9e] font-bold hover:underline"
+                      className="inline-flex items-center gap-1.5 text-xs text-primary font-medium hover:underline"
                     >
                       <Video className="w-3.5 h-3.5" />
                       Join Video Meeting Room
@@ -253,7 +253,7 @@ export const StudyGroupsPage: React.FC = () => {
                         variant="outline"
                         onClick={() => handleLeave(group.id)}
                         disabled={leaveGroupMutation.isPending}
-                        className="h-8 text-xs font-bold text-rose-600 border-rose-200 hover:bg-rose-50"
+                        className="h-8 text-xs font-medium text-rose-600 border-rose-200 hover:bg-rose-50"
                       >
                         <UserMinus className="w-3.5 h-3.5 mr-1" /> Leave
                       </Button>
@@ -262,7 +262,7 @@ export const StudyGroupsPage: React.FC = () => {
                         size="sm"
                         onClick={() => handleJoin(group.id)}
                         disabled={joinGroupMutation.isPending}
-                        className="h-8 text-xs font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
+                        className="h-8 text-xs font-medium bg-primary hover:bg-[#084B78] text-white"
                       >
                         <UserPlus className="w-3.5 h-3.5 mr-1" /> Join Group
                       </Button>
@@ -278,8 +278,8 @@ export const StudyGroupsPage: React.FC = () => {
       {/* Create Study Group Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent className="max-w-md">
-          <DialogTitle className="text-base font-heading font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#2b5f9e]" />
+          <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" />
             Create Cohort Study Group
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-500">
@@ -340,7 +340,7 @@ export const StudyGroupsPage: React.FC = () => {
                 type="submit"
                 size="sm"
                 disabled={createGroupMutation.isPending}
-                className="h-9 text-xs font-bold bg-[#2b5f9e] hover:bg-[#234e83] text-white"
+                className="h-9 text-xs font-medium bg-primary hover:bg-[#084B78] text-white"
               >
                 {createGroupMutation.isPending ? (
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />

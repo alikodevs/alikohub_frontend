@@ -76,7 +76,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 border-none">
+          <h2 className="text-xl font-semibold text-slate-900 border-none">
             Course Cohorts
           </h2>
           <p className="text-slate-500 text-sm">
@@ -85,7 +85,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
         </div>
         <Button
           onClick={() => setIsAdding(!isAdding)}
-          className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold gap-2 border-0"
+          className="bg-primary hover:bg-[#084B78] text-white font-medium gap-2 border-0"
         >
           {isAdding ? (
             "Cancel"
@@ -100,8 +100,8 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
       {isAdding && (
         <Card className="border-none shadow-xl bg-slate-50 ring-1 ring-slate-100 overflow-hidden">
           <CardHeader className="bg-white border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-2">
-            <Users className="w-5 h-5 text-[#2b5f9e]" />
-            <CardTitle className="text-lg font-bold">
+            <Users className="w-5 h-5 text-primary" />
+            <CardTitle className="text-lg font-semibold">
               New Cohort Details
             </CardTitle>
           </CardHeader>
@@ -113,7 +113,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
               <div className="space-y-2 md:col-span-2">
                 <Label
                   htmlFor="name"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   Cohort Name
                 </Label>
@@ -124,14 +124,14 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="bg-white border-slate-200 focus:ring-[#2b5f9e] h-11"
+                  className="bg-white border-slate-200 focus:ring-primary h-11"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label
                   htmlFor="startDate"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   Start Date
                 </Label>
@@ -149,7 +149,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
               <div className="space-y-2">
                 <Label
                   htmlFor="endDate"
-                  className="text-sm font-bold text-slate-700"
+                  className="text-sm font-medium text-slate-700"
                 >
                   End Date
                 </Label>
@@ -166,7 +166,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
 
               <div className="flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-600">
                 <span>
-                  Cohort Capacity: <strong className="text-slate-900">Fixed at 30 Students Max</strong> (1:30 instructor ratio cap; supervising instructor auto-assigned).
+                  Cohort Capacity: <strong className="text-slate-900 font-medium">Fixed at 30 Students Max</strong> (1:30 instructor ratio cap; supervising instructor auto-assigned).
                 </span>
               </div>
 
@@ -181,7 +181,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                         isHighSchoolTenMonth: e.target.checked,
                       })
                     }
-                    className="rounded border-slate-300 text-[#2b5f9e] focus:ring-[#2b5f9e]"
+                    className="rounded border-slate-300 text-primary focus:ring-primary"
                   />
                   <span>10-Month High School Calendar Program (90-day exception)</span>
                 </label>
@@ -191,7 +191,7 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                 <Button
                   type="submit"
                   disabled={createCohortMutation.isPending}
-                  className="bg-slate-900 hover:bg-slate-800 text-white font-bold h-11 px-8 rounded-lg transition-all shadow-md active:scale-95"
+                  className="bg-slate-900 hover:bg-slate-800 text-white font-medium h-11 px-8 rounded-lg transition-all shadow-md active:scale-95"
                 >
                   {createCohortMutation.isPending
                     ? "Creating..."
@@ -204,8 +204,8 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
       )}
 
       <div className="space-y-4">
-        <h3 className="font-bold text-slate-900 flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-[#2b5f9e]" />
+        <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-primary" />
           Active & Upcoming Cohorts
         </h3>
 
@@ -284,26 +284,26 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                     <div className="flex items-start justify-between mb-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-[#e8f0fa] text-[#2b5f9e]">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-[#EAF3F9] text-primary">
                             COHORT #{cohort.id}
                           </span>
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold border ${statusBadge.color}`}
+                            className={`px-2 py-0.5 rounded text-[10px] font-medium border ${statusBadge.color}`}
                           >
                             {statusBadge.label}
                           </span>
                           {cohort.maxCapacity != null && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
                               Cap: {cohort.maxCapacity}
                             </span>
                           )}
                           {cohort.isHighSchoolTenMonth && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
                               10-Month HS
                             </span>
                           )}
                         </div>
-                        <h4 className="font-bold text-slate-800 line-clamp-1 mt-1">
+                        <h4 className="font-semibold text-slate-800 line-clamp-1 mt-1">
                           {cohort.name}
                         </h4>
                       </div>
@@ -313,13 +313,13 @@ export const CohortsTab = ({ courseId }: CohortsTabProps) => {
                       <div className="flex flex-col gap-1 text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-slate-400" />
-                          <span className="font-bold text-slate-700 text-xs">
+                          <span className="font-medium text-slate-700 text-xs">
                             Starts: {formattedStartDate}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-slate-400" />
-                          <span className="font-bold text-slate-700 text-xs">
+                          <span className="font-medium text-slate-700 text-xs">
                             Ends: {formattedEndDate}
                           </span>
                         </div>

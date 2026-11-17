@@ -50,10 +50,10 @@ interface FormState {
 
 const typeColors: Record<string, string> = {
   LIVE: "bg-rose-100 text-rose-700 border-rose-200",
-  RECORDING: "bg-[#e8f0fa] text-[#2b5f9e] border-[#c8dcf3]",
+  RECORDING: "bg-[#EAF3F9] text-primary border-[#E2E8F0]",
   Q_AND_A: "bg-amber-100 text-amber-700 border-amber-200",
   OFFICE_HOURS: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  WORKSHOP: "bg-[#fff1e6] text-[#c2410c] border-[#ffd8bc]",
+  WORKSHOP: "bg-[#FFF2E3] text-[#D77510] border-[#D77510]/30",
 };
 
 const InstructorSchedules = () => {
@@ -181,7 +181,7 @@ const InstructorSchedules = () => {
         {/* Header Block */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-heading font-bold text-slate-900 border-none">
+            <h1 className="text-2xl font-heading font-semibold text-slate-900 border-none">
               Course Schedules
             </h1>
             <p className="text-slate-500 text-sm mt-1">
@@ -199,7 +199,7 @@ const InstructorSchedules = () => {
                 setIsAdding(true);
               }
             }}
-            className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold gap-2 shadow-sm transition-all border-0"
+            className="bg-primary hover:bg-[#084B78] text-white font-medium gap-2 shadow-sm transition-all border-0"
           >
             {isAdding ? (
               "Cancel"
@@ -219,9 +219,9 @@ const InstructorSchedules = () => {
             {isAdding && (
               <Card className="border-none shadow-xl bg-slate-50 ring-1 ring-slate-200/50 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
                 <CardHeader className="bg-white border-b border-slate-100 py-4 px-6 flex flex-row items-center gap-2">
-                  <Calendar className="w-5 h-5 text-[#2b5f9e]" />
+                  <Calendar className="w-5 h-5 text-primary" />
                   <div>
-                    <CardTitle className="text-lg font-bold">
+                    <CardTitle className="text-lg font-heading font-semibold">
                       {editingScheduleId ? "Update Scheduled Session" : "New Cohort Scheduling"}
                     </CardTitle>
                     <CardDescription className="text-xs text-slate-500">
@@ -237,7 +237,7 @@ const InstructorSchedules = () => {
                       <div className="space-y-2">
                         <Label
                           htmlFor="courseId"
-                          className="text-sm font-bold text-slate-700"
+                          className="text-sm font-medium text-slate-700"
                         >
                           Course
                         </Label>
@@ -245,7 +245,7 @@ const InstructorSchedules = () => {
                           id="courseId"
                           value={formData.courseId}
                           onChange={handleCourseChange}
-                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11"
+                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary h-11"
                           required
                           disabled={coursesLoading}
                         >
@@ -266,7 +266,7 @@ const InstructorSchedules = () => {
                       <div className="space-y-2">
                         <Label
                           htmlFor="cohortId"
-                          className="text-sm font-bold text-slate-700"
+                          className="text-sm font-medium text-slate-700"
                         >
                           Target Cohort
                         </Label>
@@ -279,7 +279,7 @@ const InstructorSchedules = () => {
                               cohortId: e.target.value,
                             }))
                           }
-                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11 disabled:bg-slate-100/80 disabled:text-slate-400"
+                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary h-11 disabled:bg-slate-100/80 disabled:text-slate-400"
                           required
                           disabled={!formData.courseId || cohortsLoading}
                         >
@@ -315,7 +315,7 @@ const InstructorSchedules = () => {
                       <div className="space-y-2">
                         <Label
                           htmlFor="title"
-                          className="text-sm font-bold text-slate-700"
+                          className="text-sm font-medium text-slate-700"
                         >
                           Session Title
                         </Label>
@@ -329,7 +329,7 @@ const InstructorSchedules = () => {
                               title: e.target.value,
                             }))
                           }
-                          className="bg-white border-slate-200 focus:ring-[#2b5f9e] h-11"
+                          className="bg-white border-slate-200 focus:ring-primary h-11"
                           required
                         />
                       </div>
@@ -338,7 +338,7 @@ const InstructorSchedules = () => {
                       <div className="space-y-2">
                         <Label
                           htmlFor="type"
-                          className="text-sm font-bold text-slate-700"
+                          className="text-sm font-medium text-slate-700"
                         >
                           Session Type
                         </Label>
@@ -351,7 +351,7 @@ const InstructorSchedules = () => {
                               type: e.target.value,
                             }))
                           }
-                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b5f9e] h-11"
+                          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary h-11"
                           required
                         >
                           <option value="WORKSHOP">Workshop</option>
@@ -367,7 +367,7 @@ const InstructorSchedules = () => {
                     <div className="space-y-2">
                       <Label
                         htmlFor="description"
-                        className="text-sm font-bold text-slate-700"
+                        className="text-sm font-medium text-slate-700"
                       >
                         Description / Agenda
                       </Label>
@@ -381,7 +381,7 @@ const InstructorSchedules = () => {
                             description: e.target.value,
                           }))
                         }
-                        className="bg-white border-slate-200 focus:ring-[#2b5f9e] min-h-[80px]"
+                        className="bg-white border-slate-200 focus:ring-primary min-h-[80px]"
                       />
                     </div>
 
@@ -390,7 +390,7 @@ const InstructorSchedules = () => {
                       <div className="space-y-2">
                         <Label
                           htmlFor="startTime"
-                          className="text-sm font-bold text-slate-700"
+                          className="text-sm font-medium text-slate-700"
                         >
                           Start Time & Date
                         </Label>
@@ -413,7 +413,7 @@ const InstructorSchedules = () => {
                       <div className="space-y-2">
                         <Label
                           htmlFor="endTime"
-                          className="text-sm font-bold text-slate-700"
+                          className="text-sm font-medium text-slate-700"
                         >
                           End Time & Date
                         </Label>
@@ -445,7 +445,7 @@ const InstructorSchedules = () => {
                             isRecurring: e.target.checked,
                           }))
                         }
-                        className="h-4 w-4 rounded border-slate-300 text-[#2b5f9e] focus:ring-[#2b5f9e]"
+                        className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
                       />
                       <label
                         htmlFor="isRecurring"
@@ -470,7 +470,7 @@ const InstructorSchedules = () => {
                       <Button
                         type="submit"
                         disabled={createScheduleMutation.isPending || updateScheduleMutation.isPending}
-                        className="bg-[#2b5f9e] hover:bg-[#234e83] text-white font-semibold h-11 px-8 rounded-lg transition-all disabled:opacity-50"
+                        className="bg-primary hover:bg-[#084B78] text-white font-medium h-11 px-8 rounded-lg transition-all disabled:opacity-50"
                       >
                         {(createScheduleMutation.isPending || updateScheduleMutation.isPending)
                           ? "Saving..."
@@ -551,7 +551,7 @@ const InstructorSchedules = () => {
                                 {session.type}
                               </span>
                               {session.isRecurring && (
-                                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-[10px] font-bold uppercase tracking-wider">
+                                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded text-[10px] font-medium uppercase tracking-wider">
                                   Recurring
                                 </span>
                               )}
@@ -561,7 +561,7 @@ const InstructorSchedules = () => {
                             </div>
 
                             <div>
-                              <h4 className="text-base font-bold text-slate-800 leading-snug group-hover:text-[#2b5f9e] transition-colors">
+                              <h4 className="text-base font-medium text-slate-800 leading-snug group-hover:text-primary transition-colors">
                                 {session.title}
                               </h4>
                               {session.description && (
@@ -571,7 +571,7 @@ const InstructorSchedules = () => {
                               )}
                             </div>
 
-                            <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-[11px] text-slate-500 font-semibold">
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-[11px] text-slate-500 font-medium">
                               <span className="flex items-center gap-1">
                                 <BookOpen className="w-3.5 h-3.5 text-slate-400" />
                                 {getCourseTitle(session.courseId)}
@@ -593,8 +593,8 @@ const InstructorSchedules = () => {
 
                           <div className="shrink-0 flex items-center md:flex-col md:items-end justify-between border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-5 gap-3">
                             <div className="flex flex-col text-left md:text-right gap-0.5">
-                              <div className="flex items-center gap-1 md:justify-end text-slate-700 font-bold text-xs">
-                                <Calendar className="w-3.5 h-3.5 text-[#2b5f9e]" />
+                              <div className="flex items-center gap-1 md:justify-end text-slate-700 font-medium text-xs">
+                                <Calendar className="w-3.5 h-3.5 text-primary" />
                                 {formattedDate}
                               </div>
                               <div className="text-[10px] text-slate-400 font-medium">
@@ -658,7 +658,7 @@ const InstructorSchedules = () => {
                     <BellRing className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-bold text-slate-900 leading-tight">
+                    <p className="font-medium text-slate-900 leading-tight">
                       System Update
                     </p>
                     <p className="text-slate-500 text-xs mt-0.5">
@@ -669,11 +669,11 @@ const InstructorSchedules = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white border border-[#e5e9f0] text-[#0f1b2d]">
+            <Card className="bg-white border border-[#E2E8F0] text-slate-800">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Clock className="w-5 h-5 text-[#2b5f9e]" />
-                  <span className="font-bold">Pro Tip</span>
+                  <Clock className="w-5 h-5 text-primary" />
+                  <span className="font-medium">Pro Tip</span>
                 </div>
                 <p className="text-sm text-slate-500 leading-relaxed">
                   Scheduling regular live sessions increases student engagement

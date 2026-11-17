@@ -185,11 +185,11 @@ const InstructorCourses = () => {
               className="gap-2 bg-white hover:bg-slate-50 text-slate-900 shadow-sm border border-slate-200 font-medium"
               onClick={() => setIsCohortModalOpen(true)}
             >
-              <Users className="w-4 h-4 text-[#2b5f9e]" /> Create Cohort
+              <Users className="w-4 h-4 text-primary" /> Create Cohort
             </Button>
             <Button
               asChild
-              className="gap-2 bg-[#2b5f9e] hover:bg-[#234e83] text-white shadow-sm font-medium border-0"
+              className="gap-2 bg-primary hover:bg-[#084B78] text-white shadow-sm font-medium border-0"
             >
               <Link to="/instructor/courses/new">
                 <PlusCircle className="w-4 h-4" /> Create Course
@@ -203,7 +203,7 @@ const InstructorCourses = () => {
           <div className="bg-white rounded-xl border border-slate-200 mb-6 overflow-hidden">
             {/* Panel header */}
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/30">
-              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+              <span className="text-xs font-medium text-slate-900 uppercase tracking-wider">
                 Platform Statistics
               </span>
             </div>
@@ -220,21 +220,21 @@ const InstructorCourses = () => {
                     segments={[
                       { value: publishedCount, color: "#10b981" },
                       { value: pendingCount, color: "#f59e0b" },
-                      { value: draftCount, color: "#f26b21" },
+                      { value: draftCount, color: "#D77510" },
                       { value: rejectedCount, color: "#ef4444" },
                     ]}
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xl font-bold text-slate-900 leading-none">
+                    <span className="text-xl font-semibold text-slate-900 leading-none">
                       {totalCount}
                     </span>
-                    <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">
+                    <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
                       total
                     </span>
                   </div>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-slate-700 mb-3">
+                  <p className="text-sm font-medium text-slate-700 mb-3">
                     Course status
                   </p>
                   <div className="space-y-2">
@@ -249,7 +249,7 @@ const InstructorCourses = () => {
                         value: pendingCount,
                         color: "#f59e0b",
                       },
-                      { label: "Draft", value: draftCount, color: "#f26b21" },
+                      { label: "Draft", value: draftCount, color: "#D77510" },
                       ...(rejectedCount > 0
                         ? [
                             {
@@ -289,10 +289,10 @@ const InstructorCourses = () => {
                     ]}
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xl font-bold text-slate-900 leading-none">
+                    <span className="text-xl font-semibold text-slate-900 leading-none">
                       {stats?.totalStudents || 0}
                     </span>
-                    <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">
+                    <span className="text-[9px] font-medium text-slate-400 uppercase tracking-widest mt-0.5">
                       learners
                     </span>
                   </div>
@@ -529,7 +529,7 @@ const InstructorCourses = () => {
                       size="sm"
                       className={`h-8 w-8 p-0 rounded-lg font-medium ${
                         pageNum === safePage
-                          ? "bg-[#2b5f9e] text-white hover:bg-[#234e83] border-none"
+                          ? "bg-primary text-white hover:bg-[#084B78] border-none"
                           : "border-slate-200 text-slate-600"
                       }`}
                       onClick={() => setCurrentPage(pageNum)}

@@ -20,13 +20,10 @@ import { useResetPassword } from "@/features/auth/hooks/useAuth";
 
 // Brand tokens — shared with ForgotPasswordPage. Swap for Tailwind config
 // `primary` / `accent` values once they're wired up.
-const BRAND_PRIMARY = "#0095DA";
-const BRAND_ACCENT = "#F37E28";
+const BRAND_PRIMARY = "#0A65A0";
+const BRAND_ACCENT = "#D77510";
 const BRAND_GRADIENT = `linear-gradient(135deg, ${BRAND_PRIMARY} 0%, ${BRAND_ACCENT} 100%)`;
-// Used specifically for "Back to Sign In" links and input focus rings —
-// a deeper, more muted blue than BRAND_PRIMARY so these secondary/utility
-// elements sit quietly beneath the gradient CTA and badge.
-const BRAND_LINK = "#2C5F96";
+const BRAND_LINK = "#0A65A0";
 
 const passwordChecks = [
   { label: "At least 6 characters", test: (p: string) => p.length >= 6 },
@@ -160,7 +157,7 @@ const ResetPasswordPage = () => {
 
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 text-sm font-bold transition-opacity hover:opacity-80"
+              className="inline-flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-80"
               style={{ color: BRAND_LINK }}
             >
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -276,7 +273,7 @@ const ResetPasswordPage = () => {
                 <div className="space-y-4 pt-1">
                   <Button
                     type="submit"
-                    className="h-11 w-full rounded-lg text-base font-bold text-white shadow-md shadow-black/10 transition-opacity hover:opacity-90 active:opacity-80 sm:h-12"
+                    className="h-11 w-full rounded-lg text-base font-medium text-white shadow-md shadow-black/10 transition-opacity hover:opacity-90 active:opacity-80 sm:h-12"
                     style={{ background: BRAND_GRADIENT }}
                     disabled={isPending}
                     aria-busy={isPending}
@@ -300,7 +297,7 @@ const ResetPasswordPage = () => {
                   <div className="text-center">
                     <Link
                       to="/login"
-                      className="inline-flex items-center gap-2 text-sm font-bold transition-opacity hover:opacity-80"
+                      className="inline-flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-80"
                       style={{ color: BRAND_LINK }}
                     >
                       <ArrowLeft className="h-4 w-4" aria-hidden="true" />

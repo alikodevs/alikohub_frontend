@@ -133,18 +133,18 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
         className={cn(
           "relative flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] transition-all duration-150 w-full group font-medium",
           active
-            ? "bg-[#e8f0fa] text-[#2b5f9e] font-semibold"
-            : "text-slate-600 hover:bg-[#f8fafc] hover:text-[#0f1b2d]",
+            ? "bg-[#EAF3F9] text-[#0A65A0]"
+            : "text-slate-600 hover:bg-[#F4F8FB] hover:text-[#1E293B]",
         )}
       >
         {active && (
-          <span className="absolute -left-4 top-2 bottom-2 w-[3px] rounded-r bg-[#f26b21]" />
+          <span className="absolute -left-4 top-2 bottom-2 w-[3px] rounded-r bg-[#D77510]" />
         )}
         <Icon
           className={cn(
             "w-[18px] h-[18px] shrink-0",
             active
-              ? "text-[#2b5f9e]"
+              ? "text-[#0A65A0]"
               : "text-slate-400 group-hover:text-slate-600",
           )}
         />
@@ -152,10 +152,10 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
         {item.badge != null && item.badge > 0 && (
           <span
             className={cn(
-              "text-[11px] font-semibold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 leading-none",
+              "text-[11px] font-medium rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 leading-none",
               active
-                ? "bg-white text-[#2b5f9e] border border-[#2b5f9e]/20"
-                : "bg-[#e8f0fa] text-[#2b5f9e]",
+                ? "bg-white text-[#0A65A0] border border-[#0A65A0]/20"
+                : "bg-[#EAF3F9] text-[#0A65A0]",
             )}
           >
             {item.badge}
@@ -195,7 +195,7 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
 
       <aside
         className={cn(
-          "relative w-[272px] shrink-0 flex flex-col h-screen bg-white border-r border-[#e5e9f0] z-50 text-slate-600",
+          "relative w-[272px] shrink-0 flex flex-col h-screen bg-white border-r border-[#E2E8F0] z-50 text-slate-600",
           // Desktop: always visible
           "hidden lg:flex lg:sticky lg:top-0",
           // Mobile: slide-in overlay
@@ -203,7 +203,7 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
         )}
       >
         {/* Logo + mobile close */}
-        <div className="relative h-20 shrink-0 flex items-center justify-center px-6 border-b border-[#e5e9f0]">
+        <div className="relative h-20 shrink-0 flex items-center justify-center px-6 border-b border-[#E2E8F0]">
           <img
             src="/Aliko Academy - LMS 2.png"
             alt="Aliko Academy LMS"
@@ -227,7 +227,7 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
         >
           {sections.map((section) => (
             <div key={section.title}>
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.08em] px-3 mb-1.5">
+              <p className="text-[11px] font-medium text-slate-400 uppercase tracking-[0.08em] px-3 mb-1.5">
                 {section.title}
               </p>
               <div className="space-y-0.5">
@@ -247,7 +247,7 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
             onClick={() => {
               navRef.current?.scrollBy({ top: 160, behavior: "smooth" });
             }}
-            className="pointer-events-auto w-7 h-7 rounded-full bg-white text-[#0D72BA] shadow-md flex items-center justify-center hover:bg-[#e8f2fc] hover:scale-105 transition-all cursor-pointer border border-[#cce4f9]"
+            className="pointer-events-auto w-7 h-7 rounded-full bg-white text-[#0A65A0] shadow-md flex items-center justify-center hover:bg-[#EAF3F9] hover:scale-105 transition-all cursor-pointer border border-[#E2E8F0]"
           >
             <ChevronDown size={15} />
           </button>
@@ -256,10 +256,10 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
         {/* Bottom motivational card with light brand coloring, keeping text & 3D mountain artwork intact */}
         <div className="px-3 pb-3 pt-2 shrink-0">
           <div
-            className="relative overflow-hidden rounded-2xl p-5 border border-[#cce4f9] shadow-xs min-h-[118px] flex flex-col justify-center"
+            className="relative overflow-hidden rounded-2xl p-5 border border-[#E2E8F0] shadow-xs min-h-[118px] flex flex-col justify-center"
             style={{
               background:
-                "linear-gradient(135deg, #e8f3fc 0%, #edf6fd 50%, #f4f9fe 100%)",
+                "linear-gradient(135deg, #EAF3F9 0%, #F4F8FB 50%, #ffffff 100%)",
             }}
           >
             {/* Subtle brand glow */}
@@ -267,17 +267,17 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
               className="absolute -top-6 -right-6 w-28 h-28 rounded-full pointer-events-none"
               style={{
                 background:
-                  "radial-gradient(circle, rgba(13,114,186,0.12) 0%, transparent 70%)",
+                  "radial-gradient(circle, rgba(10,101,160,0.12) 0%, transparent 70%)",
               }}
             />
 
             <div className="relative z-10">
-              <p className="text-[#17469E] font-heading font-bold text-[14px] leading-tight pr-4">
+              <p className="text-[#0A65A0] font-heading font-bold text-[14px] leading-tight pr-4">
                 Learn · Grow ·<br />
-                <span className="text-[#0f1b2d]">Succeed</span>
+                <span className="text-[#1E293B]">Succeed</span>
               </p>
               {/* Orange underline bar */}
-              <div className="w-8 h-1 bg-[#BF6622] rounded-full mt-2.5 shadow-xs" />
+              <div className="w-8 h-1 bg-[#D77510] rounded-full mt-2.5 shadow-xs" />
             </div>
 
             {/* 3D Mountain vector artwork preserved exactly */}

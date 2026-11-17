@@ -50,10 +50,10 @@ export const AdminUsersTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-[#E1EAF2] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#2b5f9e]" />
+          <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" />
             Platform Users Directory ({filteredUsers.length})
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -65,7 +65,7 @@ export const AdminUsersTab: React.FC = () => {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-[#E1EAF2] bg-slate-50 text-xs font-semibold text-slate-700"
+            className="h-9 px-3 rounded-lg border border-slate-200 bg-slate-50 text-xs font-medium text-slate-700"
           >
             <option value="ALL">All Roles</option>
             {roleOptions.map((r) => (
@@ -81,16 +81,16 @@ export const AdminUsersTab: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search name or email..."
-              className="pl-9 h-9 text-xs bg-slate-50 border-[#E1EAF2]"
+              className="pl-9 h-9 text-xs bg-slate-50 border-[#E2E8F0]"
             />
           </div>
         </div>
       </div>
 
-      <div className="bg-white border border-[#E1EAF2] rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E1EAF2]">
+            <thead className="text-slate-500 uppercase text-xs font-bold border-b border-[#E2E8F0]">
               <tr>
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Email</th>
@@ -99,7 +99,7 @@ export const AdminUsersTab: React.FC = () => {
                 <th className="px-6 py-4">Joined</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E1EAF2]">
+            <tbody className="divide-y divide-[#E2E8F0]">
               {isLoading ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
@@ -122,7 +122,7 @@ export const AdminUsersTab: React.FC = () => {
                   return (
                     <tr
                       key={u.firebaseId || u.id || idx}
-                      className="hover:bg-[#EAF4FB] transition-colors"
+                      className="hover:bg-[#EAF3F9] transition-colors"
                     >
                       <td className="px-6 py-4 text-xs font-semibold text-slate-900">
                         {fullName}

@@ -82,7 +82,7 @@ const ReviewCourseModal: React.FC<ReviewCourseModalProps> = ({
               <span className="text-zinc-500 dark:text-zinc-400 transition-colors duration-300">
                 Price
               </span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 transition-colors duration-300">
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400 transition-colors duration-300">
                 {course.price && course.price > 0 ? `$${course.price}` : "Free"}
               </span>
             </div>
@@ -117,7 +117,7 @@ const ReviewCourseModal: React.FC<ReviewCourseModalProps> = ({
           <div className="px-6 py-6">
             {isActionable ? (
               <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-505 dark:text-zinc-400 mb-1 transition-colors duration-300">
+                <label className="block text-xs font-medium uppercase tracking-wider text-zinc-505 dark:text-zinc-400 mb-1 transition-colors duration-300">
                   Rejection reason / notes
                 </label>
                 <textarea
@@ -152,7 +152,7 @@ const ReviewCourseModal: React.FC<ReviewCourseModalProps> = ({
                     </div>
                   )}
                   <span
-                    className={`text-lg font-bold transition-colors duration-300 ${
+                    className={`text-lg font-semibold transition-colors duration-300 ${
                       course.status === "PUBLISHED"
                         ? "text-emerald-500 dark:text-emerald-400"
                         : course.status === "REJECTED"
@@ -177,7 +177,7 @@ const ReviewCourseModal: React.FC<ReviewCourseModalProps> = ({
         <div className="px-6 py-4 bg-zinc-50 dark:bg-[#1f1f22] flex justify-end gap-3 border-t border-zinc-200 dark:border-[#3f3f46] transition-colors duration-300">
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl border border-zinc-300 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-sm font-bold hover:bg-zinc-100 dark:hover:bg-[#3f3f46] transition-colors duration-300"
+            className="px-5 py-2 rounded-xl border border-zinc-300 dark:border-[#52525b] text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-[#3f3f46] transition-colors duration-300"
           >
             Close
           </button>
@@ -187,14 +187,14 @@ const ReviewCourseModal: React.FC<ReviewCourseModalProps> = ({
               <button
                 onClick={() => onReject(course.id, notes)}
                 disabled={isProcessing}
-                className="px-5 py-2 rounded-xl border border-red-500/30 text-red-550 dark:text-red-400 text-sm font-bold hover:bg-red-500/10 disabled:opacity-50 transition-colors duration-300"
+                className="px-5 py-2 rounded-xl border border-red-500/30 text-red-550 dark:text-red-400 text-sm font-medium hover:bg-red-500/10 disabled:opacity-50 transition-colors duration-300"
               >
                 Reject
               </button>
               <button
                 onClick={() => onApprove(course.id, notes)}
                 disabled={isProcessing}
-                className="px-5 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 disabled:opacity-50 transition-colors duration-300"
+                className="px-5 py-2 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors duration-300"
               >
                 Approve
               </button>

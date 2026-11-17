@@ -654,7 +654,7 @@ const LmsLearn = () => {
   if (!course) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--lms-bg)] p-6">
-        <h2 className="text-2xl font-bold text-[var(--lms-ink)] mb-2">
+        <h2 className="text-2xl font-heading font-semibold text-[var(--lms-ink)] mb-2">
           Course not found
         </h2>
         <p className="text-[var(--lms-muted)] mb-6 text-center max-w-md">
@@ -673,7 +673,7 @@ const LmsLearn = () => {
         <div className="w-20 h-20 bg-amber-50 rounded-lg flex items-center justify-center mb-6 border border-amber-100 shadow-[var(--lms-shadow-sm)]">
           <Lock className="w-10 h-10 text-amber-500" />
         </div>
-        <h2 className="text-3xl font-bold text-[var(--lms-ink)] mb-3 tracking-normal">
+        <h2 className="text-3xl font-heading font-semibold text-[var(--lms-ink)] mb-3 tracking-normal">
           Access Restricted
         </h2>
         <p className="text-[var(--lms-muted)] mb-8 max-w-md leading-relaxed">
@@ -684,7 +684,7 @@ const LmsLearn = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <Button
             onClick={() => navigate(`/courses/${id}`)}
-            className="rounded-lg h-12 px-8 bg-[var(--lms-ink)] hover:bg-[var(--lms-navy)] font-bold"
+            className="rounded-lg h-12 px-8 bg-[var(--lms-ink)] hover:bg-[var(--lms-navy)] font-medium"
           >
             {enrollment?.status === "PENDING"
               ? "View Enrollment Status"
@@ -693,7 +693,7 @@ const LmsLearn = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/dashboard")}
-            className="rounded-lg h-12 px-8 font-bold"
+            className="rounded-lg h-12 px-8 font-medium"
           >
             Back to Dashboard
           </Button>
@@ -853,7 +853,7 @@ const LmsLearn = () => {
     }
     return (
       <div className={wrapperClassName}>
-        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 m-0">
+        <h3 className="text-sm font-heading font-semibold text-slate-900 flex items-center gap-2 m-0">
           <BookOpen className="w-4 h-4 text-blue-600" />
           Required Textbook Readings
         </h3>
@@ -864,7 +864,7 @@ const LmsLearn = () => {
               className="p-3 rounded-lg bg-slate-50 border border-slate-200/80 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2"
             >
               <div>
-                <span className="font-bold text-slate-900 block">
+                <span className="font-medium text-slate-900 block">
                   {reading.textbook?.title || "Course Textbook"}
                   {reading.textbook?.edition
                     ? ` (${reading.textbook.edition})`
@@ -874,7 +874,7 @@ const LmsLearn = () => {
               </div>
               <Badge
                 variant="outline"
-                className="text-[10px] font-bold bg-white shrink-0"
+                className="text-[10px] font-medium bg-white shrink-0"
               >
                 {reading.pageRange}
               </Badge>
@@ -963,12 +963,12 @@ const LmsLearn = () => {
                   <HelpCircle size={24} />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-[var(--lovable-fg)] font-sora m-0">
+                  <h3 className="text-base font-semibold text-[var(--lovable-fg)] font-heading m-0">
                     {activeItem?.title || "Lesson Assessment"}
                   </h3>
                   {quizSubmitted ? (
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm font-semibold text-emerald-600 font-manrope">
+                      <span className="text-sm font-semibold text-emerald-600">
                         Score: {quizScore} / {exercisesList.length}
                       </span>
                       <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-xs px-2 py-0.5">
@@ -1047,7 +1047,7 @@ const LmsLearn = () => {
                   <div className="p-4 rounded-xl bg-emerald-50/90 border border-emerald-200/90 text-emerald-900 text-xs flex items-center gap-3 shadow-xs">
                     <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
                     <div>
-                      <span className="font-bold block text-emerald-950">
+                      <span className="font-semibold block text-emerald-950">
                         First-Week Academic Attendance Verification Gate
                       </span>
                       <span className="text-[11px] text-emerald-800">
@@ -1063,7 +1063,7 @@ const LmsLearn = () => {
                   return (
                     <div
                       key={exercise.id}
-                      className="rounded-lg bg-white border border-[var(--lovable-border)] shadow-xs p-5 font-manrope select-none"
+                      className="rounded-lg bg-white border border-[var(--lovable-border)] shadow-xs p-5 select-none"
                       onCopy={(e) => {
                         if (!quizSubmitted) {
                           e.preventDefault();
@@ -1073,22 +1073,22 @@ const LmsLearn = () => {
                     >
                       <div className="mb-2 flex items-center justify-between gap-2 flex-wrap">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-semibold text-[var(--lovable-primary)] uppercase tracking-wider bg-[var(--lovable-active-soft)] px-2.5 py-0.5 rounded">
+                          <span className="text-[10px] font-medium text-[var(--lovable-primary)] uppercase tracking-wider bg-[var(--lovable-active-soft)] px-2.5 py-0.5 rounded">
                             Question {index + 1}
                           </span>
                           {exercise.isWeekOneAttendanceGate && (
-                            <Badge className="bg-emerald-50 text-emerald-800 border-emerald-300 text-[10px] font-bold">
+                            <Badge className="bg-emerald-50 text-emerald-800 border-emerald-300 text-[10px] font-medium">
                               Week 1 Attendance Gate
                             </Badge>
                           )}
                         </div>
                         {exercise.rubric && (
-                          <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] font-bold">
+                          <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] font-medium">
                             Rubric Assessed ({exercise.points} pts)
                           </Badge>
                         )}
                       </div>
-                      <div className="mb-4 text-sm font-semibold text-[var(--lovable-fg)] leading-snug font-sora">
+                      <div className="mb-4 text-sm font-semibold text-[var(--lovable-fg)] leading-snug font-heading">
                         {exercise.question}
                       </div>
 
@@ -1101,7 +1101,7 @@ const LmsLearn = () => {
 
                       {options.length === 0 ? (
                         <div className="space-y-2">
-                          <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                          <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wider block">
                             Your Clinical Response
                           </label>
                           <textarea
@@ -1395,10 +1395,10 @@ const LmsLearn = () => {
           </div>
 
           <div className="bg-white rounded-lg p-6 border border-[var(--lovable-border)] shadow-sm max-w-4xl">
-            <h3 className="text-sm font-semibold text-[var(--lovable-fg)] mb-2 font-sora m-0">
+            <h3 className="text-sm font-semibold text-[var(--lovable-fg)] mb-2 font-heading m-0">
               About this lesson
             </h3>
-            <div className="text-sm text-[var(--lovable-muted-fg)] leading-relaxed font-medium font-manrope prose max-w-none">
+            <div className="text-sm text-[var(--lovable-muted-fg)] leading-relaxed font-medium prose max-w-none">
               {activeItem?.content ? (
                 <div dangerouslySetInnerHTML={{ __html: activeItem.content }} />
               ) : (
@@ -1417,13 +1417,13 @@ const LmsLearn = () => {
           {renderRequiredReadings("mt-6 bg-white rounded-xl p-5 border border-[var(--lovable-border)] shadow-sm max-w-4xl space-y-3")}
 
           {/* Unit Discussion Callout (WAC 246-841A-440) */}
-          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-[#f4f8fd] to-[#e8f0fa]/60 border border-[#c8dcf3] flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-4xl shadow-2xs">
+          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-[#F4F8FB] to-[#EAF3F9]/60 border border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-4xl shadow-2xs">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="p-1 rounded-md bg-blue-100/70 text-blue-700">
                   <MessageSquare className="w-3.5 h-3.5" />
                 </span>
-                <span className="text-xs font-bold text-slate-900">
+                <span className="text-xs font-medium text-slate-900">
                   Unit Discussion Forum &bull; {currentModule?.title || "This Unit"}
                 </span>
               </div>
@@ -1438,7 +1438,7 @@ const LmsLearn = () => {
                 if (currentModule?.id) setActiveModuleId(currentModule.id);
                 setActiveItemId(`discussion-${currentModule?.id || "unit"}`);
               }}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 px-4 rounded-xl shrink-0 shadow-xs"
+              className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs h-9 px-4 rounded-xl shrink-0 shadow-xs"
             >
               <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Go to Unit Discussion
             </Button>
@@ -1541,10 +1541,10 @@ const LmsLearn = () => {
               <div className="w-14 h-14 bg-[var(--lovable-active-soft)] rounded-full flex items-center justify-center mb-4 text-[var(--lovable-primary)]">
                 <Link2 size={24} />
               </div>
-              <h4 className="text-base font-semibold text-[var(--lovable-fg)] font-sora mb-2 m-0">
+              <h4 className="text-base font-semibold text-[var(--lovable-fg)] font-heading mb-2 m-0">
                 External Resource
               </h4>
-              <p className="text-xs text-[var(--lovable-muted-fg)] max-w-sm mb-5 font-manrope">
+              <p className="text-xs text-[var(--lovable-muted-fg)] max-w-sm mb-5">
                 This reading is available off-platform as an external resource
                 link.
               </p>
@@ -1588,13 +1588,13 @@ const LmsLearn = () => {
           {renderRequiredReadings()}
 
           {/* Unit Discussion Callout (WAC 246-841A-440) */}
-          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-[#f4f8fd] to-[#e8f0fa]/60 border border-[#c8dcf3] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+          <div className="mt-8 p-5 rounded-2xl bg-gradient-to-r from-[#F4F8FB] to-[#EAF3F9]/60 border border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="p-1 rounded-md bg-blue-100/70 text-blue-700">
                   <MessageSquare className="w-3.5 h-3.5" />
                 </span>
-                <span className="text-xs font-bold text-slate-900">
+                <span className="text-xs font-medium text-slate-900">
                   Unit Discussion Forum &bull; {currentModule?.title || "This Unit"}
                 </span>
               </div>
@@ -1609,7 +1609,7 @@ const LmsLearn = () => {
                 if (currentModule?.id) setActiveModuleId(currentModule.id);
                 setActiveItemId(`discussion-${currentModule?.id || "unit"}`);
               }}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 px-4 rounded-xl shrink-0 shadow-xs"
+              className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs h-9 px-4 rounded-xl shrink-0 shadow-xs"
             >
               <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Go to Unit Discussion
             </Button>
@@ -1699,7 +1699,7 @@ const LmsLearn = () => {
           <span className="header-divider" />
           <h1>{course.title}</h1>
           {isReadOnlyPreview && (
-            <Badge className="ml-2 bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-bold">
+            <Badge className="ml-2 bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-medium">
               Read-Only Inspection
             </Badge>
           )}
@@ -1783,7 +1783,7 @@ const LmsLearn = () => {
 
           {/* Theory Seat-Time Progress Indicator */}
           <div className="px-4 py-3 mx-3 my-2 rounded-xl bg-blue-50/70 border border-blue-100/90 text-xs space-y-1.5">
-            <div className="flex items-center justify-between text-[11px] font-bold text-blue-900">
+            <div className="flex items-center justify-between text-[11px] font-semibold text-blue-900">
               <span className="flex items-center gap-1">
                 <Clock size={12} className="text-blue-600" /> Theory Seat-Time
               </span>
@@ -1836,12 +1836,12 @@ const LmsLearn = () => {
               return (
               <div key={module.id} className="mb-4">
                 <div className="flex items-center justify-between mb-1.5 px-1">
-                  <p className="text-xs font-bold text-slate-800 uppercase tracking-wider truncate m-0">
+                  <p className="text-xs font-semibold text-slate-800 uppercase tracking-wider truncate m-0">
                     {module.title}
                   </p>
                   <span
                     className={cn(
-                      "text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0",
+                      "text-[9px] font-medium px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0",
                       moduleStatus === "COMPLETED"
                         ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                         : moduleStatus === "IN_PROGRESS"
@@ -1967,7 +1967,7 @@ const LmsLearn = () => {
                   <button
                     className={`chapter-button w-full flex items-center gap-2 py-2 px-2.5 rounded-lg transition-colors ${
                       activeItemType === "discussion" && String(activeModuleId) === String(module.id)
-                        ? "chapter-button-active bg-blue-50 text-blue-700 font-bold border border-blue-200"
+                        ? "chapter-button-active bg-blue-50 text-blue-700 font-semibold border border-blue-200"
                         : "chapter-button-inactive hover:bg-slate-100/80 text-slate-600"
                     }`}
                     onClick={() => {
@@ -1979,8 +1979,8 @@ const LmsLearn = () => {
                     }}
                   >
                     <MessageSquare size={14} className="text-blue-600 shrink-0" />
-                    <span className="truncate text-xs font-semibold">Unit Discussion</span>
-                    <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-blue-100/60 text-blue-700 border border-blue-200/60">
+                    <span className="truncate text-xs font-medium">Unit Discussion</span>
+                    <span className="ml-auto text-[9px] font-medium px-1.5 py-0.5 rounded-md bg-blue-100/60 text-blue-700 border border-blue-200/60">
                       WAC
                     </span>
                   </button>

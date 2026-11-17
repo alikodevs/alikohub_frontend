@@ -181,11 +181,11 @@ export const CurriculumCompliancePage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#EAF3F9] border border-[#E2E8F0] text-primary flex items-center justify-center shrink-0">
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-heading font-bold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-heading font-semibold tracking-tight text-slate-900">
                 Curriculum Alignment &amp; Crosswalk
               </h1>
               <p className="text-xs text-slate-500">
@@ -214,7 +214,7 @@ export const CurriculumCompliancePage: React.FC = () => {
           {canManageStaffActions && (
             <Button
               onClick={() => setIsAddTextbookOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-white font-semibold text-xs h-10 rounded-xl shadow-xs"
+              className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs h-10 rounded-xl shadow-xs"
             >
               <Plus className="w-4 h-4 mr-1.5" /> Register Textbook
             </Button>
@@ -226,23 +226,23 @@ export const CurriculumCompliancePage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
               Curriculum Modules
             </span>
             <Layers className="w-4 h-4 text-primary" />
           </div>
-          <div className="text-2xl font-bold text-slate-900">{modules.length}</div>
+          <div className="text-2xl font-semibold text-slate-900">{modules.length}</div>
           <p className="text-[11px] text-slate-500 font-normal">Active course modules from syllabus</p>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
               Units &amp; Readings
             </span>
             <BookOpen className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-2xl font-bold text-slate-900">{totalUnitsCount}</div>
+          <div className="text-2xl font-semibold text-slate-900">{totalUnitsCount}</div>
           <p className="text-[11px] text-slate-500 font-normal">
             {linkedReadingsCount} unit(s) with assigned readings
           </p>
@@ -250,12 +250,12 @@ export const CurriculumCompliancePage: React.FC = () => {
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
               Course Textbooks
             </span>
-            <BookMarked className="w-4 h-4 text-[#2b5f9e]" />
+            <BookMarked className="w-4 h-4 text-primary" />
           </div>
-          <div className="text-2xl font-bold text-slate-900">{textbooks.length}</div>
+          <div className="text-2xl font-semibold text-slate-900">{textbooks.length}</div>
           <p className="text-[11px] text-slate-500 font-normal">Registered textbook references</p>
         </div>
       </div>
@@ -265,7 +265,7 @@ export const CurriculumCompliancePage: React.FC = () => {
         <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">
+              <h3 className="text-sm font-medium text-slate-900">
                 Cohort Schedule Window
               </h3>
               <p className="text-xs text-slate-500">
@@ -277,22 +277,22 @@ export const CurriculumCompliancePage: React.FC = () => {
 
           <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60 text-xs">
             <div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 block">
+              <span className="text-[10px] uppercase font-medium text-slate-400 block">
                 Cohort Dates
               </span>
-              <span className="font-bold text-slate-900">
+              <span className="font-medium text-slate-900">
                 {cohortDates.startDate} — {cohortDates.endDate}
               </span>
             </div>
-            <Badge variant="outline" className="bg-white text-slate-700 border-slate-200 text-[10px] font-bold px-2 py-0.5">
+            <Badge variant="outline" className="bg-white text-slate-700 border-slate-200 text-[10px] font-medium px-2 py-0.5">
               {cohortDates.totalDays} Days Total
             </Badge>
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-semibold text-slate-700">
+            <div className="flex justify-between text-xs font-medium text-slate-700">
               <span>Elapsed Calendar Pacing</span>
-              <span className="font-bold text-slate-900">
+              <span className="font-medium text-slate-900">
                 {cohortDates.elapsedDays} / {cohortDates.totalDays} Days ({cohortDates.daysRemaining} days remaining)
               </span>
             </div>
@@ -440,16 +440,16 @@ export const CurriculumCompliancePage: React.FC = () => {
                     >
                       <div className="space-y-1 max-w-xl">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-900">
+                          <span className="text-xs font-medium text-slate-900">
                             Unit {unit.lessonId}: {unit.lessonTitle}
                           </span>
                           {unit.isWeekOneAttendanceGate && (
-                            <Badge className="bg-rose-50 text-rose-700 border border-rose-300 text-[10px] font-bold">
+                            <Badge className="bg-rose-50 text-rose-700 border border-rose-300 text-[10px] font-medium">
                               Week-1 Attendance Gate
                             </Badge>
                           )}
                           {unit.isCreditHour && (
-                            <Badge variant="outline" className="text-[10px] text-emerald-700 border-emerald-300 bg-emerald-50 font-bold">
+                            <Badge variant="outline" className="text-[10px] text-emerald-700 border-emerald-300 bg-emerald-50 font-medium">
                               Credit Hour
                             </Badge>
                           )}

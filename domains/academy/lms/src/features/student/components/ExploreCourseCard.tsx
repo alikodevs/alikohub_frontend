@@ -69,11 +69,11 @@ export function getCategoryBadgeConfig(category?: string | null) {
   if (cat.includes("stem") || cat.includes("engineer")) {
     return {
       label: category || "STEM",
-      dotColor: "bg-[#BF6622]",
-      textColor: "text-[#9c4f14]",
+      dotColor: "bg-[#D77510]",
+      textColor: "text-[#D77510]",
       bgColor: "bg-amber-50/90",
       borderColor: "border-amber-200/70",
-      accentBarColor: "bg-[#BF6622]",
+      accentBarColor: "bg-[#D77510]",
       icon: Atom,
     };
   }
@@ -81,11 +81,11 @@ export function getCategoryBadgeConfig(category?: string | null) {
   if (cat.includes("tech") || cat.includes("software") || cat.includes("data")) {
     return {
       label: category || "Technology",
-      dotColor: "bg-[#0D72BA]",
-      textColor: "text-[#0D72BA]",
+      dotColor: "bg-primary",
+      textColor: "text-primary",
       bgColor: "bg-blue-50/90",
       borderColor: "border-blue-200/70",
-      accentBarColor: "bg-[#0D72BA]",
+      accentBarColor: "bg-primary",
       icon: Code2,
     };
   }
@@ -96,7 +96,7 @@ export function getCategoryBadgeConfig(category?: string | null) {
     textColor: "text-slate-700",
     bgColor: "bg-slate-50/90",
     borderColor: "border-slate-200/70",
-    accentBarColor: "bg-[#0D72BA]",
+    accentBarColor: "bg-primary",
     icon: GraduationCap,
   };
 }
@@ -186,7 +186,7 @@ export const ExploreCourseCard: React.FC<ExploreCourseCardProps> = ({
       className={cn(
         "group relative flex flex-col bg-white rounded-2xl border border-slate-200/90 shadow-2xs",
         "transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl hover:shadow-slate-900/8 hover:border-slate-300",
-        "overflow-hidden focus-within:ring-2 focus-within:ring-[#0D72BA]/30",
+        "overflow-hidden focus-within:ring-2 focus-within:ring-primary/30",
         className,
       )}
       aria-label={`Course: ${course.title}`}
@@ -220,10 +220,10 @@ export const ExploreCourseCard: React.FC<ExploreCourseCardProps> = ({
                   "linear-gradient(135deg, #f0f6ff 0%, #f8fafc 55%, #fff7ed 100%)",
               }}
             >
-              <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-blue-100/90 flex items-center justify-center text-[#0D72BA] group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                <GraduationCap className="w-6 h-6 text-[#0D72BA]" />
+              <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-blue-100/90 flex items-center justify-center text-primary group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                <GraduationCap className="w-6 h-6 text-primary" />
               </div>
-              <span className="text-xs font-heading font-semibold text-slate-700 tracking-wider uppercase">
+              <span className="text-xs font-heading font-medium text-slate-700 tracking-wider uppercase">
                 Aliko Academy
               </span>
             </div>
@@ -262,7 +262,7 @@ export const ExploreCourseCard: React.FC<ExploreCourseCardProps> = ({
         {/* Featured Pill */}
         {course.featured && (
           <div className="absolute bottom-2.5 left-3 z-10 pointer-events-none">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#BF6622] text-white shadow-xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium uppercase tracking-wider bg-[#D77510] text-white shadow-xs">
               <Sparkles className="w-2.5 h-2.5" />
               Featured
             </span>
@@ -278,7 +278,7 @@ export const ExploreCourseCard: React.FC<ExploreCourseCardProps> = ({
           className="focus:outline-none focus:underline group/title block"
         >
           <h3
-            className="font-heading font-semibold text-slate-900 text-base leading-snug line-clamp-2 min-h-[2.6rem] group-hover/title:text-[#0D72BA] transition-colors tracking-tight"
+            className="font-heading font-medium text-slate-900 text-base leading-snug line-clamp-2 min-h-[2.6rem] group-hover/title:text-primary transition-colors tracking-tight"
             title={course.title}
           >
             {course.title}
@@ -341,12 +341,12 @@ export const ExploreCourseCard: React.FC<ExploreCourseCardProps> = ({
         {/* ── Bottom Section: Price & Aligned CTA ── */}
         <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
           <div className="flex flex-col">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
               Access
             </span>
             <span
               className={cn(
-                "text-xs font-bold",
+                "text-xs font-semibold",
                 isFreeCourse ? "text-emerald-700" : "text-slate-900",
               )}
             >
@@ -357,7 +357,7 @@ export const ExploreCourseCard: React.FC<ExploreCourseCardProps> = ({
           <Button
             asChild
             size="sm"
-            className="bg-[#0D72BA] hover:bg-[#17469E] text-white font-semibold text-xs sm:text-sm h-9 px-4 rounded-xl gap-1.5 transition-all shadow-xs hover:shadow group/btn"
+            className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs sm:text-sm h-9 px-4 rounded-xl gap-1.5 transition-all shadow-xs hover:shadow group/btn"
           >
             <Link to={courseLink}>
               View Course
