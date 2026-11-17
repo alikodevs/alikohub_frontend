@@ -1,28 +1,57 @@
-import { useState, useEffect } from "react";
-import { Search, Clock, BarChart, Star, Users } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import {
+  Search,
+  X,
+  Layers,
+  Stethoscope,
+  Code2,
+  Atom,
+  RotateCcw,
+  Sparkles,
+  BookOpen,
+  BarChart2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import StudentLayout from "@/features/student/components/StudentLayout";
 import {
   useCourses,
   useCoursesByCategory,
   useCoursesByDifficulty,
 } from "@/hooks/useAcademy";
-import { Link, useSearchParams } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useSearchParams } from "react-router-dom";
 import { useCourseSEO } from "@/hooks/useCourseSEO";
+import {
+  ExploreCourseCard,
+  ExploreCourseCardSkeleton,
+} from "@/features/student/components/ExploreCourseCard";
+import { cn } from "@/lib/utils";
 
-const streams = ["All", "Health", "Technology", "STEM"];
+const streamConfigs = [
+  { key: "All", label: "All Disciplines", icon: Layers },
+  { key: "Health", label: "Healthcare", icon: Stethoscope },
+  { key: "Technology", label: "Technology", icon: Code2 },
+  { key: "STEM", label: "STEM", icon: Atom },
+];
+
 const levels = ["All Levels", "Beginner", "Intermediate", "Advanced"];
 
 const LmsExplore = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [activeStream, setActiveStream] = useState("All");
   const [activeLevel, setActiveLevel] = useState("All Levels");
 
   useCourseSEO({
     title: "Course Catalog & Discovery",
-    description: "Explore AlikoHub Academy's top tech, health, and STEM courses. Filter by stream, difficulty level, and search keywords.",
+    description:
+      "Explore AlikoHub Academy's top tech, health, and STEM courses. Filter by stream, difficulty level, and search keywords.",
     category: activeStream !== "All" ? activeStream : "General",
   });
 
@@ -54,12 +83,10 @@ const LmsExplore = () => {
     );
 
   // Determine active dataset
-  let data;
-  let isLoading;
+  let data: any;
+  let isLoading = false;
 
   if (activeStream !== "All" && activeLevel !== "All Levels") {
-    // If both are selected, we will fetch by category and filter locally by difficulty
-    // or fetch ALL and filter both. Let's fetch by category and filter by difficulty.
     data = categoryCoursesData;
     isLoading = isLoadingCategory;
   } else if (activeStream !== "All") {
@@ -73,181 +100,292 @@ const LmsExplore = () => {
     isLoading = isLoadingAll;
   }
 
-  const courses = Array.isArray(data) ? data : (data as any)?.courses || [];
+  const courses: any[] = Array.isArray(data)
+    ? data
+    : (data as any)?.courses || [];
 
-  const filtered = courses.filter((c: any) => {
-    let matchLevel = true;
-    let matchStream = true;
+  const filtered = useMemo(() => {
+    return courses.filter((c: any) => {
+      let matchLevel = true;
+      let matchStream = true;
 
-    if (activeStream !== "All" && activeLevel !== "All Levels") {
-      // Data is from category, we need to filter by difficulty
-      matchLevel = c.difficulty?.toUpperCase() === activeLevel.toUpperCase();
+      if (activeStream !== "All" && activeLevel !== "All Levels") {
+        matchLevel = c.difficulty?.toUpperCase() === activeLevel.toUpperCase();
+      }
+
+      const matchSearch =
+        !search.trim() ||
+        c.title?.toLowerCase().includes(search.toLowerCase()) ||
+        c.category?.toLowerCase().includes(search.toLowerCase());
+
+      return matchLevel && matchStream && matchSearch;
+    });
+  }, [courses, activeStream, activeLevel, search]);
+
+  const hasActiveFilters =
+    activeStream !== "All" ||
+    activeLevel !== "All Levels" ||
+    search.trim().length > 0;
+
+  const handleResetFilters = () => {
+    setActiveStream("All");
+    setActiveLevel("All Levels");
+    setSearch("");
+    if (searchParams.get("search")) {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete("search");
+      setSearchParams(nextParams, { replace: true });
     }
+  };
 
-    const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
-
-    return matchLevel && matchStream && matchSearch;
-  });
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    if (!value.trim() && searchParams.get("search")) {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete("search");
+      setSearchParams(nextParams, { replace: true });
+    }
+  };
 
   return (
     <StudentLayout>
-      <div className="w-full max-w-7xl px-6 sm:px-8 lg:px-10 py-6 sm:py-8 space-y-6">
-        {/* ── Hero Banner ── */}
+      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-10 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        {/* ── 1. Hero Banner Area ── */}
         <div
-          className="relative overflow-hidden rounded-2xl border border-blue-100/80 shadow-sm p-6 sm:p-8"
+          className="relative overflow-hidden rounded-2xl border border-slate-200/90 shadow-2xs p-6 sm:p-8 lg:p-10"
           style={{
             background:
-              "linear-gradient(135deg, #eef5ff 0%, #f4f8ff 55%, #fff7ed 100%)",
+              "linear-gradient(135deg, #ffffff 0%, #f4f8fe 48%, #fffaf5 100%)",
           }}
         >
-          {/* Soft warm glow top-right */}
+          {/* Subtle brand glow effects */}
           <div
-            className="absolute top-0 right-0 w-80 h-80 pointer-events-none"
+            className="absolute top-0 right-0 w-96 h-96 pointer-events-none opacity-60"
             style={{
               background:
-                "radial-gradient(ellipse at top right, rgba(254,215,170,0.45) 0%, rgba(253,230,138,0.2) 35%, transparent 70%)",
+                "radial-gradient(circle at top right, rgba(13,114,186,0.12) 0%, rgba(191,102,34,0.06) 40%, transparent 70%)",
             }}
           />
 
-          <div className="relative z-10 max-w-2xl">
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0b1a40] mb-6">
-              Explore Courses
+          <div className="relative z-10 max-w-3xl">
+            {/* Kicker badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-white/95 text-[#0D72BA] border border-blue-200/60 shadow-2xs mb-3">
+              <span>Aliko Academy Catalog</span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0b1a40] tracking-tight leading-tight">
+              Explore Courses & Career Pathways
             </h1>
 
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
+            <p className="text-slate-600 text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
+              Advance your career with accredited, industry-aligned curricula
+              across Healthcare, Technology, and STEM disciplines. Gain
+              practical, verifiable credentials.
+            </p>
+
+            {/* Prominent Search Bar */}
+            <div className="relative max-w-xl mt-6">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0D72BA] pointer-events-none z-10" />
               <input
                 type="text"
-                placeholder="Search courses..."
+                placeholder="Search courses, disciplines, or skills..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white/90 backdrop-blur-sm text-slate-700 text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition-all relative z-0"
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200/90 bg-white/95 backdrop-blur-sm text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#0D72BA] focus:ring-2 focus:ring-[#0D72BA]/15 shadow-2xs transition-all relative z-0"
               />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => handleSearchChange("")}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-md transition-colors z-10"
+                  aria-label="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
 
-        <div>
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-8">
-            <div className="flex flex-wrap gap-2">
-              {streams.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setActiveStream(s)}
-                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${
-                    activeStream === s
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                      : "bg-white text-slate-600 border border-slate-200 hover:border-primary/40 hover:text-primary"
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+        {/* ── 2. Compact Dropdown Filter Toolbar ── */}
+        <section
+          aria-label="Course Filters"
+          className="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-4 shadow-2xs space-y-3"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            {/* Left: Results Count & Active Status */}
+            <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+              <span className="font-bold text-slate-900 text-sm">
+                {filtered.length}
+              </span>
+              <span>{filtered.length === 1 ? "course available" : "courses available"}</span>
+
+              {hasActiveFilters && (
+                <>
+                  <span className="text-slate-300">•</span>
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#0D72BA] hover:text-[#17469E] hover:underline cursor-pointer"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Reset filters
+                  </button>
+                </>
+              )}
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {levels.map((l) => (
-                <button
-                  key={l}
-                  onClick={() => setActiveLevel(l)}
-                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold transition-all duration-200 ${
-                    activeLevel === l
-                      ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                      : "bg-white text-slate-600 border border-slate-200 hover:border-primary/40 hover:text-primary"
-                  }`}
-                >
-                  {l}
-                </button>
-              ))}
+            {/* Right: Compact Sleek Dropdowns */}
+            <div className="flex items-center gap-2.5">
+              {/* Discipline Dropdown */}
+              <div className="flex-1 sm:flex-initial">
+                <Select value={activeStream} onValueChange={setActiveStream}>
+                  <SelectTrigger className="h-9 w-full sm:w-[190px] rounded-xl border-slate-200 bg-slate-50/80 hover:bg-slate-100/80 text-xs font-semibold text-slate-700 shadow-2xs transition-all cursor-pointer">
+                    <div className="flex items-center gap-2 truncate">
+                      <Layers className="w-3.5 h-3.5 text-[#0D72BA] shrink-0" />
+                      <span className="truncate">
+                        {streamConfigs.find((s) => s.key === activeStream)?.label || "Discipline"}
+                      </span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-lg border-slate-200">
+                    {streamConfigs.map(({ key, label, icon: Icon }) => (
+                      <SelectItem key={key} value={key} className="text-xs font-medium cursor-pointer py-2">
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-3.5 h-3.5 text-slate-500" />
+                          <span>{label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Difficulty Level Dropdown */}
+              <div className="flex-1 sm:flex-initial">
+                <Select value={activeLevel} onValueChange={setActiveLevel}>
+                  <SelectTrigger className="h-9 w-full sm:w-[160px] rounded-xl border-slate-200 bg-slate-50/80 hover:bg-slate-100/80 text-xs font-semibold text-slate-700 shadow-2xs transition-all cursor-pointer">
+                    <div className="flex items-center gap-2 truncate">
+                      <BarChart2 className="w-3.5 h-3.5 text-[#17469E] shrink-0" />
+                      <span className="truncate">{activeLevel}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-lg border-slate-200">
+                    {levels.map((lvl) => (
+                      <SelectItem key={lvl} value={lvl} className="text-xs font-medium cursor-pointer py-2">
+                        {lvl}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
-          {/* Loading */}
+          {/* Active chips row (only shown if a specific filter or search is active) */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-2 pt-2.5 border-t border-slate-100 text-xs">
+              <span className="text-[11px] text-slate-400 font-medium">Filtered by:</span>
+
+              {activeStream !== "All" && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0D72BA] font-semibold text-[11px] border border-blue-200/80">
+                  {streamConfigs.find((s) => s.key === activeStream)?.label}
+                  <button
+                    onClick={() => setActiveStream("All")}
+                    className="hover:text-blue-900 ml-0.5"
+                    aria-label="Remove stream filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
+              {activeLevel !== "All Levels" && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#17469E] font-semibold text-[11px] border border-indigo-200/80">
+                  {activeLevel}
+                  <button
+                    onClick={() => setActiveLevel("All Levels")}
+                    className="hover:text-indigo-900 ml-0.5"
+                    aria-label="Remove level filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
+              {search.trim() && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-[#BF6622] font-semibold text-[11px] border border-amber-200/80">
+                  &ldquo;{search}&rdquo;
+                  <button
+                    onClick={() => handleSearchChange("")}
+                    className="hover:text-amber-900 ml-0.5"
+                    aria-label="Clear search keyword"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="text-[11px] text-slate-500 hover:text-slate-800 font-medium ml-auto transition-colors"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* ── 3. Course Grid / Loading / Empty States ── */}
+        <div>
+          {/* Loading Skeletons */}
           {isLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="h-40 w-full rounded-2xl" />
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
+                <ExploreCourseCardSkeleton key={i} />
               ))}
             </div>
           )}
 
-          {/* Course Grid */}
+          {/* Active Course Grid */}
           {!isLoading && filtered.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
               {filtered.map((course: any) => (
-                <div
-                  key={course.id}
-                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-300 group flex flex-col"
-                >
-                  <div className="h-40 overflow-hidden relative bg-gradient-to-br from-primary/10 to-primary/20">
-                    {course.thumbnail ? (
-                      <img
-                        src={course.thumbnail}
-                        alt={course.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Search className="w-6 h-6 text-primary/40" />
-                      </div>
-                    )}
-
-                    <span
-                      className={`absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shadow-sm bg-white text-primary border border-white/20`}
-                    >
-                      {course.category}
-                    </span>
-                  </div>
-
-                  <div className="p-5 flex flex-col flex-1">
-                    <h3 className="font-heading font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                      {course.title}
-                    </h3>
-
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500 mb-5 flex-1">
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" />
-                        {course.estimatedTime || "8 weeks"}
-                      </span>
-
-                      <span className="flex items-center gap-1.5">
-                        <BarChart className="w-3.5 h-3.5 text-slate-400" />
-                        {course.difficulty}
-                      </span>
-
-                      <span className="flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-slate-400" />
-                        {course.enrollmentCount || 0} learners
-                      </span>
-
-                      <span className="flex items-center gap-1.5 font-medium">
-                        <Star className="w-3.5 h-3.5 text-amber-500" />
-                        <span className="text-slate-700">{course.rating || "4.8"}</span>
-                      </span>
-                    </div>
-
-                    <Button size="sm" className="w-full rounded-xl font-bold border-0 shadow-md shadow-primary/10" asChild>
-                      <Link to={`/courses/${course.id}`}>View Details</Link>
-                    </Button>
-                  </div>
-                </div>
+                <ExploreCourseCard key={course.id} course={course} />
               ))}
             </div>
           )}
 
+          {/* Empty State */}
           {!isLoading && filtered.length === 0 && (
-            <div className="text-center bg-white rounded-2xl border border-slate-200 py-16">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <Search className="w-7 h-7 text-slate-400" />
+            <div className="text-center bg-white rounded-2xl border border-slate-200/80 p-10 sm:p-14 shadow-2xs max-w-xl mx-auto space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto text-[#0D72BA]">
+                <BookOpen className="w-7 h-7" />
               </div>
-              <p className="text-slate-500 font-medium">
-                No courses found matching your filters.
-              </p>
+
+              <div>
+                <h3 className="font-heading font-bold text-slate-900 text-lg">
+                  No courses found
+                </h3>
+                <p className="text-slate-500 text-sm mt-1 max-w-sm mx-auto leading-relaxed">
+                  We couldn't find any courses matching your selected criteria.
+                  Try adjusting your search terms or filters.
+                </p>
+              </div>
+
+              {hasActiveFilters && (
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="bg-[#0D72BA] hover:bg-[#17469E] text-white font-semibold text-xs h-9 px-4 rounded-xl gap-2 shadow-xs transition-all"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Reset all filters
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>

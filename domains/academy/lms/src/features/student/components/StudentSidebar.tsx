@@ -78,28 +78,23 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
       title: "Main",
       items: [
         { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-        { label: "Explore", to: "/courses", icon: Compass },
+        { label: "Admissions", to: "/admissions", icon: FileCheck2 },
+        { label: "Orientation", to: "/orientation", icon: GraduationCap },
         {
           label: "My Learning",
           to: "/learning",
           icon: BookOpen,
           badge: activeEnrollmentsCount,
         },
+        { label: "Explore", to: "/courses", icon: Compass },
         { label: "My Schedule", to: "/schedules", icon: CalendarDays },
+        { label: "My Grades", to: "/grades", icon: Award },
         { label: "Chat", to: "/chat", icon: MessageCircle },
-      ],
-    },
-    {
-      title: "Admissions & Onboarding",
-      items: [
-        { label: "Admissions", to: "/admissions", icon: FileCheck2 },
-        { label: "Orientation", to: "/orientation", icon: GraduationCap },
       ],
     },
     {
       title: "Training & Curriculum",
       items: [
-        { label: "My Grades", to: "/grades", icon: Award },
         { label: "Curriculum Crosswalk", to: "/curriculum", icon: FileSpreadsheet },
         { label: "Skills Lab", to: "/skills-lab", icon: Stethoscope },
         { label: "Clinical Training", to: "/clinical", icon: Building2 },
@@ -245,29 +240,128 @@ const StudentSidebar = ({ isOpen = false, onClose }: StudentSidebarProps) => {
         </nav>
 
         {/* Floating Circular Down Arrow Scroll Cue */}
-        <div className="absolute bottom-[118px] left-0 right-0 pointer-events-none flex justify-center z-30">
+        <div className="absolute bottom-[136px] left-0 right-0 pointer-events-none flex justify-center z-30">
           <button
             type="button"
             aria-label="Scroll down sidebar"
             onClick={() => {
               navRef.current?.scrollBy({ top: 160, behavior: "smooth" });
             }}
-            className="pointer-events-auto w-7 h-7 rounded-full bg-white text-[#2b5f9e] shadow-sm flex items-center justify-center hover:bg-[#e8f0fa] hover:scale-105 transition-all cursor-pointer border border-[#e5e9f0]"
+            className="pointer-events-auto w-7 h-7 rounded-full bg-white text-[#0D72BA] shadow-md flex items-center justify-center hover:bg-[#e8f2fc] hover:scale-105 transition-all cursor-pointer border border-[#cce4f9]"
           >
             <ChevronDown size={15} />
           </button>
         </div>
 
-        {/* Bottom footer card */}
+        {/* Bottom motivational card with light brand coloring, keeping text & 3D mountain artwork intact */}
         <div className="px-3 pb-3 pt-2 shrink-0">
-          <div className="rounded-xl border border-[#e5e9f0] bg-[#f8fafc] p-3.5 space-y-1.5">
-            <p className="text-[#0f1b2d] font-heading font-semibold text-[13px] leading-tight">
-              Learn · Grow · Succeed
-            </p>
-            <div className="w-7 h-0.5 bg-[#f26b21] rounded-full" />
-            <p className="text-slate-500 text-xs leading-snug">
-              Finish your courses to unlock your certificate.
-            </p>
+          <div
+            className="relative overflow-hidden rounded-2xl p-5 border border-[#cce4f9] shadow-xs min-h-[118px] flex flex-col justify-center"
+            style={{
+              background:
+                "linear-gradient(135deg, #e8f3fc 0%, #edf6fd 50%, #f4f9fe 100%)",
+            }}
+          >
+            {/* Subtle brand glow */}
+            <div
+              className="absolute -top-6 -right-6 w-28 h-28 rounded-full pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(13,114,186,0.12) 0%, transparent 70%)",
+              }}
+            />
+
+            <div className="relative z-10">
+              <p className="text-[#17469E] font-heading font-bold text-[14px] leading-tight pr-4">
+                Learn · Grow ·<br />
+                <span className="text-[#0f1b2d]">Succeed</span>
+              </p>
+              {/* Orange underline bar */}
+              <div className="w-8 h-1 bg-[#BF6622] rounded-full mt-2.5 shadow-xs" />
+            </div>
+
+            {/* 3D Mountain vector artwork preserved exactly */}
+            <div className="absolute right-0 bottom-0 w-28 h-24 pointer-events-none opacity-90">
+              <svg
+                viewBox="0 0 120 100"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full"
+              >
+                <polygon points="10,90 35,40 55,90" fill="url(#blue-grad-1)" />
+                <polygon
+                  points="35,40 55,90 40,90"
+                  fill="#3b82f6"
+                  opacity="0.8"
+                />
+
+                <polygon points="30,90 65,15 95,90" fill="url(#blue-grad-2)" />
+                <polygon
+                  points="65,15 95,90 75,90"
+                  fill="#1d4ed8"
+                  opacity="0.9"
+                />
+                <polygon
+                  points="65,15 80,50 65,90"
+                  fill="#60a5fa"
+                  opacity="0.6"
+                />
+
+                <polygon points="70,90 95,35 115,90" fill="url(#blue-grad-3)" />
+                <polygon points="95,35 115,90 102,90" fill="#2563eb" />
+
+                <polygon points="5,90 25,65 45,90" fill="url(#orange-grad-1)" />
+                <polygon points="25,65 45,90 35,90" fill="#ea580c" />
+
+                <defs>
+                  <linearGradient
+                    id="blue-grad-1"
+                    x1="10"
+                    y1="40"
+                    x2="55"
+                    y2="90"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#60a5fa" />
+                    <stop offset="1" stopColor="#1e40af" />
+                  </linearGradient>
+                  <linearGradient
+                    id="blue-grad-2"
+                    x1="30"
+                    y1="15"
+                    x2="95"
+                    y2="90"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#93c5fd" />
+                    <stop offset="0.5" stopColor="#2563eb" />
+                    <stop offset="1" stopColor="#1e3a8a" />
+                  </linearGradient>
+                  <linearGradient
+                    id="blue-grad-3"
+                    x1="70"
+                    y1="35"
+                    x2="115"
+                    y2="90"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#3b82f6" />
+                    <stop offset="1" stopColor="#1d4ed8" />
+                  </linearGradient>
+                  <linearGradient
+                    id="orange-grad-1"
+                    x1="5"
+                    y1="65"
+                    x2="45"
+                    y2="90"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#ff782c" />
+                    <stop offset="1" stopColor="#c2410c" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
           </div>
         </div>
       </aside>

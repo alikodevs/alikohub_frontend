@@ -37,6 +37,9 @@ import {
   PenTool,
   Info,
   Check,
+  Stethoscope,
+  Award,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -250,22 +253,15 @@ export const AdmissionsClearancePage: React.FC = () => {
 
   return (
     <StudentLayout>
-      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* ── Top Header ── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-slate-900 tracking-tight">
-              Admissions Clearance &amp; Onboarding
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              Complete prerequisite documentation, digital enrollment agreement, and orientation before beginning coursework.
-            </p>
-          </div>
-
-          {/* Cohort Selector */}
-          {cohortOptions.length > 1 && (
-            <div className="flex items-center gap-2 shrink-0">
-              <label htmlFor="cohort-select" className="text-xs font-medium text-slate-600">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* ── Compact Cohort Selector Row (Separate, does not compete with title) ── */}
+        {cohortOptions.length > 1 && (
+          <div className="flex items-center justify-between gap-3 px-1">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Enrolled Cohort
+            </span>
+            <div className="flex items-center gap-2">
+              <label htmlFor="cohort-select" className="text-xs text-slate-500 font-medium">
                 Cohort:
               </label>
               <select
@@ -273,7 +269,7 @@ export const AdmissionsClearancePage: React.FC = () => {
                 aria-label="Select cohort"
                 value={selectedCohortId}
                 onChange={(e) => setSelectedCohortId(Number(e.target.value))}
-                className="text-xs font-medium bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="text-xs font-semibold bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#0D72BA] cursor-pointer"
               >
                 {cohortOptions.map((opt) => (
                   <option key={opt.cohortId} value={opt.cohortId}>
@@ -282,7 +278,162 @@ export const AdmissionsClearancePage: React.FC = () => {
                 ))}
               </select>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* ── Hero Header: Light, elegant with subtle brand blue & orange curve ── */}
+        <div className="rounded-3xl border border-slate-200/90 bg-white shadow-xs overflow-hidden relative">
+          <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative">
+            {/* Left Title & Subtitle */}
+            <div className="relative z-10 max-w-lg">
+              <h1 className="text-3xl sm:text-4xl font-heading font-extrabold text-[#17469E] tracking-tight leading-[1.15]">
+                Admissions<br />
+                <span className="text-[#0f1b2d]">Clearance</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-3 leading-relaxed font-normal">
+                Complete prerequisites, enrollment agreement, and orientation to unlock coursework.
+              </p>
+            </div>
+
+            {/* Right: Decorative brand wave & Graduation Cap artwork */}
+            <div className="relative md:w-80 h-36 sm:h-40 shrink-0 flex items-center justify-end pointer-events-none overflow-hidden">
+              <svg
+                viewBox="0 0 320 160"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full"
+              >
+                {/* Subtle background soft blue glow */}
+                <ellipse cx="220" cy="80" rx="90" ry="70" fill="#e8f3fc" opacity="0.7" />
+
+                {/* Curved blue brand swoosh */}
+                <path
+                  d="M110 0 C150 70 170 160 320 160 L320 0 Z"
+                  fill="url(#blue-brand-gradient)"
+                />
+                {/* Curved orange accent stroke */}
+                <path
+                  d="M106 0 C146 70 166 160 316 160"
+                  stroke="#BF6622"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                />
+
+                {/* Stacked books */}
+                {/* Book 1 (bottom) */}
+                <rect x="180" y="118" width="110" height="12" rx="2" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
+                <rect x="176" y="117" width="8" height="14" rx="2" fill="#17469E" />
+                {/* Book 2 (middle) */}
+                <rect x="186" y="104" width="102" height="12" rx="2" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
+                <rect x="182" y="103" width="8" height="14" rx="2" fill="#BF6622" />
+                {/* Book 3 (top) */}
+                <rect x="192" y="90" width="94" height="12" rx="2" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
+                <rect x="188" y="89" width="8" height="14" rx="2" fill="#0D72BA" />
+
+                {/* Graduation cap skull cap */}
+                <ellipse cx="238" cy="74" rx="28" ry="12" fill="#1e293b" />
+                <path d="M210 74 L210 84 C210 92 266 92 266 84 L266 74 Z" fill="#0f172a" />
+
+                {/* Graduation cap diamond top */}
+                <polygon points="238,44 286,60 238,76 190,60" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5" />
+                {/* Cap button */}
+                <circle cx="238" cy="60" r="3" fill="#eab308" />
+                {/* Tassel cord and gold tassel */}
+                <path d="M238 60 Q265 65 268 76" stroke="#eab308" strokeWidth="1.5" fill="none" />
+                <polygon points="266,76 270,76 272,96 264,96" fill="#eab308" />
+                <line x1="264" y1="96" x2="272" y2="96" stroke="#ca8a04" strokeWidth="2" />
+
+                <defs>
+                  <linearGradient id="blue-brand-gradient" x1="120" y1="0" x2="300" y2="160" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#0D72BA" />
+                    <stop offset="1" stopColor="#17469E" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+          </div>
+
+          {/* Integrated Milestones Progress Row */}
+          <div className="border-t border-slate-100 bg-slate-50/60 px-6 sm:px-8 py-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              {/* 3 Steps */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 flex-1">
+                {/* Step 1 */}
+                <div className="flex items-center gap-2.5">
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs",
+                    docsCompletedCount === 6
+                      ? "bg-emerald-600 text-white"
+                      : "bg-[#0D72BA] text-white"
+                  )}>
+                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-800">Prerequisites</p>
+                    <p className="text-[11px] text-slate-500 font-medium">{docsCompletedCount}/6 uploaded</p>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="flex items-center gap-2.5">
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs",
+                    isAgreementSigned
+                      ? "bg-emerald-600 text-white"
+                      : "bg-[#0D72BA] text-white"
+                  )}>
+                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-800">Agreement</p>
+                    <p className="text-[11px] text-slate-500 font-medium">{isAgreementSigned ? "Signed" : "Pending"}</p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex items-center gap-2.5">
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs",
+                    isOrientationDone
+                      ? "bg-emerald-600 text-white"
+                      : "bg-[#0D72BA] text-white"
+                  )}>
+                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-800">Orientation</p>
+                    <p className="text-[11px] text-slate-500 font-medium">{isOrientationDone ? "Complete" : "Pending"}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Overall percentage circle badge */}
+              <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
+                <div className={cn(
+                  "w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0",
+                  overallProgress === 100 ? "bg-emerald-600" : "bg-[#0D72BA]"
+                )}>
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                <div className="text-right">
+                  <span className="text-xs font-extrabold text-slate-900 block leading-none">
+                    {overallProgress}%
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium leading-none">
+                    Complete
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom slim progress line */}
+            <div className="w-full h-1 bg-slate-200/70 rounded-full overflow-hidden mt-3">
+              <div
+                className="h-full bg-gradient-to-r from-[#0D72BA] to-[#17469E] rounded-full transition-all duration-500"
+                style={{ width: `${overallProgress}%` }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* ── Rejection Remediation Banner ── */}
@@ -292,494 +443,235 @@ export const AdmissionsClearancePage: React.FC = () => {
               <ShieldAlert className="w-5 h-5" />
             </div>
             <div className="space-y-1 flex-1">
-              <h3 className="text-sm font-semibold text-rose-900">
-                Admissions Clearance Requires Remediation
-              </h3>
-              <p className="text-xs text-rose-700">
-                An instructor or admissions officer reviewed your documents and requested corrections:
-              </p>
-              <div className="p-3 bg-white/80 rounded-xl border border-rose-200/80 text-xs font-medium text-rose-950 mt-2">
+              <h3 className="text-sm font-semibold text-rose-900">Remediation Required</h3>
+              <div className="p-3 bg-white rounded-xl border border-rose-200/80 text-xs font-medium text-rose-950 mt-1">
                 "{application.rejectionReason}"
               </div>
-              <p className="text-[11px] text-rose-600 mt-1">
-                Please update the indicated files below and re-submit for review.
-              </p>
+              <p className="text-[11px] text-rose-600">Update the indicated files and re-submit.</p>
             </div>
           </div>
         )}
 
-        {/* ── Clearance Status Summary Strip ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Status KPI */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Clearance Status
-            </span>
-            <div className="flex items-center gap-2">
-              {isApproved ? (
-                <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-semibold py-1 px-3">
-                  <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-600" /> Cleared (Approved)
-                </Badge>
-              ) : isRejected ? (
-                <Badge className="bg-rose-50 text-rose-700 border-rose-300 text-xs font-semibold py-1 px-3">
-                  <AlertCircle className="w-3.5 h-3.5 mr-1 text-rose-600" /> Action Required
-                </Badge>
-              ) : isPendingReview ? (
-                <Badge className="bg-blue-50 text-blue-700 border-blue-300 text-xs font-semibold py-1 px-3">
-                  <Clock className="w-3.5 h-3.5 mr-1 text-blue-600" /> Pending Review
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="text-xs font-medium py-1 px-3 text-slate-500">
-                  Documents Incomplete
-                </Badge>
-              )}
-            </div>
-            <p className="text-[11px] text-slate-500">
-              {isApproved
-                ? "All entry gates satisfied. Theory courses active."
-                : isRejected
-                ? "Review instructor remediation notes above."
-                : "Awaiting final faculty verification."}
-            </p>
-          </div>
-
-          {/* Prerequisite Documents KPI */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Prerequisite Files
-            </span>
-            <div className="text-xl font-bold text-slate-900">
-              {docsCompletedCount} / 6 <span className="text-xs font-normal text-slate-500">Submitted</span>
-            </div>
-            <Progress value={(docsCompletedCount / 6) * 100} className="h-2 bg-slate-100" />
-          </div>
-
-          {/* Enrollment Agreement KPI */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Enrollment Agreement
-            </span>
-            <div className="flex items-center gap-2">
-              {isAgreementSigned ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Digitally Signed
+        {/* ── Four Summary Cards (White background, subtle borders, brand icons, consistent height) ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Clearance */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-2 relative overflow-hidden transition-all hover:shadow-xs">
+            <div className="absolute top-0 left-0 bottom-0 w-1 bg-emerald-500" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4.5 h-4.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block leading-none mb-1">
+                  CLEARANCE
                 </span>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setIsAgreementModalOpen(true)}
-                  className="h-8 text-xs font-semibold text-blue-600 hover:text-blue-700 border-blue-200 hover:bg-blue-50 rounded-xl"
-                >
-                  <PenTool className="w-3.5 h-3.5 mr-1.5" /> Sign Agreement
-                </Button>
-              )}
+                <p className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                  {isApproved ? "Cleared" : isRejected ? "Action Needed" : isPendingReview ? "Pending" : "Incomplete"}
+                </p>
+              </div>
             </div>
-            <p className="text-[11px] text-slate-500">
-              {isAgreementSigned && application?.agreementSignedAt
-                ? `Signed on ${format(new Date(application.agreementSignedAt), "MMM d, yyyy")}`
-                : "Statutory disclosure required"}
-            </p>
           </div>
 
-          {/* Orientation Gate KPI */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-              Mandatory Orientation
-            </span>
-            <div className="flex items-center gap-2">
-              {isOrientationDone ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Completed
+          {/* Card 2: Documents */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-2 relative overflow-hidden transition-all hover:shadow-xs">
+            <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#0D72BA]" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#e8f3fc] text-[#0D72BA] border border-[#cce4f9] flex items-center justify-center shrink-0">
+                <FileCheck2 className="w-4.5 h-4.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block leading-none mb-1">
+                  DOCUMENTS
                 </span>
-              ) : (
-                <Button
-                  size="sm"
-                  asChild
-                  className="h-8 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-2xs"
-                >
-                  <Link to={`/orientation?cohortId=${selectedCohortId}`}>
-                    Go to Orientation <ArrowRight className="w-3 h-3 ml-1" />
-                  </Link>
-                </Button>
-              )}
+                <p className="text-sm sm:text-base font-bold text-[#17469E] truncate">
+                  {docsCompletedCount}/6
+                </p>
+              </div>
             </div>
-            <p className="text-[11px] text-slate-500">
-              Mandatory Prerequisite
-            </p>
           </div>
+
+          {/* Card 3: Agreement */}
+          <div
+            onClick={!isAgreementSigned ? () => setIsAgreementModalOpen(true) : undefined}
+            className={cn(
+              "bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-2 relative overflow-hidden transition-all hover:shadow-xs",
+              !isAgreementSigned && "cursor-pointer hover:border-[#0D72BA]"
+            )}
+          >
+            <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#17469E]" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#e8f0fa] text-[#17469E] border border-[#cbdcf3] flex items-center justify-center shrink-0">
+                <PenTool className="w-4.5 h-4.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block leading-none mb-1">
+                  AGREEMENT
+                </span>
+                <p className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                  {isAgreementSigned ? "Signed" : "Pending"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4: Orientation */}
+          <Link
+            to={!isOrientationDone ? `/orientation?cohortId=${selectedCohortId}` : "#"}
+            className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-2 relative overflow-hidden transition-all hover:shadow-xs block"
+          >
+            <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#BF6622]" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#fdf2ea] text-[#BF6622] border border-[#f7d7be] flex items-center justify-center shrink-0">
+                <GraduationCap className="w-4.5 h-4.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block leading-none mb-1">
+                  ORIENTATION
+                </span>
+                <p className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                  {isOrientationDone ? "Complete" : "Required"}
+                </p>
+              </div>
+            </div>
+          </Link>
         </div>
 
-        {/* ── SECTION 1: Prerequisite Documents Upload & Verification ── */}
+        {/* ── SECTION 1: 6 Prerequisite Documents (Clean 3-column layout matching reference) ── */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-          <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
-            <div>
-              <h2 className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
-                <FileCheck2 className="w-5 h-5 text-blue-600" />
-                1. Prerequisite Document Clearance
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Upload scanned PDF/image copies or enter verified storage URLs for each mandatory requirement.
-              </p>
+          {/* Header */}
+          <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#e8f3fc] text-[#0D72BA] border border-[#cce4f9] flex items-center justify-center shrink-0">
+                <FileCheck2 className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-heading font-bold text-[#17469E]">
+                  Prerequisite Documents
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Upload or paste a URL for each requirement
+                </p>
+              </div>
             </div>
-            <Badge variant="outline" className="text-xs font-medium self-start sm:self-auto">
-              {docsCompletedCount} of 6 Complete
-            </Badge>
+            <div className="self-start sm:self-auto">
+              <span className={cn(
+                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border",
+                docsCompletedCount === 6
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-slate-50 text-slate-600 border-slate-200"
+              )}>
+                {docsCompletedCount === 6 && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
+                {docsCompletedCount}/6 Ready
+              </span>
+            </div>
           </div>
 
-          <form onSubmit={handleSaveDocuments} className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Document 1: Background Check */}
-              <div className="space-y-2 p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="bg-check-input" className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    State/Federal Background Check *
-                  </label>
-                  {hasBackground ? (
-                    <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Ready
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-bold text-amber-600">Required</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Criminal history background check within the past 12 months.
-                </p>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="bg-check-input"
-                    aria-label="State/Federal Background Check URL"
-                    type="url"
-                    placeholder="https://storage.example.com/docs/bg-check.pdf"
-                    value={docUrls.backgroundCheckUrl}
-                    onChange={(e) =>
-                      setDocUrls((prev) => ({ ...prev, backgroundCheckUrl: e.target.value }))
-                    }
-                    className="text-xs rounded-xl bg-white"
-                  />
-                  <label className="cursor-pointer shrink-0">
-                    <input
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload("backgroundCheckUrl", file);
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={uploadingField === "backgroundCheckUrl"}
-                      className="rounded-xl h-9 text-xs gap-1.5 pointer-events-none"
-                    >
-                      {uploadingField === "backgroundCheckUrl" ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Upload className="w-3.5 h-3.5" />
-                      )}
-                      Upload
-                    </Button>
-                  </label>
-                </div>
-              </div>
+          <form onSubmit={handleSaveDocuments} className="p-5 sm:p-6 space-y-6">
+            {/* 3-Column Grid of 6 Requirements */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {([
+                { field: "backgroundCheckUrl" as const, id: "bg-check", label: "Background Check" },
+                { field: "tbTestProofUrl" as const, id: "tb-test", label: "TB Screening" },
+                { field: "immunizationProofUrl" as const, id: "immunization", label: "Immunizations" },
+                { field: "cprCertUrl" as const, id: "cpr-cert", label: "BLS / CPR Card" },
+                { field: "idDocUrl" as const, id: "gov-id", label: "Government ID" },
+                { field: "highSchoolProofUrl" as const, id: "diploma", label: "HS Diploma / GED" },
+              ]).map((doc) => {
+                const val = docUrls[doc.field] || "";
+                const ready = Boolean(val.trim());
+                const uploading = uploadingField === doc.field;
 
-              {/* Document 2: TB Skin Test */}
-              <div className="space-y-2 p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="tb-test-input" className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    TB Test / QuantiFERON Gold Proof *
-                  </label>
-                  {hasTb ? (
-                    <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Ready
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-bold text-amber-600">Required</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Negative 2-step PPD, IGRA blood test, or negative chest X-ray proof.
-                </p>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="tb-test-input"
-                    aria-label="TB Test / QuantiFERON Gold Proof URL"
-                    type="url"
-                    placeholder="https://storage.example.com/docs/tb-test.pdf"
-                    value={docUrls.tbTestProofUrl}
-                    onChange={(e) =>
-                      setDocUrls((prev) => ({ ...prev, tbTestProofUrl: e.target.value }))
-                    }
-                    className="text-xs rounded-xl bg-white"
-                  />
-                  <label className="cursor-pointer shrink-0">
-                    <input
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload("tbTestProofUrl", file);
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={uploadingField === "tbTestProofUrl"}
-                      className="rounded-xl h-9 text-xs gap-1.5 pointer-events-none"
-                    >
-                      {uploadingField === "tbTestProofUrl" ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Upload className="w-3.5 h-3.5" />
-                      )}
-                      Upload
-                    </Button>
-                  </label>
-                </div>
-              </div>
+                return (
+                  <div
+                    key={doc.field}
+                    className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs hover:border-[#0D72BA]/50 transition-all space-y-2.5"
+                  >
+                    {/* Header: Status icon + Label */}
+                    <div className="flex items-center gap-2">
+                      <div className={cn(
+                        "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                        ready ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-500"
+                      )}>
+                        {ready ? (
+                          <Check className="w-3 h-3 stroke-[2.5]" />
+                        ) : (
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                        )}
+                      </div>
+                      <span className="text-xs font-bold text-slate-900 truncate flex-1">
+                        {doc.label}
+                      </span>
+                    </div>
 
-              {/* Document 3: Immunization Records */}
-              <div className="space-y-2 p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="immunization-input" className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    Immunization Proof (Hepatitis B, MMR, Varicella) *
-                  </label>
-                  {hasImmunization ? (
-                    <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Ready
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-bold text-amber-600">Required</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Proof of vaccination series or positive antibody titers.
-                </p>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="immunization-input"
-                    aria-label="Immunization Proof URL"
-                    type="url"
-                    placeholder="https://storage.example.com/docs/immunizations.pdf"
-                    value={docUrls.immunizationProofUrl}
-                    onChange={(e) =>
-                      setDocUrls((prev) => ({ ...prev, immunizationProofUrl: e.target.value }))
-                    }
-                    className="text-xs rounded-xl bg-white"
-                  />
-                  <label className="cursor-pointer shrink-0">
-                    <input
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload("immunizationProofUrl", file);
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={uploadingField === "immunizationProofUrl"}
-                      className="rounded-xl h-9 text-xs gap-1.5 pointer-events-none"
-                    >
-                      {uploadingField === "immunizationProofUrl" ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Upload className="w-3.5 h-3.5" />
-                      )}
-                      Upload
-                    </Button>
-                  </label>
-                </div>
-              </div>
+                    {/* Clean Input row with external link & upload button */}
+                    <div className="flex items-center gap-1.5">
+                      <div className="relative flex-1">
+                        <Input
+                          id={`${doc.id}-input`}
+                          aria-label={doc.label}
+                          type="url"
+                          placeholder="https://..."
+                          value={val}
+                          onChange={(e) => setDocUrls((prev) => ({ ...prev, [doc.field]: e.target.value }))}
+                          className="text-xs h-8.5 rounded-xl bg-slate-50/70 border-slate-200 focus:bg-white focus:border-[#0D72BA] pr-7 transition-colors"
+                        />
+                        {val.trim() && (
+                          <a
+                            href={val}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0D72BA] transition-colors p-0.5"
+                            title="Open link"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </div>
 
-              {/* Document 4: CPR Certification */}
-              <div className="space-y-2 p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="cpr-cert-input" className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    BLS / CPR Certification (AHA or ARC) *
-                  </label>
-                  {hasCpr ? (
-                    <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Ready
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-bold text-amber-600">Required</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Basic Life Support for Healthcare Providers valid through cohort clinicals.
-                </p>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="cpr-cert-input"
-                    aria-label="BLS / CPR Certification URL"
-                    type="url"
-                    placeholder="https://storage.example.com/docs/cpr-card.pdf"
-                    value={docUrls.cprCertUrl}
-                    onChange={(e) =>
-                      setDocUrls((prev) => ({ ...prev, cprCertUrl: e.target.value }))
-                    }
-                    className="text-xs rounded-xl bg-white"
-                  />
-                  <label className="cursor-pointer shrink-0">
-                    <input
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload("cprCertUrl", file);
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={uploadingField === "cprCertUrl"}
-                      className="rounded-xl h-9 text-xs gap-1.5 pointer-events-none"
-                    >
-                      {uploadingField === "cprCertUrl" ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Upload className="w-3.5 h-3.5" />
-                      )}
-                      Upload
-                    </Button>
-                  </label>
-                </div>
-              </div>
-
-              {/* Document 5: Government ID */}
-              <div className="space-y-2 p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="gov-id-input" className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    Government Photo Identification *
-                  </label>
-                  {hasId ? (
-                    <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Ready
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-bold text-amber-600">Required</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Unexpired Driver's License, State ID Card, or Passport.
-                </p>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="gov-id-input"
-                    aria-label="Government Photo Identification URL"
-                    type="url"
-                    placeholder="https://storage.example.com/docs/government-id.jpg"
-                    value={docUrls.idDocUrl}
-                    onChange={(e) =>
-                      setDocUrls((prev) => ({ ...prev, idDocUrl: e.target.value }))
-                    }
-                    className="text-xs rounded-xl bg-white"
-                  />
-                  <label className="cursor-pointer shrink-0">
-                    <input
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload("idDocUrl", file);
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={uploadingField === "idDocUrl"}
-                      className="rounded-xl h-9 text-xs gap-1.5 pointer-events-none"
-                    >
-                      {uploadingField === "idDocUrl" ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Upload className="w-3.5 h-3.5" />
-                      )}
-                      Upload
-                    </Button>
-                  </label>
-                </div>
-              </div>
-
-              {/* Document 6: High School Diploma / GED */}
-              <div className="space-y-2 p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="diploma-input" className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    High School Diploma or GED Transcript *
-                  </label>
-                  {hasHighSchool ? (
-                    <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                      <Check className="w-3 h-3" /> Ready
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-bold text-amber-600">Required</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Proof of secondary education completion or certified equivalency.
-                </p>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="diploma-input"
-                    aria-label="High School Diploma or GED Transcript URL"
-                    type="url"
-                    placeholder="https://storage.example.com/docs/diploma.pdf"
-                    value={docUrls.highSchoolProofUrl}
-                    onChange={(e) =>
-                      setDocUrls((prev) => ({ ...prev, highSchoolProofUrl: e.target.value }))
-                    }
-                    className="text-xs rounded-xl bg-white"
-                  />
-                  <label className="cursor-pointer shrink-0">
-                    <input
-                      type="file"
-                      accept=".pdf,.png,.jpg,.jpeg"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload("highSchoolProofUrl", file);
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={uploadingField === "highSchoolProofUrl"}
-                      className="rounded-xl h-9 text-xs gap-1.5 pointer-events-none"
-                    >
-                      {uploadingField === "highSchoolProofUrl" ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Upload className="w-3.5 h-3.5" />
-                      )}
-                      Upload
-                    </Button>
-                  </label>
-                </div>
-              </div>
+                      <label className="cursor-pointer shrink-0">
+                        <input
+                          type="file"
+                          accept=".pdf,.png,.jpg,.jpeg"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleFileUpload(doc.field, file);
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={uploading}
+                          className="rounded-xl h-8.5 px-2.5 text-xs font-semibold pointer-events-none border-slate-200 hover:bg-[#e8f3fc] hover:text-[#0D72BA]"
+                        >
+                          {uploading ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0D72BA]" />
+                          ) : (
+                            <Upload className="w-3.5 h-3.5 text-slate-500" />
+                          )}
+                        </Button>
+                      </label>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+            {/* Bottom Form Actions */}
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
               <span className="text-xs text-slate-500">
-                Ensure all documents are current, authentic, and legible.
+                All documents must be current, authentic, and legible.
               </span>
               <Button
                 type="submit"
                 disabled={submitDocsMutation.isPending || isApproved}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl h-10 px-6 shadow-xs"
+                className={cn(
+                  "font-bold text-xs rounded-xl h-10 px-6 shadow-xs transition-all",
+                  isApproved
+                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                    : "bg-[#0D72BA] hover:bg-[#17469E] text-white"
+                )}
               >
                 {submitDocsMutation.isPending ? (
                   <>
@@ -787,11 +679,11 @@ export const AdmissionsClearancePage: React.FC = () => {
                   </>
                 ) : isApproved ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-300" /> Documents Approved
+                    <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-200" /> Documents Approved
                   </>
                 ) : (
                   <>
-                    <Upload className="w-4 h-4 mr-1.5" /> Submit Documents for Clearance
+                    <Upload className="w-4 h-4 mr-1.5" /> Submit for Clearance
                   </>
                 )}
               </Button>
@@ -799,38 +691,38 @@ export const AdmissionsClearancePage: React.FC = () => {
           </form>
         </div>
 
-        {/* ── SECTION 2 & 3: Digital Agreement & Mandatory Orientation Gate ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* ── SECTION 2 & 3: Digital Agreement & Orientation ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Section 2: Enrollment Agreement */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between space-y-5">
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between space-y-5 transition-all hover:border-[#0D72BA]/40">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-[#e8f0fa] border border-[#c8dcf3] text-[#2b5f9e] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-[#e8f0fa] border border-[#cbdcf3] text-[#17469E] flex items-center justify-center shrink-0">
                   <PenTool className="w-5 h-5" />
                 </div>
                 {isAgreementSigned ? (
-                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-bold py-1 px-2.5">
-                    <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" /> Complete
-                  </Badge>
+                  <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    <Check className="w-3 h-3 stroke-[2.5]" /> Complete
+                  </span>
                 ) : (
-                  <Badge className="bg-amber-50 text-amber-800 border-amber-300 text-xs font-bold py-1 px-2.5">
+                  <span className="inline-flex items-center text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
                     Pending Signature
-                  </Badge>
+                  </span>
                 )}
               </div>
               <h3 className="text-base font-bold text-slate-900 font-heading">
-                2. Digital Enrollment Agreement & Statutory Disclosures
+                2. Digital Enrollment Agreement
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Review Washington State nursing assistant training disclosures, programmatic expectations, student rights, and clinical compliance mandates.
+                Review statutory disclosures, programmatic expectations, student rights, and clinical compliance mandates.
               </p>
               {isAgreementSigned && (
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-0.5">
                   <div className="font-semibold text-slate-800">
-                    Digitally signed by: {application?.agreementSignature || application?.agreementSignatureUrl || user?.firstname}
+                    Signed by: {application?.agreementSignature || application?.agreementSignatureUrl || user?.firstname}
                   </div>
-                  <div className="text-[11px] text-emerald-600 font-medium">
-                    Agreement on file & acknowledged
+                  <div className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> On file &amp; acknowledged
                   </div>
                 </div>
               )}
@@ -840,48 +732,48 @@ export const AdmissionsClearancePage: React.FC = () => {
               {!isAgreementSigned ? (
                 <Button
                   onClick={() => setIsAgreementModalOpen(true)}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl h-10 shadow-xs"
+                  className="w-full bg-[#17469E] hover:bg-[#0D72BA] text-white font-bold text-xs rounded-xl h-10 shadow-xs"
                 >
-                  <PenTool className="w-3.5 h-3.5 mr-2" /> Read & Digitally Sign Agreement
+                  <PenTool className="w-3.5 h-3.5 mr-2" /> Read &amp; Sign Agreement
                 </Button>
               ) : (
                 <Button
                   variant="outline"
                   onClick={() => setIsAgreementModalOpen(true)}
-                  className="w-full text-xs font-bold rounded-xl h-10"
+                  className="w-full text-xs font-bold rounded-xl h-10 bg-white hover:bg-slate-50 border-slate-200"
                 >
-                  <FileText className="w-3.5 h-3.5 mr-2 text-slate-500" /> View Signed Agreement
+                  <FileText className="w-3.5 h-3.5 mr-2 text-slate-500" /> View Agreement
                 </Button>
               )}
             </div>
           </div>
 
           {/* Section 3: Orientation Gate */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between space-y-5">
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between space-y-5 transition-all hover:border-[#BF6622]/40">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-[#fdf2ea] border border-[#f7d7be] text-[#BF6622] flex items-center justify-center shrink-0">
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 {isOrientationDone ? (
-                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-300 text-xs font-bold py-1 px-2.5">
-                    <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-600" /> Complete
-                  </Badge>
+                  <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    <Check className="w-3 h-3 stroke-[2.5]" /> Complete
+                  </span>
                 ) : (
-                  <Badge className="bg-amber-50 text-amber-800 border-amber-300 text-xs font-bold py-1 px-2.5">
+                  <span className="inline-flex items-center text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
                     Required Gate
-                  </Badge>
+                  </span>
                 )}
               </div>
               <h3 className="text-base font-bold text-slate-900 font-heading">
-                3. Mandatory Student Orientation
+                3. Mandatory Orientation
               </h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Complete the non-credit student orientation session, LMS digital literacy tutorial, and online netiquette code of conduct.
+                Complete the student orientation session, LMS navigation tutorial, and online netiquette code of conduct.
               </p>
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-0.5">
                 <div className="font-semibold text-slate-800">
-                  Orientation Gate: {isOrientationDone ? "Completed" : "Pending Completion"}
+                  Status: {isOrientationDone ? "Completed" : "Pending"}
                 </div>
                 <div className="text-[11px] text-slate-500">
                   Required before accessing clinical theory lessons
@@ -893,14 +785,14 @@ export const AdmissionsClearancePage: React.FC = () => {
               <Button
                 asChild
                 className={cn(
-                  "w-full font-bold text-xs rounded-xl h-10 shadow-xs",
+                  "w-full font-bold text-xs rounded-xl h-10 shadow-xs transition-all",
                   isOrientationDone
-                    ? "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
-                    : "bg-amber-600 hover:bg-amber-700 text-white"
+                    ? "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200"
+                    : "bg-[#BF6622] hover:bg-[#a35316] text-white shadow-xs"
                 )}
               >
                 <Link to={`/orientation?cohortId=${selectedCohortId}`}>
-                  {isOrientationDone ? "Review Orientation Checklist" : "Complete Orientation Now"}
+                  {isOrientationDone ? "Review Orientation" : "Complete Orientation Now"}
                   <ArrowRight className="w-3.5 h-3.5 ml-2" />
                 </Link>
               </Button>
@@ -908,22 +800,19 @@ export const AdmissionsClearancePage: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Return to Course CTA ── */}
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-[#1c4477] via-[#2b5f9e] to-[#234e83] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
-          <div className="space-y-1">
-            <h4 className="font-bold text-base font-heading">
-              Ready to begin theory lessons?
+        {/* ── CTA Footer ── */}
+        <div className="p-5 rounded-2xl bg-[#f8fafc] border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <h4 className="font-bold text-sm text-[#17469E] font-heading">
+              Ready to start theory lessons?
             </h4>
-            <p className="text-xs text-blue-200 max-w-xl">
-              Once documents, enrollment agreement, and orientation are verified, the theory learning curriculum unlocks automatically.
+            <p className="text-xs text-slate-500">
+              All 3 gates must be verified to unlock the curriculum.
             </p>
           </div>
-          <Button
-            asChild
-            className="bg-white hover:bg-blue-50 text-slate-900 font-bold text-xs rounded-xl h-10 px-6 shrink-0 shadow-md"
-          >
+          <Button asChild className="bg-[#0D72BA] hover:bg-[#17469E] text-white font-bold text-xs rounded-xl h-10 px-6 shrink-0 shadow-xs">
             <Link to="/learning">
-              Go to My Learning <ArrowRight className="w-4 h-4 ml-1.5 text-blue-600" />
+              Go to My Learning <ArrowRight className="w-4 h-4 ml-1.5" />
             </Link>
           </Button>
         </div>
