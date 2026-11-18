@@ -212,6 +212,8 @@ export const admissionsService = {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("document", file);
+    const fileType = file.type.startsWith("image/") ? "image" : "document";
+    formData.append("type", fileType);
     try {
       const res = await api.post<any>("/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },

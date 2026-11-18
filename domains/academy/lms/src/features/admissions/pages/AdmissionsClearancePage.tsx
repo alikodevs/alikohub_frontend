@@ -44,6 +44,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { jsPDF } from "jspdf";
+import DocumentPreviewModal from "@/components/shared/DocumentPreviewModal";
 
 interface PrerequisiteDocConfig {
   field:
@@ -159,6 +160,9 @@ export const AdmissionsClearancePage: React.FC = () => {
 
   // Toggle state for pasting direct URL per doc
   const [activeUrlDocField, setActiveUrlDocField] = useState<string | null>(null);
+
+  // Document preview modal state
+  const [previewDoc, setPreviewDoc] = useState<{ title: string; url: string } | null>(null);
 
   // Populate existing URLs from application
   useEffect(() => {
@@ -837,15 +841,14 @@ export const AdmissionsClearancePage: React.FC = () => {
                     <div className="shrink-0 flex items-center gap-1.5">
                       {isReady ? (
                         <>
-                          <a
-                            href={val}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={() => setPreviewDoc({ title: doc.title, url: val })}
                             className="inline-flex items-center text-xs font-semibold text-[#0F1B34] bg-white border border-[#E1E7F1] hover:bg-slate-50 px-3.5 py-1.5 rounded-xl shadow-2xs transition-colors cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5 mr-1.5 text-[#5A6B8C]" />
                             View
-                          </a>
+                          </button>
 
                           {/* Upload/Replace is disabled and hidden once admission is complete/approved (backend source of truth) */}
                           {!isApproved && (
@@ -1239,6 +1242,14 @@ export const AdmissionsClearancePage: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ── Document Preview Modal (In-Memory Blob + Native iFrame/Img per User Specification) ── */}
+      <DocumentPreviewModal
+        isOpen={Boolean(previewDoc)}
+        title={previewDoc?.title || ""}
+        fileUrl={previewDoc?.url || null}
+        onClose={() => setPreviewDoc(null)}
+      />
     </StudentLayout>
   );
 };
