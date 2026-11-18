@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import StudentLayout from "@/features/student/components/StudentLayout";
 import { useEnrollments } from "@/hooks/useAcademy";
 import { useUser } from "@/features/auth/hooks/useAuth";
@@ -11,9 +11,7 @@ import {
 import { admissionsService } from "../services/admissionsService";
 import { useOrientationStatus } from "@/features/orientation/hooks/useOrientation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +20,6 @@ import {
 } from "@/components/ui/dialog";
 import {
   CheckCircle2,
-  Clock,
   ShieldAlert,
   ShieldCheck,
   AlertCircle,
@@ -32,24 +29,85 @@ import {
   ExternalLink,
   Loader2,
   FileCheck2,
-  BookOpen,
   GraduationCap,
   PenTool,
-  Info,
   Check,
-  Stethoscope,
-  Award,
+  Activity,
+  HeartPulse,
   CreditCard,
+  Download,
+  Eye,
+  Link as LinkIcon,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { jsPDF } from "jspdf";
+
+interface PrerequisiteDocConfig {
+  field:
+    | "backgroundCheckUrl"
+    | "tbTestProofUrl"
+    | "immunizationProofUrl"
+    | "cprCertUrl"
+    | "idDocUrl"
+    | "highSchoolProofUrl";
+  id: string;
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  iconBadgeClass: string;
+}
+
+const PREREQUISITE_DOCS: PrerequisiteDocConfig[] = [
+  {
+    field: "backgroundCheckUrl",
+    id: "bg-check",
+    title: "Background Check",
+    icon: ShieldCheck,
+    iconBadgeClass: "bg-[#10B981] text-white", // Emerald Green
+  },
+  {
+    field: "tbTestProofUrl",
+    id: "tb-test",
+    title: "TB Screening",
+    icon: Activity,
+    iconBadgeClass: "bg-[#0183C7] text-white", // Sky Blue
+  },
+  {
+    field: "immunizationProofUrl",
+    id: "immunization",
+    title: "Immunizations",
+    icon: ShieldAlert,
+    iconBadgeClass: "bg-[#E11D48] text-white", // Rose Red
+  },
+  {
+    field: "cprCertUrl",
+    id: "cpr-cert",
+    title: "BLS / CPR Card",
+    icon: HeartPulse,
+    iconBadgeClass: "bg-[#F43F5E] text-white", // Red
+  },
+  {
+    field: "idDocUrl",
+    id: "gov-id",
+    title: "Government ID",
+    icon: CreditCard,
+    iconBadgeClass: "bg-[#EA8A00] text-white", // Amber
+  },
+  {
+    field: "highSchoolProofUrl",
+    id: "diploma",
+    title: "HS Diploma / GED",
+    icon: GraduationCap,
+    iconBadgeClass: "bg-[#7C3AED] text-white", // Violet
+  },
+];
 
 export const AdmissionsClearancePage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const { data: user } = useUser();
-  const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollments();
+  const { data: enrollments } = useEnrollments();
 
   // Cohort Selection
   const cohortOptions = React.useMemo(() => {
@@ -83,16 +141,8 @@ export const AdmissionsClearancePage: React.FC = () => {
   }, [cohortOptions, paramCohort]);
 
   // Data fetching
-  const {
-    data: application,
-    isLoading: applicationLoading,
-    refetch: refetchApp,
-  } = useMyAdmissionsApplication(selectedCohortId);
-
-  const {
-    data: orientationStatus,
-    isLoading: orientationLoading,
-  } = useOrientationStatus(selectedCohortId);
+  const { data: application } = useMyAdmissionsApplication(selectedCohortId);
+  const { data: orientationStatus } = useOrientationStatus(selectedCohortId);
 
   const submitDocsMutation = useSubmitPrerequisitesMutation();
   const signAgreementMutation = useSignAgreementMutation();
@@ -106,6 +156,9 @@ export const AdmissionsClearancePage: React.FC = () => {
     idDocUrl: "",
     highSchoolProofUrl: "",
   });
+
+  // Toggle state for pasting direct URL per doc
+  const [activeUrlDocField, setActiveUrlDocField] = useState<string | null>(null);
 
   // Populate existing URLs from application
   useEffect(() => {
@@ -148,15 +201,16 @@ export const AdmissionsClearancePage: React.FC = () => {
       setDocUrls((prev) => ({ ...prev, [field]: url }));
       toast.success("Document uploaded successfully");
     } catch {
-      toast.error("File upload failed. You can paste the direct document URL below.");
+      toast.error("File upload failed. You can paste the direct document URL.");
+      setActiveUrlDocField(field);
     } finally {
       setUploadingField(null);
     }
   };
 
   // Submit all prerequisites
-  const handleSaveDocuments = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveDocuments = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!selectedCohortId) return;
 
     if (
@@ -167,7 +221,7 @@ export const AdmissionsClearancePage: React.FC = () => {
       !docUrls.idDocUrl?.trim() ||
       !docUrls.highSchoolProofUrl?.trim()
     ) {
-      toast.error("Please provide all 6 mandatory prerequisite documents.");
+      toast.error("Please provide all 6 mandatory prerequisite documents before submitting for clearance.");
       return;
     }
 
@@ -194,7 +248,6 @@ export const AdmissionsClearancePage: React.FC = () => {
     }
 
     try {
-      // Save current document URLs so application record is complete in database
       await submitDocsMutation.mutateAsync({
         cohortId: selectedCohortId,
         backgroundCheckUrl: docUrls.backgroundCheckUrl || application?.backgroundCheckUrl || "",
@@ -212,7 +265,7 @@ export const AdmissionsClearancePage: React.FC = () => {
       });
       setIsAgreementModalOpen(false);
     } catch {
-      // Errors handled by mutation onError toasts
+      // Handled by mutation onError toasts
     }
   };
 
@@ -224,14 +277,19 @@ export const AdmissionsClearancePage: React.FC = () => {
   const hasId = Boolean(docUrls.idDocUrl || application?.idDocUrl);
   const hasHighSchool = Boolean(docUrls.highSchoolProofUrl || application?.highSchoolProofUrl);
 
-  const docsCompletedCount = [
-    hasBackground,
-    hasTb,
-    hasImmunization,
-    hasCpr,
-    hasId,
-    hasHighSchool,
-  ].filter(Boolean).length;
+  const isApproved = application?.status === "APPROVED";
+  const isRejected = application?.status === "REJECTED";
+
+  const docsCompletedCount = isApproved
+    ? 6
+    : [
+        hasBackground,
+        hasTb,
+        hasImmunization,
+        hasCpr,
+        hasId,
+        hasHighSchool,
+      ].filter(Boolean).length;
 
   const isAgreementSigned = Boolean(
     application?.agreementSigned ||
@@ -239,608 +297,801 @@ export const AdmissionsClearancePage: React.FC = () => {
     application?.agreementSignatureUrl
   );
   const isOrientationDone = Boolean(orientationStatus?.orientationCompleted);
-  const isApproved = application?.status === "APPROVED";
-  const isRejected = application?.status === "REJECTED";
-  const isPendingReview = application?.status === "PENDING_REVIEW" || (docsCompletedCount === 6 && !isApproved && !isRejected);
+  const isPendingReview =
+    application?.status === "PENDING_REVIEW" ||
+    (docsCompletedCount === 6 && !isApproved && !isRejected);
 
-  // Overall Clearance Progress
-  // 1: Docs (6 items, 40%) + 2: Agreement (30%) + 3: Orientation (30%)
-  const overallProgress = Math.round(
-    (docsCompletedCount / 6) * 40 +
-    (isAgreementSigned ? 30 : 0) +
-    (isOrientationDone ? 30 : 0)
-  );
+  // Download checklist PDF
+  const handleDownloadChecklist = () => {
+    try {
+      const doc = new jsPDF();
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.setTextColor(15, 27, 52); // #0F1B34
+      doc.text("ALIKOHUB ACADEMY", 20, 22);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(14);
+      doc.setTextColor(43, 94, 156); // #2B5E9C
+      doc.text("Admissions Clearance Checklist", 20, 30);
+
+      doc.setFontSize(10);
+      doc.setTextColor(90, 107, 140); // #5A6B8C
+      doc.text(`Generated: ${format(new Date(), "PPP")}`, 20, 38);
+      doc.text(
+        `Student: ${user?.firstname || ""} ${user?.lastname || ""} (${user?.email || ""})`,
+        20,
+        44
+      );
+      const cohortName =
+        cohortOptions.find((c) => c.cohortId === selectedCohortId)?.name ||
+        application?.cohort?.name;
+      if (cohortName) {
+        doc.text(`Cohort: ${cohortName}`, 20, 50);
+      }
+
+      doc.setDrawColor(225, 231, 241); // #E1E7F1
+      doc.line(20, 55, 190, 55);
+
+      // 4 Gates Summary
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(15, 27, 52);
+      doc.text("Four Regulatory Clearance Gates", 20, 65);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(`1. Prerequisites: ${docsCompletedCount} of 6 uploaded`, 25, 74);
+      doc.text(
+        `2. Enrollment Agreement: ${isAgreementSigned ? "Signed & Acknowledged" : "Pending Signature"}`,
+        25,
+        82
+      );
+      doc.text(
+        `3. Mandatory Orientation: ${isOrientationDone ? "Completed" : "Required"}`,
+        25,
+        90
+      );
+      doc.text(
+        `4. Clearance Status: ${
+          isApproved
+            ? "Approved (Cleared)"
+            : isPendingReview
+            ? "Pending Review"
+            : "Incomplete"
+        }`,
+        25,
+        98
+      );
+
+      doc.line(20, 106, 190, 106);
+
+      // Document Breakdown
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(15, 27, 52);
+      doc.text("Prerequisite Documents Breakdown", 20, 116);
+
+      let y = 126;
+      PREREQUISITE_DOCS.forEach((item, idx) => {
+        const isReady = Boolean(docUrls[item.field]);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(15, 27, 52);
+        doc.text(`${idx + 1}. ${item.title}`, 25, y);
+        if (isReady) {
+          doc.setTextColor(16, 185, 129); // #10B981
+          doc.text("[READY / ON FILE]", 150, y);
+        } else {
+          doc.setTextColor(244, 63, 94); // #F43F5E
+          doc.text("[MISSING / REQUIRED]", 150, y);
+        }
+        y += 8;
+      });
+
+      doc.line(20, y + 4, 190, y + 4);
+      doc.setFontSize(9);
+      doc.setTextColor(90, 107, 140);
+      doc.text(
+        "All clinical prerequisites must be current, authentic, and legible pursuant to WAC 246-841A.",
+        20,
+        y + 14
+      );
+
+      doc.save("Aliko-Admissions-Clearance-Checklist.pdf");
+      toast.success("Checklist PDF downloaded successfully");
+    } catch (err) {
+      console.error("PDF generation error", err);
+      toast.error("Could not generate checklist PDF.");
+    }
+  };
 
   return (
     <StudentLayout>
-      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* ── Compact Cohort Selector Row (Separate, does not compete with title) ── */}
-        {cohortOptions.length > 1 && (
-          <div className="flex items-center justify-between gap-3 px-1">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Enrolled Cohort
-            </span>
-            <div className="flex items-center gap-2">
-              <label htmlFor="cohort-select" className="text-xs text-slate-500 font-medium">
-                Cohort:
-              </label>
-              <select
-                id="cohort-select"
-                aria-label="Select cohort"
-                value={selectedCohortId}
-                onChange={(e) => setSelectedCohortId(Number(e.target.value))}
-                className="text-xs font-medium bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 shadow-2xs focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
-              >
-                {cohortOptions.map((opt) => (
-                  <option key={opt.cohortId} value={opt.cohortId}>
-                    {opt.name} ({opt.courseTitle})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* ── Hero Header: Light, elegant with subtle brand blue & orange curve ── */}
-        <div className="rounded-3xl border border-[#E2E8F0] bg-white shadow-xs overflow-hidden relative">
-          <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative">
-            {/* Left Title & Subtitle */}
-            <div className="relative z-10 max-w-lg">
-              <h1 className="text-3xl sm:text-4xl font-heading font-semibold text-[#081831] tracking-tight leading-[1.15]">
-                Admissions<br />
-                <span className="text-primary">Clearance</span>
+      <div className="min-h-screen bg-[#F2F5FB] py-6 sm:py-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          {/* ── Top Header Bar (Matching PDF & Orientation: Title + Subtitle + Action buttons) ── */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 pr-0 sm:pr-4">
+              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[#0F1B34] tracking-tight">
+                Admissions Clearance
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-3 leading-relaxed font-normal">
-                Complete prerequisites, enrollment agreement, and orientation to unlock coursework.
+              <p className="text-xs sm:text-sm text-[#5A6B8C] mt-1 font-normal">
+                Complete prerequisites, enrollment agreement and orientation to unlock coursework
               </p>
             </div>
 
-            {/* Right: Decorative brand wave & Graduation Cap artwork */}
-            <div className="relative md:w-80 h-36 sm:h-40 shrink-0 flex items-center justify-end pointer-events-none overflow-hidden">
-              <svg
-                viewBox="0 0 320 160"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-full h-full"
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+              {/* Cohort Dropdown Button - Consistent styling and responsive width */}
+              {cohortOptions.length > 1 && (
+                <div className="relative inline-flex items-center w-full sm:w-auto">
+                  <select
+                    id="cohort-select"
+                    aria-label="Select cohort"
+                    value={selectedCohortId}
+                    onChange={(e) => setSelectedCohortId(Number(e.target.value))}
+                    className="h-10 pl-4 pr-9 rounded-xl text-xs font-semibold text-[#0F1B34] bg-white border border-[#E1E7F1] hover:bg-slate-50 shadow-2xs focus:outline-none focus:ring-2 focus:ring-[#F16A1C] cursor-pointer appearance-none transition-all w-full sm:w-auto sm:max-w-[200px] truncate"
+                  >
+                    {cohortOptions.map((opt) => (
+                      <option key={opt.cohortId} value={opt.cohortId}>
+                        {opt.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#5A6B8C] absolute right-3 pointer-events-none" />
+                </div>
+              )}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDownloadChecklist}
+                className="h-10 px-3.5 sm:px-4 rounded-xl text-xs font-semibold text-[#0F1B34] bg-white border-[#E1E7F1] hover:bg-slate-50 shadow-2xs cursor-pointer flex-1 sm:flex-initial justify-center whitespace-nowrap"
               >
-                {/* Subtle background soft blue glow */}
-                <ellipse cx="220" cy="80" rx="90" ry="70" fill="#EAF3F9" opacity="0.7" />
+                <Download className="w-3.5 h-3.5 mr-1.5 text-[#5A6B8C] shrink-0" />
+                <span className="truncate">Download checklist</span>
+              </Button>
 
-                {/* Curved blue brand swoosh */}
-                <path
-                  d="M110 0 C150 70 170 160 320 160 L320 0 Z"
-                  fill="url(#blue-brand-gradient)"
-                />
-                {/* Curved orange accent stroke */}
-                <path
-                  d="M106 0 C146 70 166 160 316 160"
-                  stroke="#D77510"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                />
-
-                {/* Stacked books */}
-                {/* Book 1 (bottom) */}
-                <rect x="180" y="118" width="110" height="12" rx="2" fill="#ffffff" stroke="#E2E8F0" strokeWidth="1.5" />
-                <rect x="176" y="117" width="8" height="14" rx="2" fill="#084B78" />
-                {/* Book 2 (middle) */}
-                <rect x="186" y="104" width="102" height="12" rx="2" fill="#ffffff" stroke="#E2E8F0" strokeWidth="1.5" />
-                <rect x="182" y="103" width="8" height="14" rx="2" fill="#D77510" />
-                {/* Book 3 (top) */}
-                <rect x="192" y="90" width="94" height="12" rx="2" fill="#ffffff" stroke="#E2E8F0" strokeWidth="1.5" />
-                <rect x="188" y="89" width="8" height="14" rx="2" fill="#0A65A0" />
-
-                {/* Graduation cap skull cap */}
-                <ellipse cx="238" cy="74" rx="28" ry="12" fill="#1e293b" />
-                <path d="M210 74 L210 84 C210 92 266 92 266 84 L266 74 Z" fill="#0f172a" />
-
-                {/* Graduation cap diamond top */}
-                <polygon points="238,44 286,60 238,76 190,60" fill="#1e293b" stroke="#0f172a" strokeWidth="1.5" />
-                {/* Cap button */}
-                <circle cx="238" cy="60" r="3" fill="#D77510" />
-                {/* Tassel cord and gold tassel */}
-                <path d="M238 60 Q265 65 268 76" stroke="#D77510" strokeWidth="1.5" fill="none" />
-                <polygon points="266,76 270,76 272,96 264,96" fill="#D77510" />
-                <line x1="264" y1="96" x2="272" y2="96" stroke="#AC5B0B" strokeWidth="2" />
-
-                <defs>
-                  <linearGradient id="blue-brand-gradient" x1="120" y1="0" x2="300" y2="160" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#0A65A0" />
-                    <stop offset="1" stopColor="#084B78" />
-                  </linearGradient>
-                </defs>
-              </svg>
+              {/* Orange only on Submit CTA per Design System V2 */}
+              <Button
+                type="button"
+                onClick={() => handleSaveDocuments()}
+                disabled={submitDocsMutation.isPending || isApproved}
+                className={cn(
+                  "h-10 px-4 sm:px-5 rounded-xl text-xs font-semibold shadow-2xs transition-all flex-1 sm:flex-initial justify-center whitespace-nowrap",
+                  isApproved
+                    ? "bg-[#F16A1C] text-white cursor-default opacity-100"
+                    : "bg-[#F16A1C] hover:bg-[#D95507] text-white cursor-pointer"
+                )}
+              >
+                {submitDocsMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin shrink-0" />
+                    Submitting...
+                  </>
+                ) : isApproved ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                    Clearance Approved
+                  </>
+                ) : (
+                  <>
+                    <ArrowRight className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                    Submit for clearance
+                  </>
+                )}
+              </Button>
             </div>
           </div>
 
-          {/* Integrated Milestones Progress Row */}
-          <div className="border-t border-slate-100 bg-[#F4F8FB] px-6 sm:px-8 py-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              {/* 3 Steps */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 flex-1">
-                {/* Step 1 */}
-                <div className="flex items-center gap-2.5">
-                  <div className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs",
-                    docsCompletedCount === 6
-                      ? "bg-emerald-600 text-white"
-                      : "bg-primary text-white"
-                  )}>
-                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-800">Prerequisites</p>
-                    <p className="text-[11px] text-slate-500 font-medium">{docsCompletedCount}/6 uploaded</p>
-                  </div>
+          {/* ── 4-Gate Stepper: "Stepper is the color moment" (Pure white card, 4 distinct circle colors) ── */}
+          <div className="bg-white rounded-2xl border border-[#E1E7F1] p-5 sm:p-6 shadow-2xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative">
+              {/* Step 1: Prerequisites (Amber/Orange #EA8A00) */}
+              <div className="flex items-center gap-3.5 p-2 relative">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs text-white bg-[#EA8A00] z-10">
+                  {docsCompletedCount === 6 ? (
+                    <Check className="w-4.5 h-4.5 stroke-[2.5]" />
+                  ) : (
+                    "1"
+                  )}
                 </div>
-
-                {/* Step 2 */}
-                <div className="flex items-center gap-2.5">
-                  <div className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs",
-                    isAgreementSigned
-                      ? "bg-emerald-600 text-white"
-                      : "bg-primary text-white"
-                  )}>
-                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-800">Agreement</p>
-                    <p className="text-[11px] text-slate-500 font-medium">{isAgreementSigned ? "Signed" : "Pending"}</p>
-                  </div>
-                </div>
-
-                {/* Step 3 */}
-                <div className="flex items-center gap-2.5">
-                  <div className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs",
-                    isOrientationDone
-                      ? "bg-emerald-600 text-white"
-                      : "bg-primary text-white"
-                  )}>
-                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-slate-800">Orientation</p>
-                    <p className="text-[11px] text-slate-500 font-medium">{isOrientationDone ? "Complete" : "Pending"}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Overall percentage circle badge */}
-              <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
-                <div className={cn(
-                  "w-7 h-7 rounded-full flex items-center justify-center text-white shrink-0",
-                  overallProgress === 100 ? "bg-emerald-600" : "bg-primary"
-                )}>
-                  <Check className="w-4 h-4 stroke-[2.5]" />
-                </div>
-                <div className="text-right">
-                  <span className="text-xs font-semibold text-slate-900 block leading-none">
-                    {overallProgress}%
+                <div className="min-w-0 flex-1 z-10">
+                  <span className="text-xs font-semibold text-[#0F1B34] block truncate font-heading">
+                    Prerequisites
                   </span>
-                  <span className="text-[10px] text-slate-500 font-medium leading-none">
-                    Complete
+                  <span className="text-[11px] text-[#5A6B8C] font-medium block">
+                    {docsCompletedCount} of 6 uploaded
                   </span>
                 </div>
-              </div>
-            </div>
 
-            {/* Bottom slim progress line */}
-            <div className="w-full h-1 bg-slate-200/70 rounded-full overflow-hidden mt-3">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-500"
-                style={{ width: `${overallProgress}%` }}
-              />
+                {/* Sequence line to Step 2 */}
+                <div className="hidden lg:flex items-center absolute -right-2.5 top-1/2 -translate-y-1/2 pointer-events-none z-0 text-slate-300">
+                  <div className="w-5 h-[2px] bg-slate-200 rounded-full" />
+                  <ArrowRight className="w-3.5 h-3.5 -ml-1 text-slate-300 stroke-[2.5]" />
+                </div>
+                {/* Mobile / Tablet sequence line */}
+                <div className="hidden sm:flex lg:hidden items-center absolute -right-2 top-1/2 -translate-y-1/2 pointer-events-none z-0 text-slate-300">
+                  <div className="w-4 h-[2px] bg-slate-200 rounded-full" />
+                  <ArrowRight className="w-3.5 h-3.5 -ml-1 text-slate-300 stroke-[2.5]" />
+                </div>
+              </div>
+
+              {/* Step 2: Enrollment agreement (Violet #7C3AED) */}
+              <div className="flex items-center gap-3.5 p-2 relative">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs text-white bg-[#7C3AED] z-10">
+                  {isAgreementSigned ? (
+                    <Check className="w-4.5 h-4.5 stroke-[2.5]" />
+                  ) : (
+                    "2"
+                  )}
+                </div>
+                <div className="min-w-0 flex-1 z-10">
+                  <span className="text-xs font-semibold text-[#0F1B34] block truncate font-heading">
+                    Enrollment agreement
+                  </span>
+                  <span className="text-[11px] text-[#5A6B8C] font-medium block">
+                    {isAgreementSigned ? "Signed" : "Pending signature"}
+                  </span>
+                </div>
+
+                {/* Sequence line to Step 3 */}
+                <div className="hidden lg:flex items-center absolute -right-2.5 top-1/2 -translate-y-1/2 pointer-events-none z-0 text-slate-300">
+                  <div className="w-5 h-[2px] bg-slate-200 rounded-full" />
+                  <ArrowRight className="w-3.5 h-3.5 -ml-1 text-slate-300 stroke-[2.5]" />
+                </div>
+              </div>
+
+              {/* Step 3: Orientation (Sky Blue #0183C7) */}
+              <div className="flex items-center gap-3.5 p-2 relative">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs text-white bg-[#0183C7] z-10">
+                  {isOrientationDone ? (
+                    <Check className="w-4.5 h-4.5 stroke-[2.5]" />
+                  ) : (
+                    "3"
+                  )}
+                </div>
+                <div className="min-w-0 flex-1 z-10">
+                  <span className="text-xs font-semibold text-[#0F1B34] block truncate font-heading">
+                    Orientation
+                  </span>
+                  <span className="text-[11px] text-[#5A6B8C] font-medium block">
+                    {isOrientationDone ? "Completed" : "3 items required"}
+                  </span>
+                </div>
+
+                {/* Sequence line to Step 4 */}
+                <div className="hidden lg:flex items-center absolute -right-2.5 top-1/2 -translate-y-1/2 pointer-events-none z-0 text-slate-300">
+                  <div className="w-5 h-[2px] bg-slate-200 rounded-full" />
+                  <ArrowRight className="w-3.5 h-3.5 -ml-1 text-slate-300 stroke-[2.5]" />
+                </div>
+                {/* Mobile / Tablet sequence line */}
+                <div className="hidden sm:flex lg:hidden items-center absolute -right-2 top-1/2 -translate-y-1/2 pointer-events-none z-0 text-slate-300">
+                  <div className="w-4 h-[2px] bg-slate-200 rounded-full" />
+                  <ArrowRight className="w-3.5 h-3.5 -ml-1 text-slate-300 stroke-[2.5]" />
+                </div>
+              </div>
+
+              {/* Step 4: Clearance (Slate Gray #465469) */}
+              <div className="flex items-center gap-3.5 p-2 relative">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs text-white bg-[#465469] z-10">
+                  {isApproved ? (
+                    <Check className="w-4.5 h-4.5 stroke-[2.5]" />
+                  ) : (
+                    "4"
+                  )}
+                </div>
+                <div className="min-w-0 flex-1 z-10">
+                  <span className="text-xs font-semibold text-[#0F1B34] block truncate font-heading">
+                    Clearance
+                  </span>
+                  <span className="text-[11px] text-[#5A6B8C] font-medium block">
+                    {isApproved
+                      ? "Approved"
+                      : isPendingReview
+                      ? "In review"
+                      : "Not yet submitted"}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ── Rejection Remediation Banner ── */}
-        {isRejected && application?.rejectionReason && (
-          <div className="rounded-2xl p-5 bg-rose-50 border border-rose-200 shadow-xs flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 mt-0.5">
-              <ShieldAlert className="w-5 h-5" />
-            </div>
-            <div className="space-y-1 flex-1">
-              <h3 className="text-sm font-semibold text-rose-900">Remediation Required</h3>
-              <div className="p-3 bg-white rounded-xl border border-rose-200/80 text-xs font-medium text-rose-950 mt-1">
-                "{application.rejectionReason}"
+          {/* ── Remediation Required Alert (if rejected) ── */}
+          {isRejected && application?.rejectionReason && (
+            <div className="rounded-2xl p-4 bg-[#FEF4F6] border-2 border-dashed border-[#F43F5E] shadow-2xs flex items-start gap-4">
+              <div className="w-9 h-9 rounded-xl bg-[#E11C48] text-white flex items-center justify-center shrink-0 mt-0.5">
+                <ShieldAlert className="w-5 h-5" />
               </div>
-              <p className="text-[11px] text-rose-600">Update the indicated files and re-submit.</p>
-            </div>
-          </div>
-        )}
-
-        {/* ── Four Summary Cards (White background, subtle borders, brand icons, consistent height) ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Clearance */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-2 relative overflow-hidden transition-all hover:shadow-xs">
-            <div className="absolute top-0 left-0 bottom-0 w-1 bg-emerald-500" />
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4.5 h-4.5" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block leading-none mb-1">
-                  CLEARANCE
-                </span>
-                <p className="text-sm sm:text-base font-bold text-slate-900 truncate">
-                  {isApproved ? "Cleared" : isRejected ? "Action Needed" : isPendingReview ? "Pending" : "Incomplete"}
+              <div className="space-y-1 flex-1">
+                <h3 className="text-sm font-semibold text-[#0F1B34] font-heading">
+                  Remediation Required
+                </h3>
+                <div className="p-3 bg-white rounded-xl border border-[#E1E7F1] text-xs font-medium text-[#0F1B34] mt-1">
+                  "{application.rejectionReason}"
+                </div>
+                <p className="text-[11px] text-[#F43F5E]">
+                  Update the indicated documents and re-submit for review.
                 </p>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Card 2: Documents */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-2 relative overflow-hidden transition-all hover:shadow-xs">
-            <div className="absolute top-0 left-0 bottom-0 w-1 bg-primary" />
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#EAF3F9] text-primary border border-[#E2E8F0] flex items-center justify-center shrink-0">
-                <FileCheck2 className="w-4.5 h-4.5" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 block leading-none mb-1">
-                  DOCUMENTS
+          {/* ── 4 Vivid Status KPI Cards Row (V1 Layout: Distinct Gradient Fills + Decorative Background Shapes) ── */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Card 1: Clearance status (V1: Rose Red Gradient or Emerald Green when Approved) */}
+            <div
+              className={cn(
+                "rounded-2xl p-4 shadow-2xs relative overflow-hidden text-white transition-all",
+                isApproved
+                  ? "bg-gradient-to-br from-[#049569] to-[#10B981]"
+                  : "bg-gradient-to-br from-[#E11C48] to-[#F43F5E]"
+              )}
+            >
+              {/* Decorative background circle shapes per V1 design */}
+              <div className="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-white/15 pointer-events-none blur-xs" />
+              <div className="absolute right-5 -top-5 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="w-8 h-8 rounded-xl bg-white/20 text-white flex items-center justify-center mb-2.5 shadow-2xs backdrop-blur-xs">
+                  {isApproved ? (
+                    <ShieldCheck className="w-4.5 h-4.5 stroke-[2.2]" />
+                  ) : (
+                    <AlertCircle className="w-4.5 h-4.5 stroke-[2.2]" />
+                  )}
+                </div>
+                <span className="text-[11px] font-medium text-white/85 block leading-tight">
+                  Clearance status
                 </span>
-                <p className="text-sm sm:text-base font-semibold text-primary truncate">
-                  {docsCompletedCount}/6
+                <p className="text-base sm:text-lg font-bold font-heading text-white mt-1 truncate">
+                  {isApproved
+                    ? "Approved"
+                    : isRejected
+                    ? "Action needed"
+                    : isPendingReview
+                    ? "Pending review"
+                    : "Incomplete"}
+                </p>
+                <p className="text-xs text-white/80 mt-1 truncate">
+                  {isApproved
+                    ? "Coursework unlocked"
+                    : docsCompletedCount === 6
+                    ? "Ready for review"
+                    : `${6 - docsCompletedCount} documents missing`}
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Card 3: Agreement */}
-          <div
-            onClick={!isAgreementSigned ? () => setIsAgreementModalOpen(true) : undefined}
-            className={cn(
-              "bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-2 relative overflow-hidden transition-all hover:shadow-xs",
-              !isAgreementSigned && "cursor-pointer hover:border-primary"
-            )}
-          >
-            <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#084B78]" />
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#EAF3F9] text-primary border border-[#E2E8F0] flex items-center justify-center shrink-0">
-                <PenTool className="w-4.5 h-4.5" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 block leading-none mb-1">
-                  AGREEMENT
+            {/* Card 2: Documents (V1: Amber / Golden Orange Gradient) */}
+            <div className="bg-gradient-to-br from-[#E98A00] to-[#F59E0B] rounded-2xl p-4 shadow-2xs relative overflow-hidden text-white transition-all">
+              {/* Decorative background circle shapes */}
+              <div className="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-white/15 pointer-events-none blur-xs" />
+              <div className="absolute right-5 -top-5 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="w-8 h-8 rounded-xl bg-white/20 text-white flex items-center justify-center mb-2.5 shadow-2xs backdrop-blur-xs">
+                  <FileCheck2 className="w-4.5 h-4.5 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-medium text-white/85 block leading-tight">
+                  Documents
                 </span>
-                <p className="text-sm sm:text-base font-semibold text-slate-900 truncate">
+                <p className="text-base sm:text-lg font-bold font-heading text-white mt-1 truncate">
+                  {docsCompletedCount} / 6
+                </p>
+                <p className="text-xs text-white/80 mt-1 truncate">
+                  {docsCompletedCount === 6
+                    ? "All uploaded"
+                    : `${docsCompletedCount} uploaded · ${6 - docsCompletedCount} missing`}
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3: Agreement (V1: Violet / Purple Gradient) */}
+            <div
+              onClick={!isAgreementSigned ? () => setIsAgreementModalOpen(true) : undefined}
+              className={cn(
+                "bg-gradient-to-br from-[#7C3AED] to-[#8B5CF6] rounded-2xl p-4 shadow-2xs relative overflow-hidden text-white transition-all",
+                !isAgreementSigned && "cursor-pointer hover:brightness-105"
+              )}
+            >
+              {/* Decorative background circle shapes */}
+              <div className="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-white/15 pointer-events-none blur-xs" />
+              <div className="absolute right-5 -top-5 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="w-8 h-8 rounded-xl bg-white/20 text-white flex items-center justify-center mb-2.5 shadow-2xs backdrop-blur-xs">
+                  <PenTool className="w-4.5 h-4.5 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-medium text-white/85 block leading-tight">
+                  Agreement
+                </span>
+                <p className="text-base sm:text-lg font-bold font-heading text-white mt-1 truncate">
                   {isAgreementSigned ? "Signed" : "Pending"}
                 </p>
+                <p className="text-xs text-white/80 mt-1 truncate">
+                  {isAgreementSigned ? "On file & acknowledged" : "Sign digitally in 2 minutes"}
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Card 4: Orientation */}
-          <Link
-            to={!isOrientationDone ? `/orientation?cohortId=${selectedCohortId}` : "#"}
-            className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-2 relative overflow-hidden transition-all hover:shadow-xs block"
-          >
-            <div className="absolute top-0 left-0 bottom-0 w-1 bg-[#D77510]" />
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#FFF2E3] text-[#D77510] border border-[#D77510]/30 flex items-center justify-center shrink-0">
-                <GraduationCap className="w-4.5 h-4.5" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 block leading-none mb-1">
-                  ORIENTATION
+            {/* Card 4: Orientation (V1: Sky Blue Gradient) */}
+            <Link
+              to={`/orientation?cohortId=${selectedCohortId}`}
+              className="bg-gradient-to-br from-[#0183C7] to-[#38BDF8] rounded-2xl p-4 shadow-2xs relative overflow-hidden text-white transition-all block hover:brightness-105"
+            >
+              {/* Decorative background circle shapes */}
+              <div className="absolute -right-4 -bottom-4 w-20 h-20 rounded-full bg-white/15 pointer-events-none blur-xs" />
+              <div className="absolute right-5 -top-5 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="w-8 h-8 rounded-xl bg-white/20 text-white flex items-center justify-center mb-2.5 shadow-2xs backdrop-blur-xs">
+                  <GraduationCap className="w-4.5 h-4.5 stroke-[2.2]" />
+                </div>
+                <span className="text-[11px] font-medium text-white/85 block leading-tight">
+                  Orientation
                 </span>
-                <p className="text-sm sm:text-base font-semibold text-slate-900 truncate">
+                <p className="text-base sm:text-lg font-bold font-heading text-white mt-1 truncate">
                   {isOrientationDone ? "Complete" : "Required"}
                 </p>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        {/* ── SECTION 1: 6 Prerequisite Documents (Clean 3-column layout matching reference) ── */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-          {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#EAF3F9] text-primary border border-[#E2E8F0] flex items-center justify-center shrink-0">
-                <FileCheck2 className="w-4.5 h-4.5" />
-              </div>
-              <div>
-                <h2 className="text-[15px] font-heading font-semibold text-slate-900">
-                  Prerequisite Documents
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Upload or paste a URL for each requirement
+                <p className="text-xs text-white/80 mt-1 truncate">
+                  {isOrientationDone ? "Orientation verified" : "Unlocks lessons"}
                 </p>
               </div>
-            </div>
-            <div className="self-start sm:self-auto">
-              <span className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border",
-                docsCompletedCount === 6
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : "bg-slate-50 text-slate-600 border-slate-200"
-              )}>
-                {docsCompletedCount === 6 && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}
-                {docsCompletedCount}/6 Ready
-              </span>
-            </div>
+            </Link>
           </div>
 
-          <form onSubmit={handleSaveDocuments} className="p-5 sm:p-6 space-y-6">
-            {/* 3-Column Grid of 6 Requirements */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {([
-                { field: "backgroundCheckUrl" as const, id: "bg-check", label: "Background Check" },
-                { field: "tbTestProofUrl" as const, id: "tb-test", label: "TB Screening" },
-                { field: "immunizationProofUrl" as const, id: "immunization", label: "Immunizations" },
-                { field: "cprCertUrl" as const, id: "cpr-cert", label: "BLS / CPR Card" },
-                { field: "idDocUrl" as const, id: "gov-id", label: "Government ID" },
-                { field: "highSchoolProofUrl" as const, id: "diploma", label: "HS Diploma / GED" },
-              ]).map((doc) => {
+          {/* ── Prerequisite Documents Container (Exact PDF: 6 Horizontal Compact Tiles) ── */}
+          <div className="bg-white rounded-2xl border border-[#E1E7F1] p-5 sm:p-6 shadow-2xs">
+            {/* Header: Title + Subtitle + 2/6 Ready Pill */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <div>
+                <h2 className="text-base font-heading font-semibold text-[#0F1B34]">
+                  Prerequisite documents
+                </h2>
+                <p className="text-xs text-[#5A6B8C] mt-0.5">
+                  PDF, JPG or PNG · max 10 MB · must be current and legible
+                </p>
+              </div>
+
+              <div className="self-start sm:self-auto">
+                <span
+                  className={cn(
+                    "inline-flex items-center text-xs font-semibold px-3 py-1 rounded-full text-white shadow-2xs",
+                    isApproved
+                      ? "bg-[#10B981]"
+                      : docsCompletedCount === 6
+                      ? "bg-[#10B981]"
+                      : "bg-[#F59E0B]"
+                  )}
+                >
+                  {isApproved
+                    ? "6 / 6 approved"
+                    : `${docsCompletedCount} / 6 ready`}
+                </span>
+              </div>
+            </div>
+
+            {/* Grid of 6 Clean White Document Cards with Distinct Colored Icons */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {PREREQUISITE_DOCS.map((doc) => {
                 const val = docUrls[doc.field] || "";
-                const ready = Boolean(val.trim());
-                const uploading = uploadingField === doc.field;
+                const isReady = Boolean(val.trim());
+                const isUploading = uploadingField === doc.field;
+                const IconComponent = doc.icon;
+
+                // Document status determination (Backend source of truth):
+                const isDocApproved = isApproved;
+                const isDocInReview = isPendingReview && isReady && !isApproved;
+                const isDocUploaded = isReady && !isApproved && !isPendingReview;
+
+                let chipBgClass = "";
+                let chipLabel = "";
+
+                if (isDocApproved) {
+                  chipBgClass = "bg-[#10B981] text-white";
+                  chipLabel = "Approved";
+                } else if (isDocInReview) {
+                  chipBgClass = "bg-[#F59E0B] text-white";
+                  chipLabel = "In review";
+                } else if (isDocUploaded) {
+                  chipBgClass = "bg-[#3B82F6] text-white";
+                  chipLabel = "Uploaded";
+                } else {
+                  chipBgClass = "bg-[#F43F5E] text-white";
+                  chipLabel = "Missing";
+                }
 
                 return (
                   <div
                     key={doc.field}
-                    className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs hover:border-primary/50 transition-all space-y-2.5"
+                    className="bg-white rounded-2xl border border-[#E1E7F1] p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-2xs hover:border-slate-300 transition-all"
                   >
-                    {/* Header: Status icon + Label */}
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                        ready ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-500"
-                      )}>
-                        {ready ? (
-                          <Check className="w-3 h-3 stroke-[2.5]" />
-                        ) : (
-                          <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                        )}
-                      </div>
-                      <span className="text-xs font-medium text-slate-900 truncate flex-1">
-                        {doc.label}
-                      </span>
+                    {/* Left: Distinct colored icon badge per document */}
+                    <div
+                      className={cn(
+                        "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs",
+                        doc.iconBadgeClass
+                      )}
+                    >
+                      <IconComponent className="w-5 h-5 stroke-[2]" />
                     </div>
 
-                    {/* Clean Input row with external link & upload button */}
-                    <div className="flex items-center gap-1.5">
-                      <div className="relative flex-1">
-                        <Input
-                          id={`${doc.id}-input`}
-                          aria-label={doc.label}
-                          type="url"
-                          placeholder="https://..."
-                          value={val}
-                          onChange={(e) => setDocUrls((prev) => ({ ...prev, [doc.field]: e.target.value }))}
-                          className="text-xs h-8.5 rounded-xl bg-slate-50/70 border-slate-200 focus:bg-white focus:border-primary pr-7 transition-colors"
-                        />
-                        {val.trim() && (
+                    {/* Middle: Title & Status Chip */}
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xs font-semibold text-[#0F1B34] font-heading truncate">
+                        {doc.title}
+                      </h3>
+                      <div className="mt-1">
+                        <span
+                          className={cn(
+                            "text-[11px] font-semibold px-2.5 py-0.5 rounded-full inline-block shadow-2xs",
+                            chipBgClass
+                          )}
+                        >
+                          {chipLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right: Clean White Action Button */}
+                    <div className="shrink-0 flex items-center gap-1.5">
+                      {isReady ? (
+                        <>
                           <a
                             href={val}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors p-0.5"
-                            title="Open link"
+                            className="inline-flex items-center text-xs font-semibold text-[#0F1B34] bg-white border border-[#E1E7F1] hover:bg-slate-50 px-3.5 py-1.5 rounded-xl shadow-2xs transition-colors cursor-pointer"
                           >
-                            <ExternalLink className="w-3.5 h-3.5" />
+                            <Eye className="w-3.5 h-3.5 mr-1.5 text-[#5A6B8C]" />
+                            View
                           </a>
-                        )}
-                      </div>
 
-                      <label className="cursor-pointer shrink-0">
-                        <input
-                          type="file"
-                          accept=".pdf,.png,.jpg,.jpeg"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleFileUpload(doc.field, file);
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          disabled={uploading}
-                          className="rounded-xl h-8.5 px-2.5 text-xs font-medium pointer-events-none border-slate-200 hover:bg-[#EAF3F9] hover:text-primary"
-                        >
-                          {uploading ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                          ) : (
-                            <Upload className="w-3.5 h-3.5 text-slate-500" />
+                          {/* Upload/Replace is disabled and hidden once admission is complete/approved (backend source of truth) */}
+                          {!isApproved && (
+                            <label className="cursor-pointer" title="Replace file">
+                              <input
+                                type="file"
+                                accept=".pdf,.png,.jpg,.jpeg"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleFileUpload(doc.field, file);
+                                }}
+                              />
+                              <span className="inline-flex items-center justify-center h-8 w-8 rounded-xl bg-slate-50 hover:bg-slate-100 text-[#5A6B8C] border border-[#E1E7F1] transition-colors cursor-pointer">
+                                {isUploading ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2B5E9C]" />
+                                ) : (
+                                  <Upload className="w-3.5 h-3.5" />
+                                )}
+                              </span>
+                            </label>
                           )}
-                        </Button>
-                      </label>
+                        </>
+                      ) : isApproved ? (
+                        <span className="inline-flex items-center text-[11px] font-semibold text-[#10B981] bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
+                          <Check className="w-3 h-3 mr-1" /> Approved
+                        </span>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setActiveUrlDocField(doc.field)}
+                            className="text-[#5A6B8C] hover:text-[#0F1B34] p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                            title="Paste URL"
+                          >
+                            <LinkIcon className="w-3.5 h-3.5" />
+                          </button>
+
+                          <label className="cursor-pointer">
+                            <input
+                              type="file"
+                              accept=".pdf,.png,.jpg,.jpeg"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleFileUpload(doc.field, file);
+                              }}
+                            />
+                            <span className="inline-flex items-center text-xs font-semibold text-[#0F1B34] bg-white border border-[#E1E7F1] hover:bg-slate-50 px-3.5 py-1.5 rounded-xl shadow-2xs transition-colors cursor-pointer">
+                              {isUploading ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2B5E9C] mr-1" />
+                                  Uploading...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-3.5 h-3.5 text-[#5A6B8C] mr-1" />
+                                  Upload
+                                </>
+                              )}
+                            </span>
+                          </label>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
               })}
             </div>
+          </div>
 
-            {/* Bottom Form Actions */}
-            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-xs text-slate-500">
-                All documents must be current, authentic, and legible.
-              </span>
-              <Button
-                type="submit"
-                disabled={submitDocsMutation.isPending || isApproved}
-                className={cn(
-                  "font-medium text-xs rounded-xl h-10 px-6 shadow-xs transition-all",
-                  isApproved
-                    ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                    : "bg-primary hover:bg-[#084B78] text-white"
-                )}
-              >
-                {submitDocsMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...
-                  </>
-                ) : isApproved ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-200" /> Documents Approved
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4 mr-1.5" /> Submit for Clearance
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </div>
-
-        {/* ── SECTION 2 & 3: Digital Agreement & Orientation ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Section 2: Enrollment Agreement */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between space-y-5 transition-all hover:border-primary/40">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-[#EAF3F9] border border-[#E2E8F0] text-primary flex items-center justify-center shrink-0">
-                  <PenTool className="w-5 h-5" />
+          {/* ── SECTION 2 & 3: Digital Agreement & Mandatory Orientation (Exact PDF layout & Aliko Blue Buttons) ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Left Card: Digital Enrollment Agreement */}
+            <div className="bg-white rounded-2xl border border-[#E1E7F1] p-6 shadow-2xs flex flex-col justify-between space-y-4">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-[#0F1B34] font-heading">
+                    Digital Enrollment Agreement
+                  </h3>
+                  {isAgreementSigned ? (
+                    <span className="inline-flex items-center text-xs font-semibold text-white bg-[#10B981] px-2.5 py-0.5 rounded-full shadow-2xs">
+                      Signed
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center text-xs font-semibold text-white bg-[#8B5CF6] px-2.5 py-0.5 rounded-full shadow-2xs">
+                      Pending signature
+                    </span>
+                  )}
                 </div>
-                {isAgreementSigned ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                    <Check className="w-3 h-3 stroke-[2.5]" /> Complete
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-                    Pending Signature
-                  </span>
+
+                <p className="text-xs text-[#5A6B8C] leading-relaxed">
+                  Review tuition, attendance, conduct and refund policies, then sign.
+                </p>
+
+                {isAgreementSigned && (
+                  <div className="p-3 rounded-xl bg-slate-50 border border-[#E1E7F1] text-xs text-[#5A6B8C] space-y-0.5">
+                    <div className="font-medium text-[#0F1B34]">
+                      Signed by: {application?.agreementSignature || application?.agreementSignatureUrl || user?.firstname}
+                    </div>
+                    <div className="text-[11px] text-[#10B981] font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> On file &amp; acknowledged
+                    </div>
+                  </div>
                 )}
               </div>
-              <h3 className="text-base font-medium text-slate-900 font-heading">
-                2. Digital Enrollment Agreement
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Review statutory disclosures, programmatic expectations, student rights, and clinical compliance mandates.
-              </p>
-              {isAgreementSigned && (
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-0.5">
-                  <div className="font-medium text-slate-800">
-                    Signed by: {application?.agreementSignature || application?.agreementSignatureUrl || user?.firstname}
-                  </div>
-                  <div className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> On file &amp; acknowledged
-                  </div>
-                </div>
-              )}
-            </div>
 
-            <div>
-              {!isAgreementSigned ? (
+              <div>
                 <Button
                   onClick={() => setIsAgreementModalOpen(true)}
-                  className="w-full bg-primary hover:bg-[#084B78] text-white font-medium text-xs rounded-xl h-10 shadow-xs"
+                  className="bg-[#2B5E9C] hover:bg-[#204777] text-white font-semibold text-xs rounded-xl h-10 px-5 shadow-2xs cursor-pointer"
                 >
-                  <PenTool className="w-3.5 h-3.5 mr-2" /> Read &amp; Sign Agreement
+                  <PenTool className="w-3.5 h-3.5 mr-2" />
+                  {isAgreementSigned ? "View agreement" : "Review & sign"}
                 </Button>
-              ) : (
+              </div>
+            </div>
+
+            {/* Right Card: Mandatory Orientation */}
+            <div className="bg-white rounded-2xl border border-[#E1E7F1] p-6 shadow-2xs flex flex-col justify-between space-y-4">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-[#0F1B34] font-heading">
+                    Mandatory Orientation
+                  </h3>
+                  {isOrientationDone ? (
+                    <span className="inline-flex items-center text-xs font-semibold text-white bg-[#10B981] px-2.5 py-0.5 rounded-full shadow-2xs">
+                      Completed
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center text-xs font-semibold text-white bg-[#3B82F6] px-2.5 py-0.5 rounded-full shadow-2xs">
+                      Required
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs text-[#5A6B8C] leading-relaxed">
+                  Complete 3 orientation items before your first lesson unlocks.
+                </p>
+
+                <div className="p-3 rounded-xl bg-slate-50 border border-[#E1E7F1] text-xs text-[#5A6B8C] space-y-0.5">
+                  <div className="font-medium text-[#0F1B34]">
+                    Status: {isOrientationDone ? "Completed" : "Required"}
+                  </div>
+                  <div className="text-[11px] text-[#5A6B8C]">
+                    {isOrientationDone
+                      ? "Orientation verified · Unlocks curriculum"
+                      : "Required before accessing clinical theory lessons"}
+                  </div>
+                </div>
+              </div>
+
+              <div>
                 <Button
-                  variant="outline"
-                  onClick={() => setIsAgreementModalOpen(true)}
-                  className="w-full text-xs font-medium rounded-xl h-10 bg-white hover:bg-slate-50 border-slate-200"
+                  asChild
+                  className="bg-[#2B5E9C] hover:bg-[#204777] text-white font-semibold text-xs rounded-xl h-10 px-5 shadow-2xs cursor-pointer"
                 >
-                  <FileText className="w-3.5 h-3.5 mr-2 text-slate-500" /> View Agreement
+                  <Link to={`/orientation?cohortId=${selectedCohortId}`}>
+                    {isOrientationDone ? "Review orientation" : "Start orientation"}
+                    <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                  </Link>
                 </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Section 3: Orientation Gate */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs flex flex-col justify-between space-y-5 transition-all hover:border-[#D77510]/40">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-[#FFF2E3] border border-[#E2E8F0] text-[#D77510] flex items-center justify-center shrink-0">
-                  <GraduationCap className="w-5 h-5" />
-                </div>
-                {isOrientationDone ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                    <Check className="w-3 h-3 stroke-[2.5]" /> Complete
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-                    Required Gate
-                  </span>
-                )}
-              </div>
-              <h3 className="text-base font-medium text-slate-900 font-heading">
-                3. Mandatory Orientation
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Complete the student orientation session, LMS navigation tutorial, and online netiquette code of conduct.
-              </p>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-0.5">
-                <div className="font-medium text-slate-800">
-                  Status: {isOrientationDone ? "Completed" : "Pending"}
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Required before accessing clinical theory lessons
-                </div>
               </div>
             </div>
-
-            <div>
-              <Button
-                asChild
-                className={cn(
-                  "w-full font-medium text-xs rounded-xl h-10 shadow-xs transition-all",
-                  isOrientationDone
-                    ? "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200"
-                    : "bg-[#D77510] hover:bg-[#AC5B0B] text-white shadow-xs"
-                )}
-              >
-                <Link to={`/orientation?cohortId=${selectedCohortId}`}>
-                  {isOrientationDone ? "Review Orientation" : "Complete Orientation Now"}
-                  <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                </Link>
-              </Button>
-            </div>
           </div>
-        </div>
-
-        {/* ── CTA Footer ── */}
-        <div className="p-5 rounded-2xl bg-[#F7F9FC] border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-0.5">
-            <h4 className="font-semibold text-sm text-[#081831] font-heading">
-              Ready to start theory lessons?
-            </h4>
-            <p className="text-xs text-slate-500">
-              All 3 gates must be verified to unlock the curriculum.
-            </p>
-          </div>
-          <Button asChild className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs rounded-xl h-10 px-6 shrink-0 shadow-xs">
-            <Link to="/learning">
-              Go to My Learning <ArrowRight className="w-4 h-4 ml-1.5" />
-            </Link>
-          </Button>
         </div>
       </div>
 
+      {/* ── Dialog for Pasting Document URL (Clean, non-cluttering modal) ── */}
+      <Dialog
+        open={Boolean(activeUrlDocField)}
+        onOpenChange={(open) => {
+          if (!open) setActiveUrlDocField(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-[480px] p-6 border border-[#E1E7F1] rounded-3xl bg-white shadow-2xl">
+          <DialogTitle className="text-base font-heading font-semibold text-[#0F1B34]">
+            Provide Document Link
+          </DialogTitle>
+          <DialogDescription className="text-xs text-[#5A6B8C]">
+            Paste a publicly accessible direct document URL (e.g. Google Drive, Dropbox, or OneDrive link).
+          </DialogDescription>
+
+          <div className="space-y-4 pt-3">
+            {activeUrlDocField && (
+              <Input
+                type="url"
+                placeholder="https://..."
+                value={docUrls[activeUrlDocField as keyof typeof docUrls]}
+                onChange={(e) =>
+                  setDocUrls((prev) => ({
+                    ...prev,
+                    [activeUrlDocField]: e.target.value,
+                  }))
+                }
+                className="text-xs h-10 rounded-xl bg-white border-[#E1E7F1] focus:border-[#2B5E9C]"
+              />
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setActiveUrlDocField(null)}
+                className="rounded-xl text-xs font-semibold"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setActiveUrlDocField(null);
+                  toast.success("Document link saved");
+                }}
+                className="bg-[#2B5E9C] hover:bg-[#204777] text-white font-semibold text-xs rounded-xl px-4 shadow-2xs"
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* ── Digital Enrollment Agreement Dialog ── */}
       <Dialog open={isAgreementModalOpen} onOpenChange={setIsAgreementModalOpen}>
-        <DialogContent className="sm:max-w-[700px] p-0 border border-border rounded-3xl overflow-hidden bg-white max-h-[90vh] flex flex-col shadow-2xl">
-          <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-[#F4F8FB]">
+        <DialogContent className="sm:max-w-[700px] p-0 border border-[#E1E7F1] rounded-3xl overflow-hidden bg-white max-h-[90vh] flex flex-col shadow-2xl">
+          <div className="px-6 py-5 border-b border-[#E1E7F1] flex items-center justify-between bg-[#F2F5FB]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#EAF3F9] border border-[#E2E8F0] text-primary flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#8B5CF6] text-white flex items-center justify-center shrink-0 shadow-2xs">
                 <PenTool className="w-4 h-4" />
               </div>
               <div>
-                <DialogTitle className="text-base font-heading font-medium text-slate-900">
+                <DialogTitle className="text-base font-heading font-semibold text-[#0F1B34]">
                   Student Enrollment Agreement & Disclosures
                 </DialogTitle>
-                <DialogDescription className="text-xs text-slate-500">
+                <DialogDescription className="text-xs text-[#5A6B8C]">
                   Statutory enrollment disclosure under Washington State WABON regulations
                 </DialogDescription>
               </div>
             </div>
           </div>
 
-          <div className="p-6 overflow-y-auto space-y-5 text-xs text-slate-700 leading-relaxed">
+          <div className="p-6 overflow-y-auto space-y-5 text-xs text-[#0F1B34] leading-relaxed">
             {/* Agreement Terms Box */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3 max-h-56 overflow-y-auto custom-scrollbar font-mono text-[11px]">
-              <p className="font-bold text-slate-900">
+            <div className="p-4 rounded-2xl bg-slate-50 border border-[#E1E7F1] space-y-3 max-h-56 overflow-y-auto custom-scrollbar font-mono text-[11px]">
+              <p className="font-bold text-[#0F1B34]">
                 ALIKOHUB ACADEMY — NURSING ASSISTANT CERTIFIED (CNA) PROGRAM
               </p>
               <p>
@@ -870,9 +1121,9 @@ export const AdmissionsClearancePage: React.FC = () => {
                       wabonMandate: e.target.checked,
                     }))
                   }
-                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#2B5E9C] focus:ring-[#2B5E9C]"
                 />
-                <span className="text-xs text-slate-700">
+                <span className="text-xs text-[#0F1B34]">
                   I acknowledge the program's theory, skills lab, and clinical completion requirements.
                 </span>
               </label>
@@ -888,9 +1139,9 @@ export const AdmissionsClearancePage: React.FC = () => {
                       attendancePolicy: e.target.checked,
                     }))
                   }
-                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#2B5E9C] focus:ring-[#2B5E9C]"
                 />
-                <span className="text-xs text-slate-700">
+                <span className="text-xs text-[#0F1B34]">
                   I understand the first-week attendance verification census policy and the requirement to complete designated academic attendance gates.
                 </span>
               </label>
@@ -906,9 +1157,9 @@ export const AdmissionsClearancePage: React.FC = () => {
                       tuitionDisclosure: e.target.checked,
                     }))
                   }
-                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#2B5E9C] focus:ring-[#2B5E9C]"
                 />
-                <span className="text-xs text-slate-700">
+                <span className="text-xs text-[#0F1B34]">
                   I have received and reviewed the tuition schedule, refund policy, and programmatic supply disclosures.
                 </span>
               </label>
@@ -924,17 +1175,17 @@ export const AdmissionsClearancePage: React.FC = () => {
                       codeOfConduct: e.target.checked,
                     }))
                   }
-                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#2B5E9C] focus:ring-[#2B5E9C]"
                 />
-                <span className="text-xs text-slate-700">
+                <span className="text-xs text-[#0F1B34]">
                   I agree to adhere to the Student Code of Conduct, Patient Dignity Standards, and HIPAA clinical confidentiality rules.
                 </span>
               </label>
             </div>
 
             {/* Signature Box */}
-            <div className="pt-3 border-t border-slate-100 space-y-2">
-              <label htmlFor="digital-signature-input" className="text-xs font-medium text-slate-800 block">
+            <div className="pt-3 border-t border-[#E1E7F1] space-y-2">
+              <label htmlFor="digital-signature-input" className="text-xs font-semibold text-[#0F1B34] block">
                 Digital Signature (Type Full Legal Name) *
               </label>
               <Input
@@ -952,18 +1203,18 @@ export const AdmissionsClearancePage: React.FC = () => {
                 placeholder="e.g. Jane Marie Doe"
                 className="font-serif text-sm tracking-wide bg-slate-50/50"
               />
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-[#5A6B8C]">
                 By typing your legal name and submitting, you execute a legally binding digital signature under the Washington Uniform Electronic Transactions Act (RCW 1.80).
               </p>
             </div>
           </div>
 
-          <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-end gap-3">
+          <div className="p-4 border-t border-[#E1E7F1] bg-slate-50/50 flex items-center justify-end gap-3">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsAgreementModalOpen(false)}
-              className="rounded-xl text-xs font-medium"
+              className="rounded-xl text-xs font-semibold"
             >
               Close
             </Button>
@@ -972,7 +1223,7 @@ export const AdmissionsClearancePage: React.FC = () => {
                 size="sm"
                 onClick={handleSignAgreementSubmit}
                 disabled={signAgreementMutation.isPending || !allDisclosuresAgreed || !signatureName.trim()}
-                className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs rounded-xl px-5 shadow-xs"
+                className="bg-[#2B5E9C] hover:bg-[#204777] text-white font-semibold text-xs rounded-xl px-5 shadow-2xs cursor-pointer"
               >
                 {signAgreementMutation.isPending ? (
                   <>
@@ -993,4 +1244,3 @@ export const AdmissionsClearancePage: React.FC = () => {
 };
 
 export default AdmissionsClearancePage;
-
