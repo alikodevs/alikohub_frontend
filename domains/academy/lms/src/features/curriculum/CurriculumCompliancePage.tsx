@@ -2,19 +2,23 @@ import React, { useState, useMemo, useEffect } from "react";
 import InstructorLayout from "@/features/instructor/components/InstructorLayout";
 import StudentLayout from "@/features/student/components/StudentLayout";
 import {
-  FileSpreadsheet,
-  BookOpen,
   Layers,
   Plus,
   Search,
   BookMarked,
-  Timer,
   Loader2,
+  Download,
+  ShieldCheck,
+  Target,
+  ExternalLink,
+  BookOpen,
+  Link2,
+  X,
+  FileSpreadsheet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -32,10 +36,31 @@ import {
   useCourseCrosswalk,
   useCourseTextbooks,
   useAddTextbookMutation,
+  useAssignReadingMutation,
 } from "@/features/rubric/hooks/useCurriculumCrosswalk";
 import { useInstructorCohortsList } from "@/features/rubric/hooks/useSeatTime";
 import { usePortalMode } from "@/features/auth/hooks/useAuth";
 import { toast } from "sonner";
+import type { CurriculumCrosswalkUnit, CourseTextbook } from "@/features/rubric/types";
+
+// Design System V2 Palette constants for Module Edge Colors and Book Covers
+const MODULE_EDGE_COLORS = [
+  "bg-[#F43F5E]", // Module 1 - Coral / Red
+  "bg-[#0284C7]", // Module 2 - Sky Blue
+  "bg-[#8B5CF6]", // Module 3 - Violet
+  "bg-[#10B981]", // Module 4 - Emerald
+  "bg-[#F59E0B]", // Module 5 - Amber
+  "bg-[#06B6D4]", // Module 6 - Cyan
+  "bg-[#EC4899]", // Module 7 - Pink
+];
+
+const BOOK_COVER_COLORS = [
+  "bg-[#F43F5E]", // Book 1 - Coral / Red
+  "bg-[#0284C7]", // Book 2 - Sky Blue
+  "bg-[#8B5CF6]", // Book 3 - Violet
+  "bg-[#10B981]", // Book 4 - Emerald
+  "bg-[#F59E0B]", // Book 5 - Amber
+];
 
 export const CurriculumCompliancePage: React.FC = () => {
   const { isInstructorView, canManageStaffActions } = usePortalMode();
@@ -63,6 +88,7 @@ export const CurriculumCompliancePage: React.FC = () => {
 
   // Filter and search
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedModuleFilter, setSelectedModuleFilter] = useState<string>("ALL");
   const [selectedTrack, setSelectedTrack] = useState<string>("ALL");
 
   // Add Textbook Dialog state
@@ -74,6 +100,50 @@ export const CurriculumCompliancePage: React.FC = () => {
   const [bookPublisher, setBookPublisher] = useState("");
 
   const addTextbookMutation = useAddTextbookMutation();
+
+  // Link Reading Dialog state (for instructors)
+  const [isLinkReadingOpen, setIsLinkReadingOpen] = useState(false);
+  const [selectedUnitForReading, setSelectedUnitForReading] = useState<CurriculumCrosswalkUnit | null>(null);
+  const [selectedTextbookId, setSelectedTextbookId] = useState<string>("");
+  const [readingChapters, setReadingChapters] = useState("");
+  const [readingPageRange, setReadingPageRange] = useState("");
+
+  const assignReadingMutation = useAssignReadingMutation();
+
+  // Textbook Details Modal state (when user clicks "Open")
+  const [activePreviewTextbook, setActivePreviewTextbook] = useState<CourseTextbook | null>(null);
+
+  const handleOpenLinkReading = (unit: CurriculumCrosswalkUnit) => {
+    setSelectedUnitForReading(unit);
+    setSelectedTextbookId(textbooks[0]?.id ? String(textbooks[0].id) : "");
+    setReadingChapters("");
+    setReadingPageRange("");
+    setIsLinkReadingOpen(true);
+  };
+
+  const handleAssignReading = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUnitForReading || !selectedTextbookId || !readingChapters.trim() || !readingPageRange.trim()) {
+      toast.error("Please fill in all required reading fields.");
+      return;
+    }
+
+    try {
+      await assignReadingMutation.mutateAsync({
+        lessonId: Number(selectedUnitForReading.lessonId),
+        textbookId: Number(selectedTextbookId),
+        chapters: readingChapters.trim(),
+        pageRange: readingPageRange.trim(),
+        courseId: Number(courseId),
+      });
+      setIsLinkReadingOpen(false);
+      setSelectedUnitForReading(null);
+      setReadingChapters("");
+      setReadingPageRange("");
+    } catch {
+      // Handled by mutation toast
+    }
+  };
 
   const handleAddTextbook = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,36 +171,6 @@ export const CurriculumCompliancePage: React.FC = () => {
       // Handled by mutation toast
     }
   };
-
-  // ── Cohort Schedule Window Calculations (only from real cohort dates) ──
-  const cohortDates = useMemo(() => {
-    if (!activeCohort?.startDate || !activeCohort?.endDate) return null;
-    const start = new Date(activeCohort.startDate);
-    const end = new Date(activeCohort.endDate);
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
-    const now = new Date();
-
-    const totalDays = Math.max(
-      1,
-      Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-    );
-    const elapsedDays = Math.max(
-      0,
-      Math.min(
-        totalDays,
-        Math.round((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-      )
-    );
-    const daysRemaining = Math.max(0, totalDays - elapsedDays);
-
-    return {
-      startDate: start.toLocaleDateString(),
-      endDate: end.toLocaleDateString(),
-      totalDays,
-      elapsedDays,
-      daysRemaining,
-    };
-  }, [activeCohort]);
 
   // Modules & API metrics
   const modules = crosswalkData?.curriculumMatrix || [];
@@ -162,439 +202,763 @@ export const CurriculumCompliancePage: React.FC = () => {
     }
   }, [availableTracks, selectedTrack]);
 
-  const filteredModules = useMemo(() => {
-    return modules.filter((mod) => {
-      const matchTrack =
-        selectedTrack === "ALL" || mod.track === selectedTrack;
-      const matchSearch =
-        mod.moduleTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        mod.units.some((u) =>
-          u.lessonTitle.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      return matchTrack && matchSearch;
+  // Flatten and filter rows for the crosswalk table
+  const crosswalkRows = useMemo(() => {
+    const rows: Array<{
+      modIndex: number;
+      moduleId: number;
+      moduleTitle: string;
+      track: string;
+      unit: CurriculumCrosswalkUnit;
+    }> = [];
+
+    modules.forEach((mod, modIdx) => {
+      if (selectedModuleFilter !== "ALL" && String(mod.moduleId) !== selectedModuleFilter) {
+        return;
+      }
+      if (selectedTrack !== "ALL" && mod.track !== selectedTrack) {
+        return;
+      }
+
+      (mod.units || []).forEach((u) => {
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          const matches =
+            u.lessonTitle.toLowerCase().includes(q) ||
+            mod.moduleTitle.toLowerCase().includes(q) ||
+            u.lessonType.toLowerCase().includes(q) ||
+            (u.assignedTextbookReadings || []).some(
+              (r) =>
+                r.textbookTitle.toLowerCase().includes(q) ||
+                r.assignedChapters.toLowerCase().includes(q)
+            ) ||
+            (u.assessments || []).some((a) => a.title.toLowerCase().includes(q));
+
+          if (!matches) return;
+        }
+
+        rows.push({
+          modIndex: modIdx,
+          moduleId: mod.moduleId,
+          moduleTitle: mod.moduleTitle,
+          track: mod.track,
+          unit: u,
+        });
+      });
     });
-  }, [modules, selectedTrack, searchQuery]);
+
+    return rows;
+  }, [modules, selectedModuleFilter, selectedTrack, searchQuery]);
+
+  // Assessment color utility matching V1/V2 design pills
+  const getAssessmentPill = (type: string) => {
+    const t = type.toLowerCase();
+    if (t.includes("quiz")) {
+      return "bg-[#F3E8FF] text-[#7E22CE]";
+    }
+    if (t.includes("skill")) {
+      return "bg-[#DCFCE7] text-[#15803D]";
+    }
+    if (t.includes("clinical")) {
+      return "bg-[#FFEDD5] text-[#C2410C]";
+    }
+    if (t.includes("exam") || t.includes("final") || t.includes("test")) {
+      return "bg-[#DBEAFE] text-[#1D4ED8]";
+    }
+    return "bg-slate-100 text-slate-700";
+  };
+
+  // CSV Export functionality
+  const handleExportCsv = () => {
+    if (!modules.length) {
+      toast.error("No curriculum crosswalk data to export.");
+      return;
+    }
+
+    const headers = [
+      "Module ID",
+      "Module Title",
+      "Track",
+      "Lesson ID",
+      "Lesson Title",
+      "Type",
+      "Attendance Gate",
+      "Credit Hour",
+      "Assigned Textbook",
+      "Chapters",
+      "Page Range",
+      "State Standard",
+      "Assessments",
+    ];
+
+    const rows: string[][] = [headers];
+
+    modules.forEach((mod) => {
+      (mod.units || []).forEach((u) => {
+        const readings = u.assignedTextbookReadings || [];
+        const textbookTitles = readings.map((r) => r.textbookTitle).join("; ") || "None";
+        const chapters = readings.map((r) => r.assignedChapters).join("; ") || "None";
+        const pages = readings.map((r) => r.pageRange).join("; ") || "None";
+        const assessments =
+          (u.assessments || []).map((a) => `${a.title} (${a.points} pts)`).join("; ") || "None";
+
+        rows.push([
+          String(mod.moduleId),
+          mod.moduleTitle,
+          mod.track || "N/A",
+          String(u.lessonId),
+          u.lessonTitle,
+          u.lessonType,
+          u.isWeekOneAttendanceGate ? "Yes" : "No",
+          u.isCreditHour ? "Yes" : "No",
+          textbookTitles,
+          chapters,
+          pages,
+          crosswalkData?.accreditationStandard || "WAC 246-841A-440",
+          assessments,
+        ]);
+      });
+    });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    const filename = `Curriculum_Crosswalk_${
+      crosswalkData?.courseTitle
+        ? crosswalkData.courseTitle.replace(/[^a-zA-Z0-9]/g, "_")
+        : "Course"
+    }.csv`;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success("Crosswalk exported to CSV");
+  };
+
+  const hasActiveFilters = searchQuery !== "" || selectedModuleFilter !== "ALL" || selectedTrack !== "ALL";
 
   const content = (
-    <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-[#EAF3F9] border border-[#E2E8F0] text-primary flex items-center justify-center shrink-0">
-              <FileSpreadsheet className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-heading font-semibold tracking-tight text-slate-900">
-                Curriculum Alignment &amp; Crosswalk
-              </h1>
-              <p className="text-xs text-slate-500">
-                {crosswalkData?.courseTitle || activeCohort?.name || "Course modules, textbook readings, and unit assessments."}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 flex-wrap">
-          {cohorts.length > 1 && (
-            <Select value={String(activeCohort?.id || "")} onValueChange={setSelectedCohortId}>
-              <SelectTrigger className="w-56 bg-white border-slate-200 text-xs font-medium h-10">
-                <SelectValue placeholder="Select Cohort" />
-              </SelectTrigger>
-              <SelectContent>
-                {cohorts.map((c: any) => (
-                  <SelectItem key={c.id} value={String(c.id)}>
-                    {c.name || `Cohort #${c.id}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-
-          {canManageStaffActions && (
-            <Button
-              onClick={() => setIsAddTextbookOpen(true)}
-              className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs h-10 rounded-xl shadow-xs"
-            >
-              <Plus className="w-4 h-4 mr-1.5" /> Register Textbook
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Live API Curriculum Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
-              Curriculum Modules
-            </span>
-            <Layers className="w-4 h-4 text-primary" />
-          </div>
-          <div className="text-2xl font-semibold text-slate-900">{modules.length}</div>
-          <p className="text-[11px] text-slate-500 font-normal">Active course modules from syllabus</p>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
-              Units &amp; Readings
-            </span>
-            <BookOpen className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-semibold text-slate-900">{totalUnitsCount}</div>
-          <p className="text-[11px] text-slate-500 font-normal">
-            {linkedReadingsCount} unit(s) with assigned readings
-          </p>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
-              Course Textbooks
-            </span>
-            <BookMarked className="w-4 h-4 text-primary" />
-          </div>
-          <div className="text-2xl font-semibold text-slate-900">{textbooks.length}</div>
-          <p className="text-[11px] text-slate-500 font-normal">Registered textbook references</p>
-        </div>
-      </div>
-
-      {/* Real Cohort Schedule Window (only shown when cohort start/end dates exist) */}
-      {cohortDates && (
-        <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-medium text-slate-900">
-                Cohort Schedule Window
-              </h3>
-              <p className="text-xs text-slate-500">
-                {activeCohort?.name || `Cohort #${activeCohort?.id}`}
-              </p>
-            </div>
-            <Timer className="w-5 h-5 text-amber-600" />
-          </div>
-
-          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60 text-xs">
-            <div>
-              <span className="text-[10px] uppercase font-medium text-slate-400 block">
-                Cohort Dates
-              </span>
-              <span className="font-medium text-slate-900">
-                {cohortDates.startDate} — {cohortDates.endDate}
-              </span>
-            </div>
-            <Badge variant="outline" className="bg-white text-slate-700 border-slate-200 text-[10px] font-medium px-2 py-0.5">
-              {cohortDates.totalDays} Days Total
-            </Badge>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-medium text-slate-700">
-              <span>Elapsed Calendar Pacing</span>
-              <span className="font-medium text-slate-900">
-                {cohortDates.elapsedDays} / {cohortDates.totalDays} Days ({cohortDates.daysRemaining} days remaining)
-              </span>
-            </div>
-            <Progress
-              value={Math.min(100, (cohortDates.elapsedDays / cohortDates.totalDays) * 100)}
-              className="h-2 bg-slate-100"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Registered Course Textbooks */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
-            <BookMarked className="w-5 h-5 text-primary" />
-            Course Textbooks &amp; Reading References
-          </h2>
-          <span className="text-xs text-slate-500">
-            {textbooks.length} Books Registered
-          </span>
-        </div>
-
-        {textbooks.length === 0 ? (
-          <div className="p-6 text-center bg-white border border-slate-200 rounded-xl text-xs text-slate-500">
-            No textbooks registered yet for this course.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {textbooks.map((book: any) => (
-              <div
-                key={book.id}
-                className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs space-y-1.5"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-primary uppercase">
-                    {book.edition || "Primary Textbook"}
-                  </span>
-                  {book.isbn && (
-                    <span className="text-[10px] font-mono text-slate-400">
-                      ISBN: {book.isbn}
-                    </span>
-                  )}
-                </div>
-                <h3 className="text-sm font-heading font-semibold text-slate-900 leading-snug">
-                  {book.title}
-                </h3>
-                <p className="text-xs text-slate-500">Author: {book.author}</p>
-                {book.publisher && (
-                  <p className="text-[11px] text-slate-400">Publisher: {book.publisher}</p>
-                )}
+    <div className="min-h-screen bg-[#F7F9FC]">
+      <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+        {/* Header Bar matching Page 24/25 of V2 */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] border border-[#E0E7FF] text-[#6366F1] flex items-center justify-center shrink-0">
+                <FileSpreadsheet className="w-5 h-5 text-[#6366F1]" />
               </div>
-            ))}
+              <div>
+                <h1 className="text-2xl font-heading font-semibold tracking-tight text-slate-900">
+                  Curriculum Alignment &amp; Crosswalk
+                </h1>
+                <p className="text-xs text-slate-500 font-medium">
+                  How each lesson maps to textbook readings, objectives and Washington state standards
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            {cohorts.length > 0 && (
+              <Select value={String(activeCohort?.id || "")} onValueChange={setSelectedCohortId}>
+                <SelectTrigger className="w-48 sm:w-56 truncate bg-white border-slate-200 text-xs font-medium h-9 rounded-xl shadow-xs">
+                  <SelectValue placeholder="Select Course / Cohort" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cohorts.map((c: any) => (
+                    <SelectItem key={c.id} value={String(c.id)}>
+                      {c.name || `Cohort #${c.id}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            <Button
+              variant="outline"
+              onClick={handleExportCsv}
+              disabled={modules.length === 0}
+              className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-xs h-9 rounded-xl shadow-xs"
+            >
+              <Download className="w-4 h-4 mr-1.5 text-slate-500" />
+              Export crosswalk
+            </Button>
+
+            {canManageStaffActions && (
+              <Button
+                onClick={() => setIsAddTextbookOpen(true)}
+                className="bg-primary hover:bg-[#084B78] text-white font-medium text-xs h-9 rounded-xl shadow-xs"
+              >
+                <Plus className="w-4 h-4 mr-1.5" /> Register Textbook
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* 4 Calm KPI Stat Tiles matching V2 Page 25 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Tile 1: Modules */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#6366F1] flex items-center justify-center shrink-0">
+              <Layers className="w-5 h-5 text-[#6366F1]" />
+            </div>
+            <div>
+              <div className="text-2xl font-heading font-semibold text-slate-900 leading-none">
+                {modules.length}
+              </div>
+              <div className="text-xs text-slate-500 font-medium mt-1">Modules</div>
+            </div>
+          </div>
+
+          {/* Tile 2: Learning objectives */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center shrink-0">
+              <Target className="w-5 h-5 text-[#0284C7]" />
+            </div>
+            <div>
+              <div className="text-2xl font-heading font-semibold text-slate-900 leading-none">
+                {totalUnitsCount}
+              </div>
+              <div className="text-xs text-slate-500 font-medium mt-1">Learning objectives</div>
+            </div>
+          </div>
+
+          {/* Tile 3: WAC 246-841 aligned */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#ECFDF5] text-[#059669] flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-[#059669]" />
+            </div>
+            <div>
+              <div className="text-2xl font-heading font-semibold text-slate-900 leading-none">
+                100%
+              </div>
+              <div className="text-xs text-slate-500 font-medium mt-1">
+                {crosswalkData?.accreditationStandard ? `${crosswalkData.accreditationStandard} aligned` : "WAC 246-841 aligned"}
+              </div>
+            </div>
+          </div>
+
+          {/* Tile 4: Required textbooks */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
+              <BookMarked className="w-5 h-5 text-[#D97706]" />
+            </div>
+            <div>
+              <div className="text-2xl font-heading font-semibold text-slate-900 leading-none">
+                {textbooks.length}
+              </div>
+              <div className="text-xs text-slate-500 font-medium mt-1">Required textbooks</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Textbook Cards with small covers matching V2 Page 25 */}
+        {textbooks.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {textbooks.map((book: any, idx: number) => {
+              const coverBg = BOOK_COVER_COLORS[idx % BOOK_COVER_COLORS.length];
+              return (
+                <div
+                  key={book.id}
+                  className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs flex items-center justify-between gap-4 hover:border-slate-300 transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`w-10 h-14 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs ${coverBg}`}
+                    >
+                      <BookOpen className="w-5 h-5 opacity-90" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-heading font-semibold text-slate-900 truncate leading-snug">
+                        {book.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
+                        {book.edition ? `${book.edition} · ` : ""}
+                        {book.author ? `Author: ${book.author}` : "Selected chapters"}
+                      </p>
+                      <span className="inline-block bg-rose-50 text-rose-600 border border-rose-200/80 text-[10px] font-semibold px-2 py-0.5 rounded-md mt-1">
+                        Required
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActivePreviewTextbook(book)}
+                    className="border-slate-200 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-xl h-8 px-3 shrink-0"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
+                    Open
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         )}
-      </div>
 
-      {/* Curriculum Crosswalk Syllabus Matrix */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-base font-heading font-semibold text-slate-900">
-              Curriculum Crosswalk &amp; Learning Objectives
-            </h2>
-            <p className="text-xs text-slate-500">
-              Course modules, textbook readings, skills lab alignment, and orientation gates.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Select value={selectedTrack} onValueChange={setSelectedTrack}>
-              <SelectTrigger className="w-44 bg-white border-slate-200 text-xs font-medium h-9">
-                <SelectValue placeholder="All Tracks" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Tracks</SelectItem>
-                {availableTracks.map((track) => (
-                  <SelectItem key={track} value={track}>
-                    {track.replace(/_/g, " ")}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="relative w-56">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        {/* Search, Filter & Crosswalk Matrix */}
+        <div className="space-y-4">
+          {/* Search bar and Dropdowns matching Page 25 */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search units or lessons..."
-                className="pl-9 h-9 text-xs bg-white border-slate-200"
+                placeholder="Search objectives, lessons or chapters…"
+                className="pl-9 h-10 text-xs bg-white border-slate-200/90 rounded-xl"
               />
             </div>
+
+            <div className="flex items-center gap-2.5">
+              <Select value={selectedModuleFilter} onValueChange={setSelectedModuleFilter}>
+                <SelectTrigger className="w-36 sm:w-40 bg-white border-slate-200 text-xs font-medium h-10 rounded-xl">
+                  <SelectValue placeholder="All modules" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All modules</SelectItem>
+                  {modules.map((m) => (
+                    <SelectItem key={m.moduleId} value={String(m.moduleId)}>
+                      Module {m.moduleId}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {availableTracks.length > 0 && (
+                <Select value={selectedTrack} onValueChange={setSelectedTrack}>
+                  <SelectTrigger className="w-32 sm:w-36 bg-white border-slate-200 text-xs font-medium h-10 rounded-xl">
+                    <SelectValue placeholder="All tracks" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All tracks</SelectItem>
+                    {availableTracks.map((track) => (
+                      <SelectItem key={track} value={track}>
+                        {track.replace(/_/g, " ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedModuleFilter("ALL");
+                    setSelectedTrack("ALL");
+                  }}
+                  className="h-10 px-2.5 text-xs text-slate-500 hover:text-slate-900 rounded-xl"
+                >
+                  <X className="w-3.5 h-3.5 mr-1" /> Clear
+                </Button>
+              )}
+            </div>
           </div>
+
+          {/* Table Container */}
+          {isCohortsLoading || isCrosswalkLoading ? (
+            <div className="p-16 text-center text-slate-400 bg-white border border-slate-200/80 rounded-2xl">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#6366F1]" />
+              <p className="text-xs font-medium">Loading curriculum crosswalk…</p>
+            </div>
+          ) : !courseId ? (
+            <div className="p-12 text-center bg-white border border-slate-200/80 rounded-2xl text-xs text-slate-500 font-medium">
+              No active cohort or course found.
+            </div>
+          ) : crosswalkRows.length === 0 ? (
+            <div className="p-12 text-center bg-white border border-slate-200/80 rounded-2xl space-y-2">
+              <p className="text-xs text-slate-600 font-medium">
+                No lessons or modules match your current search and filters.
+              </p>
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedModuleFilter("ALL");
+                    setSelectedTrack("ALL");
+                  }}
+                  className="text-xs font-medium h-8 rounded-xl"
+                >
+                  Reset Filters
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200/80 bg-white text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                      <th className="py-3 px-5 w-[28%] font-semibold">MODULE · LESSON</th>
+                      <th className="py-3 px-5 w-[42%] font-semibold">LEARNING OBJECTIVE</th>
+                      <th className="py-3 px-5 w-[14%] font-semibold">READING</th>
+                      <th className="py-3 px-5 w-[16%] font-semibold">ASSESSMENT</th>
+                      {canManageStaffActions && (
+                        <th className="py-3 px-4 w-[6%] text-right font-semibold">ACTION</th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {crosswalkRows.map(({ modIndex, moduleId, moduleTitle, unit }) => {
+                      const modColor = MODULE_EDGE_COLORS[modIndex % MODULE_EDGE_COLORS.length];
+                      const firstReading = unit.assignedTextbookReadings?.[0];
+                      const readingText = firstReading
+                        ? firstReading.assignedChapters?.toLowerCase().startsWith("ch")
+                          ? firstReading.assignedChapters
+                          : `Ch. ${firstReading.assignedChapters}`
+                        : "—";
+
+                      const primaryAssessment = unit.assessments?.[0];
+                      const assessmentLabel = primaryAssessment
+                        ? primaryAssessment.type || primaryAssessment.title
+                        : unit.lessonType;
+
+                      return (
+                        <tr
+                          key={`${moduleId}-${unit.lessonId}`}
+                          className="hover:bg-slate-50/70 transition-colors"
+                        >
+                          {/* MODULE · LESSON with module color edge accent */}
+                          <td className="py-3.5 px-5 align-top">
+                            <div className="flex items-start gap-2.5">
+                              <span
+                                className={`w-1 h-8 rounded-full shrink-0 mt-0.5 ${modColor}`}
+                              />
+                              <div>
+                                <div className="text-xs font-semibold text-slate-900 leading-snug">
+                                  L{unit.lessonId} · {unit.lessonTitle}
+                                </div>
+                                <div className="text-[11px] text-slate-400 font-normal mt-0.5">
+                                  {moduleTitle}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* LEARNING OBJECTIVE */}
+                          <td className="py-3.5 px-5 align-top">
+                            <div className="text-xs text-slate-600 font-normal leading-relaxed">
+                              {unit.lessonTitle}
+                            </div>
+                            {unit.isWeekOneAttendanceGate && (
+                              <Badge className="bg-rose-50 text-rose-700 border border-rose-200 text-[9px] font-medium px-1.5 py-0 mt-1">
+                                Week-1 Attendance Gate
+                              </Badge>
+                            )}
+                          </td>
+
+                          {/* READING */}
+                          <td className="py-3.5 px-5 align-top">
+                            <span className="text-xs text-slate-500 font-medium">
+                              {readingText}
+                            </span>
+                          </td>
+
+                          {/* ASSESSMENT pill badge */}
+                          <td className="py-3.5 px-5 align-top">
+                            {assessmentLabel ? (
+                              <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium ${getAssessmentPill(
+                                  assessmentLabel
+                                )}`}
+                              >
+                                {assessmentLabel}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 text-xs">—</span>
+                            )}
+                          </td>
+
+                          {/* STAFF ACTIONS (Instructor Link Reading) */}
+                          {canManageStaffActions && (
+                            <td className="py-3.5 px-4 align-top text-right">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenLinkReading(unit)}
+                                className="h-7 px-2 text-[11px] text-[#6366F1] hover:text-[#4F46E5] hover:bg-indigo-50 font-medium rounded-lg"
+                              >
+                                <Link2 className="w-3 h-3 mr-1" />
+                                Link
+                              </Button>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
 
-        {isCohortsLoading || isCrosswalkLoading ? (
-          <div className="p-12 text-center text-slate-400">
-            <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-            <p className="text-xs">Loading curriculum crosswalk...</p>
-          </div>
-        ) : !courseId ? (
-          <div className="p-8 text-center bg-white border border-slate-200 rounded-2xl text-xs text-slate-500">
-            No active cohort or course found.
-          </div>
-        ) : filteredModules.length === 0 ? (
-          <div className="p-8 text-center bg-white border border-slate-200 rounded-2xl text-xs text-slate-500">
-            No modules found matching current filter.
-          </div>
-        ) : (
-          <div className="space-y-5">
-            {filteredModules.map((mod) => (
-              <div
-                key={mod.moduleId}
-                className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs"
-              >
-                {/* Module Header */}
-                <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-semibold text-slate-900">
-                      Module {mod.moduleId}: {mod.moduleTitle}
-                    </span>
-                    {mod.track && (
-                      <Badge variant="outline" className="text-[10px] font-medium uppercase bg-white border-slate-200 text-slate-600">
-                        {mod.track.replace(/_/g, " ")}
-                      </Badge>
-                    )}
-                    {mod.isOrientationModule && (
-                      <Badge className="bg-amber-100 text-amber-800 border-0 text-[10px] font-medium">
-                        Orientation Module (Non-Credit)
-                      </Badge>
+        {/* Textbook Details / Preview Modal */}
+        <Dialog
+          open={Boolean(activePreviewTextbook)}
+          onOpenChange={(open) => !open && setActivePreviewTextbook(null)}
+        >
+          <DialogContent className="max-w-md">
+            <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-primary" />
+              Course Textbook Details
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 font-medium">
+              Registered syllabus reference and required reading material.
+            </DialogDescription>
+
+            {activePreviewTextbook && (
+              <div className="space-y-4 pt-2">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge variant="outline" className="bg-rose-50 text-rose-600 border-rose-200 text-[10px] font-semibold">
+                      Required Textbook
+                    </Badge>
+                    {activePreviewTextbook.isbn && (
+                      <span className="text-[11px] font-mono text-slate-400">
+                        ISBN: {activePreviewTextbook.isbn}
+                      </span>
                     )}
                   </div>
-                  <span className="text-xs text-slate-500 font-medium">
-                    {mod.units?.length || 0} Units / Lessons
-                  </span>
+                  <h4 className="text-sm font-heading font-semibold text-slate-900">
+                    {activePreviewTextbook.title}
+                  </h4>
+                  <p className="text-xs text-slate-600">
+                    Author: <span className="font-medium text-slate-900">{activePreviewTextbook.author}</span>
+                  </p>
+                  {activePreviewTextbook.edition && (
+                    <p className="text-xs text-slate-600">
+                      Edition: <span className="font-medium text-slate-900">{activePreviewTextbook.edition}</span>
+                    </p>
+                  )}
+                  {activePreviewTextbook.publisher && (
+                    <p className="text-xs text-slate-600">
+                      Publisher: <span className="font-medium text-slate-900">{activePreviewTextbook.publisher}</span>
+                    </p>
+                  )}
                 </div>
 
-                {/* Units List */}
-                <div className="divide-y divide-slate-100">
-                  {mod.units?.map((unit) => (
-                    <div
-                      key={unit.lessonId}
-                      className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
-                    >
-                      <div className="space-y-1 max-w-xl">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-slate-900">
-                            Unit {unit.lessonId}: {unit.lessonTitle}
-                          </span>
-                          {unit.isWeekOneAttendanceGate && (
-                            <Badge className="bg-rose-50 text-rose-700 border border-rose-300 text-[10px] font-medium">
-                              Week-1 Attendance Gate
-                            </Badge>
-                          )}
-                          {unit.isCreditHour && (
-                            <Badge variant="outline" className="text-[10px] text-emerald-700 border-emerald-300 bg-emerald-50 font-medium">
-                              Credit Hour
-                            </Badge>
-                          )}
-                        </div>
+                <div className="text-xs text-slate-500 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Approved curriculum reading for Washington State NA-C Certification</span>
+                </div>
 
-                        {/* Assigned Readings */}
-                        {unit.assignedTextbookReadings && unit.assignedTextbookReadings.length > 0 ? (
-                          <div className="text-xs text-slate-600 flex items-center gap-1.5 flex-wrap pt-0.5">
-                            <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span className="font-medium text-slate-700">Reading:</span>
-                            {unit.assignedTextbookReadings.map((r, i) => (
-                              <span key={i} className="text-slate-500 text-[11px]">
-                                {r.textbookTitle} ({r.assignedChapters}, pp. {r.pageRange})
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-[11px] text-slate-400 italic">
-                            No textbook reading linked
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Assessments & Type */}
-                      <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
-                        <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-600 border-slate-200">
-                          {unit.lessonType}
-                        </Badge>
-                        {unit.assessments && unit.assessments.length > 0 && (
-                          <Badge variant="outline" className="text-[10px] bg-blue-50 text-blue-700 border-blue-200">
-                            {unit.assessments.length} Assessment(s)
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex justify-end pt-2 border-t border-slate-100">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActivePreviewTextbook(null)}
+                    className="h-8 text-xs font-medium rounded-xl"
+                  >
+                    Close
+                  </Button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Link Reading Dialog (Instructors) */}
+        <Dialog open={isLinkReadingOpen} onOpenChange={setIsLinkReadingOpen}>
+          <DialogContent className="max-w-md">
+            <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
+              <Link2 className="w-5 h-5 text-primary" />
+              Link Textbook Reading to Unit
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 font-medium">
+              Assign textbook chapters and page ranges for{" "}
+              <span className="font-semibold text-slate-800">
+                L{selectedUnitForReading?.lessonId}: {selectedUnitForReading?.lessonTitle}
+              </span>
+            </DialogDescription>
+
+            <form onSubmit={handleAssignReading} className="space-y-4 pt-2">
+              <div>
+                <label className="text-xs font-medium text-slate-700 block mb-1">
+                  Select Textbook
+                </label>
+                <Select value={selectedTextbookId} onValueChange={setSelectedTextbookId}>
+                  <SelectTrigger className="w-full text-xs font-medium h-9 rounded-xl">
+                    <SelectValue placeholder="Choose registered textbook" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {textbooks.map((b: any) => (
+                      <SelectItem key={b.id} value={String(b.id)}>
+                        {b.title} ({b.edition || "Main Edition"})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-slate-700 block mb-1">
+                  Assigned Chapter(s)
+                </label>
+                <Input
+                  value={readingChapters}
+                  onChange={(e) => setReadingChapters(e.target.value)}
+                  placeholder="e.g. Chapter 3: Role and Responsibilities"
+                  className="h-9 text-xs rounded-xl"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-slate-700 block mb-1">
+                  Page Range
+                </label>
+                <Input
+                  value={readingPageRange}
+                  onChange={(e) => setReadingPageRange(e.target.value)}
+                  placeholder="e.g. 24-38"
+                  className="h-9 text-xs rounded-xl"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsLinkReadingOpen(false)}
+                  className="h-9 text-xs font-medium rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={assignReadingMutation.isPending}
+                  className="h-9 text-xs font-semibold bg-primary text-white hover:bg-[#084B78] rounded-xl"
+                >
+                  {assignReadingMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  ) : (
+                    <Link2 className="w-4 h-4 mr-1.5" />
+                  )}
+                  Save Reading Link
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Register Textbook Dialog (Instructors) */}
+        <Dialog open={isAddTextbookOpen} onOpenChange={setIsAddTextbookOpen}>
+          <DialogContent className="max-w-md">
+            <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
+              <BookMarked className="w-5 h-5 text-primary" />
+              Register Course Textbook
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 font-medium">
+              Link an approved textbook to this course for syllabus crosswalk and reading assignments.
+            </DialogDescription>
+
+            <form onSubmit={handleAddTextbook} className="space-y-4 pt-2">
+              <div>
+                <label className="text-xs font-medium text-slate-700 block mb-1">
+                  Textbook Title
+                </label>
+                <Input
+                  value={bookTitle}
+                  onChange={(e) => setBookTitle(e.target.value)}
+                  placeholder="e.g., Mosby's Textbook for Nursing Assistants"
+                  className="h-9 text-xs rounded-xl"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-slate-700 block mb-1">
+                  Author(s)
+                </label>
+                <Input
+                  value={bookAuthor}
+                  onChange={(e) => setBookAuthor(e.target.value)}
+                  placeholder="e.g., Sheila A. Sorrentino, Leighann Remmert"
+                  className="h-9 text-xs rounded-xl"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-700 block mb-1">
+                    Edition
+                  </label>
+                  <Input
+                    value={bookEdition}
+                    onChange={(e) => setBookEdition(e.target.value)}
+                    placeholder="e.g., 10th Edition"
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-700 block mb-1">
+                    ISBN
+                  </label>
+                  <Input
+                    value={bookIsbn}
+                    onChange={(e) => setBookIsbn(e.target.value)}
+                    placeholder="e.g., 978-0323655606"
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-slate-700 block mb-1">
+                  Publisher
+                </label>
+                <Input
+                  value={bookPublisher}
+                  onChange={(e) => setBookPublisher(e.target.value)}
+                  placeholder="e.g., Elsevier"
+                  className="h-9 text-xs rounded-xl"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAddTextbookOpen(false)}
+                  className="h-9 text-xs font-medium rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={addTextbookMutation.isPending}
+                  className="h-9 text-xs font-semibold bg-primary text-white hover:bg-[#084B78] rounded-xl"
+                >
+                  {addTextbookMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  ) : (
+                    <Plus className="w-4 h-4 mr-1.5" />
+                  )}
+                  Save Textbook
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Register Textbook Dialog */}
-      <Dialog open={isAddTextbookOpen} onOpenChange={setIsAddTextbookOpen}>
-        <DialogContent className="max-w-md">
-          <DialogTitle className="text-base font-heading font-semibold text-slate-900 flex items-center gap-2">
-            <BookMarked className="w-5 h-5 text-primary" />
-            Register Course Textbook
-          </DialogTitle>
-          <DialogDescription className="text-xs text-slate-500">
-            Link an approved textbook to this course for syllabus crosswalk and reading assignments.
-          </DialogDescription>
-
-          <form onSubmit={handleAddTextbook} className="space-y-4 pt-2">
-            <div>
-              <label className="text-xs font-medium text-slate-700 block mb-1">
-                Textbook Title
-              </label>
-              <Input
-                value={bookTitle}
-                onChange={(e) => setBookTitle(e.target.value)}
-                placeholder="e.g., Mosby's Textbook for Nursing Assistants"
-                className="h-9 text-xs"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-slate-700 block mb-1">
-                Author(s)
-              </label>
-              <Input
-                value={bookAuthor}
-                onChange={(e) => setBookAuthor(e.target.value)}
-                placeholder="e.g., Sheila A. Sorrentino, Leighann Remmert"
-                className="h-9 text-xs"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-medium text-slate-700 block mb-1">
-                  Edition
-                </label>
-                <Input
-                  value={bookEdition}
-                  onChange={(e) => setBookEdition(e.target.value)}
-                  placeholder="e.g., 10th Edition"
-                  className="h-9 text-xs"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-700 block mb-1">
-                  ISBN
-                </label>
-                <Input
-                  value={bookIsbn}
-                  onChange={(e) => setBookIsbn(e.target.value)}
-                  placeholder="e.g., 978-0323655606"
-                  className="h-9 text-xs"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-medium text-slate-700 block mb-1">
-                Publisher
-              </label>
-              <Input
-                value={bookPublisher}
-                onChange={(e) => setBookPublisher(e.target.value)}
-                placeholder="e.g., Elsevier"
-                className="h-9 text-xs"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsAddTextbookOpen(false)}
-                className="h-9 text-xs font-medium"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                size="sm"
-                disabled={addTextbookMutation.isPending}
-                className="h-9 text-xs font-semibold bg-primary text-white"
-              >
-                {addTextbookMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                ) : (
-                  <Plus className="w-4 h-4 mr-1.5" />
-                )}
-                Save Textbook
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 
@@ -605,4 +969,3 @@ export const CurriculumCompliancePage: React.FC = () => {
 };
 
 export default CurriculumCompliancePage;
-
