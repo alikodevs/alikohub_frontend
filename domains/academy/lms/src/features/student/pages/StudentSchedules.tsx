@@ -7,7 +7,6 @@ import {
   PlayCircle,
   HelpCircle,
   BookOpen,
-  Users,
   CalendarDays,
   ChevronRight,
   ChevronLeft,
@@ -18,13 +17,9 @@ import {
   CheckCircle2,
   RefreshCw,
   ExternalLink,
-  Download,
-  AlertCircle,
-  X,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -43,12 +38,6 @@ import {
   isToday,
   addWeeks,
   subWeeks,
-  addMonths,
-  subMonths,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  isSameMonth,
 } from "date-fns";
 import { Link } from "react-router-dom";
 import { useQueries } from "@tanstack/react-query";
@@ -70,14 +59,15 @@ interface CalendarEvent {
   location?: string;
   description?: string;
   hoursCredited?: number;
+  instructorName?: string;
 }
 
 const StudentSchedules = () => {
   const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollments();
   const { data: myTransactions } = useMyTransactions();
 
-  // View state
-  const [viewMode, setViewMode] = useState<"day" | "week" | "month" | "list">("week");
+  // View state: Week timetable and full List/Agenda (aligned with backend schedule truth)
+  const [viewMode, setViewMode] = useState<"week" | "list">("week");
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
@@ -152,7 +142,7 @@ const StudentSchedules = () => {
     return Array.from(ids);
   }, [enrollments, completedTxCourseIds]);
 
-  // Fetch course schedules
+  // Fetch teaching schedules for each enrolled course in parallel from backend
   const scheduleQueries = useQueries({
     queries: enrolledCourseIds.map((courseId) => ({
       queryKey: ["course-schedules", courseId],
@@ -163,7 +153,7 @@ const StudentSchedules = () => {
     })),
   });
 
-  // Fetch clinical facility shifts
+  // Fetch clinical facility shifts for enrolled cohorts from backend
   const clinicalShiftQueries = useQueries({
     queries: enrolledCohortIds.map((cohortId) => ({
       queryKey: ["clinical-shifts", "cohort", cohortId],
@@ -173,10 +163,10 @@ const StudentSchedules = () => {
     })),
   });
 
-  // Fetch student grade reports for pacing deadlines
+  // Fetch cohort completion pacing reports for WABON compliance
   const gradeReportQueries = useQueries({
     queries: enrolledCohortIds.map((cohortId) => ({
-      queryKey: ["gradebook", "student", cohortId, undefined],
+      queryKey: ["cohort-pacing-schedule", cohortId],
       queryFn: () => wabonComplianceService.getStudentGradeReport(cohortId),
       enabled: !!cohortId,
       staleTime: 2 * 60 * 1000,
@@ -184,46 +174,45 @@ const StudentSchedules = () => {
   });
 
   const isSchedulesLoading =
-    enrollmentsLoading || scheduleQueries.some((q) => q.isLoading);
+    enrollmentsLoading ||
+    scheduleQueries.some((q) => q.isLoading) ||
+    clinicalShiftQueries.some((q) => q.isLoading);
 
-  // Clinical shifts parsed
+  // Flatten clinical shifts from backend
   const clinicalShifts = useMemo(() => {
-    const merged: any[] = [];
-    clinicalShiftQueries.forEach((q) => {
-      if (Array.isArray(q.data)) merged.push(...q.data);
-    });
-    const seen = new Set<number>();
-    return merged
-      .filter((shift) => {
-        if (!shift?.id || seen.has(shift.id)) return false;
-        seen.add(shift.id);
-        return true;
-      })
-      .sort(
-        (a, b) =>
-          new Date(a.shiftDate).getTime() - new Date(b.shiftDate).getTime(),
-      );
-  }, [clinicalShiftQueries]);
-
-  // Cohort pacing summaries
-  const cohortPacingSummaries = useMemo(() => {
-    return gradeReportQueries
-      .map((q) => q.data)
-      .filter((r): r is NonNullable<typeof r> => Boolean(r?.summary?.pacing));
-  }, [gradeReportQueries]);
-
-  // Merge and deduplicate all course schedules
-  const allSchedules = useMemo(() => {
-    const merged: any[] = [];
-    scheduleQueries.forEach((q) => {
-      if (q.data && Array.isArray(q.data)) {
-        merged.push(...q.data);
+    const list: any[] = [];
+    clinicalShiftQueries.forEach((query) => {
+      if (query.data && Array.isArray(query.data)) {
+        list.push(...query.data);
       }
     });
-    const seen = new Set<number>();
-    const unique = merged.filter((s) => {
-      if (seen.has(s.id)) return false;
-      seen.add(s.id);
+    return list;
+  }, [clinicalShiftQueries]);
+
+  // Cohort pacing summaries from backend
+  const cohortPacingSummaries = useMemo(() => {
+    const list: any[] = [];
+    gradeReportQueries.forEach((q) => {
+      if (q.data && q.data.summary?.pacing) {
+        list.push(q.data);
+      }
+    });
+    return list;
+  }, [gradeReportQueries]);
+
+  // Deduplicate backend teaching schedules
+  const allSchedules = useMemo(() => {
+    const combined: any[] = [];
+    scheduleQueries.forEach((query) => {
+      if (query.data && Array.isArray(query.data)) {
+        combined.push(...query.data);
+      }
+    });
+    const seen = new Set<string>();
+    const unique = combined.filter((s) => {
+      const key = `${s.courseId}-${s.title}-${s.startTime}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
       return true;
     });
     unique.sort(
@@ -233,7 +222,7 @@ const StudentSchedules = () => {
     return unique;
   }, [scheduleQueries]);
 
-  // Split into upcoming and past
+  // Split into upcoming and past based on current time
   const now = new Date();
   const upcomingSchedules = useMemo(
     () => allSchedules.filter((s) => new Date(s.endTime || s.startTime) >= now),
@@ -244,7 +233,7 @@ const StudentSchedules = () => {
     [allSchedules, now],
   );
 
-  // Combined calendar events (Live sessions, workshops, Q&A, AND clinical shifts)
+  // Combined calendar events: Teaching schedules + Clinical shifts directly from backend
   const calendarEvents = useMemo(() => {
     const events: CalendarEvent[] = [];
 
@@ -263,6 +252,7 @@ const StudentSchedules = () => {
         cohortName: s.cohort?.name || courseInfo?.cohortName,
         location: s.meetingUrl || s.location || "Online Classroom",
         description: s.description,
+        instructorName: s.instructor?.name || s.course?.instructor?.name,
       });
     });
 
@@ -292,13 +282,16 @@ const StudentSchedules = () => {
         location: cs.facilityName || "Assigned Facility",
         description: `Hands-on clinical training shift at ${cs.facilityName || "facility"}. Hours credited: ${cs.hoursCredited || 4}h.`,
         hoursCredited: cs.hoursCredited,
+        instructorName: cs.instructor
+          ? `${cs.instructor.firstName || ""} ${cs.instructor.lastName || ""}`.trim()
+          : undefined,
       });
     });
 
     return events.sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
   }, [allSchedules, clinicalShifts, enrollmentLookup]);
 
-  // Dynamic KPI computations (No static/mock data)
+  // Dynamic KPI computations (Directly from backend data)
   const thisWeekSessionsCount = useMemo(() => {
     const weekStart = startOfWeek(now, { weekStartsOn: 1 });
     const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
@@ -326,26 +319,13 @@ const StudentSchedules = () => {
     return Array.from({ length: 7 }).map((_, i) => addDays(start, i));
   }, [currentDate]);
 
-  // Month View Days
-  const monthDays = useMemo(() => {
-    const startMonth = startOfMonth(currentDate);
-    const endMonth = endOfMonth(currentDate);
-    const start = startOfWeek(startMonth, { weekStartsOn: 1 });
-    const end = endOfWeek(endMonth, { weekStartsOn: 1 });
-    return eachDayOfInterval({ start, end });
-  }, [currentDate]);
-
-  // Handlers for Navigation
+  // Week Navigation handlers
   const handlePrev = () => {
-    if (viewMode === "day") setCurrentDate((prev) => addDays(prev, -1));
-    else if (viewMode === "week") setCurrentDate((prev) => subWeeks(prev, 1));
-    else if (viewMode === "month") setCurrentDate((prev) => subMonths(prev, 1));
+    setCurrentDate((prev) => subWeeks(prev, 1));
   };
 
   const handleNext = () => {
-    if (viewMode === "day") setCurrentDate((prev) => addDays(prev, 1));
-    else if (viewMode === "week") setCurrentDate((prev) => addWeeks(prev, 1));
-    else if (viewMode === "month") setCurrentDate((prev) => addMonths(prev, 1));
+    setCurrentDate((prev) => addWeeks(prev, 1));
   };
 
   const handleToday = () => {
@@ -374,56 +354,6 @@ const StudentSchedules = () => {
       localStorage.setItem("aliko_schedule_reminders", "false");
       toast.info("Schedule reminders disabled.");
     }
-  };
-
-  // Sync to calendar (.ics download)
-  const handleSyncToCalendar = () => {
-    if (calendarEvents.length === 0) {
-      toast.info("No schedule events to export yet.");
-      return;
-    }
-
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const formatIcs = (d: Date) =>
-      `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;
-
-    const lines = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//Aliko Academy//LMS Student Schedule//EN",
-      "CALSCALE:GREGORIAN",
-      "METHOD:PUBLISH",
-    ];
-
-    calendarEvents.forEach((ev) => {
-      lines.push(
-        "BEGIN:VEVENT",
-        `UID:${ev.id}-${Date.now()}@alikohub.com`,
-        `DTSTAMP:${formatIcs(new Date())}`,
-        `DTSTART:${formatIcs(ev.startTime)}`,
-        `DTEND:${formatIcs(ev.endTime)}`,
-        `SUMMARY:${ev.title.replace(/[,;]/g, " ")}`,
-        `DESCRIPTION:${(ev.description || ev.subtitle || "Aliko Academy scheduled event").replace(/[,;]/g, " ")}`,
-        ...(ev.location ? [`LOCATION:${ev.location.replace(/[,;]/g, " ")}`] : []),
-        "END:VEVENT",
-      );
-    });
-
-    lines.push("END:VCALENDAR");
-
-    const blob = new Blob([lines.join("\r\n")], {
-      type: "text/calendar;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Aliko_Academy_Schedule_${format(new Date(), "yyyyMMdd")}.ics`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    toast.success("Schedule exported (.ics downloaded) to sync with your calendar!");
   };
 
   // Event Styling Helper: Tinted events, not solid (V2 Spec)
@@ -459,6 +389,12 @@ const StudentSchedules = () => {
           badgeBg: "bg-emerald-100 text-emerald-700",
           icon: Clock,
         };
+      case "RECORDING":
+        return {
+          cardBg: "bg-sky-50/90 hover:bg-sky-100/90 text-sky-950 border-sky-200 border-l-4 border-l-sky-500",
+          badgeBg: "bg-sky-100 text-sky-700",
+          icon: PlayCircle,
+        };
       default:
         return {
           cardBg: "bg-blue-50/90 hover:bg-blue-100/90 text-blue-950 border-blue-200 border-l-4 border-l-blue-500",
@@ -468,15 +404,26 @@ const StudentSchedules = () => {
     }
   };
 
+  // Hourly slots for timetable: 8 AM to 5 PM
   const hoursList = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+
+  // List view partitions: Upcoming vs Past
+  const upcomingEvents = useMemo(
+    () => calendarEvents.filter((ev) => ev.endTime >= now),
+    [calendarEvents, now],
+  );
+  const pastEvents = useMemo(
+    () => calendarEvents.filter((ev) => ev.endTime < now),
+    [calendarEvents, now],
+  );
 
   return (
     <StudentLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* ── Page Header & Controls ────────────────────────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 border border-purple-200/80 flex items-center justify-center shrink-0 shadow-2xs">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* ── Top Header Bar (V2 Design) ────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200/80 flex items-center justify-center shrink-0 shadow-2xs">
               <CalendarDays className="w-5 h-5" />
             </div>
             <div>
@@ -490,34 +437,23 @@ const StudentSchedules = () => {
           </div>
 
           <div className="flex items-center flex-wrap gap-2.5">
-            {/* View Switcher: Day, Week, Month, List */}
+            {/* View Switcher: Week vs List (Agenda) */}
             <div className="bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 flex items-center shadow-2xs">
-              {(["day", "week", "month", "list"] as const).map((mode) => (
+              {(["week", "list"] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all",
+                    "px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all",
                     viewMode === mode
                       ? "bg-white text-slate-900 shadow-xs"
                       : "text-slate-500 hover:text-slate-800",
                   )}
                 >
-                  {mode}
+                  {mode === "week" ? "Week View" : "Agenda / List"}
                 </button>
               ))}
             </div>
-
-            {/* Sync to calendar */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSyncToCalendar}
-              className="h-9 px-3.5 rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold gap-1.5 shadow-2xs"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Sync to calendar
-            </Button>
 
             {/* Today button in Aliko Orange */}
             <Button
@@ -640,38 +576,36 @@ const StudentSchedules = () => {
                 <div className="flex items-center rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
                   <button
                     onClick={handlePrev}
-                    aria-label="Previous period"
-                    className="h-8 px-2.5 text-slate-600 hover:bg-slate-50 border-r border-slate-200 transition-colors flex items-center justify-center"
+                    aria-label="Previous week"
+                    className="h-8 px-2.5 text-slate-600 hover:bg-slate-50 border-r border-slate-200 transition-colors flex items-center justify-center cursor-pointer"
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <button
                     onClick={handleNext}
-                    aria-label="Next period"
-                    className="h-8 px-2.5 text-slate-600 hover:bg-slate-50 transition-colors flex items-center justify-center"
+                    aria-label="Next week"
+                    className="h-8 px-2.5 text-slate-600 hover:bg-slate-50 transition-colors flex items-center justify-center cursor-pointer"
                   >
                     <ChevronRight size={16} />
                   </button>
                 </div>
 
                 <h2 className="text-base font-bold font-heading text-slate-900 m-0">
-                  {viewMode === "day" && format(currentDate, "EEEE, MMMM d, yyyy")}
-                  {viewMode === "week" &&
-                    `${format(weekDays[0], "MMM d")} – ${format(weekDays[6], "MMM d, yyyy")}`}
-                  {viewMode === "month" && format(currentDate, "MMMM yyyy")}
-                  {viewMode === "list" && "All Upcoming & Scheduled Sessions"}
+                  {viewMode === "week"
+                    ? `${format(weekDays[0], "MMM d")} – ${format(weekDays[6], "MMM d, yyyy")}`
+                    : "All Enrolled Sessions & Shifts"}
                 </h2>
               </div>
 
               {isSchedulesLoading && (
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin text-slate-400" />
-                  Updating...
+                  Syncing backend...
                 </div>
               )}
             </div>
 
-            {/* ── Week View Calendar (V2 Design) ────────────────────────────── */}
+            {/* ── Week View Timetable (V2 Design: Mon - Sun) ────────────────── */}
             {viewMode === "week" && (
               <div className="overflow-x-auto min-w-full">
                 <div className="min-w-[640px]">
@@ -769,193 +703,123 @@ const StudentSchedules = () => {
               </div>
             )}
 
-            {/* ── Day View Agenda ───────────────────────────────────────────── */}
-            {viewMode === "day" && (
-              <div className="p-5 space-y-3">
-                {(() => {
-                  const dayEvents = calendarEvents.filter((ev) =>
-                    isSameDay(ev.startTime, currentDate),
-                  );
+            {/* ── List / Agenda View (Structured chronologically from backend) ── */}
+            {viewMode === "list" && (
+              <div className="p-5 space-y-6">
+                {/* Section 1: Upcoming Sessions & Shifts */}
+                <div>
+                  <h3 className="text-xs font-bold font-heading text-slate-400 uppercase tracking-wider mb-3">
+                    Upcoming Sessions ({upcomingEvents.length})
+                  </h3>
 
-                  if (dayEvents.length === 0) {
-                    return (
-                      <div className="py-16 text-center">
-                        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
-                          <Calendar className="w-6 h-6" />
-                        </div>
-                        <h3 className="text-sm font-bold text-slate-800 font-heading m-0">
-                          No sessions scheduled for this day
-                        </h3>
-                        <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-                          You're free on {format(currentDate, "EEEE, MMMM d")}. Check other days or your course outline.
-                        </p>
-                      </div>
-                    );
-                  }
+                  {upcomingEvents.length === 0 ? (
+                    <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100">
+                      <p className="text-xs text-slate-400 m-0">
+                        No upcoming sessions or shifts on your schedule.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {upcomingEvents.map((ev) => {
+                        const style = getEventStyle(ev.type);
+                        const isLiveNow = ev.startTime <= now && ev.endTime >= now;
 
-                  return dayEvents.map((ev) => {
-                    const style = getEventStyle(ev.type);
-                    return (
-                      <div
-                        key={ev.id}
-                        onClick={() => setSelectedEvent(ev)}
-                        className={cn(
-                          "p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs cursor-pointer hover:shadow-xs transition-all",
-                          style.cardBg,
-                        )}
-                      >
-                        <div className="space-y-1">
-                          <span
+                        return (
+                          <div
+                            key={ev.id}
+                            onClick={() => setSelectedEvent(ev)}
                             className={cn(
-                              "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block",
-                              style.badgeBg,
+                              "p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs cursor-pointer hover:shadow-xs transition-all",
+                              style.cardBg,
+                              isLiveNow && "ring-2 ring-rose-500/60",
                             )}
                           >
-                            {ev.type.replace(/_/g, " ")}
-                          </span>
-                          <h4 className="text-sm font-bold text-slate-900 font-heading m-0">
-                            {ev.title}
-                          </h4>
-                          <p className="text-xs text-slate-600 m-0">
-                            {ev.subtitle || ev.description}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <span className="text-xs font-bold text-slate-800 block">
-                            {format(ev.startTime, "h:mm a")} — {format(ev.endTime, "h:mm a")}
-                          </span>
-                          <span className="text-[11px] text-slate-500">
-                            {ev.location}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            )}
-
-            {/* ── Month View ────────────────────────────────────────────────── */}
-            {viewMode === "month" && (
-              <div className="p-4 sm:p-5">
-                <div className="grid grid-cols-7 border-b border-slate-100 pb-2 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  <span>Mon</span>
-                  <span>Tue</span>
-                  <span>Wed</span>
-                  <span>Thu</span>
-                  <span>Fri</span>
-                  <span>Sat</span>
-                  <span>Sun</span>
-                </div>
-                <div className="grid grid-cols-7 border-t border-l border-slate-100">
-                  {monthDays.map((day) => {
-                    const isCurMonth = isSameMonth(day, currentDate);
-                    const today = isToday(day);
-                    const dayEvents = calendarEvents.filter((ev) =>
-                      isSameDay(ev.startTime, day),
-                    );
-
-                    return (
-                      <div
-                        key={day.toISOString()}
-                        onClick={() => {
-                          setCurrentDate(day);
-                          setViewMode("day");
-                        }}
-                        className={cn(
-                          "min-h-[75px] sm:min-h-[90px] p-1.5 border-r border-b border-slate-100 hover:bg-slate-50/70 transition-colors cursor-pointer flex flex-col justify-between",
-                          !isCurMonth && "bg-slate-50/40 text-slate-300",
-                          today && "bg-orange-50/30",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center",
-                            today
-                              ? "bg-[#F16A1C] text-white"
-                              : isCurMonth
-                                ? "text-slate-700"
-                                : "text-slate-400",
-                          )}
-                        >
-                          {format(day, "d")}
-                        </span>
-
-                        <div className="space-y-1 mt-1">
-                          {dayEvents.slice(0, 2).map((ev) => (
-                            <div
-                              key={ev.id}
-                              className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200/60 truncate"
-                            >
-                              {ev.title}
+                            <div className="space-y-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                                    style.badgeBg,
+                                  )}
+                                >
+                                  {ev.type.replace(/_/g, " ")}
+                                </span>
+                                {isLiveNow && (
+                                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-600 text-white animate-pulse">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                                    Live Now
+                                  </span>
+                                )}
+                                {ev.courseTitle && (
+                                  <span className="text-xs text-slate-500 font-medium truncate">
+                                    {ev.courseTitle}
+                                  </span>
+                                )}
+                              </div>
+                              <h4 className="text-sm font-bold text-slate-900 font-heading m-0 truncate">
+                                {ev.title}
+                              </h4>
+                              <p className="text-xs text-slate-600 m-0 line-clamp-1">
+                                {ev.subtitle || ev.description}
+                              </p>
                             </div>
-                          ))}
-                          {dayEvents.length > 2 && (
-                            <span className="text-[9px] text-slate-400 font-semibold block text-center">
-                              +{dayEvents.length - 2} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* ── List View (Fallback for full accessibility) ────────────────── */}
-            {viewMode === "list" && (
-              <div className="p-5 space-y-4">
-                {calendarEvents.length === 0 ? (
-                  <div className="py-16 text-center text-slate-400 text-xs">
-                    No sessions or shifts on your schedule.
-                  </div>
-                ) : (
-                  calendarEvents.map((ev) => {
-                    const style = getEventStyle(ev.type);
-                    return (
-                      <div
-                        key={ev.id}
-                        onClick={() => setSelectedEvent(ev)}
-                        className={cn(
-                          "p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs cursor-pointer hover:shadow-xs transition-all",
-                          style.cardBg,
-                        )}
-                      >
-                        <div className="space-y-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={cn(
-                                "text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
-                                style.badgeBg,
-                              )}
-                            >
-                              {ev.type.replace(/_/g, " ")}
-                            </span>
-                            {ev.courseTitle && (
-                              <span className="text-xs text-slate-500 font-medium truncate">
-                                {ev.courseTitle}
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-bold text-slate-900 block">
+                                {format(ev.startTime, "EEE, MMM d, yyyy")}
                               </span>
-                            )}
+                              <span className="text-[11px] text-slate-500 block">
+                                {format(ev.startTime, "h:mm a")} — {format(ev.endTime, "h:mm a")}
+                              </span>
+                            </div>
                           </div>
-                          <h4 className="text-sm font-bold text-slate-900 font-heading m-0 truncate">
-                            {ev.title}
-                          </h4>
-                          <p className="text-xs text-slate-600 m-0 line-clamp-1">
-                            {ev.subtitle || ev.description}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <span className="text-xs font-bold text-slate-900 block">
-                            {format(ev.startTime, "MMM d, yyyy")}
-                          </span>
-                          <span className="text-[11px] text-slate-500 block">
-                            {format(ev.startTime, "h:mm a")} — {format(ev.endTime, "h:mm a")}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Section 2: Past Sessions & Shifts */}
+                {pastEvents.length > 0 && (
+                  <div className="pt-2">
+                    <h3 className="text-xs font-bold font-heading text-slate-400 uppercase tracking-wider mb-3">
+                      Past Sessions ({pastEvents.length})
+                    </h3>
+                    <div className="space-y-2.5 opacity-80 hover:opacity-100 transition-opacity">
+                      {pastEvents.slice(0, 8).map((ev) => {
+                        const style = getEventStyle(ev.type);
+                        return (
+                          <div
+                            key={ev.id}
+                            onClick={() => setSelectedEvent(ev)}
+                            className={cn(
+                              "p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs cursor-pointer hover:shadow-xs transition-all bg-slate-50/70 border-slate-200/60",
+                            )}
+                          >
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                                    style.badgeBg,
+                                  )}
+                                >
+                                  {ev.type.replace(/_/g, " ")}
+                                </span>
+                                <h4 className="text-xs font-bold text-slate-800 font-heading m-0 truncate">
+                                  {ev.title}
+                                </h4>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="text-[11px] text-slate-500 block">
+                                {format(ev.startTime, "MMM d, yyyy · h:mm a")}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
@@ -1059,46 +923,78 @@ const StudentSchedules = () => {
 
             {/* 3. Cohort Completion Pacing Deadlines (WABON Compliance) */}
             {cohortPacingSummaries.length > 0 && (
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-3">
-                <h3 className="font-heading font-bold text-slate-900 text-sm flex items-center gap-2 m-0">
-                  <Gauge className="w-4 h-4 text-[#0A65A0]" />
-                  Cohort Pacing Deadlines
-                </h3>
-                <div className="space-y-2.5">
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex flex-col gap-4">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <h3 className="font-heading font-bold text-slate-900 text-sm flex items-center gap-2 m-0">
+                    <Gauge className="w-4 h-4 text-[#0A65A0] shrink-0" />
+                    <span>Cohort Pacing Deadlines</span>
+                  </h3>
+                </div>
+
+                <div className="flex flex-col gap-3">
                   {cohortPacingSummaries.map((report) => {
                     const pacing = report.summary.pacing;
-                    const badgeColor =
+                    const badgeConfig =
                       pacing.status === "ON_TRACK"
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        ? {
+                            label: "On Track",
+                            className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+                          }
                         : pacing.status === "AT_RISK"
-                          ? "bg-amber-50 text-amber-700 border border-amber-200"
-                          : "bg-rose-50 text-rose-700 border border-rose-200";
+                          ? {
+                              label: "At Risk",
+                              className: "bg-amber-50 text-amber-700 border-amber-200",
+                            }
+                          : {
+                              label: "Behind Schedule",
+                              className: "bg-rose-50 text-rose-700 border-rose-200",
+                            };
 
                     return (
                       <div
                         key={report.cohortId}
-                        className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-xs space-y-1.5"
+                        className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-xs flex flex-col gap-2.5"
                       >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-slate-900 truncate">
+                        {/* Course Title & Status Badge row with guaranteed non-overlapping spacing */}
+                        <div className="flex items-center justify-between gap-2 min-w-0">
+                          <span className="font-semibold text-slate-900 truncate min-w-0 flex-1 text-xs">
                             {report.courseTitle || `Cohort #${report.cohortId}`}
                           </span>
                           <span
                             className={cn(
-                              "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
-                              badgeColor,
+                              "px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border shrink-0 whitespace-nowrap",
+                              badgeConfig.className,
                             )}
                           >
-                            {pacing.status.replace(/_/g, " ")}
+                            {badgeConfig.label}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between text-[11px] text-slate-500">
-                          <span>
-                            Progress: {pacing.actualProgressPercent}% / {pacing.expectedProgressPercent}%
-                          </span>
-                          <span className="font-bold text-slate-800">
-                            {pacing.daysRemainingInCohort}d left
-                          </span>
+
+                        {/* Progress Bar & Days Remaining */}
+                        <div className="space-y-1.5 pt-0.5">
+                          <div className="w-full bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className={cn(
+                                "h-full rounded-full transition-all",
+                                pacing.status === "ON_TRACK"
+                                  ? "bg-emerald-500"
+                                  : pacing.status === "AT_RISK"
+                                    ? "bg-amber-500"
+                                    : "bg-rose-500",
+                              )}
+                              style={{
+                                width: `${Math.min(100, Math.max(0, pacing.actualProgressPercent || 0))}%`,
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] text-slate-500">
+                            <span>
+                              {pacing.actualProgressPercent}% / {pacing.expectedProgressPercent}% expected
+                            </span>
+                            <span className="font-bold text-slate-800 shrink-0">
+                              {pacing.daysRemainingInCohort}d left
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
