@@ -229,25 +229,25 @@ export const OrientationChecklistPage: React.FC = () => {
           </div>
         )}
 
-        {/* ── Hero / Progress Card (Exact V1/V2 Blend: ProgressRing + V1 Status Pills) ── */}
+        {/* ── Hero / Progress Card (V2 Clean Calm Design) ── */}
         <div className="bg-white rounded-2xl border border-[#E1E7F1] p-6 shadow-2xs relative overflow-hidden flex flex-col md:flex-row md:items-center gap-6 justify-between">
-          <div className="flex items-center gap-6">
-            {/* Circular Progress Ring (Green #10B981 per user request) */}
+          <div className="flex items-center gap-6 min-w-0">
+            {/* Circular Progress Ring (Green #10B981) */}
             <div className="shrink-0">
               <ProgressRing
                 percentage={progressPercent}
                 value={`${completedCount}/3`}
                 color="#10B981"
-                size={84}
-                strokeWidth={7.5}
+                size={76}
+                strokeWidth={7}
                 trackColor="#E1E7F1"
                 valueClassName="font-heading font-bold text-base text-[#0F1B34]"
               />
             </div>
 
             {/* Dynamic Status Headline & Description */}
-            <div className="space-y-1.5">
-              <h2 className="text-base sm:text-lg font-heading font-semibold text-[#0F1B34]">
+            <div className="space-y-1 min-w-0">
+              <h2 className="text-base sm:text-lg font-heading font-bold text-[#0F1B34] truncate">
                 {isCompleted || completedCount === 3
                   ? "Orientation Complete! You're ready to learn."
                   : completedCount === 2
@@ -256,50 +256,11 @@ export const OrientationChecklistPage: React.FC = () => {
                   ? "You're one-third of the way there"
                   : "Let's get started with orientation"}
               </h2>
-              <p className="text-xs text-[#5A6B8C] leading-relaxed max-w-xl">
+              <p className="text-xs sm:text-sm text-[#5A6B8C] leading-relaxed">
                 {isCompleted
                   ? "All 3 orientation gates have been acknowledged. Course theory modules and clinical lessons are unlocked."
-                  : "Finish the remaining two items to unlock Certified Nursing Assistant lessons. Average time: 25 minutes."}
+                  : `Finish the remaining ${3 - completedCount} item${3 - completedCount === 1 ? "" : "s"} to unlock Certified Nursing Assistant lessons. About 25 minutes.`}
               </p>
-
-              {/* Status Tag Pills (Exact V1 Page 9 Design) */}
-              <div className="flex items-center gap-2 pt-1 flex-wrap">
-                <span
-                  className={cn(
-                    "text-[11px] font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs transition-all",
-                    attended || isCompleted
-                      ? "bg-[#10B981] text-white"
-                      : "bg-[#0183C7] text-white"
-                  )}
-                >
-                  {attended || isCompleted ? <Check className="w-3 h-3 stroke-[2.5]" /> : null}
-                  Attendance · {attended || isCompleted ? "done" : "required"}
-                </span>
-
-                <span
-                  className={cn(
-                    "text-[11px] font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs transition-all",
-                    tutorialDone || isCompleted
-                      ? "bg-[#10B981] text-white"
-                      : "bg-[#3B82F6] text-white"
-                  )}
-                >
-                  {tutorialDone || isCompleted ? <Check className="w-3 h-3 stroke-[2.5]" /> : null}
-                  LMS tutorial · {tutorialDone || isCompleted ? "done" : "required"}
-                </span>
-
-                <span
-                  className={cn(
-                    "text-[11px] font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs transition-all",
-                    netiquetteSigned || isCompleted
-                      ? "bg-[#10B981] text-white"
-                      : "bg-[#8B5CF6] text-white"
-                  )}
-                >
-                  {netiquetteSigned || isCompleted ? <Check className="w-3 h-3 stroke-[2.5]" /> : null}
-                  Netiquette · {netiquetteSigned || isCompleted ? "done" : "required"}
-                </span>
-              </div>
             </div>
           </div>
 
@@ -314,7 +275,7 @@ export const OrientationChecklistPage: React.FC = () => {
                 Go to My Learning <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             ) : (
-              <div className="text-right">
+              <div className="text-right hidden sm:block">
                 <span className="text-xs font-semibold text-[#0F1B34] block">
                   Gate Progress: {completedCount} of 3
                 </span>
@@ -326,61 +287,50 @@ export const OrientationChecklistPage: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Three Numbered Cards (01, 02, 03) (Exact Reference PDF Structure) ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* ════════ Card 01: Cohort Orientation Attendance ════════ */}
-          <div className="rounded-2xl border border-[#E1E7F1] hover:border-slate-300 shadow-2xs flex flex-col justify-between overflow-hidden bg-white transition-all">
-            {/* Top Colored Header: Icon on Left, Section Number 01 on Right */}
-            <div className="bg-gradient-to-r from-[#049569] to-[#10B981] p-5 h-22 flex items-center justify-between text-white relative overflow-hidden">
-              {/* Subtle background circle decoration per PDF */}
-              <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
-
-              {/* Left: Icon inside translucent badge */}
-              <div className="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center backdrop-blur-xs shadow-2xs z-10">
-                <GraduationCap className="w-5 h-5 stroke-[2.2]" />
+        {/* ── V2 Orientation Checklist Items Card (Unified Card with Horizontal Rows) ── */}
+        <div className="bg-white rounded-2xl border border-[#E1E7F1] shadow-2xs divide-y divide-[#E1E7F1] overflow-hidden">
+          {/* ════════ Row 1: Cohort Orientation Attendance ════════ */}
+          <div className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-slate-50/50">
+            <div className="flex items-start gap-4 min-w-0">
+              {/* Step Status Indicator (Check or Number 1) */}
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold transition-all",
+                  attended || isCompleted
+                    ? "bg-[#10B981] text-white shadow-2xs"
+                    : "bg-slate-100 text-[#5A6B8C] border border-[#CBD5E1]"
+                )}
+              >
+                {attended || isCompleted ? (
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                ) : (
+                  "1"
+                )}
               </div>
 
-              {/* Right: Section Number 01 */}
-              <span className="font-heading font-bold text-3xl text-white/95 tracking-tight z-10">
-                01
-              </span>
-            </div>
-
-            {/* Card Main Content */}
-            <div className="p-5 sm:p-6 flex flex-col justify-between flex-1 space-y-4">
-              <div className="space-y-3">
-                {/* Status Chip */}
-                <div>
-                  <span
-                    className={cn(
-                      "text-[11px] font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs",
-                      attended || isCompleted
-                        ? "bg-[#10B981] text-white"
-                        : "bg-[#0183C7] text-white"
-                    )}
-                  >
-                    {attended || isCompleted ? (
-                      <>
-                        <Check className="w-3 h-3 stroke-[2.5]" /> Completed
-                      </>
-                    ) : (
-                      "Required"
-                    )}
-                  </span>
-                </div>
-
-                {/* Title & Description */}
-                <div>
-                  <h3 className="text-base font-semibold font-heading text-[#0F1B34] leading-snug">
+              {/* Title, Badge, Description, Checkbox */}
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h3 className="text-sm sm:text-base font-semibold font-heading text-[#0F1B34]">
                     Cohort Orientation Attendance
                   </h3>
-                  <p className="text-xs text-[#5A6B8C] leading-relaxed mt-1.5">
-                    Attend the live cohort kickoff: program overview, schedule, clinical expectations and instructor introductions.
-                  </p>
+                  {attended || isCompleted ? (
+                    <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1">
+                      <Check className="w-3 h-3 stroke-[2.5]" /> Completed
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                      Required
+                    </span>
+                  )}
                 </div>
 
-                {/* Interactive Checkbox Acknowledgment */}
-                <label className="flex items-center gap-2.5 pt-3 border-t border-[#E1E7F1] cursor-pointer select-none group">
+                <p className="text-xs text-[#5A6B8C] leading-relaxed max-w-2xl">
+                  Live kickoff: program overview, schedule, clinical expectations and instructor introductions.
+                </p>
+
+                {/* Checkbox Acknowledgment */}
+                <label className="flex items-center gap-2 pt-1 cursor-pointer select-none group w-fit">
                   <input
                     type="checkbox"
                     checked={attended || isCompleted}
@@ -393,75 +343,64 @@ export const OrientationChecklistPage: React.FC = () => {
                   </span>
                 </label>
               </div>
+            </div>
 
-              {/* Action Button: View Recording */}
-              <div className="pt-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsVideoModalOpen(true)}
-                  className="w-full h-10 rounded-xl text-xs font-semibold text-[#0F1B34] bg-white border-[#E1E7F1] hover:bg-slate-50 shadow-2xs flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Play className="w-3.5 h-3.5 text-[#5A6B8C]" />
-                  View recording
-                </Button>
-              </div>
+            {/* Action Button: View Recording */}
+            <div className="shrink-0 self-start sm:self-center ml-12 sm:ml-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsVideoModalOpen(true)}
+                className="h-9 px-4 rounded-xl text-xs font-semibold text-[#0F1B34] bg-white border-[#E1E7F1] hover:bg-slate-50 shadow-2xs flex items-center gap-2 cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 text-[#5A6B8C]" />
+                View recording
+              </Button>
             </div>
           </div>
 
-          {/* ════════ Card 02: Platform Navigation & Attendance Tracking ════════ */}
-          <div className="rounded-2xl border border-[#E1E7F1] hover:border-slate-300 shadow-2xs flex flex-col justify-between overflow-hidden bg-white transition-all">
-            {/* Top Colored Header: Icon on Left, Section Number 02 on Right */}
-            <div className="bg-gradient-to-r from-[#0183C7] to-[#0284C7] p-5 h-22 flex items-center justify-between text-white relative overflow-hidden">
-              {/* Subtle background circle decoration per PDF */}
-              <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
-
-              {/* Left: Icon inside translucent badge */}
-              <div className="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center backdrop-blur-xs shadow-2xs z-10">
-                <MonitorCheck className="w-5 h-5 stroke-[2.2]" />
+          {/* ════════ Row 2: Platform Navigation & Attendance Tracking ════════ */}
+          <div className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-slate-50/50">
+            <div className="flex items-start gap-4 min-w-0">
+              {/* Step Status Indicator (Check or Number 2) */}
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold transition-all",
+                  tutorialDone || isCompleted
+                    ? "bg-[#10B981] text-white shadow-2xs"
+                    : "bg-blue-50 text-[#1D4ED8] border border-blue-200"
+                )}
+              >
+                {tutorialDone || isCompleted ? (
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                ) : (
+                  "2"
+                )}
               </div>
 
-              {/* Right: Section Number 02 */}
-              <span className="font-heading font-bold text-3xl text-white/95 tracking-tight z-10">
-                02
-              </span>
-            </div>
-
-            {/* Card Main Content */}
-            <div className="p-5 sm:p-6 flex flex-col justify-between flex-1 space-y-4">
-              <div className="space-y-3">
-                {/* Status Chip */}
-                <div>
-                  <span
-                    className={cn(
-                      "text-[11px] font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs",
-                      tutorialDone || isCompleted
-                        ? "bg-[#10B981] text-white"
-                        : "bg-[#3B82F6] text-white"
-                    )}
-                  >
-                    {tutorialDone || isCompleted ? (
-                      <>
-                        <Check className="w-3 h-3 stroke-[2.5]" /> Completed
-                      </>
-                    ) : (
-                      "Required · 10 min"
-                    )}
-                  </span>
-                </div>
-
-                {/* Title & Description */}
-                <div>
-                  <h3 className="text-base font-semibold font-heading text-[#0F1B34] leading-snug">
+              {/* Title, Badge, Description, Checkbox */}
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h3 className="text-sm sm:text-base font-semibold font-heading text-[#0F1B34]">
                     Platform Navigation &amp; Attendance Tracking
                   </h3>
-                  <p className="text-xs text-[#5A6B8C] leading-relaxed mt-1.5">
-                    Short guided tour of the LMS: lessons, quizzes, attendance check-ins, grades and messaging.
-                  </p>
+                  {tutorialDone || isCompleted ? (
+                    <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1">
+                      <Check className="w-3 h-3 stroke-[2.5]" /> Completed
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1D4ED8] border border-blue-200">
+                      Required · 10 min
+                    </span>
+                  )}
                 </div>
 
-                {/* Interactive Checkbox Acknowledgment */}
-                <label className="flex items-center gap-2.5 pt-3 border-t border-[#E1E7F1] cursor-pointer select-none group">
+                <p className="text-xs text-[#5A6B8C] leading-relaxed max-w-2xl">
+                  Guided tour of lessons, quizzes, attendance check-ins, grades and messaging.
+                </p>
+
+                {/* Checkbox Acknowledgment */}
+                <label className="flex items-center gap-2 pt-1 cursor-pointer select-none group w-fit">
                   <input
                     type="checkbox"
                     checked={tutorialDone || isCompleted}
@@ -474,77 +413,71 @@ export const OrientationChecklistPage: React.FC = () => {
                   </span>
                 </label>
               </div>
+            </div>
 
-              {/* Action Button: Start Tour */}
-              <div className="pt-1">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setTourStep(1);
-                    setIsTourModalOpen(true);
-                  }}
-                  className="w-full h-10 rounded-xl text-xs font-semibold bg-[#2B5E9C] hover:bg-[#204777] text-white shadow-2xs flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  {tutorialDone || isCompleted ? "Review tour" : "Start tour · 10 min"}
-                </Button>
-              </div>
+            {/* Action Button: Start Tour */}
+            <div className="shrink-0 self-start sm:self-center ml-12 sm:ml-0">
+              <Button
+                type="button"
+                onClick={() => {
+                  setTourStep(1);
+                  setIsTourModalOpen(true);
+                }}
+                className={cn(
+                  "h-9 px-4 rounded-xl text-xs font-semibold shadow-2xs flex items-center gap-2 cursor-pointer",
+                  tutorialDone || isCompleted
+                    ? "text-[#0F1B34] bg-white border border-[#E1E7F1] hover:bg-slate-50"
+                    : "bg-[#2B5E9C] hover:bg-[#204777] text-white"
+                )}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                {tutorialDone || isCompleted ? "Review tour" : "Start tour"}
+              </Button>
             </div>
           </div>
 
-          {/* ════════ Card 03: Healthcare Etiquette & Academic Integrity ════════ */}
-          <div className="rounded-2xl border border-[#E1E7F1] hover:border-slate-300 shadow-2xs flex flex-col justify-between overflow-hidden bg-white transition-all">
-            {/* Top Colored Header: Icon on Left, Section Number 03 on Right */}
-            <div className="bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] p-5 h-22 flex items-center justify-between text-white relative overflow-hidden">
-              {/* Subtle background circle decoration per PDF */}
-              <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
-
-              {/* Left: Icon inside translucent badge */}
-              <div className="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center backdrop-blur-xs shadow-2xs z-10">
-                <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+          {/* ════════ Row 3: Healthcare Etiquette & Academic Integrity ════════ */}
+          <div className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-slate-50/50">
+            <div className="flex items-start gap-4 min-w-0">
+              {/* Step Status Indicator (Check or Number 3) */}
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold transition-all",
+                  netiquetteSigned || isCompleted
+                    ? "bg-[#10B981] text-white shadow-2xs"
+                    : "bg-purple-50 text-[#6D28D9] border border-purple-200"
+                )}
+              >
+                {netiquetteSigned || isCompleted ? (
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                ) : (
+                  "3"
+                )}
               </div>
 
-              {/* Right: Section Number 03 */}
-              <span className="font-heading font-bold text-3xl text-white/95 tracking-tight z-10">
-                03
-              </span>
-            </div>
-
-            {/* Card Main Content */}
-            <div className="p-5 sm:p-6 flex flex-col justify-between flex-1 space-y-4">
-              <div className="space-y-3">
-                {/* Status Chip */}
-                <div>
-                  <span
-                    className={cn(
-                      "text-[11px] font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shadow-2xs",
-                      netiquetteSigned || isCompleted
-                        ? "bg-[#10B981] text-white"
-                        : "bg-[#8B5CF6] text-white"
-                    )}
-                  >
-                    {netiquetteSigned || isCompleted ? (
-                      <>
-                        <Check className="w-3 h-3 stroke-[2.5]" /> Completed
-                      </>
-                    ) : (
-                      "Required · 15 min"
-                    )}
-                  </span>
-                </div>
-
-                {/* Title & Description */}
-                <div>
-                  <h3 className="text-base font-semibold font-heading text-[#0F1B34] leading-snug">
+              {/* Title, Badge, Description, Checkbox */}
+              <div className="space-y-1.5 min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h3 className="text-sm sm:text-base font-semibold font-heading text-[#0F1B34]">
                     Healthcare Etiquette &amp; Academic Integrity
                   </h3>
-                  <p className="text-xs text-[#5A6B8C] leading-relaxed mt-1.5">
-                    Professional conduct, HIPAA basics, plagiarism policy and respectful online communication.
-                  </p>
+                  {netiquetteSigned || isCompleted ? (
+                    <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1">
+                      <Check className="w-3 h-3 stroke-[2.5]" /> Completed
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-purple-50 text-[#6D28D9] border border-purple-200">
+                      Required · 15 min
+                    </span>
+                  )}
                 </div>
 
-                {/* Interactive Checkbox Acknowledgment */}
-                <label className="flex items-center gap-2.5 pt-3 border-t border-[#E1E7F1] cursor-pointer select-none group">
+                <p className="text-xs text-[#5A6B8C] leading-relaxed max-w-2xl">
+                  Professional conduct, HIPAA basics, plagiarism policy and respectful online communication.
+                </p>
+
+                {/* Checkbox Acknowledgment */}
+                <label className="flex items-center gap-2 pt-1 cursor-pointer select-none group w-fit">
                   <input
                     type="checkbox"
                     checked={netiquetteSigned || isCompleted}
@@ -557,43 +490,46 @@ export const OrientationChecklistPage: React.FC = () => {
                   </span>
                 </label>
               </div>
+            </div>
 
-              {/* Action Button: Begin Module */}
-              <div className="pt-1">
-                <Button
-                  type="button"
-                  onClick={() => setIsNetiquetteModalOpen(true)}
-                  className="w-full h-10 rounded-xl text-xs font-semibold bg-[#2B5E9C] hover:bg-[#204777] text-white shadow-2xs flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  {netiquetteSigned || isCompleted ? "Review policy" : "Begin module · 15 min"}
-                </Button>
-              </div>
+            {/* Action Button: Begin Module */}
+            <div className="shrink-0 self-start sm:self-center ml-12 sm:ml-0">
+              <Button
+                type="button"
+                onClick={() => setIsNetiquetteModalOpen(true)}
+                className={cn(
+                  "h-9 px-4 rounded-xl text-xs font-semibold shadow-2xs flex items-center gap-2 cursor-pointer",
+                  netiquetteSigned || isCompleted
+                    ? "text-[#0F1B34] bg-white border border-[#E1E7F1] hover:bg-slate-50"
+                    : "bg-[#2B5E9C] hover:bg-[#204777] text-white"
+                )}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                {netiquetteSigned || isCompleted ? "Review policy" : "Begin module"}
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* ── Footer Notice / Statutory Disclaimer Banner (Exact PDF Page 9) ── */}
-        <div className="rounded-2xl p-5 bg-[#FEFAF3] border border-[#EA8A00]/30 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div className="w-8 h-8 rounded-xl bg-[#EA8A00] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+        {/* ── V2 Footer Notice Banner (Exact V2 Design) ── */}
+        <div className="bg-white rounded-2xl border border-[#E1E7F1] p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#2B5E9C] flex items-center justify-center shrink-0">
               <Info className="w-4 h-4" />
             </div>
-            <div>
-              <p className="text-xs text-[#0F1B34] font-medium leading-relaxed">
-                <span className="font-semibold text-[#0F1B34]">Non-credit prerequisite.</span> Orientation doesn't affect your grade, but lessons stay locked until all three items are acknowledged.
-              </p>
-              <p className="text-[11px] text-[#5A6B8C] mt-0.5">
-                Under WAC 246-841A-440(2), non-credit orientation must be completed before student clinical theory access.
-              </p>
-            </div>
+            <p className="text-xs text-[#0F1B34] leading-relaxed">
+              <span className="font-bold text-[#0F1B34]">Non-credit prerequisite.</span>{" "}
+              <span className="text-[#5A6B8C]">
+                Orientation doesn't affect your grade, but lessons stay locked until all three items are acknowledged.
+              </span>
+            </p>
           </div>
 
           <Link
             to={`/admissions?cohortId=${selectedCohortId}`}
-            className="inline-flex items-center text-xs font-semibold text-[#0183C7] hover:underline shrink-0 gap-1.5 ml-11 sm:ml-0"
+            className="text-xs font-semibold text-[#2B5E9C] hover:text-[#204777] hover:underline inline-flex items-center gap-1 shrink-0 ml-10 sm:ml-0"
           >
-            Admissions clearance <ArrowRight className="w-3.5 h-3.5" />
+            Learn more <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
