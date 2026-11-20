@@ -400,85 +400,87 @@ const PeerGradingDetail = () => {
 
   return (
     <StudentLayout>
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {/* Back + header */}
-        <div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/peer-grading")}
-            className="gap-2 text-slate-500 hover:text-slate-800 -ml-2 mb-3"
-          >
-            <ArrowLeft size={15} />
-            Back to courses
-          </Button>
-          <h1 className="text-2xl font-bold text-slate-900 font-heading tracking-tight">
-            {stateTitle ?? courseTitle ?? decodedTitle}
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Your submissions and instructor feedback for this course.
-          </p>
-        </div>
-
-        {/* Summary pills */}
-        {!isLoading && submissions.length > 0 && (
-          <div className="flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2 text-sm shadow-sm">
-              <span className="font-bold text-slate-800">
-                {submissions.length}
-              </span>
-              <span className="text-slate-500">Total submissions</span>
-            </div>
-            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-2 text-sm">
-              <CheckCircle2 size={13} className="text-emerald-600" />
-              <span className="font-bold text-emerald-700">{graded}</span>
-              <span className="text-emerald-600">Graded</span>
-            </div>
-            {pending > 0 && (
-              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-2 text-sm">
-                <Clock size={13} className="text-amber-600" />
-                <span className="font-bold text-amber-700">{pending}</span>
-                <span className="text-amber-600">Pending</span>
-              </div>
-            )}
-            {withFeedback > 0 && (
-              <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-sm">
-                <MessageSquareText size={13} className="text-blue-600" />
-                <span className="font-bold text-blue-700">{withFeedback}</span>
-                <span className="text-blue-600">With feedback</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Cards */}
-        {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-32 bg-white border border-slate-200 rounded-xl animate-pulse"
-              />
-            ))}
-            <div className="flex items-center justify-center gap-2 text-sm text-slate-400 py-2">
-              <Loader2 size={14} className="animate-spin" />
-              Loading submissions...
-            </div>
-          </div>
-        ) : submissions.length === 0 ? (
-          <div className="py-20 flex flex-col items-center justify-center gap-3">
-            <Inbox size={40} className="text-slate-200" />
-            <p className="text-sm font-semibold text-slate-400">
-              No submissions found for this course.
+      <div className="w-full min-h-screen bg-slate-50/50">
+        <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+          {/* Back Header */}
+          <div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/peer-grading")}
+              className="gap-2 text-slate-500 hover:text-slate-800 -ml-2 mb-2 h-8 text-xs font-semibold"
+            >
+              <ArrowLeft size={14} />
+              Back to peer reviews
+            </Button>
+            <h1 className="text-2xl font-bold text-slate-900 font-heading tracking-tight">
+              {stateTitle ?? courseTitle ?? decodedTitle}
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Your submissions and instructor feedback for this course.
             </p>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {submissions.map((sub, idx) => (
-              <SubmissionCard key={`${sub.exerciseId}-${idx}`} sub={sub} />
-            ))}
-          </div>
-        )}
+
+          {/* Summary pills */}
+          {!isLoading && submissions.length > 0 && (
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2 text-sm shadow-sm">
+                <span className="font-bold text-slate-800">
+                  {submissions.length}
+                </span>
+                <span className="text-slate-500">Total submissions</span>
+              </div>
+              <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-2 text-sm">
+                <CheckCircle2 size={13} className="text-emerald-600" />
+                <span className="font-bold text-emerald-700">{graded}</span>
+                <span className="text-emerald-600">Graded</span>
+              </div>
+              {pending > 0 && (
+                <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-2 text-sm">
+                  <Clock size={13} className="text-amber-600" />
+                  <span className="font-bold text-amber-700">{pending}</span>
+                  <span className="text-amber-600">Pending</span>
+                </div>
+              )}
+              {withFeedback > 0 && (
+                <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-sm">
+                  <MessageSquareText size={13} className="text-blue-600" />
+                  <span className="font-bold text-blue-700">{withFeedback}</span>
+                  <span className="text-blue-600">With feedback</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Cards */}
+          {isLoading ? (
+            <div className="space-y-3 max-w-4xl">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-32 bg-white border border-slate-200 rounded-xl animate-pulse"
+                />
+              ))}
+              <div className="flex items-center justify-center gap-2 text-sm text-slate-400 py-2">
+                <Loader2 size={14} className="animate-spin" />
+                Loading submissions...
+              </div>
+            </div>
+          ) : submissions.length === 0 ? (
+            <div className="py-20 flex flex-col items-center justify-center gap-3 bg-white border border-slate-200 rounded-xl shadow-xs max-w-4xl">
+              <Inbox size={40} className="text-slate-200" />
+              <p className="text-sm font-semibold text-slate-400">
+                No submissions found for this course.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4 max-w-4xl">
+              {submissions.map((sub, idx) => (
+                <SubmissionCard key={`${sub.exerciseId}-${idx}`} sub={sub} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </StudentLayout>
   );

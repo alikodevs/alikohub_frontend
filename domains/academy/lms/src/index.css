@@ -7,7 +7,7 @@
 :root {
   --font-montserrat: "Montserrat", sans-serif;
   --font-roboto: "Roboto", sans-serif;
-  --font-sans: var(--font-montserrat);
+  --font-sans: var(--font-roboto);
   --font-heading: var(--font-roboto);
 
   /* Brand Palette */
@@ -164,7 +164,7 @@
 
   --font-montserrat: "Montserrat", sans-serif;
   --font-roboto: "Roboto", sans-serif;
-  --font-sans: var(--font-montserrat);
+  --font-sans: var(--font-roboto);
   --font-heading: var(--font-roboto);
 }
 
@@ -174,8 +174,12 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-montserrat);
+    font-family: var(--font-roboto);
     font-weight: 400;
+  }
+
+  p {
+    font-family: var(--font-roboto);
   }
 
   h1,
